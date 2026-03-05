@@ -547,9 +547,16 @@ class RenderForm extends ScopedElementsMixin(DBPJobportalLitElement) {
 
     render() {
         const i18n = this._i18n;
+        const placeholder = html`
+            <div class="notification is-info">
+                Manage job offers activity placeholder: integration for creating and editing job
+                offers will be added here.
+            </div>
+        `;
 
         if (!this.isLoggedIn() && !this.isAuthPending()) {
             return html`
+                ${placeholder}
                 <div class="notification is-warning">
                     ${i18n.t('error-login-message')}
                     <a href="#" @click="${this._onLoginClicked}">${i18n.t('error-login-link')}</a>
@@ -558,7 +565,7 @@ class RenderForm extends ScopedElementsMixin(DBPJobportalLitElement) {
         }
 
         return html`
-            ${this.getFormHtml()}
+            ${placeholder} ${this.getFormHtml()}
         `;
     }
 
@@ -580,4 +587,4 @@ class RenderForm extends ScopedElementsMixin(DBPJobportalLitElement) {
     }
 }
 
-commonUtils.defineCustomElement('dbp-jobportal-render-form', RenderForm);
+commonUtils.defineCustomElement('dbp-jobportal-manage-job-offers', RenderForm);

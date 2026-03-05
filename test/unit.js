@@ -1,13 +1,13 @@
 import {assert} from 'chai';
 
-import '../src/dbp-jobportal-show-submissions';
+import '../src/dbp-jobportal-view-job-offers';
 import '../src/dbp-jobportal.js';
 
-suite('dbp-jobportal-show-submissions basics', () => {
+suite('dbp-jobportal-view-job-offers basics', () => {
     let node;
 
     suiteSetup(async () => {
-        node = document.createElement('dbp-jobportal-show-submissions');
+        node = document.createElement('dbp-jobportal-view-job-offers');
         document.body.appendChild(node);
         await node.updateComplete;
     });

@@ -7,14 +7,14 @@ export const getFormRenderUrl = (formUrlSlug, lang) => {
     const currentUrl = new URL(window.location.href);
     const origin = currentUrl.origin;
     const basePath = currentUrl.pathname.replace(/^(.*\/)[de][en]\/.*$/, '$1');
-    return `${origin}${basePath}${lang}/render-form/${formUrlSlug}`;
+    return `${origin}${basePath}${lang}/manage-job-offers/${formUrlSlug}`;
 };
 
 export const getFormShowSubmissionsUrl = (formId, lang) => {
     const currentUrl = new URL(window.location.href);
     const origin = currentUrl.origin;
     const basePath = currentUrl.pathname.replace(/^(.*\/)[de][en]\/.*$/, '$1');
-    return `${origin}${basePath}${lang}/show-submissions/${formId}`;
+    return `${origin}${basePath}${lang}/view-job-offers/${formId}`;
 };
 
 // Submission states

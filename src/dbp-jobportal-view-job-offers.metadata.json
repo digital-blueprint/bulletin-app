@@ -1,0 +1,18 @@
+{
+    "element": "dbp-jobportal-view-job-offers",
+    "module_src": "dbp-jobportal-view-job-offers.js",
+    "routing_name": "view-job-offers",
+    "name": {
+        "de": "Stellenangebote anzeigen",
+        "en": "View job offers"
+    },
+    "short_name": {
+        "de": "Stellenangebote anzeigen",
+        "en": "View job offers"
+    },
+    "description": {
+        "de": "Zeigt eine Liste aller verfügbaren Stellenangebote",
+        "en": "Shows a list of available job offers"
+    },
+    "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url"
+}

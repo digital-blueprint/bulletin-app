@@ -123,8 +123,8 @@ config.CSP = `default-src 'self' 'unsafe-inline' \
 
 let input = [
     'src/' + appName + '.js',
-    'src/dbp-jobportal-show-submissions.js',
-    'src/dbp-jobportal-render-form.js',
+    'src/dbp-jobportal-view-job-offers.js',
+    'src/dbp-jobportal-manage-job-offers.js',
     'src/modules/demoForm.js',
     'src/modules/accessibleExamsForm.js',
     'src/modules/ethicsCommissionForm.js',

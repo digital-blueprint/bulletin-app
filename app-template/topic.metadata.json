@@ -11,10 +11,10 @@
         "de": "Verwalten Sie Kursanmeldungen.",
         "en": "Manage course registrations."
     },
-    "routing_name": "show-submissions",
+    "routing_name": "view-job-offers",
     "activities": [
-        {"path": "/app/dbp-jobportal-show-submissions.metadata.json", "visible": true},
-        {"path": "/app/dbp-jobportal-render-form.metadata.json", "visible": true}
+        {"path": "/app/dbp-jobportal-view-job-offers.metadata.json", "visible": true},
+        {"path": "/app/dbp-jobportal-manage-job-offers.metadata.json", "visible": true}
     ],
     "attributes": []
 }

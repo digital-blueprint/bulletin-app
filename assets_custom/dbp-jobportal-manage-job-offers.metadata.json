@@ -1,0 +1,18 @@
+{
+    "element": "dbp-jobportal-manage-job-offers",
+    "module_src": "dbp-jobportal-manage-job-offers.js",
+    "routing_name": "manage-job-offers",
+    "name": {
+        "de": "Stellenangebote verwalten",
+        "en": "Manage job offers"
+    },
+    "short_name": {
+        "de": "Stellenangebote verwalten",
+        "en": "Manage job offers"
+    },
+    "description": {
+        "de": "Ermöglicht das Verwalten von Stellenangeboten",
+        "en": "Enables managing job offers"
+    },
+    "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url,nextcloud-auth-url,nextcloud-web-app-password-url,nextcloud-webdav-url,nextcloud-name,nextcloud-file-url"
+}

@@ -29,7 +29,7 @@ import {
     handleDeletionCancel,
 } from './utils.js';
 import {getSelectorFixCSS, getFileHandlingCss, getTagsCSS, getShowSubmissionCSS} from './styles.js';
-import metadata from './dbp-jobportal-show-submissions.metadata.json';
+import metadata from './dbp-jobportal-view-job-offers.metadata.json';
 import xss from 'xss';
 import DBPJobportalLitElement from './dbp-jobportal-lit-element.js';
 import {GrantPermissionDialog} from '@dbp-toolkit/grant-permission-dialog';
@@ -3540,6 +3540,10 @@ class ShowSubmissions extends ScopedElementsMixin(DBPJobportalLitElement) {
         // console.log(`this.submissions`, this.submissions);
 
         return html`
+            <div class="notification is-info">
+                View job offers activity placeholder: listing and browsing of job offers will be
+                available here.
+            </div>
             <div
                 class="notification is-warning ${classMap({
                     hidden: this.isLoggedIn() || this.isLoading(),
@@ -3852,4 +3856,4 @@ class ShowSubmissions extends ScopedElementsMixin(DBPJobportalLitElement) {
     }
 }
 
-commonUtils.defineCustomElement('dbp-jobportal-show-submissions', ShowSubmissions);
+commonUtils.defineCustomElement('dbp-jobportal-view-job-offers', ShowSubmissions);
