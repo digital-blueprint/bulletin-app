@@ -125,11 +125,6 @@ let input = [
     'src/' + appName + '.js',
     'src/dbp-jobportal-view-job-offers.js',
     'src/dbp-jobportal-manage-job-offers.js',
-    'src/modules/demoForm.js',
-    'src/modules/accessibleExamsForm.js',
-    'src/modules/ethicsCommissionForm.js',
-    'src/modules/accessibleCoursesForm.js',
-    'src/modules/mediaTransparencyForm.js',
 ];
 
 export default (async () => {
