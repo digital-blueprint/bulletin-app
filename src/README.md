@@ -1,6 +1,6 @@
 # Jobportal activities
 
-Here you can find the individual activities of the `jobportal` app. If you want to use the whole app look at [jobportal](https://github.com/digital-blueprint/jobportal-app).
+Here you can find the individual activities of the `jobportal` app. If you want to use the whole app, look at [jobportal](https://github.com/digital-blueprint/jobportal-app).
 
 ## Usage of an activity
 
@@ -8,15 +8,15 @@ You can use every activity alone. Take a look at our examples [here](https://git
 
 ## Activities
 
-### dbp-jobportal-show-submissions
+### dbp-jobportal-view-job-offers
 
-Note that you will need a Keycloak server along with a client id for the domain you are running this html on.
+Note that you will need a Keycloak server along with a client ID for the domain you are running this HTML on.
 
 #### Attributes
 
 - `lang` (optional, default: `de`): set to `de` or `en` for German or English
     - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point url): entry point url to access the api
+- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
     - example `entry-point-url="https://api-dev.tugraz.at"`
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`
@@ -27,17 +27,17 @@ Note that you will need a Keycloak server along with a client id for the domain 
 You use templates tags to inject slots into the activity.
 These templates will be converted to div containers when the page is loaded and will not show up before that.
 
-### dbp-jobportal-render-from
+### dbp-jobportal-manage-job-offers
 
-An activity, hidden by the application, that renders forms for the user to fill out.
+A hidden activity used by the application to manage job offer entries.
 
 #### Attributes
 
-- `routing-url`: identifier of the form to render
-    - example `routing-url="demo-form"`
+- `routing-url`: identifier used by the activity routing
+    - example `routing-url="manage-job-offers"`
 - `lang` (optional, default: `de`): set to `de` or `en` for German or English
     - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point url): entry point url to access the api
+- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
     - example `entry-point-url="https://api-dev.tugraz.at"`
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`
@@ -45,7 +45,7 @@ An activity, hidden by the application, that renders forms for the user to fill 
 
 ## Design Note
 
-To ensure a uniform and responsive design these activities should occupy 100% width of the window when the activities' width are under 768 px.
+To ensure a uniform and responsive design, these activities should occupy 100% width of the window when the activity width is under 768 px.
 
 ## Mandatory attributes
 
