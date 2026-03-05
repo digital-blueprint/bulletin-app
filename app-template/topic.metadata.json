@@ -1,15 +1,15 @@
 {
     "name": {
-        "de": "Elektronische Formulare",
-        "en": "Electronic Forms"
+        "de": "Jobportal",
+        "en": "Job Portal"
     },
     "short_name": {
-        "de": "Elektronische Formulare",
-        "en": "Electronic Forms"
+        "de": "Jobportal",
+        "en": "Job Portal"
     },
     "description": {
-        "de": "Verwalten Sie Kursanmeldungen.",
-        "en": "Manage course registrations."
+        "de": "Verwalten und betrachten Sie Stellenangebote.",
+        "en": "Manage and browse job offers."
     },
     "routing_name": "view-job-offers",
     "activities": [
