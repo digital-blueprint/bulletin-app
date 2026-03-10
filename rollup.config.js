@@ -270,7 +270,6 @@ export default (async () => {
                             dest: 'dist/' + (await getDistPath(pkg.name, '.')),
                         },
                         {src: customAssetsPath + '*.metadata.json', dest: 'dist'},
-                        {src: customAssetsPath + 'modules.json', dest: 'dist'},
                         {
                             src: customAssetsPath + 'site.webmanifest',
                             dest: 'dist',
@@ -306,7 +305,6 @@ export default (async () => {
                             dest: 'dist/' + (await getDistPath(pkg.name, '.')),
                         },
                         {src: 'src/*.metadata.json', dest: 'dist'},
-                        {src: 'assets/modules.json', dest: 'dist'},
                         {
                             src: 'assets/site.webmanifest',
                             dest: 'dist',
