@@ -37,11 +37,11 @@
         "nextcloudName": "cloud"
     },
     "development": {
-        "basePath": "/apps/jobportal/",
+        "basePath": "/apps/bulletin/",
         "entryPointURL": "https://api-dev.tugraz.at",
         "keyCloakBaseURL": "https://auth-dev.tugraz.at/auth",
         "keyCloakRealm": "tugraz-vpu",
-        "keyCloakClientId": "dbp-jobportal",
+        "keyCloakClientId": "dbp-bulletin",
         "matomoUrl": "https://analytics.tugraz.at/",
         "matomoSiteId": "131",
         "universityShortName": "dbp",
@@ -50,11 +50,11 @@
         "nextcloudName": "cloud"
     },
     "developmentCustom": {
-        "basePath": "/tugapps/jobportal/",
+        "basePath": "/tugapps/bulletin/",
         "entryPointURL": "https://api-dev.tugraz.at",
         "keyCloakBaseURL": "https://auth-dev.tugraz.at/auth",
         "keyCloakRealm": "tugraz-vpu",
-        "keyCloakClientId": "dbp-jobportal",
+        "keyCloakClientId": "dbp-bulletin",
         "matomoUrl": "https://analytics.tugraz.at/",
         "matomoSiteId": "131",
         "universityShortName": "TU Graz",
@@ -63,22 +63,22 @@
         "nextcloudName": "cloud"
     },
     "demo": {
-        "basePath": "/apps/jobportal/",
+        "basePath": "/apps/bulletin/",
         "entryPointURL": "https://api-demo.tugraz.at",
         "keyCloakBaseURL": "https://auth-demo.tugraz.at/auth",
         "keyCloakRealm": "tugraz-vpu",
-        "keyCloakClientId": "dbp-jobportal",
+        "keyCloakClientId": "dbp-bulletin",
         "matomoUrl": "https://analytics.tugraz.at/",
         "matomoSiteId": "131",
         "universityShortName": "dbp",
         "universityFullName": "Digital Blueprint"
     },
     "demoCustom": {
-        "basePath": "/tugapps/jobportal/",
+        "basePath": "/tugapps/bulletin/",
         "entryPointURL": "https://api-demo.tugraz.at",
         "keyCloakBaseURL": "https://auth-demo.tugraz.at/auth",
         "keyCloakRealm": "tugraz-vpu",
-        "keyCloakClientId": "dbp-jobportal",
+        "keyCloakClientId": "dbp-bulletin",
         "matomoUrl": "https://analytics.tugraz.at/",
         "matomoSiteId": "131",
         "universityShortName": "TU Graz",

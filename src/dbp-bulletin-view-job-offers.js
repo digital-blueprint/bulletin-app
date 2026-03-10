@@ -1,13 +1,13 @@
 import {css, html} from 'lit';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
-import DBPJobportalLitElement from './dbp-jobportal-lit-element.js';
+import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 
-class ManageJobOffers extends DBPJobportalLitElement {
+class ViewJobOffers extends DBPBulletinLitElement {
     render() {
         return html`
             <div class="notification is-info">
-                Manage job offers activity placeholder: functionality will be added here.
+                View job offers activity placeholder: functionality will be added here.
             </div>
         `;
     }
@@ -23,4 +23,4 @@ class ManageJobOffers extends DBPJobportalLitElement {
     }
 }
 
-commonUtils.defineCustomElement('dbp-jobportal-manage-job-offers', ManageJobOffers);
+commonUtils.defineCustomElement('dbp-bulletin-view-job-offers', ViewJobOffers);

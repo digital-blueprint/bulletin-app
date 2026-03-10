@@ -1,6 +1,6 @@
 {
-    "element": "dbp-jobportal-view-job-offers",
-    "module_src": "dbp-jobportal-view-job-offers.js",
+    "element": "dbp-bulletin-view-job-offers",
+    "module_src": "dbp-bulletin-view-job-offers.js",
     "routing_name": "view-job-offers",
     "name": {
         "de": "Stellenangebote anzeigen",

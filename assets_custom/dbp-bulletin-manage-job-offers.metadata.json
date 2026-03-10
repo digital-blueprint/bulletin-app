@@ -1,6 +1,6 @@
 {
-    "element": "dbp-jobportal-manage-job-offers",
-    "module_src": "dbp-jobportal-manage-job-offers.js",
+    "element": "dbp-bulletin-manage-job-offers",
+    "module_src": "dbp-bulletin-manage-job-offers.js",
     "routing_name": "manage-job-offers",
     "name": {
         "de": "Stellenangebote verwalten",

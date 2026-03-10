@@ -2,7 +2,7 @@ import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {createInstance} from './i18n';
 import {AuthMixin, LangMixin} from '@dbp-toolkit/common';
 
-export default class DBPJobportalLitElement extends LangMixin(
+export default class DBPBulletinLitElement extends LangMixin(
     AuthMixin(DBPLitElement),
     createInstance,
 ) {

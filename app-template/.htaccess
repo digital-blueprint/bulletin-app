@@ -1,5 +1,5 @@
 DirectoryIndex /index.html
-# DirectoryIndex /dist/dbp-jobportal-maintenance.html
+# DirectoryIndex /dist/dbp-bulletin-maintenance.html
 <FilesMatch "^(de|en|)$">
     FallbackResource /index.html
 </FilesMatch>

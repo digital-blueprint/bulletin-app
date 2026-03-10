@@ -10,4 +10,4 @@ default:
 
 # Variables
 
-zellijSession := "jobportal-app"
+zellijSession := "bulletin-app"

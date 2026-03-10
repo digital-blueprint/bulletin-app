@@ -6,16 +6,16 @@
         <meta name="theme-color" content="white" />
 
         <!-- Meta Data for Search Engines -->
-        <meta title="jobportal - Stellenangebote verwalten | My University" />
+        <meta title="bulletin - Stellenangebote verwalten | My University" />
         <meta name="description" content="Verwalten und betrachten Sie Stellenangebote." />
 
         <!-- Meta Data for open graph(facebook & co) -->
         <meta property="og:locale" content="de_DE" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="jobportal: Stellenangebote verwalten | My University" />
+        <meta property="og:title" content="bulletin: Stellenangebote verwalten | My University" />
         <meta property="og:description" content="Verwalten und betrachten Sie Stellenangebote." />
-        <meta property="og:url" content="https://jobportal.my-university.at/" />
-        <meta property="og:site_name" content="jobportal" />
+        <meta property="og:url" content="https://bulletin.my-university.at/" />
+        <meta property="og:site_name" content="bulletin" />
 
         <!-- Favicons -->
         <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico" />
@@ -30,21 +30,21 @@
 
         <!-- Loading spinner -->
         <script type="module">
-            import {Spinner} from '/app/local/@digital-blueprint/jobportal-app/spinner.js';
+            import {Spinner} from '/app/local/@digital-blueprint/bulletin-app/spinner.js';
             customElements.define('dbp-loading-spinner', Spinner);
         </script>
 
         <!-- App bundles-->
-        <script type="module" src="/app/dbp-jobportal.js"></script>
+        <script type="module" src="/app/dbp-bulletin.js"></script>
 
         <!-- Prevent Chrome/Edge from suggesting to translate the page -->
         <meta name="google" content="notranslate" />
 
         <!-- Font related CSS -->
         <style>
-            @import '/app/local/@digital-blueprint/jobportal-app/fonts/source-sans-pro/300.css';
-            @import '/app/local/@digital-blueprint/jobportal-app/fonts/source-sans-pro/400.css';
-            @import '/app/local/@digital-blueprint/jobportal-app/fonts/source-sans-pro/600.css';
+            @import '/app/local/@digital-blueprint/bulletin-app/fonts/source-sans-pro/300.css';
+            @import '/app/local/@digital-blueprint/bulletin-app/fonts/source-sans-pro/400.css';
+            @import '/app/local/@digital-blueprint/bulletin-app/fonts/source-sans-pro/600.css';
 
             body {
                 font-family: 'Source Sans Pro', 'Calibri', 'Arial', 'sans-serif';
@@ -108,7 +108,7 @@
     </head>
 
     <body>
-        <dbp-jobportal
+        <dbp-bulletin
             provider-root
             id="app"
             lang="de"
@@ -120,10 +120,10 @@
             themes='[{"class": "light-theme", "icon": "sun", "name": "Light Mode"},
             {"class": "dark-theme", "icon": "night", "name": "Dark Mode"}]'>
             <dbp-loading-spinner></dbp-loading-spinner>
-        </dbp-jobportal>
+        </dbp-bulletin>
 
         <template id="global-override">
-            <template id="dbp-jobportal">
+            <template id="dbp-bulletin">
                 <div slot="name">
                     DBP
                     <br />
@@ -136,7 +136,7 @@
         </template>
 
         <!-- Error handling for too old browsers -->
-        <script src="/app/local/@digital-blueprint/jobportal-app/browser-check.js" defer></script>
+        <script src="/app/local/@digital-blueprint/bulletin-app/browser-check.js" defer></script>
         <noscript>
             Diese Applikation benötigt Javascript / This application requires Javascript
         </noscript>

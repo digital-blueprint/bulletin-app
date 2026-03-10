@@ -85,5 +85,5 @@ jobs:
           access_token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
           id: "21238"
           ref: "main"
-          variables: '{"UPSTREAM_PROJECT_PATH":"dbp/jobportal/jobportal","UPSTREAM_COMMIT_BRANCH":"${{ github.ref_name }}","UPSTREAM_COMMIT_SHA":"${{ github.ref_name }}"}'
+          variables: '{"UPSTREAM_PROJECT_PATH":"dbp/bulletin/bulletin","UPSTREAM_COMMIT_BRANCH":"${{ github.ref_name }}","UPSTREAM_COMMIT_SHA":"${{ github.ref_name }}"}'
           verbose: true

@@ -1,9 +1,9 @@
 {
-    "name": "@digital-blueprint/jobportal-app",
-    "internalName": "dbp-jobportal",
+    "name": "@digital-blueprint/bulletin-app",
+    "internalName": "dbp-bulletin",
     "type": "module",
     "version": "0.1.0",
-    "main": "src/dbp-jobportal.js",
+    "main": "src/dbp-bulletin.js",
     "license": "LGPL-2.1-or-later",
     "private": false,
     "publishConfig": {

@@ -1,14 +1,14 @@
-# Jobportal activities
+# Bulletin activities
 
-Here you can find the individual activities of the `jobportal` app. If you want to use the whole app, look at [jobportal](https://github.com/digital-blueprint/jobportal-app).
+Here you can find the individual activities of the `bulletin` app. If you want to use the whole app, look at [bulletin](https://github.com/digital-blueprint/bulletin-app).
 
 ## Usage of an activity
 
-You can use every activity alone. Take a look at our examples [here](https://github.com/digital-blueprint/jobportal-app/tree/main/examples).
+You can use every activity alone. Take a look at our examples [here](https://github.com/digital-blueprint/bulletin-app/tree/main/examples).
 
 ## Activities
 
-### dbp-jobportal-view-job-offers
+### dbp-bulletin-view-job-offers
 
 Note that you will need a Keycloak server along with a client ID for the domain you are running this HTML on.
 
@@ -27,7 +27,7 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 You use templates tags to inject slots into the activity.
 These templates will be converted to div containers when the page is loaded and will not show up before that.
 
-### dbp-jobportal-manage-job-offers
+### dbp-bulletin-manage-job-offers
 
 A hidden activity used by the application to manage job offer entries.
 
@@ -53,5 +53,5 @@ If you are not using the `provider-root` attribute to "terminate" all provider a
 you need to manually add these attributes so that the topic will work properly:
 
 ```html
-<dbp-jobportal auth requested-login-status analytics-event entry-point-url></dbp-jobportal>
+<dbp-bulletin auth requested-login-status analytics-event entry-point-url></dbp-bulletin>
 ```

@@ -15,7 +15,7 @@ import {
 import {createRequire} from 'module';
 
 const require = createRequire(import.meta.url);
-let appName = 'dbp-jobportal';
+let appName = 'dbp-bulletin';
 const pkg = require('./package.json');
 const appEnv = typeof process.env.APP_ENV !== 'undefined' ? process.env.APP_ENV : 'local';
 const watch = process.env.ROLLUP_WATCH === 'true';
@@ -123,8 +123,8 @@ config.CSP = `default-src 'self' 'unsafe-inline' \
 
 let input = [
     'src/' + appName + '.js',
-    'src/dbp-jobportal-view-job-offers.js',
-    'src/dbp-jobportal-manage-job-offers.js',
+    'src/dbp-bulletin-view-job-offers.js',
+    'src/dbp-bulletin-manage-job-offers.js',
 ];
 
 export default (async () => {
