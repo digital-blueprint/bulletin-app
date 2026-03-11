@@ -2,8 +2,7 @@
 
 [GitHub Repository](https://github.com/digital-blueprint/bulletin-app) |
 [npmjs package](https://www.npmjs.com/package/@digital-blueprint/bulletin-app) |
-[Unpkg CDN](https://unpkg.com/browse/@digital-blueprint/bulletin-app/) |
-[Bulletin Bundle](https://github.com/digital-blueprint/relay-bulletin-bundle)
+[Unpkg CDN](https://unpkg.com/browse/@digital-blueprint/bulletin-app/)
 
 [![Build, Test and Publish](https://github.com/digital-blueprint/bulletin-app/actions/workflows/build-test-publish.yml/badge.svg)](https://github.com/digital-blueprint/bulletin-app/actions/workflows/build-test-publish.yml)
 
