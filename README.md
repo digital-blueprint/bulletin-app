@@ -7,7 +7,7 @@
 
 [![Build, Test and Publish](https://github.com/digital-blueprint/bulletin-app/actions/workflows/build-test-publish.yml/badge.svg)](https://github.com/digital-blueprint/bulletin-app/actions/workflows/build-test-publish.yml)
 
-Management of job offers created via external systems.
+Management of job offers.
 
 ## Prerequisites
 
