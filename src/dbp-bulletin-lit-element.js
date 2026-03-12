@@ -1,3 +1,4 @@
+import '@webcomponents/scoped-custom-element-registry';
 import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {createInstance} from './i18n';
 import {AuthMixin, LangMixin} from '@dbp-toolkit/common';
