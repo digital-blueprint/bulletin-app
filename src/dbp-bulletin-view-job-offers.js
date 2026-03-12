@@ -544,9 +544,11 @@ class ViewJobOffers extends DBPBulletinLitElement {
             ${commonStyles.getButtonCSS()}
             ${commonStyles.getNotificationCSS()}
 
-            /* Fix: getGeneralCSS sets background-size: 25% which is too large for the chevron */
+            /* Override: getGeneralCSS background-size of 25% is too large; also ensure enough
+               right padding so the chevron SVG never overlaps the selected option text */
             select:not(.select) {
-                background-size: 1em;
+                background-size: 1em !important;
+                padding-right: 2em !important;
                 width: 100%;
                 cursor: pointer;
             }
