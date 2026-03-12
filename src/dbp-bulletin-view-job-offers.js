@@ -1,14 +1,17 @@
 import {css, html} from 'lit';
+import {ref, createRef} from 'lit/directives/ref.js';
 import {repeat} from 'lit/directives/repeat.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
+import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
+import {Icon} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
-import './dbp-bulletin-job-offer-detail.js';
+import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 
-/** @type {Array<{identifier: number, title: string, jobType: string, areaOfInterest: string, publishedAt: string, deadline: string, startDate: string, weeklyHours: string, organization: string, description: string, requirements: string[]}>} */
+/** @type {Array<{identifier: string, title: string, jobType: string, areaOfInterest: string, publishedAt: string, deadline: string, startDate: string, weeklyHours: string, organization: string, description: string, requirements: string[]}>} */
 const MOCK_JOB_OFFERS = [
     {
-        identifier: 1,
+        identifier: 'a1b2c3d4-0001-4000-8000-000000000001',
         title: 'Universitätsassistent*in im Bereich Elektrotechnik (m/w/d)',
         jobType: 'Universitätsstelle',
         areaOfInterest: 'Elektronik',
@@ -24,7 +27,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 2,
+        identifier: 'a1b2c3d4-0002-4000-8000-000000000002',
         title: 'Werkstudent*in (m/w/d) als Projektunterstützung 6h pro Woche',
         jobType: 'Werkstudentenstelle',
         areaOfInterest: 'Architektur & Bauwesen',
@@ -40,7 +43,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 3,
+        identifier: 'a1b2c3d4-0003-4000-8000-000000000003',
         title: 'Assistant Marketing Research (m/w/d) 20h',
         jobType: 'Teilzeitstelle',
         areaOfInterest: 'Kommunikation & Marketing',
@@ -56,7 +59,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 4,
+        identifier: 'a1b2c3d4-0004-4000-8000-000000000004',
         title: 'Studentische Mitarbeiter*in: Planung Hochbau',
         jobType: 'Werkstudentenstelle',
         areaOfInterest: 'Architektur & Bauwesen',
@@ -72,7 +75,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 5,
+        identifier: 'a1b2c3d4-0005-4000-8000-000000000005',
         title: 'Student Support "Informationstechnologie" (m/w/d)',
         jobType: 'Werkstudentenstelle',
         areaOfInterest: 'Informatik',
@@ -91,7 +94,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 6,
+        identifier: 'a1b2c3d4-0006-4000-8000-000000000006',
         title: 'Praktikant*in / Werkstudent*in im Bereich Reporting',
         jobType: 'Praktikum',
         areaOfInterest: 'Fahrzeugsicherheit',
@@ -107,7 +110,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 7,
+        identifier: 'a1b2c3d4-0007-4000-8000-000000000007',
         title: 'Werkstudent*in R&D - Technical Design Tool (m/w/d)',
         jobType: 'Werkstudentenstelle',
         areaOfInterest: 'Architektur & Bauwesen',
@@ -123,7 +126,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 8,
+        identifier: 'a1b2c3d4-0008-4000-8000-000000000008',
         title: 'Marketing Mitarbeiter*in Schwerpunkt Digital Marketing & Social Media',
         jobType: 'Vollzeitstelle',
         areaOfInterest: 'Kommunikation & Marketing',
@@ -139,7 +142,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 9,
+        identifier: 'a1b2c3d4-0009-4000-8000-000000000009',
         title: 'Werkstudent:in im Bereich Produktdigitalisierung (teilzeit)',
         jobType: 'Werkstudentenstelle',
         areaOfInterest: 'Wärmetechnik',
@@ -155,7 +158,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 10,
+        identifier: 'a1b2c3d4-0010-4000-8000-000000000010',
         title: 'Universitätsassistent*in im Bereich Elektrotechnik (m/w/d)',
         jobType: 'Universitätsstelle',
         areaOfInterest: 'Elektronik',
@@ -171,7 +174,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 11,
+        identifier: 'a1b2c3d4-0011-4000-8000-000000000011',
         title: 'Werkstudent*in (m/w/d) als Projektunterstützung 6h pro Woche',
         jobType: 'Werkstudentenstelle',
         areaOfInterest: 'Architektur & Bauwesen',
@@ -187,7 +190,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 12,
+        identifier: 'a1b2c3d4-0012-4000-8000-000000000012',
         title: 'Software-Entwickler*in (m/w/d) Backend',
         jobType: 'Vollzeitstelle',
         areaOfInterest: 'Informatik',
@@ -204,7 +207,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 13,
+        identifier: 'a1b2c3d4-0013-4000-8000-000000000013',
         title: 'Forschungsassistent*in Maschinenbau (m/w/d)',
         jobType: 'Universitätsstelle',
         areaOfInterest: 'Maschinenbau',
@@ -220,7 +223,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 14,
+        identifier: 'a1b2c3d4-0014-4000-8000-000000000014',
         title: 'Praktikant*in Datenanalyse (m/w/d)',
         jobType: 'Praktikum',
         areaOfInterest: 'Informatik',
@@ -236,7 +239,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 15,
+        identifier: 'a1b2c3d4-0015-4000-8000-000000000015',
         title: 'Teamassistenz im Bereich Kommunikation (m/w/d)',
         jobType: 'Teilzeitstelle',
         areaOfInterest: 'Kommunikation & Marketing',
@@ -252,7 +255,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 16,
+        identifier: 'a1b2c3d4-0016-4000-8000-000000000016',
         title: 'Werkstudent*in Energie- und Umwelttechnik (m/w/d)',
         jobType: 'Werkstudentenstelle',
         areaOfInterest: 'Wärmetechnik',
@@ -268,7 +271,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 17,
+        identifier: 'a1b2c3d4-0017-4000-8000-000000000017',
         title: 'Junior Data Scientist (m/w/d)',
         jobType: 'Vollzeitstelle',
         areaOfInterest: 'Informatik',
@@ -285,7 +288,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 18,
+        identifier: 'a1b2c3d4-0018-4000-8000-000000000018',
         title: 'Konstrukteur*in Fahrzeugtechnik (m/w/d)',
         jobType: 'Vollzeitstelle',
         areaOfInterest: 'Fahrzeugsicherheit',
@@ -301,7 +304,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 19,
+        identifier: 'a1b2c3d4-0019-4000-8000-000000000019',
         title: 'Lehrassistenz Grundlagen Elektrotechnik',
         jobType: 'Universitätsstelle',
         areaOfInterest: 'Elektronik',
@@ -317,7 +320,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 20,
+        identifier: 'a1b2c3d4-0020-4000-8000-000000000020',
         title: 'Projektmanager*in Bauplanung (m/w/d)',
         jobType: 'Vollzeitstelle',
         areaOfInterest: 'Architektur & Bauwesen',
@@ -333,7 +336,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 21,
+        identifier: 'a1b2c3d4-0021-4000-8000-000000000021',
         title: 'Praktikant*in im Bereich Wärmetechnik',
         jobType: 'Praktikum',
         areaOfInterest: 'Wärmetechnik',
@@ -349,7 +352,7 @@ const MOCK_JOB_OFFERS = [
         ],
     },
     {
-        identifier: 22,
+        identifier: 'a1b2c3d4-0022-4000-8000-000000000022',
         title: 'Content Creator & Social Media Manager*in (m/w/d)',
         jobType: 'Teilzeitstelle',
         areaOfInterest: 'Kommunikation & Marketing',
@@ -373,7 +376,14 @@ const AREAS_OF_INTEREST = [...new Set(MOCK_JOB_OFFERS.map((j) => j.areaOfInteres
 const PAGE_SIZE_OPTIONS = [6, 12, 24];
 const DEFAULT_PAGE_SIZE = 12;
 
-class ViewJobOffers extends DBPBulletinLitElement {
+class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
+    static get scopedElements() {
+        return {
+            'dbp-icon': Icon,
+            'dbp-bulletin-job-offer-detail': JobOfferDetail,
+        };
+    }
+
     constructor() {
         super();
         this.searchQuery = '';
@@ -384,6 +394,8 @@ class ViewJobOffers extends DBPBulletinLitElement {
         this.pageSize = DEFAULT_PAGE_SIZE;
         /** @type {object|null} Currently selected job offer shown in the detail dialog */
         this._selectedJob = null;
+        /** @type {import('lit/directives/ref.js').Ref} Direct reference to the detail dialog element */
+        this._detailRef = createRef();
     }
 
     static get properties() {
@@ -413,22 +425,20 @@ class ViewJobOffers extends DBPBulletinLitElement {
 
     /**
      * Parses the current routing URL and opens or closes the detail dialog accordingly.
-     * Uses updateComplete to defer the dialog open until after Lit has finished rendering,
-     * which guarantees the dialog element is present in the shadow DOM.
      */
     handleRoutingUrlChange() {
         const {pathSegments} = this.getRoutingData();
 
         // Expected URL pattern: job/<identifier>
         if (pathSegments[0] === 'job' && pathSegments[1]) {
-            const identifier = Number(pathSegments[1]);
+            const identifier = pathSegments[1];
             const job = MOCK_JOB_OFFERS.find((j) => j.identifier === identifier) ?? null;
             if (job) {
                 this.openJobDialog(job);
             }
         } else {
             // Any other path — close the dialog if it is open
-            const detailEl = this.shadowRoot?.querySelector('dbp-bulletin-job-offer-detail');
+            const detailEl = /** @type {JobOfferDetail|undefined} */ (this._detailRef.value);
             if (detailEl) {
                 detailEl.close();
             }
@@ -437,8 +447,8 @@ class ViewJobOffers extends DBPBulletinLitElement {
 
     /**
      * Sets the selected job and opens the detail dialog.
-     * The dialog element is always present in the DOM, so the querySelector inside
-     * updateComplete.then() is guaranteed to succeed.
+     * The ref is always populated since the dialog element is always in the DOM.
+     * updateComplete ensures the job property has been received before open() is called.
      * @param {object} job
      */
     openJobDialog(job) {
@@ -446,7 +456,7 @@ class ViewJobOffers extends DBPBulletinLitElement {
         // Defer the open() call until after Lit has committed the current render,
         // so the detail component has received the updated job property.
         this.updateComplete.then(() => {
-            const detailEl = this.shadowRoot?.querySelector('dbp-bulletin-job-offer-detail');
+            const detailEl = /** @type {JobOfferDetail|undefined} */ (this._detailRef.value);
             if (detailEl) {
                 detailEl.open();
             }
@@ -571,19 +581,7 @@ class ViewJobOffers extends DBPBulletinLitElement {
                             @input="${this.onSearchInput}"
                             aria-label="${t('view-job-offers.search-placeholder')}" />
                         <span class="search-icon" aria-hidden="true">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
+                            <dbp-icon name="search"></dbp-icon>
                         </span>
                     </div>
                 </div>
@@ -691,25 +689,10 @@ class ViewJobOffers extends DBPBulletinLitElement {
                                                   aria-label="${t(
                                                       'view-job-offers.view-details',
                                                   )} – ${job.title}">
-                                                  <svg
+                                                  <dbp-icon
                                                       class="btn-icon"
-                                                      xmlns="http://www.w3.org/2000/svg"
-                                                      width="16"
-                                                      height="16"
-                                                      viewBox="0 0 24 24"
-                                                      fill="none"
-                                                      stroke="currentColor"
-                                                      stroke-width="2"
-                                                      stroke-linecap="round"
-                                                      stroke-linejoin="round"
-                                                      aria-hidden="true">
-                                                      <circle cx="11" cy="11" r="8"></circle>
-                                                      <line
-                                                          x1="21"
-                                                          y1="21"
-                                                          x2="16.65"
-                                                          y2="16.65"></line>
-                                                  </svg>
+                                                      name="magnifier"
+                                                      aria-hidden="true"></dbp-icon>
                                                   ${t('view-job-offers.view-details')}
                                               </button>
                                           </div>
@@ -786,6 +769,7 @@ class ViewJobOffers extends DBPBulletinLitElement {
 
                 <!-- Job detail dialog — always in the DOM; job property drives its content -->
                 <dbp-bulletin-job-offer-detail
+                    ${ref(this._detailRef)}
                     .job="${this._selectedJob}"
                     lang="${this.lang}"
                     @dbp-modal-closed="${this.onDialogClosed}"></dbp-bulletin-job-offer-detail>

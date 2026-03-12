@@ -1,11 +1,11 @@
 import {css, html} from 'lit';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {Modal} from '@dbp-toolkit/common';
+import {Modal, Icon} from '@dbp-toolkit/common';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 
-class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
+export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
         /** @type {object|null} The job offer to display */
@@ -23,6 +23,7 @@ class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
             'dbp-modal': Modal,
+            'dbp-icon': Icon,
         };
     }
 
@@ -154,33 +155,10 @@ class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               class="button is-secondary"
                                               type="button"
                                               @click="${this.onShare}">
-                                              <!-- Share icon -->
-                                              <svg
+                                              <dbp-icon
                                                   class="btn-icon"
-                                                  xmlns="http://www.w3.org/2000/svg"
-                                                  width="16"
-                                                  height="16"
-                                                  viewBox="0 0 24 24"
-                                                  fill="none"
-                                                  stroke="currentColor"
-                                                  stroke-width="2"
-                                                  stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  aria-hidden="true">
-                                                  <circle cx="18" cy="5" r="3"></circle>
-                                                  <circle cx="6" cy="12" r="3"></circle>
-                                                  <circle cx="18" cy="19" r="3"></circle>
-                                                  <line
-                                                      x1="8.59"
-                                                      y1="13.51"
-                                                      x2="15.42"
-                                                      y2="17.49"></line>
-                                                  <line
-                                                      x1="15.41"
-                                                      y1="6.51"
-                                                      x2="8.59"
-                                                      y2="10.49"></line>
-                                              </svg>
+                                                  name="share2"
+                                                  aria-hidden="true"></dbp-icon>
                                               ${t('job-offer-detail.share')}
                                           </button>
                                           <button
@@ -193,21 +171,10 @@ class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       form.scrollIntoView({behavior: 'smooth'});
                                                   }
                                               }}">
-                                              <!-- Checkmark icon -->
-                                              <svg
+                                              <dbp-icon
                                                   class="btn-icon"
-                                                  xmlns="http://www.w3.org/2000/svg"
-                                                  width="16"
-                                                  height="16"
-                                                  viewBox="0 0 24 24"
-                                                  fill="none"
-                                                  stroke="currentColor"
-                                                  stroke-width="2"
-                                                  stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  aria-hidden="true">
-                                                  <polyline points="20 6 9 17 4 12"></polyline>
-                                              </svg>
+                                                  name="checkmark"
+                                                  aria-hidden="true"></dbp-icon>
                                               ${t('job-offer-detail.apply')}
                                           </button>
                                       </div>
