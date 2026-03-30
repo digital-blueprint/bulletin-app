@@ -4,6 +4,9 @@ import {DbpStringElement, DbpDateElement, DbpEnumElement} from '@dbp-toolkit/for
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
 import {Button, Icon, sendNotification} from '@dbp-toolkit/common';
 import {apiCreateForm} from '../../vendor/formalize/src/manage-forms-api.js';
+import {createInstance} from '../i18n.js';
+
+const i18n = createInstance();
 
 export default class extends BaseObject {
     getUrlSlug() {
@@ -24,6 +27,11 @@ export default class extends BaseObject {
 
     getFormFrontendKey() {
         return 'job-offer';
+    }
+
+    getFormName(lang = i18n.language) {
+        i18n.changeLanguage(lang);
+        return i18n.t('manage-job-offers.form-type-name');
     }
 
     /**

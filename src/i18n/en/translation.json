@@ -63,6 +63,7 @@
         "field-salary": "Salary per month",
         "field-start-date": "Job start date",
         "field-weekly-hours": "Employment level per week",
+        "form-type-name": "Job offer",
         "preview-btn-aria": "Preview job offer: {{title}}",
         "preview-btn-title": "Preview",
         "section-mandatory": "Mandatory Data",

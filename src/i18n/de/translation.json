@@ -63,6 +63,7 @@
         "field-salary": "Gehalt pro Monat",
         "field-start-date": "Startzeitpunkt des Jobs",
         "field-weekly-hours": "Anstellungsausmaß pro Woche",
+        "form-type-name": "Jobangebot",
         "preview-btn-aria": "Jobangebot ansehen: {{title}}",
         "preview-btn-title": "Vorschau",
         "section-mandatory": "Mandatory Data",
