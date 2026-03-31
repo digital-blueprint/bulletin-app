@@ -1,4 +1,17 @@
 {
+    "create-job-offer": {
+        "error-title": "Fehler",
+        "field-description": "Jobbeschreibung",
+        "field-headline-1": "Überschrift 1",
+        "field-headline-2": "Überschrift 2",
+        "field-headline-3": "Überschrift 3",
+        "field-headline-4": "Überschrift 4",
+        "field-headline-5": "Überschrift 5",
+        "field-title": "Jobtitel",
+        "section-english": "Englisch (optional)",
+        "section-german": "Deutsch (Pflichtfelder)",
+        "validation-german-required": "Alle deutschen Felder sind Pflichtfelder."
+    },
     "job-offer-detail": {
         "application-title": "Bewerbung",
         "apply": "Bewerben",

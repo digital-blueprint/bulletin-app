@@ -1,4 +1,17 @@
 {
+    "create-job-offer": {
+        "error-title": "Error",
+        "field-description": "Job description",
+        "field-headline-1": "Headline 1",
+        "field-headline-2": "Headline 2",
+        "field-headline-3": "Headline 3",
+        "field-headline-4": "Headline 4",
+        "field-headline-5": "Headline 5",
+        "field-title": "Job title",
+        "section-english": "English (optional)",
+        "section-german": "German (mandatory)",
+        "validation-german-required": "All German fields are required."
+    },
     "job-offer-detail": {
         "application-title": "Application",
         "apply": "Apply",

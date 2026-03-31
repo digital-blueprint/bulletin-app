@@ -2,7 +2,15 @@ import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-
 import {css, html} from 'lit';
 import {DbpStringElement, DbpDateElement, DbpEnumElement} from '@dbp-toolkit/form-elements';
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
-import {Button, Icon, sendNotification} from '@dbp-toolkit/common';
+import {
+    ScopedElementsMixin,
+    Button,
+    Icon,
+    MiniSpinner,
+    sendNotification,
+} from '@dbp-toolkit/common';
+import * as commonStyles from '@dbp-toolkit/common/styles';
+import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {apiCreateForm} from '../../vendor/formalize/src/manage-forms-api.js';
 import {createInstance} from '../i18n.js';
 
@@ -20,6 +28,16 @@ export default class extends BaseObject {
         return JobOfferFormElement;
     }
 
+    /**
+     * Returns the web component class used for creating a new job-offer form.
+     * This component renders the creation form and handles the API call internally.
+     *
+     * @returns {typeof JobOfferCreateFormElement}
+     */
+    getCreateFormComponent() {
+        return JobOfferCreateFormElement;
+    }
+
     getFormIdentifier() {
         // This UUID identifies the form in the API; the frontendKey 'job-offer' is used for filtering via allow-list-frontend-keys
         return '7432af11-6f1c-45ee-8aa3-e90b3395e29c';
@@ -33,33 +51,333 @@ export default class extends BaseObject {
         i18n.changeLanguage(lang);
         return i18n.t('manage-job-offers.form-type-name');
     }
+}
+
+/**
+ * Web component for creating a new job-offer form.
+ *
+ * Renders form fields for Title, Description, and Headline 1-5 in both German
+ * (mandatory) and English (optional). Handles the API call to create the form
+ * via apiCreateForm and dispatches a `dbp-create-form-created` event on success.
+ */
+class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
+    static get scopedElements() {
+        return {
+            'dbp-string-element': DbpStringElement,
+            'dbp-icon': Icon,
+            'dbp-mini-spinner': MiniSpinner,
+        };
+    }
+
+    constructor() {
+        super();
+        this._i18n = createInstance();
+        this.lang = this._i18n.language;
+        this.auth = {};
+        this.entryPointUrl = '';
+
+        // German fields (mandatory)
+        this._titleDe = '';
+        this._descriptionDe = '';
+        this._headline1De = '';
+        this._headline2De = '';
+        this._headline3De = '';
+        this._headline4De = '';
+        this._headline5De = '';
+
+        // English fields (optional)
+        this._titleEn = '';
+        this._descriptionEn = '';
+        this._headline1En = '';
+        this._headline2En = '';
+        this._headline3En = '';
+        this._headline4En = '';
+        this._headline5En = '';
+
+        this._isSubmitting = false;
+    }
+
+    static get properties() {
+        return {
+            ...super.properties,
+            lang: {type: String},
+            auth: {type: Object},
+            entryPointUrl: {type: String, attribute: 'entry-point-url'},
+            _titleDe: {state: true},
+            _descriptionDe: {state: true},
+            _headline1De: {state: true},
+            _headline2De: {state: true},
+            _headline3De: {state: true},
+            _headline4De: {state: true},
+            _headline5De: {state: true},
+            _titleEn: {state: true},
+            _descriptionEn: {state: true},
+            _headline1En: {state: true},
+            _headline2En: {state: true},
+            _headline3En: {state: true},
+            _headline4En: {state: true},
+            _headline5En: {state: true},
+            _isSubmitting: {state: true},
+        };
+    }
+
+    update(changedProperties) {
+        changedProperties.forEach((oldValue, propName) => {
+            if (propName === 'lang') {
+                this._i18n.changeLanguage(this.lang);
+            }
+        });
+        super.update(changedProperties);
+    }
 
     /**
-     * Creates a new job-offer form via POST /formalize/forms.
-     *
-     * @param {object} host - A component instance with auth.token, entryPointUrl, and _i18n.
-     * @param {object} options
-     * @param {string} options.name - Default form name.
-     * @param {string} options.nameEn - English localized name.
-     * @param {string} options.nameDe - German localized name.
-     * @param {string} [options.description] - Optional form description.
-     * @returns {Promise<object|null>} The created form object, or null on failure.
+     * Returns true when all mandatory German fields are filled.
+     * @returns {boolean}
      */
-    async createForm(host, {name, nameEn, nameDe, description}) {
+    get _isFormValid() {
+        return this._titleDe.trim() !== '' && this._descriptionDe.trim() !== '';
+    }
+
+    /** Resets all form fields to empty defaults. */
+    resetForm() {
+        this._titleDe = '';
+        this._descriptionDe = '';
+        this._headline1De = '';
+        this._headline2De = '';
+        this._headline3De = '';
+        this._headline4De = '';
+        this._headline5De = '';
+        this._titleEn = '';
+        this._descriptionEn = '';
+        this._headline1En = '';
+        this._headline2En = '';
+        this._headline3En = '';
+        this._headline4En = '';
+        this._headline5En = '';
+        this._isSubmitting = false;
+    }
+
+    /**
+     * Builds the form payload and calls apiCreateForm.
+     * On success dispatches `dbp-create-form-created`, on failure shows error notification.
+     */
+    async submit() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+
+        if (!this._isFormValid) {
+            sendNotification({
+                summary: t('create-job-offer.error-title'),
+                body: t('create-job-offer.validation-german-required'),
+                type: 'warning',
+                timeout: 5,
+                targetNotificationId: 'create-form-dialog-notification',
+            });
+            return null;
+        }
+
+        this._isSubmitting = true;
+
+        // Use the German title as the default form name
+        const name = this._titleDe.trim();
+
+        const additionalData = {
+            titleDe: this._titleDe.trim(),
+            descriptionDe: this._descriptionDe.trim(),
+            headline1De: this._headline1De.trim(),
+            headline2De: this._headline2De.trim(),
+            headline3De: this._headline3De.trim(),
+            headline4De: this._headline4De.trim(),
+            headline5De: this._headline5De.trim(),
+            titleEn: this._titleEn.trim(),
+            descriptionEn: this._descriptionEn.trim(),
+            headline1En: this._headline1En.trim(),
+            headline2En: this._headline2En.trim(),
+            headline3En: this._headline3En.trim(),
+            headline4En: this._headline4En.trim(),
+            headline5En: this._headline5En.trim(),
+        };
+
         const formData = {
             name,
             localizedNames: [
-                {languageTag: 'en', name: nameEn},
-                {languageTag: 'de', name: nameDe},
+                {languageTag: 'de', name: this._titleDe.trim()},
+                {languageTag: 'en', name: this._titleEn.trim() || this._titleDe.trim()},
             ],
             frontendKey: 'job-offer',
+            additionalData,
         };
 
-        if (description) {
-            formData.additionalData = {description};
+        // Build a minimal host object that apiCreateForm expects
+        const host = {
+            auth: this.auth,
+            entryPointUrl: this.entryPointUrl,
+            _i18n: this._i18n,
+        };
+
+        try {
+            const result = await apiCreateForm(host, formData);
+
+            if (result) {
+                this.dispatchEvent(
+                    new CustomEvent('dbp-create-form-created', {
+                        detail: {form: result},
+                        bubbles: true,
+                        composed: true,
+                    }),
+                );
+                return result;
+            }
+        } catch (error) {
+            console.error('Error creating job offer form:', error);
+            sendNotification({
+                summary: t('create-job-offer.error-title'),
+                body: error.message,
+                type: 'danger',
+                timeout: 0,
+                targetNotificationId: 'create-form-dialog-notification',
+            });
+        } finally {
+            this._isSubmitting = false;
         }
 
-        return apiCreateForm(host, formData);
+        return null;
+    }
+
+    render() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+
+        return html`
+            <!-- German fields (mandatory) -->
+            <h4 class="section-heading">${t('create-job-offer.section-german')}</h4>
+
+            <dbp-string-element
+                name="title-de"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-title')}"
+                .value="${this._titleDe}"
+                required
+                @change="${(e) => (this._titleDe = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="description-de"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-description')}"
+                .value="${this._descriptionDe}"
+                rows="4"
+                required
+                @change="${(e) => (this._descriptionDe = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-1-de"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-1')}"
+                .value="${this._headline1De}"
+                @change="${(e) => (this._headline1De = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-2-de"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-2')}"
+                .value="${this._headline2De}"
+                @change="${(e) => (this._headline2De = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-3-de"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-3')}"
+                .value="${this._headline3De}"
+                @change="${(e) => (this._headline3De = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-4-de"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-4')}"
+                .value="${this._headline4De}"
+                @change="${(e) => (this._headline4De = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-5-de"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-5')}"
+                .value="${this._headline5De}"
+                @change="${(e) => (this._headline5De = e.detail.value)}"></dbp-string-element>
+
+            <!-- English fields (optional) -->
+            <h4 class="section-heading">${t('create-job-offer.section-english')}</h4>
+
+            <dbp-string-element
+                name="title-en"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-title')}"
+                .value="${this._titleEn}"
+                @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="description-en"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-description')}"
+                .value="${this._descriptionEn}"
+                rows="4"
+                @change="${(e) => (this._descriptionEn = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-1-en"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-1')}"
+                .value="${this._headline1En}"
+                @change="${(e) => (this._headline1En = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-2-en"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-2')}"
+                .value="${this._headline2En}"
+                @change="${(e) => (this._headline2En = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-3-en"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-3')}"
+                .value="${this._headline3En}"
+                @change="${(e) => (this._headline3En = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-4-en"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-4')}"
+                .value="${this._headline4En}"
+                @change="${(e) => (this._headline4En = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="headline-5-en"
+                lang="${this.lang}"
+                label="${t('create-job-offer.field-headline-5')}"
+                .value="${this._headline5En}"
+                @change="${(e) => (this._headline5En = e.detail.value)}"></dbp-string-element>
+        `;
+    }
+
+    static get styles() {
+        return css`
+            ${commonStyles.getThemeCSS()}
+            ${commonStyles.getGeneralCSS()}
+
+            :host {
+                display: block;
+            }
+
+            .section-heading {
+                font-size: 1rem;
+                font-weight: 700;
+                margin: 1.25rem 0 0.75rem;
+            }
+
+            /* Vertical spacing between form elements */
+            dbp-string-element {
+                display: block;
+                margin-bottom: 0.75rem;
+            }
+        `;
     }
 }
 
