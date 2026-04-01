@@ -43,10 +43,6 @@ export default class extends BaseObject {
         return '7432af11-6f1c-45ee-8aa3-e90b3395e29c';
     }
 
-    getFormFrontendKey() {
-        return 'job-offer';
-    }
-
     getFormName(lang = i18n.language) {
         i18n.changeLanguage(lang);
         return i18n.t('manage-job-offers.form-type-name');
