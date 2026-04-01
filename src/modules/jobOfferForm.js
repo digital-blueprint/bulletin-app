@@ -194,6 +194,44 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             headline5En: this._headline5En.trim(),
         };
 
+        // JSON Schema for validating job application submissions
+        const dataFeedSchema = JSON.stringify({
+            title: 'JobApplication',
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+                givenName: {
+                    type: 'string',
+                    minLength: 1,
+                    description: "Applicant's given (first) name.",
+                },
+                familyName: {
+                    type: 'string',
+                    minLength: 1,
+                    description: "Applicant's family (last) name.",
+                },
+                email: {
+                    type: 'string',
+                    minLength: 1,
+                    format: 'email',
+                    description: "Applicant's email address.",
+                },
+                title: {
+                    type: 'string',
+                    description: "Applicant's title.",
+                },
+                personIdentifier: {
+                    type: 'string',
+                    description: 'The UID of the person',
+                },
+                freeText: {
+                    type: 'string',
+                    description: 'Free-text message or cover letter.',
+                },
+            },
+            required: ['givenName', 'familyName', 'personIdentifier', 'email'],
+        });
+
         const formData = {
             name,
             localizedNames: [
@@ -201,7 +239,10 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
                 {languageTag: 'en', name: this._titleEn.trim() || this._titleDe.trim()},
             ],
             frontendKey: new JobOfferModule().getFormFrontendKey(),
-            additionalData,
+            additionalData: {
+                ...additionalData,
+                dataFeedSchema,
+            },
         };
 
         // Build a minimal host object that apiCreateForm expects
