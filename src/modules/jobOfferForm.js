@@ -16,7 +16,7 @@ import {createInstance} from '../i18n.js';
 
 const i18n = createInstance();
 
-export default class extends BaseObject {
+class JobOfferModule extends BaseObject {
     getUrlSlug() {
         return 'job-offer';
     }
@@ -38,9 +38,8 @@ export default class extends BaseObject {
         return JobOfferCreateFormElement;
     }
 
-    getFormIdentifier() {
-        // This UUID identifies the form in the API; the frontendKey 'job-offer' is used for filtering via allow-list-frontend-keys
-        return '7432af11-6f1c-45ee-8aa3-e90b3395e29c';
+    getFormFrontendKey() {
+        return 'job-offer';
     }
 
     getFormName(lang = i18n.language) {
@@ -48,6 +47,8 @@ export default class extends BaseObject {
         return i18n.t('manage-job-offers.form-type-name');
     }
 }
+
+export default JobOfferModule;
 
 /**
  * Web component for creating a new job-offer form.
@@ -199,7 +200,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
                 {languageTag: 'de', name: this._titleDe.trim()},
                 {languageTag: 'en', name: this._titleEn.trim() || this._titleDe.trim()},
             ],
-            frontendKey: 'job-offer',
+            frontendKey: new JobOfferModule().getFormFrontendKey(),
             additionalData,
         };
 
