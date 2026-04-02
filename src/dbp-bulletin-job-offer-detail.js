@@ -342,7 +342,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   </dl>
 
                                   <div class="meta-actions">
-                                      <span class="job-tag">${job.areaOfInterest}</span>
+                                      ${job.areaOfInterest
+                                          ? html`
+                                                <span class="job-tag">${job.areaOfInterest}</span>
+                                            `
+                                          : ''}
                                       <div class="action-buttons">
                                           <div class="share-button-container">
                                               <button

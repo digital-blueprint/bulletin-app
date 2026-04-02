@@ -457,7 +457,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       <div class="job-card">
                                           <div class="job-card-body">
                                               <h3 class="job-title">${job.title}</h3>
-                                              <span class="job-tag">${job.areaOfInterest}</span>
+                                              ${job.areaOfInterest
+                                                  ? html`
+                                                        <span class="job-tag">
+                                                            ${job.areaOfInterest}
+                                                        </span>
+                                                    `
+                                                  : ''}
                                               <p class="job-deadline">
                                                   ${t('view-job-offers.deadline')}:
                                                   ${this.formatDate(job.deadline)}
