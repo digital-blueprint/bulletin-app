@@ -11,7 +11,7 @@
         "en": "Manage job offers"
     },
     "description": {
-        "de": "Ermöglicht das Verwalten von Stellenangeboten",
+        "de": "ErmÃ¶glicht das Verwalten von Stellenangeboten",
         "en": "Enables managing job offers"
     },
     "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url,allow-list-frontend-keys"
