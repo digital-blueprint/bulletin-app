@@ -121,6 +121,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             // Map each form entry to a JobOffer shape that the rest of the UI expects.
             // The job details are stored in the form's additionalData field at creation time.
+            // English translations (titleEn, descriptionEn, organizationEn, requirementsEn) are
+            // optional and only present when the form creator entered them.
             this._jobOffers = members
                 .map((form) => {
                     const extra = form.additionalData ?? {};
@@ -141,6 +143,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         requirements: Array.isArray(extra.requirements) ? extra.requirements : [],
                         linkName: extra.linkName ?? '',
                         linkUrl: extra.linkUrl ?? '',
+                        // Optional English translations
+                        titleEn: extra.titleEn ?? '',
+                        descriptionEn: extra.descriptionEn ?? '',
+                        organizationEn: extra.organizationEn ?? '',
+                        requirementsEn: Array.isArray(extra.requirementsEn)
+                            ? extra.requirementsEn
+                            : [],
                     };
                 })
                 // Only show offers with a future or missing deadline

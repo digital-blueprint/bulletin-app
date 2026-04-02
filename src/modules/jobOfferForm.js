@@ -115,6 +115,13 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         /** @type {string} Newline-separated list of requirements entered by the user */
         this._requirementsText = '';
 
+        // Optional English translations of text fields
+        this._titleEn = '';
+        this._descriptionEn = '';
+        this._organizationEn = '';
+        /** @type {string} Newline-separated list of requirements in English entered by the user */
+        this._requirementsTextEn = '';
+
         this._isSubmitting = false;
     }
 
@@ -137,6 +144,10 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             _linkName: {state: true},
             _linkUrl: {state: true},
             _requirementsText: {state: true},
+            _titleEn: {state: true},
+            _descriptionEn: {state: true},
+            _organizationEn: {state: true},
+            _requirementsTextEn: {state: true},
             _isSubmitting: {state: true},
         };
     }
@@ -179,6 +190,10 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._linkName = '';
         this._linkUrl = '';
         this._requirementsText = '';
+        this._titleEn = '';
+        this._descriptionEn = '';
+        this._organizationEn = '';
+        this._requirementsTextEn = '';
         this._isSubmitting = false;
     }
 
@@ -188,6 +203,17 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
      */
     _parseRequirements() {
         return this._requirementsText
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean);
+    }
+
+    /**
+     * Splits the English requirements text area into a trimmed array of non-empty lines.
+     * @returns {string[]}
+     */
+    _parseRequirementsEn() {
+        return this._requirementsTextEn
             .split('\n')
             .map((line) => line.trim())
             .filter(Boolean);
@@ -252,7 +278,8 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         });
 
         // All job detail fields are stored in the form's additionalData JSON field
-        // so the public view can read them back via GET /formalize/forms
+        // so the public view can read them back via GET /formalize/forms.
+        // English fields are optional; only stored when non-empty.
         const additionalData = {
             title: this._title.trim(),
             description: this._description.trim(),
@@ -267,13 +294,19 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             linkName: this._linkName.trim(),
             linkUrl: this._linkUrl.trim(),
             requirements: this._parseRequirements(),
+            titleEn: this._titleEn.trim(),
+            descriptionEn: this._descriptionEn.trim(),
+            organizationEn: this._organizationEn.trim(),
+            requirementsEn: this._parseRequirementsEn(),
         };
 
+        // Use the English title for the 'en' localizedName when provided, otherwise fall back to the primary title
+        const titleEn = this._titleEn.trim() || this._title.trim();
         const formData = {
             name: this._title.trim(),
             localizedNames: [
                 {languageTag: 'de', name: this._title.trim()},
-                {languageTag: 'en', name: this._title.trim()},
+                {languageTag: 'en', name: titleEn},
             ],
             frontendKey: new JobOfferModule().getFormFrontendKey(),
             additionalData,
@@ -428,6 +461,40 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
                 placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
                 .value="${this._linkUrl}"
                 @change="${(e) => (this._linkUrl = e.detail.value)}"></dbp-string-element>
+
+            <!-- English texts (optional) -->
+            <h4 class="section-heading">${t('manage-job-offers.section-english')}</h4>
+
+            <dbp-string-element
+                name="title-en"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-job-title-en')}"
+                .value="${this._titleEn}"
+                @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="description-en"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-description-en')}"
+                .value="${this._descriptionEn}"
+                rows="5"
+                @change="${(e) => (this._descriptionEn = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="organization-en"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-organization-en')}"
+                .value="${this._organizationEn}"
+                @change="${(e) => (this._organizationEn = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="requirements-en"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-requirements-en')}"
+                .value="${this._requirementsTextEn}"
+                rows="4"
+                @change="${(e) =>
+                    (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
         `;
     }
 

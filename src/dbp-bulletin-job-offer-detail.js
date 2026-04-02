@@ -66,6 +66,45 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
+     * Returns the English value when the current language is English and the English text is
+     * non-empty; otherwise returns the primary (default-language) value.
+     * @param {string} primary - The primary language value.
+     * @param {string} en - The English language value (may be empty string).
+     * @returns {string}
+     */
+    _localized(primary, en) {
+        return this.lang === 'en' && en ? en : primary;
+    }
+
+    /**
+     * Renders the requirements list, preferring the English list when the current language is
+     * English and the English list is non-empty.
+     * @param {object} job
+     * @param {Function} t
+     * @returns {import('lit').TemplateResult|string}
+     */
+    _renderRequirements(job, t) {
+        const enReqs = Array.isArray(job.requirementsEn) ? job.requirementsEn : [];
+        const primaryReqs = Array.isArray(job.requirements) ? job.requirements : [];
+        const reqs = this.lang === 'en' && enReqs.length > 0 ? enReqs : primaryReqs;
+
+        if (reqs.length === 0) {
+            return '';
+        }
+
+        return html`
+            <h4 class="requirements-heading">${t('job-offer-detail.requirements')}</h4>
+            <ul class="requirements-list">
+                ${reqs.map(
+                    (req) => html`
+                        <li>${req}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
+    /**
      * Formats an ISO date string (YYYY-MM-DD) to DD.MM.YYYY.
      * @param {string} isoDate
      * @returns {string}
@@ -293,7 +332,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       </div>
                                       <div class="meta-item">
                                           <dt>${t('job-offer-detail.organization')}:</dt>
-                                          <dd>${job.organization}</dd>
+                                          <dd>
+                                              ${this._localized(
+                                                  job.organization,
+                                                  job.organizationEn ?? '',
+                                              )}
+                                          </dd>
                                       </div>
                                   </dl>
 
@@ -399,24 +443,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   </div>
                               </div>
 
-                              <!-- Job description -->
-                              <p class="job-description">${job.description}</p>
+                              <!-- Job description: use English text when language is English and available -->
+                              <p class="job-description">
+                                  ${this._localized(job.description, job.descriptionEn ?? '')}
+                              </p>
 
-                              <!-- Requirements section -->
-                              ${job.requirements && job.requirements.length > 0
-                                  ? html`
-                                        <h4 class="requirements-heading">
-                                            ${t('job-offer-detail.requirements')}
-                                        </h4>
-                                        <ul class="requirements-list">
-                                            ${job.requirements.map(
-                                                (req) => html`
-                                                    <li>${req}</li>
-                                                `,
-                                            )}
-                                        </ul>
-                                    `
-                                  : ''}
+                              <!-- Requirements section: use English requirements when language is English and available -->
+                              ${this._renderRequirements(job, t)}
 
                               <!-- Application form -->
                               <form class="apply-form" @submit="${this.onSubmit}" novalidate>
