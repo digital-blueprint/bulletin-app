@@ -50,17 +50,41 @@ class JobOfferModule extends BaseObject {
 
 export default JobOfferModule;
 
+// Available job types and areas of interest for the enum selects
+const JOB_TYPES = {
+    'full-time': 'Full-time',
+    'part-time': 'Part-time',
+    temporary: 'Temporary',
+    internship: 'Internship',
+    student: 'Student position',
+};
+
+const AREAS_OF_INTEREST = {
+    engineering: 'Engineering',
+    science: 'Science',
+    administration: 'Administration',
+    teaching: 'Teaching',
+    research: 'Research',
+    it: 'IT',
+    other: 'Other',
+};
+
 /**
  * Web component for creating a new job-offer form.
  *
- * Renders form fields for Title, Description, and Headline 1-5 in both German
- * (mandatory) and English (optional). Handles the API call to create the form
- * via apiCreateForm and dispatches a `dbp-create-form-created` event on success.
+ * Renders form fields for all job details that the public job board will display.
+ * The job data is stored as additionalData on the formalize form so that the
+ * public view can read it back via GET /formalize/forms.
+ *
+ * Handles the API call to create the form via apiCreateForm and dispatches a
+ * `dbp-create-form-created` event on success.
  */
 class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
     static get scopedElements() {
         return {
             'dbp-string-element': DbpStringElement,
+            'dbp-date-element': DbpDateElement,
+            'dbp-enum-element': DbpEnumElement,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
         };
@@ -73,23 +97,23 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         this.auth = {};
         this.entryPointUrl = '';
 
-        // German fields (mandatory)
-        this._titleDe = '';
-        this._descriptionDe = '';
-        this._headline1De = '';
-        this._headline2De = '';
-        this._headline3De = '';
-        this._headline4De = '';
-        this._headline5De = '';
+        // Mandatory job detail fields
+        this._title = '';
+        this._description = '';
+        this._publishedAt = '';
+        this._deadline = '';
+        this._organization = '';
 
-        // English fields (optional)
-        this._titleEn = '';
-        this._descriptionEn = '';
-        this._headline1En = '';
-        this._headline2En = '';
-        this._headline3En = '';
-        this._headline4En = '';
-        this._headline5En = '';
+        // Optional job detail fields
+        this._startDate = '';
+        this._weeklyHours = '';
+        this._salary = '';
+        this._jobType = '';
+        this._areaOfInterest = '';
+        this._linkName = '';
+        this._linkUrl = '';
+        /** @type {string} Newline-separated list of requirements entered by the user */
+        this._requirementsText = '';
 
         this._isSubmitting = false;
     }
@@ -100,20 +124,19 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             lang: {type: String},
             auth: {type: Object},
             entryPointUrl: {type: String, attribute: 'entry-point-url'},
-            _titleDe: {state: true},
-            _descriptionDe: {state: true},
-            _headline1De: {state: true},
-            _headline2De: {state: true},
-            _headline3De: {state: true},
-            _headline4De: {state: true},
-            _headline5De: {state: true},
-            _titleEn: {state: true},
-            _descriptionEn: {state: true},
-            _headline1En: {state: true},
-            _headline2En: {state: true},
-            _headline3En: {state: true},
-            _headline4En: {state: true},
-            _headline5En: {state: true},
+            _title: {state: true},
+            _description: {state: true},
+            _publishedAt: {state: true},
+            _deadline: {state: true},
+            _organization: {state: true},
+            _startDate: {state: true},
+            _weeklyHours: {state: true},
+            _salary: {state: true},
+            _jobType: {state: true},
+            _areaOfInterest: {state: true},
+            _linkName: {state: true},
+            _linkUrl: {state: true},
+            _requirementsText: {state: true},
             _isSubmitting: {state: true},
         };
     }
@@ -128,35 +151,51 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     /**
-     * Returns true when all mandatory German fields are filled.
+     * Returns true when all mandatory fields are filled.
      * @returns {boolean}
      */
     get _isFormValid() {
-        return this._titleDe.trim() !== '' && this._descriptionDe.trim() !== '';
+        return (
+            this._title.trim() !== '' &&
+            this._description.trim() !== '' &&
+            this._publishedAt.trim() !== '' &&
+            this._deadline.trim() !== '' &&
+            this._organization.trim() !== ''
+        );
     }
 
     /** Resets all form fields to empty defaults. */
     resetForm() {
-        this._titleDe = '';
-        this._descriptionDe = '';
-        this._headline1De = '';
-        this._headline2De = '';
-        this._headline3De = '';
-        this._headline4De = '';
-        this._headline5De = '';
-        this._titleEn = '';
-        this._descriptionEn = '';
-        this._headline1En = '';
-        this._headline2En = '';
-        this._headline3En = '';
-        this._headline4En = '';
-        this._headline5En = '';
+        this._title = '';
+        this._description = '';
+        this._publishedAt = '';
+        this._deadline = '';
+        this._organization = '';
+        this._startDate = '';
+        this._weeklyHours = '';
+        this._salary = '';
+        this._jobType = '';
+        this._areaOfInterest = '';
+        this._linkName = '';
+        this._linkUrl = '';
+        this._requirementsText = '';
         this._isSubmitting = false;
     }
 
     /**
+     * Splits the requirements text area into a trimmed array of non-empty lines.
+     * @returns {string[]}
+     */
+    _parseRequirements() {
+        return this._requirementsText
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean);
+    }
+
+    /**
      * Builds the form payload and calls apiCreateForm.
-     * On success dispatches `dbp-create-form-created`, on failure shows error notification.
+     * On success dispatches `dbp-create-form-created`, on failure shows an error notification.
      */
     async submit() {
         const t = (key, opts) => this._i18n.t(key, opts);
@@ -164,7 +203,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         if (!this._isFormValid) {
             sendNotification({
                 summary: t('create-job-offer.error-title'),
-                body: t('create-job-offer.validation-german-required'),
+                body: t('create-job-offer.validation-required'),
                 type: 'warning',
                 timeout: 5,
                 targetNotificationId: 'create-form-dialog-notification',
@@ -173,26 +212,6 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         }
 
         this._isSubmitting = true;
-
-        // Use the German title as the default form name
-        const name = this._titleDe.trim();
-
-        const additionalData = {
-            titleDe: this._titleDe.trim(),
-            descriptionDe: this._descriptionDe.trim(),
-            headline1De: this._headline1De.trim(),
-            headline2De: this._headline2De.trim(),
-            headline3De: this._headline3De.trim(),
-            headline4De: this._headline4De.trim(),
-            headline5De: this._headline5De.trim(),
-            titleEn: this._titleEn.trim(),
-            descriptionEn: this._descriptionEn.trim(),
-            headline1En: this._headline1En.trim(),
-            headline2En: this._headline2En.trim(),
-            headline3En: this._headline3En.trim(),
-            headline4En: this._headline4En.trim(),
-            headline5En: this._headline5En.trim(),
-        };
 
         // JSON Schema for validating job application submissions
         const dataFeedSchema = JSON.stringify({
@@ -232,17 +251,32 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             required: ['givenName', 'familyName', 'personIdentifier', 'email'],
         });
 
+        // All job detail fields are stored as additionalData so the public view can read them back
+        const additionalData = {
+            title: this._title.trim(),
+            description: this._description.trim(),
+            publishedAt: this._publishedAt.trim(),
+            deadline: this._deadline.trim(),
+            organization: this._organization.trim(),
+            startDate: this._startDate.trim(),
+            weeklyHours: this._weeklyHours.trim(),
+            salary: this._salary.trim(),
+            jobType: this._jobType,
+            areaOfInterest: this._areaOfInterest,
+            linkName: this._linkName.trim(),
+            linkUrl: this._linkUrl.trim(),
+            requirements: this._parseRequirements(),
+            dataFeedSchema,
+        };
+
         const formData = {
-            name,
+            name: this._title.trim(),
             localizedNames: [
-                {languageTag: 'de', name: this._titleDe.trim()},
-                {languageTag: 'en', name: this._titleEn.trim() || this._titleDe.trim()},
+                {languageTag: 'de', name: this._title.trim()},
+                {languageTag: 'en', name: this._title.trim()},
             ],
             frontendKey: new JobOfferModule().getFormFrontendKey(),
-            additionalData: {
-                ...additionalData,
-                dataFeedSchema,
-            },
+            additionalData,
         };
 
         // Build a minimal host object that apiCreateForm expects
@@ -285,113 +319,114 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         const t = (key, opts) => this._i18n.t(key, opts);
 
         return html`
-            <!-- German fields (mandatory) -->
-            <h4 class="section-heading">${t('create-job-offer.section-german')}</h4>
+            <!-- Mandatory fields -->
+            <h4 class="section-heading">${t('manage-job-offers.section-mandatory')}</h4>
 
             <dbp-string-element
-                name="title-de"
+                name="title"
                 lang="${this.lang}"
-                label="${t('create-job-offer.field-title')}"
-                .value="${this._titleDe}"
+                label="${t('manage-job-offers.field-job-title')}"
+                .value="${this._title}"
                 required
-                @change="${(e) => (this._titleDe = e.detail.value)}"></dbp-string-element>
+                @change="${(e) => (this._title = e.detail.value)}"></dbp-string-element>
 
             <dbp-string-element
-                name="description-de"
+                name="description"
                 lang="${this.lang}"
-                label="${t('create-job-offer.field-description')}"
-                .value="${this._descriptionDe}"
-                rows="4"
+                label="${t('manage-job-offers.field-description')}"
+                placeholder="${t('manage-job-offers.field-description-placeholder')}"
+                .value="${this._description}"
+                rows="5"
                 required
-                @change="${(e) => (this._descriptionDe = e.detail.value)}"></dbp-string-element>
+                @change="${(e) => (this._description = e.detail.value)}"></dbp-string-element>
+
+            <dbp-date-element
+                name="published-at"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-published-at')}"
+                .value="${this._publishedAt}"
+                required
+                @change="${(e) => (this._publishedAt = e.detail.value)}"></dbp-date-element>
+
+            <dbp-date-element
+                name="deadline"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-deadline')}"
+                .value="${this._deadline}"
+                required
+                @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
 
             <dbp-string-element
-                name="headline-1-de"
+                name="organization"
                 lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-1')}"
-                .value="${this._headline1De}"
-                @change="${(e) => (this._headline1De = e.detail.value)}"></dbp-string-element>
+                label="${t('manage-job-offers.field-organization')}"
+                .value="${this._organization}"
+                required
+                @change="${(e) => (this._organization = e.detail.value)}"></dbp-string-element>
+
+            <!-- Optional fields -->
+            <h4 class="section-heading">${t('manage-job-offers.section-optional')}</h4>
+
+            <dbp-date-element
+                name="start-date"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-start-date')}"
+                .value="${this._startDate}"
+                @change="${(e) => (this._startDate = e.detail.value)}"></dbp-date-element>
 
             <dbp-string-element
-                name="headline-2-de"
+                name="weekly-hours"
                 lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-2')}"
-                .value="${this._headline2De}"
-                @change="${(e) => (this._headline2De = e.detail.value)}"></dbp-string-element>
+                label="${t('manage-job-offers.field-weekly-hours')}"
+                .value="${this._weeklyHours}"
+                @change="${(e) => (this._weeklyHours = e.detail.value)}"></dbp-string-element>
 
             <dbp-string-element
-                name="headline-3-de"
+                name="salary"
                 lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-3')}"
-                .value="${this._headline3De}"
-                @change="${(e) => (this._headline3De = e.detail.value)}"></dbp-string-element>
+                label="${t('manage-job-offers.field-salary')}"
+                .value="${this._salary}"
+                @change="${(e) => (this._salary = e.detail.value)}"></dbp-string-element>
+
+            <dbp-enum-element
+                name="job-type"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-job-type')}"
+                .items="${JOB_TYPES}"
+                .value="${this._jobType}"
+                @change="${(e) => (this._jobType = e.detail.value)}"></dbp-enum-element>
+
+            <dbp-enum-element
+                name="area-of-interest"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-area-of-interest')}"
+                .items="${AREAS_OF_INTEREST}"
+                .value="${this._areaOfInterest}"
+                @change="${(e) => (this._areaOfInterest = e.detail.value)}"></dbp-enum-element>
 
             <dbp-string-element
-                name="headline-4-de"
+                name="requirements"
                 lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-4')}"
-                .value="${this._headline4De}"
-                @change="${(e) => (this._headline4De = e.detail.value)}"></dbp-string-element>
-
-            <dbp-string-element
-                name="headline-5-de"
-                lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-5')}"
-                .value="${this._headline5De}"
-                @change="${(e) => (this._headline5De = e.detail.value)}"></dbp-string-element>
-
-            <!-- English fields (optional) -->
-            <h4 class="section-heading">${t('create-job-offer.section-english')}</h4>
-
-            <dbp-string-element
-                name="title-en"
-                lang="${this.lang}"
-                label="${t('create-job-offer.field-title')}"
-                .value="${this._titleEn}"
-                @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
-
-            <dbp-string-element
-                name="description-en"
-                lang="${this.lang}"
-                label="${t('create-job-offer.field-description')}"
-                .value="${this._descriptionEn}"
+                label="${t('manage-job-offers.field-requirements')}"
+                .value="${this._requirementsText}"
                 rows="4"
-                @change="${(e) => (this._descriptionEn = e.detail.value)}"></dbp-string-element>
+                @change="${(e) => (this._requirementsText = e.detail.value)}"></dbp-string-element>
 
             <dbp-string-element
-                name="headline-1-en"
+                name="link-name"
                 lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-1')}"
-                .value="${this._headline1En}"
-                @change="${(e) => (this._headline1En = e.detail.value)}"></dbp-string-element>
+                label="${t('manage-job-offers.field-link-name')}"
+                placeholder="${t('manage-job-offers.field-link-name-placeholder')}"
+                .value="${this._linkName}"
+                @change="${(e) => (this._linkName = e.detail.value)}"></dbp-string-element>
 
             <dbp-string-element
-                name="headline-2-en"
+                name="link-url"
                 lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-2')}"
-                .value="${this._headline2En}"
-                @change="${(e) => (this._headline2En = e.detail.value)}"></dbp-string-element>
-
-            <dbp-string-element
-                name="headline-3-en"
-                lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-3')}"
-                .value="${this._headline3En}"
-                @change="${(e) => (this._headline3En = e.detail.value)}"></dbp-string-element>
-
-            <dbp-string-element
-                name="headline-4-en"
-                lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-4')}"
-                .value="${this._headline4En}"
-                @change="${(e) => (this._headline4En = e.detail.value)}"></dbp-string-element>
-
-            <dbp-string-element
-                name="headline-5-en"
-                lang="${this.lang}"
-                label="${t('create-job-offer.field-headline-5')}"
-                .value="${this._headline5En}"
-                @change="${(e) => (this._headline5En = e.detail.value)}"></dbp-string-element>
+                label="${t('manage-job-offers.field-link-url')}"
+                placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
+                .value="${this._linkUrl}"
+                @change="${(e) => (this._linkUrl = e.detail.value)}"></dbp-string-element>
         `;
     }
 
@@ -411,32 +446,15 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             }
 
             /* Vertical spacing between form elements */
-            dbp-string-element {
+            dbp-string-element,
+            dbp-date-element,
+            dbp-enum-element {
                 display: block;
                 margin-bottom: 0.75rem;
             }
         `;
     }
 }
-
-// Available job types and areas of interest for the enum selects
-const JOB_TYPES = {
-    'full-time': 'Full-time',
-    'part-time': 'Part-time',
-    temporary: 'Temporary',
-    internship: 'Internship',
-    student: 'Student position',
-};
-
-const AREAS_OF_INTEREST = {
-    engineering: 'Engineering',
-    science: 'Science',
-    administration: 'Administration',
-    teaching: 'Teaching',
-    research: 'Research',
-    it: 'IT',
-    other: 'Other',
-};
 
 class JobOfferFormElement extends BaseFormElement {
     constructor() {

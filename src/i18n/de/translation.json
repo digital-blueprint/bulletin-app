@@ -1,16 +1,7 @@
 {
     "create-job-offer": {
         "error-title": "Fehler",
-        "field-description": "Jobbeschreibung",
-        "field-headline-1": "Überschrift 1",
-        "field-headline-2": "Überschrift 2",
-        "field-headline-3": "Überschrift 3",
-        "field-headline-4": "Überschrift 4",
-        "field-headline-5": "Überschrift 5",
-        "field-title": "Jobtitel",
-        "section-english": "Englisch (optional)",
-        "section-german": "Deutsch (Pflichtfelder)",
-        "validation-german-required": "Alle deutschen Felder sind Pflichtfelder."
+        "validation-required": "Bitte füllen Sie alle Pflichtfelder aus."
     },
     "job-offer-detail": {
         "application-title": "Bewerbung",
@@ -72,7 +63,9 @@
         "field-link-name-placeholder": "z.B.: Mehr Information",
         "field-link-url": "Link URL",
         "field-link-url-placeholder": "https://...",
+        "field-organization": "Organisation",
         "field-published-at": "Datum der Veröffentlichung",
+        "field-requirements": "Anforderungen (eine pro Zeile)",
         "field-salary": "Gehalt pro Monat",
         "field-start-date": "Startzeitpunkt des Jobs",
         "field-weekly-hours": "Anstellungsausmaß pro Woche",
@@ -87,7 +80,9 @@
         "areas-of-interest": "Interessensgebiete",
         "available-positions": "Verfügbare Stellen",
         "deadline": "Bewerbungsfrist",
+        "error-load-failed": "Stellenangebote konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
         "job-type": "Stellenart",
+        "loading": "Stellenangebote werden geladen…",
         "no-results": "Keine Stellenangebote gefunden.",
         "page-size": "Einträge pro Seite",
         "pagination-first": "Erste",

@@ -1,16 +1,7 @@
 {
     "create-job-offer": {
         "error-title": "Error",
-        "field-description": "Job description",
-        "field-headline-1": "Headline 1",
-        "field-headline-2": "Headline 2",
-        "field-headline-3": "Headline 3",
-        "field-headline-4": "Headline 4",
-        "field-headline-5": "Headline 5",
-        "field-title": "Job title",
-        "section-english": "English (optional)",
-        "section-german": "German (mandatory)",
-        "validation-german-required": "All German fields are required."
+        "validation-required": "Please fill in all required fields."
     },
     "job-offer-detail": {
         "application-title": "Application",
@@ -72,7 +63,9 @@
         "field-link-name-placeholder": "e.g.: More Information",
         "field-link-url": "Link URL",
         "field-link-url-placeholder": "https://...",
+        "field-organization": "Organisation",
         "field-published-at": "Publication date",
+        "field-requirements": "Requirements (one per line)",
         "field-salary": "Salary per month",
         "field-start-date": "Job start date",
         "field-weekly-hours": "Employment level per week",
@@ -87,7 +80,9 @@
         "areas-of-interest": "Areas of Interest",
         "available-positions": "Available Positions",
         "deadline": "Application deadline",
+        "error-load-failed": "Failed to load job offers. Please try again later.",
         "job-type": "Job Type",
+        "loading": "Loading job offers…",
         "no-results": "No job offers found.",
         "page-size": "Items per page",
         "pagination-first": "First",

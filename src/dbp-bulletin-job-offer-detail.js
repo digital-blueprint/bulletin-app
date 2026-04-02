@@ -23,6 +23,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._message = '';
         /** @type {boolean} Whether the share dropdown is open */
         this._shareDropdownOpen = false;
+        /** @type {boolean} Whether the application form submission is in progress */
+        this._isSubmitting = false;
     }
 
     static get scopedElements() {
@@ -43,6 +45,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             _email: {state: true},
             _message: {state: true},
             _shareDropdownOpen: {state: true},
+            _isSubmitting: {state: true},
         };
     }
 
@@ -167,28 +170,83 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
     */
     /**
-     * Handles the application form submission.
+     * Handles the application form submission by posting to the formalize submissions API.
+     * The job's identifier is the formalize form ID, so we can POST to
+     * /formalize/submissions with the form reference set to /formalize/forms/<identifier>.
      * @param {Event} e
      */
-    onSubmit(e) {
+    async onSubmit(e) {
         e.preventDefault();
-        // TODO: Wire this up to a real API endpoint.
-        // For now, log the form data as a placeholder.
+
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
-        console.log('Application submitted:', {
-            job: this.job?.identifier,
-            firstName: this._firstName,
-            lastName: this._lastName,
+
+        if (!this.job || !this.entryPointUrl || !this.auth?.token) {
+            return;
+        }
+
+        this._isSubmitting = true;
+
+        const submissionData = {
+            givenName: this._firstName,
+            familyName: this._lastName,
             email: this._email,
-            message: this._message,
-        });
-        alert(t('job-offer-detail.apply-success'));
-        this._firstName = '';
-        this._lastName = '';
-        this._email = '';
-        this._message = '';
-        this.close();
+            freeText: this._message,
+            // Include the person identifier from the auth token if available
+            personIdentifier: this.auth.person_id ?? '',
+        };
+
+        const formData = new FormData();
+        formData.append('form', '/formalize/forms/' + this.job.identifier);
+        formData.append('dataFeedElement', JSON.stringify(submissionData));
+        // Use binary submission state 2 (submitted), matching the pattern in JobOfferFormElement
+        formData.append('submissionState', '2');
+
+        try {
+            const response = await fetch(this.entryPointUrl + '/formalize/submissions', {
+                method: 'POST',
+                headers: {
+                    Authorization: 'Bearer ' + this.auth.token,
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => ({}));
+                console.error('Failed to submit application:', response.status, errorBody);
+                sendNotification({
+                    summary: t('job-offer-detail.notification.error-heading'),
+                    body: t('job-offer-detail.notification.error-body'),
+                    type: 'danger',
+                    timeout: 0,
+                });
+                return;
+            }
+
+            sendNotification({
+                summary: t('job-offer-detail.notification.success-heading'),
+                body: t('job-offer-detail.apply-success'),
+                icon: 'checkmark',
+                type: 'success',
+                timeout: 5,
+            });
+
+            this._firstName = '';
+            this._lastName = '';
+            this._email = '';
+            this._message = '';
+            this.close();
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            sendNotification({
+                summary: t('job-offer-detail.notification.error-heading'),
+                body: t('job-offer-detail.notification.error-body'),
+                type: 'danger',
+                timeout: 0,
+            });
+        } finally {
+            this._isSubmitting = false;
+        }
     }
 
     render() {
@@ -411,7 +469,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           (this._message = e.detail.value)}"></dbp-string-element>
 
                                   <div class="form-footer">
-                                      <button class="button is-primary" type="submit">
+                                      <button
+                                          class="button is-primary"
+                                          type="submit"
+                                          ?disabled="${this._isSubmitting}">
                                           ${t('job-offer-detail.submit')}
                                       </button>
                                   </div>

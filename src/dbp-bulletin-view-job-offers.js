@@ -4,14 +4,10 @@ import {repeat} from 'lit/directives/repeat.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {Icon} from '@dbp-toolkit/common';
+import {Icon, MiniSpinner} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
-import {MOCK_JOB_OFFERS} from './utils/mock.js';
-
-// Derive sorted unique option lists from the mock data
-const JOB_TYPES = [...new Set(MOCK_JOB_OFFERS.map((j) => j.jobType))].sort();
-const AREAS_OF_INTEREST = [...new Set(MOCK_JOB_OFFERS.map((j) => j.areaOfInterest))].sort();
+import JobOfferModule from './modules/jobOfferForm.js';
 
 const PAGE_SIZE_OPTIONS = [6, 12, 24];
 const DEFAULT_PAGE_SIZE = 12;
@@ -20,6 +16,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
             'dbp-icon': Icon,
+            'dbp-mini-spinner': MiniSpinner,
             'dbp-bulletin-job-offer-detail': JobOfferDetail,
         };
     }
@@ -36,6 +33,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._selectedJob = null;
         /** @type {import('lit/directives/ref.js').Ref} Direct reference to the detail dialog element */
         this._detailRef = createRef();
+        /** @type {Array} Job offers loaded from the formalize API */
+        this._jobOffers = [];
+        /** @type {boolean} Whether the API request is in progress */
+        this._loading = false;
+        /** @type {boolean} Whether the API request failed */
+        this._loadError = false;
+        /** @type {string[]} Unique sorted job-type values derived from loaded data */
+        this._jobTypes = [];
+        /** @type {string[]} Unique sorted area-of-interest values derived from loaded data */
+        this._areasOfInterest = [];
     }
 
     static get properties() {
@@ -48,7 +55,20 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             currentPage: {type: Number, state: true},
             pageSize: {type: Number, state: true},
             _selectedJob: {state: true},
+            _jobOffers: {state: true},
+            _loading: {state: true},
+            _loadError: {state: true},
+            _jobTypes: {state: true},
+            _areasOfInterest: {state: true},
         };
+    }
+
+    /**
+     * Called by the base class once after the user is logged in.
+     * Triggers the initial data fetch from the formalize API.
+     */
+    initialize() {
+        this._fetchJobOffers();
     }
 
     update(changedProperties) {
@@ -64,6 +84,98 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
+     * Fetches job-offer forms from the formalize API.
+     * Job offers are stored as forms with frontendKey = 'job-offer'.
+     * The job details are stored in the form's additionalData field.
+     */
+    async _fetchJobOffers() {
+        if (!this.auth || !this.auth.token || !this.entryPointUrl) {
+            return;
+        }
+
+        this._loading = true;
+        this._loadError = false;
+
+        const frontendKey = new JobOfferModule().getFormFrontendKey();
+        const url =
+            this.entryPointUrl +
+            '/formalize/forms?perPage=9999&frontendKey=' +
+            encodeURIComponent(frontendKey);
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/ld+json',
+                    Authorization: 'Bearer ' + this.auth.token,
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Failed to load job offers, status:', response.status);
+                this._loadError = true;
+                return;
+            }
+
+            const data = await response.json();
+            const members = data['hydra:member'] ?? [];
+
+            // Map each form entry to a JobOffer shape that the rest of the UI expects.
+            // The job details are stored in the form's additionalData field at creation time.
+            this._jobOffers = members
+                .map((form) => {
+                    const extra = form.additionalData ?? {};
+                    return {
+                        /** The form identifier is used as the job offer identifier */
+                        identifier: form.identifier,
+                        /** Localised title: prefer current lang, fall back to name */
+                        title: this._getLocalizedName(form.localizedNames) || form.name || '',
+                        jobType: extra.jobType ?? '',
+                        areaOfInterest: extra.areaOfInterest ?? '',
+                        publishedAt: extra.publishedAt ?? '',
+                        deadline: extra.deadline ?? '',
+                        startDate: extra.startDate ?? '',
+                        weeklyHours: extra.weeklyHours ?? '',
+                        salary: extra.salary ?? '',
+                        organization: extra.organization ?? '',
+                        description: extra.description ?? '',
+                        requirements: Array.isArray(extra.requirements) ? extra.requirements : [],
+                        linkName: extra.linkName ?? '',
+                        linkUrl: extra.linkUrl ?? '',
+                    };
+                })
+                // Only show offers with a future or missing deadline
+                .filter((job) => !job.deadline || new Date(job.deadline) >= new Date());
+
+            // Build unique sorted filter option lists from the loaded data
+            this._jobTypes = [
+                ...new Set(this._jobOffers.map((j) => j.jobType).filter(Boolean)),
+            ].sort();
+            this._areasOfInterest = [
+                ...new Set(this._jobOffers.map((j) => j.areaOfInterest).filter(Boolean)),
+            ].sort();
+        } catch (error) {
+            console.error('Error loading job offers:', error);
+            this._loadError = true;
+        } finally {
+            this._loading = false;
+        }
+    }
+
+    /**
+     * Picks the localised name matching the current language from the localizedNames array.
+     * Falls back to the first entry if no match is found.
+     * @param {Array<{languageTag: string, name: string}>} localizedNames
+     * @returns {string}
+     */
+    _getLocalizedName(localizedNames) {
+        if (!Array.isArray(localizedNames) || localizedNames.length === 0) {
+            return '';
+        }
+        const match = localizedNames.find((n) => n.languageTag === this.lang);
+        return (match ?? localizedNames[0]).name ?? '';
+    }
+
+    /**
      * Parses the current routing URL and opens or closes the detail dialog accordingly.
      */
     handleRoutingUrlChange() {
@@ -72,7 +184,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         // Expected URL pattern: job/<identifier>
         if (pathSegments[0] === 'job' && pathSegments[1]) {
             const identifier = pathSegments[1];
-            const job = MOCK_JOB_OFFERS.find((j) => j.identifier === identifier) ?? null;
+            const job = this._jobOffers.find((j) => j.identifier === identifier) ?? null;
             if (job) {
                 this.openJobDialog(job);
             }
@@ -121,27 +233,29 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
-     * Returns the mock job offers filtered by search query and dropdowns, then sorted.
+     * Returns the loaded job offers filtered by search query and dropdowns, then sorted.
      * @returns {Array}
      */
     getFilteredJobs() {
         const query = this.searchQuery.toLowerCase().trim();
-        return MOCK_JOB_OFFERS.filter((job) => {
-            const matchesSearch =
-                !query ||
-                job.title.toLowerCase().includes(query) ||
-                job.areaOfInterest.toLowerCase().includes(query) ||
-                job.jobType.toLowerCase().includes(query) ||
-                job.description.toLowerCase().includes(query);
-            const matchesJobType = !this.filterJobType || job.jobType === this.filterJobType;
-            const matchesAreaOfInterest =
-                !this.filterAreaOfInterest || job.areaOfInterest === this.filterAreaOfInterest;
-            return matchesSearch && matchesJobType && matchesAreaOfInterest;
-        }).sort((a, b) => {
-            const dateA = new Date(a.deadline).getTime();
-            const dateB = new Date(b.deadline).getTime();
-            return this.sortOrder === 'date-desc' ? dateB - dateA : dateA - dateB;
-        });
+        return this._jobOffers
+            .filter((job) => {
+                const matchesSearch =
+                    !query ||
+                    job.title.toLowerCase().includes(query) ||
+                    job.areaOfInterest.toLowerCase().includes(query) ||
+                    job.jobType.toLowerCase().includes(query) ||
+                    job.description.toLowerCase().includes(query);
+                const matchesJobType = !this.filterJobType || job.jobType === this.filterJobType;
+                const matchesAreaOfInterest =
+                    !this.filterAreaOfInterest || job.areaOfInterest === this.filterAreaOfInterest;
+                return matchesSearch && matchesJobType && matchesAreaOfInterest;
+            })
+            .sort((a, b) => {
+                const dateA = new Date(a.deadline).getTime();
+                const dateB = new Date(b.deadline).getTime();
+                return this.sortOrder === 'date-desc' ? dateB - dateA : dateA - dateB;
+            });
     }
 
     /**
@@ -150,6 +264,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      * @returns {string}
      */
     formatDate(isoDate) {
+        if (!isoDate) return '';
         const [year, month, day] = isoDate.split('-');
         return `${day}.${month}.${year}`;
     }
@@ -186,6 +301,23 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     render() {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
+
+        // Loading state
+        if (this._loading) {
+            return html`
+                <div class="loading-wrapper">
+                    <dbp-mini-spinner></dbp-mini-spinner>
+                    <span>${t('view-job-offers.loading')}</span>
+                </div>
+            `;
+        }
+
+        // Error state
+        if (this._loadError) {
+            return html`
+                <p class="no-results">${t('view-job-offers.error-load-failed')}</p>
+            `;
+        }
 
         const filtered = this.getFilteredJobs();
         const totalPages = Math.max(1, Math.ceil(filtered.length / this.pageSize));
@@ -238,7 +370,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 @change="${this.onJobTypeChange}"
                                 .value="${this.filterJobType}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
-                                ${JOB_TYPES.map(
+                                ${this._jobTypes.map(
                                     (type) => html`
                                         <option
                                             value="${type}"
@@ -261,7 +393,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 @change="${this.onAreaOfInterestChange}"
                                 .value="${this.filterAreaOfInterest}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
-                                ${AREAS_OF_INTEREST.map(
+                                ${this._areasOfInterest.map(
                                     (area) => html`
                                         <option
                                             value="${area}"
@@ -412,6 +544,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     ${ref(this._detailRef)}
                     .job="${this._selectedJob}"
                     lang="${this.lang}"
+                    entry-point-url="${this.entryPointUrl}"
+                    .auth="${this.auth}"
                     @dbp-modal-closed="${this.onDialogClosed}"></dbp-bulletin-job-offer-detail>
             </div>
         `;
@@ -437,6 +571,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: flex;
                 flex-direction: column;
                 gap: 1.25rem;
+            }
+
+            /* Loading state wrapper */
+            .loading-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 2rem;
+                color: var(--dbp-muted);
             }
 
             /* Search bar — extends the .input with a search icon overlay */
