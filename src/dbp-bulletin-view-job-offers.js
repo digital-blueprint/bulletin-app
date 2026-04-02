@@ -99,7 +99,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const frontendKey = new JobOfferModule().getFormFrontendKey();
         const url =
             this.entryPointUrl +
-            '/formalize/forms?perPage=9999&frontendKey=' +
+            '/formalize/forms?perPage=9999&whereFrontendKeyIn[]=' +
             encodeURIComponent(frontendKey);
 
         try {

@@ -73,7 +73,7 @@ const AREAS_OF_INTEREST = {
  * Web component for creating a new job-offer form.
  *
  * Renders form fields for all job details that the public job board will display.
- * The job data is stored as additionalData on the formalize form so that the
+ * The job data is stored in the form's additionalData JSON field so that the
  * public view can read it back via GET /formalize/forms.
  *
  * Handles the API call to create the form via apiCreateForm and dispatches a
@@ -251,7 +251,8 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             required: ['givenName', 'familyName', 'personIdentifier', 'email'],
         });
 
-        // All job detail fields are stored as additionalData so the public view can read them back
+        // All job detail fields are stored in the form's additionalData JSON field
+        // so the public view can read them back via GET /formalize/forms
         const additionalData = {
             title: this._title.trim(),
             description: this._description.trim(),
@@ -266,7 +267,6 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             linkName: this._linkName.trim(),
             linkUrl: this._linkUrl.trim(),
             requirements: this._parseRequirements(),
-            dataFeedSchema,
         };
 
         const formData = {
@@ -277,6 +277,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             ],
             frontendKey: new JobOfferModule().getFormFrontendKey(),
             additionalData,
+            dataFeedSchema,
         };
 
         // Build a minimal host object that apiCreateForm expects
