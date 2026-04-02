@@ -11,7 +11,7 @@ import {
 } from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/styles';
 import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
-import {apiCreateForm} from '../../vendor/formalize/src/manage-forms-api.js';
+import {apiCreateForm, apiUpdateForm} from '../../vendor/formalize/src/manage-forms-api.js';
 import {createInstance} from '../i18n.js';
 
 const i18n = createInstance();
@@ -97,6 +97,13 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         this.auth = {};
         this.entryPointUrl = '';
 
+        /**
+         * When set by the parent dialog, the component operates in edit mode.
+         * Shape: { formId, formSlug, formName, moduleInstance, additionalData, localizedNames }
+         * @type {object|null}
+         */
+        this.existingForm = null;
+
         // Mandatory job detail fields
         this._title = '';
         this._description = '';
@@ -131,6 +138,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             lang: {type: String},
             auth: {type: Object},
             entryPointUrl: {type: String, attribute: 'entry-point-url'},
+            existingForm: {type: Object, attribute: false},
             _title: {state: true},
             _description: {state: true},
             _publishedAt: {state: true},
@@ -156,6 +164,32 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         changedProperties.forEach((oldValue, propName) => {
             if (propName === 'lang') {
                 this._i18n.changeLanguage(this.lang);
+            }
+
+            // Pre-populate form fields when an existing form is provided for editing
+            if (propName === 'existingForm' && this.existingForm) {
+                const d = this.existingForm.additionalData || {};
+                this._title = d.title || '';
+                this._description = d.description || '';
+                this._publishedAt = d.publishedAt || '';
+                this._deadline = d.deadline || '';
+                this._organization = d.organization || '';
+                this._startDate = d.startDate || '';
+                this._weeklyHours = d.weeklyHours || '';
+                this._salary = d.salary || '';
+                this._jobType = d.jobType || '';
+                this._areaOfInterest = d.areaOfInterest || '';
+                this._linkName = d.linkName || '';
+                this._linkUrl = d.linkUrl || '';
+                this._requirementsText = Array.isArray(d.requirements)
+                    ? d.requirements.join('\n')
+                    : '';
+                this._titleEn = d.titleEn || '';
+                this._descriptionEn = d.descriptionEn || '';
+                this._organizationEn = d.organizationEn || '';
+                this._requirementsTextEn = Array.isArray(d.requirementsEn)
+                    ? d.requirementsEn.join('\n')
+                    : '';
             }
         });
         super.update(changedProperties);
@@ -220,11 +254,12 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     /**
-     * Builds the form payload and calls apiCreateForm.
-     * On success dispatches `dbp-create-form-created`, on failure shows an error notification.
+     * Builds the form payload and calls apiCreateForm or apiUpdateForm depending on mode.
+     * On success dispatches a form event, on failure shows an error notification.
      */
     async submit() {
         const t = (key, opts) => this._i18n.t(key, opts);
+        const isEditMode = this.existingForm !== null && this.existingForm !== undefined;
 
         if (!this._isFormValid) {
             sendNotification({
@@ -313,7 +348,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
             dataFeedSchema,
         };
 
-        // Build a minimal host object that apiCreateForm expects
+        // Build a minimal host object that apiCreateForm / apiUpdateForm expect
         const host = {
             auth: this.auth,
             entryPointUrl: this.entryPointUrl,
@@ -321,7 +356,12 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
         };
 
         try {
-            const result = await apiCreateForm(host, formData);
+            let result;
+            if (isEditMode) {
+                result = await apiUpdateForm(host, this.existingForm.formId, formData);
+            } else {
+                result = await apiCreateForm(host, formData);
+            }
 
             if (result) {
                 this.dispatchEvent(
@@ -334,7 +374,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
                 return result;
             }
         } catch (error) {
-            console.error('Error creating job offer form:', error);
+            console.error('Error saving job offer form:', error);
             sendNotification({
                 summary: t('create-job-offer.error-title'),
                 body: error.message,
