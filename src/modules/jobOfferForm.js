@@ -29,13 +29,13 @@ class JobOfferModule extends BaseObject {
     }
 
     /**
-     * Returns the web component class used for creating a new job-offer form.
-     * This component renders the creation form and handles the API call internally.
+     * Returns the web component class used for editing a job-offer form.
+     * This component renders the edit form and handles the API call internally.
      *
-     * @returns {typeof JobOfferCreateFormElement}
+     * @returns {typeof JobOfferEditFormElement}
      */
-    getCreateFormComponent() {
-        return JobOfferCreateFormElement;
+    getEditFormComponent() {
+        return JobOfferEditFormElement;
     }
 
     getFormFrontendKey() {
@@ -70,16 +70,16 @@ const AREAS_OF_INTEREST = {
 };
 
 /**
- * Web component for creating a new job-offer form.
+ * Web component for editing a job-offer form (create or update).
  *
  * Renders form fields for all job details that the public job board will display.
  * The job data is stored in the form's additionalData JSON field so that the
  * public view can read it back via GET /formalize/forms.
  *
- * Handles the API call to create the form via apiCreateForm and dispatches a
- * `dbp-create-form-created` event on success.
+ * Handles the API call via apiCreateForm (new form) or apiUpdateForm (existing form)
+ * and dispatches a `dbp-edit-form-saved` event on success.
  */
-class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
+class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     static get scopedElements() {
         return {
             'dbp-string-element': DbpStringElement,
@@ -267,7 +267,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
                 body: t('create-job-offer.validation-required'),
                 type: 'warning',
                 timeout: 5,
-                targetNotificationId: 'create-form-dialog-notification',
+                targetNotificationId: 'edit-form-dialog-notification',
             });
             return null;
         }
@@ -365,7 +365,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             if (result) {
                 this.dispatchEvent(
-                    new CustomEvent('dbp-create-form-created', {
+                    new CustomEvent('dbp-edit-form-saved', {
                         detail: {form: result},
                         bubbles: true,
                         composed: true,
@@ -380,7 +380,7 @@ class JobOfferCreateFormElement extends ScopedElementsMixin(DBPLitElement) {
                 body: error.message,
                 type: 'danger',
                 timeout: 0,
-                targetNotificationId: 'create-form-dialog-notification',
+                targetNotificationId: 'edit-form-dialog-notification',
             });
         } finally {
             this._isSubmitting = false;
