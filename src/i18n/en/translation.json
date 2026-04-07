@@ -9,6 +9,7 @@
         "apply-success": "Your application has been submitted successfully.",
         "deadline": "Application deadline",
         "email": "E-Mail Address",
+        "email-invalid": "Please enter a valid email address.",
         "first-name": "First name",
         "last-name": "Last name",
         "message": "Free text",

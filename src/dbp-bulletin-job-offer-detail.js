@@ -233,6 +233,22 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
     */
     /**
+     * Returns a customValidator function for the email field that checks for a valid email format.
+     * Uses the same pattern as the URL validator in DbpStringElement.
+     * @returns {Function}
+     */
+    get _emailValidator() {
+        const i18n = this._i18n;
+        const t = (key) => (i18n ? i18n.t(key) : key);
+        return (value) => {
+            if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                return [t('job-offer-detail.email-invalid')];
+            }
+            return [];
+        };
+    }
+
+    /**
      * Returns a customValidator function for the message field that enforces a 50-character minimum.
      * Returning a bound function avoids recreating it on every render.
      * @returns {Function}
@@ -572,6 +588,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           .value="${this._email}"
                                           type="email"
                                           required
+                                          .customValidator="${this._emailValidator}"
                                           autocomplete="email"
                                           @change="${(e) =>
                                               (this._email = e.detail.value)}"></dbp-string-element>
