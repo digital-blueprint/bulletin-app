@@ -255,9 +255,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             if (!response.ok) {
                 const errorBody = await response.json().catch(() => ({}));
                 console.error('Failed to submit application:', response.status, errorBody);
+                const apiMessage = errorBody.description || errorBody['hydra:description'] || '';
+                const body = apiMessage
+                    ? `${t('job-offer-detail.notification.submit-error-body')}\n${apiMessage}`
+                    : t('job-offer-detail.notification.submit-error-body');
                 sendNotification({
-                    summary: t('job-offer-detail.notification.error-heading'),
-                    body: t('job-offer-detail.notification.error-body'),
+                    summary: t('job-offer-detail.notification.submit-error-heading'),
+                    body: body,
                     type: 'danger',
                     timeout: 0,
                     replaceId: 'dbp-notification-apply',
@@ -284,8 +288,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         } catch (error) {
             console.error('Error submitting application:', error);
             sendNotification({
-                summary: t('job-offer-detail.notification.error-heading'),
-                body: t('job-offer-detail.notification.error-body'),
+                summary: t('job-offer-detail.notification.submit-error-heading'),
+                body: t('job-offer-detail.notification.submit-error-body'),
                 type: 'danger',
                 timeout: 0,
                 replaceId: 'dbp-notification-apply',
