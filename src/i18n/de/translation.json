@@ -12,6 +12,7 @@
         "first-name": "Vorname",
         "last-name": "Nachname",
         "message": "Freitextfeld",
+        "message-min-length": "Das Freitextfeld muss mindestens 50 Zeichen enthalten (aktuell: {{current}}).",
         "notification": {
             "error-body": "Beim Kopieren des Links ist ein Fehler aufgetreten. Bitte versuchen Sie es manuell oder teilen Sie die Stelle über die anderen verfügbaren Optionen.",
             "error-heading": "Fehler",

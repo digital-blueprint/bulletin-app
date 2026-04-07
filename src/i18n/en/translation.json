@@ -12,6 +12,7 @@
         "first-name": "First name",
         "last-name": "Last name",
         "message": "Free text",
+        "message-min-length": "The free text field must contain at least 50 characters (currently: {{current}}).",
         "notification": {
             "error-body": "An error occurred while copying the link. Please try copying it manually or share the link using the other available options.",
             "error-heading": "Error",

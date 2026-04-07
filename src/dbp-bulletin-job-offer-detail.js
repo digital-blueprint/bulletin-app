@@ -1,4 +1,5 @@
 import {css, html} from 'lit';
+import {createRef, ref} from 'lit/directives/ref.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
 import {Modal, Icon} from '@dbp-toolkit/common';
 import {DbpStringElement} from '@dbp-toolkit/form-elements';
@@ -25,6 +26,14 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._shareDropdownOpen = false;
         /** @type {boolean} Whether the application form submission is in progress */
         this._isSubmitting = false;
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the first-name field element */
+        this._firstNameRef = createRef();
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the last-name field element */
+        this._lastNameRef = createRef();
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the email field element */
+        this._emailRef = createRef();
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the message field element */
+        this._messageRef = createRef();
     }
 
     static get scopedElements() {
@@ -63,6 +72,19 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         if (modal) {
             modal.close();
         }
+    }
+
+    /** Clears all inline validation errors from the application form fields. */
+    _clearFormErrors() {
+        const fields = [
+            this._firstNameRef.value,
+            this._lastNameRef.value,
+            this._emailRef.value,
+            this._messageRef.value,
+        ];
+        fields.filter(Boolean).forEach((field) => {
+            field.errorMessages = [];
+        });
     }
 
     /**
@@ -211,6 +233,40 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
     */
     /**
+     * Returns a customValidator function for the message field that enforces a 50-character minimum.
+     * Returning a bound function avoids recreating it on every render.
+     * @returns {Function}
+     */
+    get _messageValidator() {
+        const i18n = this._i18n;
+        const t = (key, opts) => (i18n ? i18n.t(key, opts) : key);
+        return (value) => {
+            if (value && value.length < 50) {
+                return [t('job-offer-detail.message-min-length', {current: value.length})];
+            }
+            return [];
+        };
+    }
+
+    /**
+     * Calls handleErrors() on every form field to reveal inline validation messages.
+     * Returns true only when all fields pass validation.
+     * @returns {boolean}
+     */
+    _validateForm() {
+        const fields = [
+            this._firstNameRef.value,
+            this._lastNameRef.value,
+            this._emailRef.value,
+            this._messageRef.value,
+        ];
+        return fields
+            .filter(Boolean)
+            .map((field) => field.handleErrors())
+            .every(Boolean);
+    }
+
+    /**
      * Handles the application form submission by posting to the formalize submissions API.
      * The job's identifier is the formalize form ID, so we can POST to
      * /formalize/submissions with the form reference set to /formalize/forms/<identifier>.
@@ -223,6 +279,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const t = (key) => (i18n ? i18n.t(key) : key);
 
         if (!this.job || !this.entryPointUrl || !this.auth?.token) {
+            return;
+        }
+
+        // Trigger inline validation on all fields before submitting
+        if (!this._validateForm()) {
             return;
         }
 
@@ -284,6 +345,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             this._lastName = '';
             this._email = '';
             this._message = '';
+            this._clearFormErrors();
             this.close();
         } catch (error) {
             console.error('Error submitting application:', error);
@@ -479,6 +541,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                                   <div class="form-row">
                                       <dbp-string-element
+                                          ${ref(this._firstNameRef)}
                                           name="first-name"
                                           lang="${this.lang}"
                                           label="${t('job-offer-detail.first-name')}"
@@ -490,6 +553,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   e.detail.value)}"></dbp-string-element>
 
                                       <dbp-string-element
+                                          ${ref(this._lastNameRef)}
                                           name="last-name"
                                           lang="${this.lang}"
                                           label="${t('job-offer-detail.last-name')}"
@@ -501,6 +565,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   e.detail.value)}"></dbp-string-element>
 
                                       <dbp-string-element
+                                          ${ref(this._emailRef)}
                                           name="email"
                                           lang="${this.lang}"
                                           label="${t('job-offer-detail.email')}"
@@ -513,10 +578,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   </div>
 
                                   <dbp-string-element
+                                      ${ref(this._messageRef)}
                                       name="message"
                                       lang="${this.lang}"
                                       label="${t('job-offer-detail.message')}"
                                       .value="${this._message}"
+                                      required
+                                      .customValidator="${this._messageValidator}"
                                       rows="4"
                                       @change="${(e) =>
                                           (this._message = e.detail.value)}"></dbp-string-element>
