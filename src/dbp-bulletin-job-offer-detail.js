@@ -374,9 +374,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   .auth="${this.auth}"
                                   entry-point-url="${this.entryPointUrl}"
                                   form-identifier="${job.identifier}"
-                                  notification-target-id="dbp-notification-apply"
-                                  @dbp-job-offer-applied="${() =>
-                                      this.close()}"></dbp-bulletin-job-offer-form>
+                                  notification-target-id="dbp-notification-apply"></dbp-bulletin-job-offer-form>
                           `
                         : ''}
                 </div>

@@ -589,6 +589,8 @@ export class JobOfferFormElement extends BaseFormElement {
         this._messageRef = createRef();
 
         this._isSubmitting = false;
+        /** @type {boolean} True after a successful submission; hides the form and shows a confirmation message */
+        this._hasApplied = false;
     }
 
     static get properties() {
@@ -596,6 +598,7 @@ export class JobOfferFormElement extends BaseFormElement {
             ...super.properties,
             notificationTargetId: {type: String, attribute: 'notification-target-id'},
             _isSubmitting: {state: true},
+            _hasApplied: {state: true},
         };
     }
 
@@ -758,8 +761,9 @@ export class JobOfferFormElement extends BaseFormElement {
                 targetNotificationId: this.notificationTargetId,
             });
 
-            // Reset the form fields after a successful submission
+            // Reset the form fields after a successful submission and hide the form
             this._clearFormErrors();
+            this._hasApplied = true;
 
             // Notify the parent component (e.g. the detail modal) that the application was sent
             this.dispatchEvent(
@@ -796,6 +800,15 @@ export class JobOfferFormElement extends BaseFormElement {
 
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
+
+        if (this._hasApplied) {
+            return html`
+                <div class="applied-notice">
+                    <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
+                    <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
+                </div>
+            `;
+        }
 
         return html`
             <form class="apply-form" @submit="${this._onApplySubmit}" novalidate>
@@ -902,6 +915,27 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: flex;
                     justify-content: flex-end;
                     margin-top: 1rem;
+                }
+
+                .applied-notice {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    border: var(--dbp-border);
+                    border-radius: var(--dbp-border-radius);
+                    padding: 1.25rem;
+                    margin-top: 1.5rem;
+                    color: var(--dbp-success);
+                }
+
+                .applied-icon {
+                    font-size: 1.75rem;
+                    flex-shrink: 0;
+                }
+
+                .applied-message {
+                    margin: 0;
+                    font-size: 1rem;
                 }
             `,
         ];

@@ -4,6 +4,7 @@
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus."
     },
     "job-offer-detail": {
+        "already-applied": "Sie haben sich bereits für diese Stelle beworben. Ihre Bewerbung wurde erfolgreich übermittelt.",
         "application-title": "Bewerbung",
         "apply": "Bewerben",
         "apply-success": "Ihre Bewerbung wurde erfolgreich übermittelt.",
