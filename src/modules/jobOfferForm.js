@@ -1,5 +1,6 @@
 import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-object.js';
 import {css, html} from 'lit';
+import {createRef, ref} from 'lit/directives/ref.js';
 import {DbpStringElement, DbpDateElement, DbpEnumElement} from '@dbp-toolkit/form-elements';
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
 import {
@@ -564,71 +565,223 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 }
 
-class JobOfferFormElement extends BaseFormElement {
+export class JobOfferFormElement extends BaseFormElement {
     constructor() {
         super();
         this.jobTypes = JOB_TYPES;
         this.areasOfInterest = AREAS_OF_INTEREST;
+
+        // Override the formalize i18n instance with the app's own instance so that
+        // job-offer-detail.* translation keys are resolved correctly.
+        this._i18n = createInstance();
+        this.lang = this._i18n.language;
+
+        /** @type {string} The notification target ID used by the parent modal */
+        this.notificationTargetId = 'dbp-notification-apply';
+
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the first-name field element */
+        this._firstNameRef = createRef();
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the last-name field element */
+        this._lastNameRef = createRef();
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the email field element */
+        this._emailRef = createRef();
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the message field element */
+        this._messageRef = createRef();
+
+        this._isSubmitting = false;
+    }
+
+    static get properties() {
+        return {
+            ...super.properties,
+            notificationTargetId: {type: String, attribute: 'notification-target-id'},
+            _isSubmitting: {state: true},
+        };
     }
 
     connectedCallback() {
         super.connectedCallback();
 
         this.updateComplete.then(() => {
-            // Listen for the form submission event dispatched by the base class
+            // Listen for the form submission event dispatched by sendSubmission() in base class
             this.addEventListener('DbpFormalizeFormSubmission', async (event) => {
-                const data = event.detail;
-
-                const postFormData = new FormData();
-                postFormData.append('form', '/formalize/forms/' + this.formIdentifier);
-                postFormData.append('dataFeedElement', JSON.stringify(data.formData));
-                postFormData.append('submissionState', String(SUBMISSION_STATES_BINARY.SUBMITTED));
-
-                try {
-                    const options = {
-                        method: 'POST',
-                        headers: {
-                            Authorization: `Bearer ${this.auth.token}`,
-                        },
-                        body: postFormData,
-                    };
-                    const url = `${this.entryPointUrl}/formalize/submissions`;
-                    const response = await fetch(url, options);
-                    const responseBody = await response.json();
-
-                    if (!response.ok) {
-                        sendNotification({
-                            summary: 'Error',
-                            body: `Failed to submit job offer. Response status: ${response.status}<br>${responseBody.description}`,
-                            type: 'danger',
-                            timeout: 0,
-                        });
-                    } else {
-                        this.wasSubmissionSuccessful = true;
-                    }
-                } catch (error) {
-                    console.error(error.message);
-                    sendNotification({
-                        summary: 'Error',
-                        body: error.message,
-                        type: 'danger',
-                        timeout: 0,
-                    });
-                } finally {
-                    if (this.wasSubmissionSuccessful) {
-                        sendNotification({
-                            summary: 'Success',
-                            body: 'Job offer submitted successfully',
-                            type: 'success',
-                            timeout: 5,
-                        });
-                    }
-                }
-
-                this.saveButtonEnabled = true;
-                this.formData = data;
+                await this._handleSubmission(event.detail);
             });
         });
+    }
+
+    /**
+     * Clears all inline validation errors from the application form fields.
+     */
+    _clearFormErrors() {
+        const fields = [
+            this._firstNameRef.value,
+            this._lastNameRef.value,
+            this._emailRef.value,
+            this._messageRef.value,
+        ];
+        fields.filter(Boolean).forEach((field) => {
+            field.errorMessages = [];
+        });
+    }
+
+    /**
+     * Calls handleErrors() on every form field to reveal inline validation messages.
+     * Returns true only when all fields pass validation.
+     * @returns {boolean}
+     */
+    _validateApplicationForm() {
+        const fields = [
+            this._firstNameRef.value,
+            this._lastNameRef.value,
+            this._emailRef.value,
+            this._messageRef.value,
+        ];
+        return fields
+            .filter(Boolean)
+            .map((field) => field.handleErrors())
+            .every(Boolean);
+    }
+
+    /**
+     * Returns a customValidator function for the email field.
+     * @returns {Function}
+     */
+    get _emailValidator() {
+        const i18n = this._i18n;
+        return (value) => {
+            if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                return [i18n.t('job-offer-detail.email-invalid')];
+            }
+            return [];
+        };
+    }
+
+    /**
+     * Returns a customValidator function for the message field that enforces a 50-character minimum.
+     * @returns {Function}
+     */
+    get _messageValidator() {
+        const i18n = this._i18n;
+        return (value) => {
+            if (value && value.length < 50) {
+                return [i18n.t('job-offer-detail.message-min-length', {current: value.length})];
+            }
+            return [];
+        };
+    }
+
+    /**
+     * Handles the application form submission triggered by the native form submit event.
+     * Validates inline, then delegates to sendSubmission() from the base class which
+     * gathers form data and dispatches DbpFormalizeFormSubmission.
+     * @param {Event} e
+     */
+    async _onApplySubmit(e) {
+        e.preventDefault();
+
+        if (!this.formIdentifier || !this.entryPointUrl || !this.auth?.token) {
+            return;
+        }
+
+        if (!this._validateApplicationForm()) {
+            return;
+        }
+
+        // Collect person_id from auth if available and inject it as a hidden value
+        // so sendSubmission() includes it via gatherFormDataFromElement
+        this._isSubmitting = true;
+        this.saveButtonEnabled = false;
+
+        // Build submission data manually from the ref'd fields since these are
+        // custom web-component fields not part of the BaseFormElement form element tree.
+        const submissionData = {
+            givenName: this._firstNameRef.value?.value ?? '',
+            familyName: this._lastNameRef.value?.value ?? '',
+            email: this._emailRef.value?.value ?? '',
+            freeText: this._messageRef.value?.value ?? '',
+            personIdentifier: this.auth.person_id ?? '',
+        };
+
+        await this._handleSubmission({formData: submissionData, submissionId: null});
+    }
+
+    /**
+     * Posts the submission data to the formalize submissions API.
+     * On success dispatches a `dbp-job-offer-applied` event and shows a success notification.
+     * On failure shows an error notification.
+     * @param {{formData: object, submissionId: string|null}} detail
+     */
+    async _handleSubmission(detail) {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const {formData} = detail;
+
+        const postFormData = new FormData();
+        postFormData.append('form', '/formalize/forms/' + this.formIdentifier);
+        postFormData.append('dataFeedElement', JSON.stringify(formData));
+        postFormData.append('submissionState', String(SUBMISSION_STATES_BINARY.SUBMITTED));
+
+        try {
+            const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${this.auth.token}`,
+                },
+                body: postFormData,
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => ({}));
+                console.error('Failed to submit application:', response.status, errorBody);
+                const apiMessage = errorBody.description || errorBody['hydra:description'] || '';
+                const body = apiMessage
+                    ? `${t('job-offer-detail.notification.submit-error-body')}\n${apiMessage}`
+                    : t('job-offer-detail.notification.submit-error-body');
+                sendNotification({
+                    summary: t('job-offer-detail.notification.submit-error-heading'),
+                    body: body,
+                    type: 'danger',
+                    timeout: 0,
+                    replaceId: 'dbp-notification-apply',
+                    targetNotificationId: this.notificationTargetId,
+                });
+                return;
+            }
+
+            sendNotification({
+                summary: t('job-offer-detail.notification.success-heading'),
+                body: t('job-offer-detail.apply-success'),
+                icon: 'checkmark',
+                type: 'success',
+                timeout: 5,
+                replaceId: 'dbp-notification-apply',
+                targetNotificationId: this.notificationTargetId,
+            });
+
+            // Reset the form fields after a successful submission
+            this._clearFormErrors();
+
+            // Notify the parent component (e.g. the detail modal) that the application was sent
+            this.dispatchEvent(
+                new CustomEvent('dbp-job-offer-applied', {
+                    bubbles: true,
+                    composed: true,
+                }),
+            );
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            sendNotification({
+                summary: t('job-offer-detail.notification.submit-error-heading'),
+                body: t('job-offer-detail.notification.submit-error-body'),
+                type: 'danger',
+                timeout: 0,
+                replaceId: 'dbp-notification-apply',
+                targetNotificationId: this.notificationTargetId,
+            });
+        } finally {
+            this._isSubmitting = false;
+            this.saveButtonEnabled = true;
+        }
     }
 
     static get scopedElements() {
@@ -642,105 +795,62 @@ class JobOfferFormElement extends BaseFormElement {
     }
 
     render() {
-        const data = this.formData || {};
+        const t = (key, opts) => this._i18n.t(key, opts);
 
         return html`
-            <h2>Job Offer Form</h2>
+            <form class="apply-form" @submit="${this._onApplySubmit}" novalidate>
+                <h4 class="apply-heading">${t('job-offer-detail.application-title')}</h4>
 
-            <form class="formalize-form">
-                <div class="form-header">${this.getButtonRowHtml()}</div>
-
-                <fieldset class="form-section">
-                    <legend>Mandatory Data</legend>
+                <div class="form-row">
+                    <dbp-form-string-element
+                        ${ref(this._firstNameRef)}
+                        subscribe="lang"
+                        name="givenName"
+                        label="${t('job-offer-detail.first-name')}"
+                        .value="${this.formData?.givenName ?? ''}"
+                        required
+                        autocomplete="given-name"></dbp-form-string-element>
 
                     <dbp-form-string-element
+                        ${ref(this._lastNameRef)}
                         subscribe="lang"
-                        name="title"
-                        label="Job title"
-                        .value=${data.title || ''}
-                        required></dbp-form-string-element>
-
-                    <dbp-form-date-element
-                        subscribe="lang"
-                        name="publishedAt"
-                        label="Publication date"
-                        .value=${data.publishedAt || ''}
-                        required></dbp-form-date-element>
-
-                    <dbp-form-date-element
-                        subscribe="lang"
-                        name="deadline"
-                        label="End of publication"
-                        .value=${data.deadline || ''}
-                        required></dbp-form-date-element>
+                        name="familyName"
+                        label="${t('job-offer-detail.last-name')}"
+                        .value="${this.formData?.familyName ?? ''}"
+                        required
+                        autocomplete="family-name"></dbp-form-string-element>
 
                     <dbp-form-string-element
+                        ${ref(this._emailRef)}
                         subscribe="lang"
-                        name="description"
-                        label="Job description"
-                        .value=${data.description || ''}
-                        rows="5"
-                        required></dbp-form-string-element>
-                </fieldset>
+                        name="email"
+                        label="${t('job-offer-detail.email')}"
+                        .value="${this.formData?.email ?? ''}"
+                        type="email"
+                        required
+                        .customValidator="${this._emailValidator}"
+                        autocomplete="email"></dbp-form-string-element>
+                </div>
 
-                <fieldset class="form-section">
-                    <legend>Optional Data</legend>
+                <dbp-form-string-element
+                    ${ref(this._messageRef)}
+                    subscribe="lang"
+                    name="freeText"
+                    label="${t('job-offer-detail.message')}"
+                    .value="${this.formData?.freeText ?? ''}"
+                    required
+                    .customValidator="${this._messageValidator}"
+                    rows="4"></dbp-form-string-element>
 
-                    <dbp-form-date-element
-                        subscribe="lang"
-                        name="startDate"
-                        label="Job start date"
-                        .value=${data.startDate || ''}></dbp-form-date-element>
-
-                    <dbp-form-string-element
-                        subscribe="lang"
-                        name="salary"
-                        label="Salary per month"
-                        .value=${data.salary || ''}></dbp-form-string-element>
-
-                    <dbp-form-string-element
-                        subscribe="lang"
-                        name="weeklyHours"
-                        label="Employment level per week"
-                        .value=${data.weeklyHours || ''}></dbp-form-string-element>
-
-                    <dbp-form-enum-element
-                        subscribe="lang"
-                        name="jobType"
-                        label="Job Type"
-                        .items=${this.jobTypes}
-                        .value=${data.jobType || ''}></dbp-form-enum-element>
-
-                    <dbp-form-enum-element
-                        subscribe="lang"
-                        name="areaOfInterest"
-                        label="Area of interest"
-                        .items=${this.areasOfInterest}
-                        .value=${data.areaOfInterest || ''}></dbp-form-enum-element>
-
-                    <dbp-form-string-element
-                        subscribe="lang"
-                        name="linkName"
-                        label="Name of an additional link"
-                        .value=${data.linkName || ''}></dbp-form-string-element>
-
-                    <dbp-form-string-element
-                        subscribe="lang"
-                        name="linkUrl"
-                        label="Link URL"
-                        .customValidator=${(value) => {
-                            if (!value) return [];
-                            try {
-                                new URL(value);
-                                return [];
-                            } catch {
-                                return ['Please enter a valid URL (e.g. https://example.com)'];
-                            }
-                        }}
-                        .value=${data.linkUrl || ''}></dbp-form-string-element>
-                </fieldset>
+                <div class="form-footer">
+                    <button
+                        class="button is-primary"
+                        type="submit"
+                        ?disabled="${this._isSubmitting}">
+                        ${t('job-offer-detail.submit')}
+                    </button>
+                </div>
             </form>
-            ${this._renderResult(this.formData)}
         `;
     }
 
@@ -749,36 +859,51 @@ class JobOfferFormElement extends BaseFormElement {
         return [
             super.styles,
             css`
-                .form-section {
-                    border: 1px solid var(--dbp-override-muted, #ccc);
-                    border-radius: 4px;
-                    padding: 1em;
-                    margin-top: 1.5em;
+                ${commonStyles.getButtonCSS()}
+
+                .apply-form {
+                    border: var(--dbp-border);
+                    border-radius: var(--dbp-border-radius);
+                    padding: 1.25rem;
+                    margin-top: 1.5rem;
                 }
 
-                .form-section legend {
-                    padding: 0 0.5em;
-                    font-weight: bold;
+                .apply-heading {
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                    margin: 0 0 1rem 0;
+                }
+
+                /* Three-column form row for first name, last name, email */
+                .form-row {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 1rem;
+                    margin-bottom: 0.75rem;
+                }
+
+                @media (max-width: 560px) {
+                    .form-row {
+                        grid-template-columns: 1fr;
+                    }
+                }
+
+                .form-row dbp-form-string-element {
+                    margin-bottom: 0;
+                }
+
+                /* Vertical spacing for the message element */
+                .apply-form dbp-form-string-element {
+                    display: block;
+                    margin-bottom: 0.75rem;
+                }
+
+                .form-footer {
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1rem;
                 }
             `,
         ];
-    }
-
-    /**
-     * Renders the submitted form data as a JSON preview for debugging.
-     * @param {object} data
-     * @returns {import('lit').TemplateResult}
-     */
-    _renderResult(data) {
-        if (data && Object.keys(data).length > 0) {
-            return html`
-                <div class="container">
-                    <h2>Form data</h2>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
-                </div>
-            `;
-        }
-
-        return html``;
     }
 }

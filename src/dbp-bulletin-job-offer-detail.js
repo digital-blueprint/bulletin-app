@@ -1,47 +1,28 @@
 import {css, html} from 'lit';
-import {createRef, ref} from 'lit/directives/ref.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
 import {Modal, Icon} from '@dbp-toolkit/common';
-import {DbpStringElement} from '@dbp-toolkit/form-elements';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {sendNotification} from '@dbp-toolkit/common';
 import {Notification} from '@dbp-toolkit/notification';
+import {JobOfferFormElement} from './modules/jobOfferForm.js';
 
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
         /** @type {object|null} The job offer to display */
         this.job = null;
-        /** @type {string} First name entered in the application form */
-        this._firstName = '';
-        /** @type {string} Last name entered in the application form */
-        this._lastName = '';
-        /** @type {string} Email address entered in the application form */
-        this._email = '';
-        /** @type {string} Free-text message entered in the application form */
-        this._message = '';
         /** @type {boolean} Whether the share dropdown is open */
         this._shareDropdownOpen = false;
-        /** @type {boolean} Whether the application form submission is in progress */
-        this._isSubmitting = false;
-        /** @type {import('lit/directives/ref.js').Ref} Ref to the first-name field element */
-        this._firstNameRef = createRef();
-        /** @type {import('lit/directives/ref.js').Ref} Ref to the last-name field element */
-        this._lastNameRef = createRef();
-        /** @type {import('lit/directives/ref.js').Ref} Ref to the email field element */
-        this._emailRef = createRef();
-        /** @type {import('lit/directives/ref.js').Ref} Ref to the message field element */
-        this._messageRef = createRef();
     }
 
     static get scopedElements() {
         return {
             'dbp-modal': Modal,
             'dbp-icon': Icon,
-            'dbp-string-element': DbpStringElement,
             'dbp-notification': Notification,
+            'dbp-bulletin-job-offer-form': JobOfferFormElement,
         };
     }
 
@@ -49,12 +30,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return {
             ...super.properties,
             job: {type: Object},
-            _firstName: {state: true},
-            _lastName: {state: true},
-            _email: {state: true},
-            _message: {state: true},
             _shareDropdownOpen: {state: true},
-            _isSubmitting: {state: true},
         };
     }
 
@@ -72,19 +48,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         if (modal) {
             modal.close();
         }
-    }
-
-    /** Clears all inline validation errors from the application form fields. */
-    _clearFormErrors() {
-        const fields = [
-            this._firstNameRef.value,
-            this._lastNameRef.value,
-            this._emailRef.value,
-            this._messageRef.value,
-        ];
-        fields.filter(Boolean).forEach((field) => {
-            field.errorMessages = [];
-        });
     }
 
     /**
@@ -232,152 +195,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         window.open(`https://www.xing.com/spi/shares/new?url=${encodeURIComponent(url)}`, '_blank');
     }
     */
-    /**
-     * Returns a customValidator function for the email field that checks for a valid email format.
-     * Uses the same pattern as the URL validator in DbpStringElement.
-     * @returns {Function}
-     */
-    get _emailValidator() {
-        const i18n = this._i18n;
-        const t = (key) => (i18n ? i18n.t(key) : key);
-        return (value) => {
-            if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                return [t('job-offer-detail.email-invalid')];
-            }
-            return [];
-        };
-    }
-
-    /**
-     * Returns a customValidator function for the message field that enforces a 50-character minimum.
-     * Returning a bound function avoids recreating it on every render.
-     * @returns {Function}
-     */
-    get _messageValidator() {
-        const i18n = this._i18n;
-        const t = (key, opts) => (i18n ? i18n.t(key, opts) : key);
-        return (value) => {
-            if (value && value.length < 50) {
-                return [t('job-offer-detail.message-min-length', {current: value.length})];
-            }
-            return [];
-        };
-    }
-
-    /**
-     * Calls handleErrors() on every form field to reveal inline validation messages.
-     * Returns true only when all fields pass validation.
-     * @returns {boolean}
-     */
-    _validateForm() {
-        const fields = [
-            this._firstNameRef.value,
-            this._lastNameRef.value,
-            this._emailRef.value,
-            this._messageRef.value,
-        ];
-        return fields
-            .filter(Boolean)
-            .map((field) => field.handleErrors())
-            .every(Boolean);
-    }
-
-    /**
-     * Handles the application form submission by posting to the formalize submissions API.
-     * The job's identifier is the formalize form ID, so we can POST to
-     * /formalize/submissions with the form reference set to /formalize/forms/<identifier>.
-     * @param {Event} e
-     */
-    async onSubmit(e) {
-        e.preventDefault();
-
-        const i18n = this._i18n;
-        const t = (key) => (i18n ? i18n.t(key) : key);
-
-        if (!this.job || !this.entryPointUrl || !this.auth?.token) {
-            return;
-        }
-
-        // Trigger inline validation on all fields before submitting
-        if (!this._validateForm()) {
-            return;
-        }
-
-        this._isSubmitting = true;
-
-        const submissionData = {
-            givenName: this._firstName,
-            familyName: this._lastName,
-            email: this._email,
-            freeText: this._message,
-            // Include the person identifier from the auth token if available
-            personIdentifier: this.auth.person_id ?? '',
-        };
-
-        const formData = new FormData();
-        formData.append('form', '/formalize/forms/' + this.job.identifier);
-        formData.append('dataFeedElement', JSON.stringify(submissionData));
-        // Use binary submission state 2 (submitted), matching the pattern in JobOfferFormElement
-        formData.append('submissionState', '2');
-
-        try {
-            const response = await fetch(this.entryPointUrl + '/formalize/submissions', {
-                method: 'POST',
-                headers: {
-                    Authorization: 'Bearer ' + this.auth.token,
-                },
-                body: formData,
-            });
-
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => ({}));
-                console.error('Failed to submit application:', response.status, errorBody);
-                const apiMessage = errorBody.description || errorBody['hydra:description'] || '';
-                const body = apiMessage
-                    ? `${t('job-offer-detail.notification.submit-error-body')}\n${apiMessage}`
-                    : t('job-offer-detail.notification.submit-error-body');
-                sendNotification({
-                    summary: t('job-offer-detail.notification.submit-error-heading'),
-                    body: body,
-                    type: 'danger',
-                    timeout: 0,
-                    replaceId: 'dbp-notification-apply',
-                    targetNotificationId: 'dbp-notification-apply',
-                });
-                return;
-            }
-
-            sendNotification({
-                summary: t('job-offer-detail.notification.success-heading'),
-                body: t('job-offer-detail.apply-success'),
-                icon: 'checkmark',
-                type: 'success',
-                timeout: 5,
-                replaceId: 'dbp-notification-apply',
-                targetNotificationId: 'dbp-notification-apply',
-            });
-
-            this._firstName = '';
-            this._lastName = '';
-            this._email = '';
-            this._message = '';
-            this._clearFormErrors();
-            this.close();
-        } catch (error) {
-            console.error('Error submitting application:', error);
-            sendNotification({
-                summary: t('job-offer-detail.notification.submit-error-heading'),
-                body: t('job-offer-detail.notification.submit-error-body'),
-                type: 'danger',
-                timeout: 0,
-                replaceId: 'dbp-notification-apply',
-                targetNotificationId: 'dbp-notification-apply',
-            });
-        } finally {
-            this._isSubmitting = false;
-        }
-    }
-
     render() {
         const job = this.job;
         const i18n = this._i18n;
@@ -525,10 +342,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               class="button is-primary apply-anchor-btn"
                                               type="button"
                                               @click="${() => {
-                                                  const form =
-                                                      this.shadowRoot?.querySelector('.apply-form');
-                                                  if (form) {
-                                                      form.scrollIntoView({behavior: 'smooth'});
+                                                  // Scroll to the job offer form component
+                                                  const formEl = this.shadowRoot?.querySelector(
+                                                      'dbp-bulletin-job-offer-form',
+                                                  );
+                                                  if (formEl) {
+                                                      formEl.scrollIntoView({behavior: 'smooth'});
                                                   }
                                               }}">
                                               <dbp-icon
@@ -549,72 +368,15 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                               <!-- Requirements section: use English requirements when language is English and available -->
                               ${this._renderRequirements(job, t)}
 
-                              <!-- Application form -->
-                              <form class="apply-form" @submit="${this.onSubmit}" novalidate>
-                                  <h4 class="apply-heading">
-                                      ${t('job-offer-detail.application-title')}
-                                  </h4>
-
-                                  <div class="form-row">
-                                      <dbp-string-element
-                                          ${ref(this._firstNameRef)}
-                                          name="first-name"
-                                          lang="${this.lang}"
-                                          label="${t('job-offer-detail.first-name')}"
-                                          .value="${this._firstName}"
-                                          required
-                                          autocomplete="given-name"
-                                          @change="${(e) =>
-                                              (this._firstName =
-                                                  e.detail.value)}"></dbp-string-element>
-
-                                      <dbp-string-element
-                                          ${ref(this._lastNameRef)}
-                                          name="last-name"
-                                          lang="${this.lang}"
-                                          label="${t('job-offer-detail.last-name')}"
-                                          .value="${this._lastName}"
-                                          required
-                                          autocomplete="family-name"
-                                          @change="${(e) =>
-                                              (this._lastName =
-                                                  e.detail.value)}"></dbp-string-element>
-
-                                      <dbp-string-element
-                                          ${ref(this._emailRef)}
-                                          name="email"
-                                          lang="${this.lang}"
-                                          label="${t('job-offer-detail.email')}"
-                                          .value="${this._email}"
-                                          type="email"
-                                          required
-                                          .customValidator="${this._emailValidator}"
-                                          autocomplete="email"
-                                          @change="${(e) =>
-                                              (this._email = e.detail.value)}"></dbp-string-element>
-                                  </div>
-
-                                  <dbp-string-element
-                                      ${ref(this._messageRef)}
-                                      name="message"
-                                      lang="${this.lang}"
-                                      label="${t('job-offer-detail.message')}"
-                                      .value="${this._message}"
-                                      required
-                                      .customValidator="${this._messageValidator}"
-                                      rows="4"
-                                      @change="${(e) =>
-                                          (this._message = e.detail.value)}"></dbp-string-element>
-
-                                  <div class="form-footer">
-                                      <button
-                                          class="button is-primary"
-                                          type="submit"
-                                          ?disabled="${this._isSubmitting}">
-                                          ${t('job-offer-detail.submit')}
-                                      </button>
-                                  </div>
-                              </form>
+                              <!-- Application form rendered by the JobOfferFormElement component -->
+                              <dbp-bulletin-job-offer-form
+                                  lang="${this.lang}"
+                                  .auth="${this.auth}"
+                                  entry-point-url="${this.entryPointUrl}"
+                                  form-identifier="${job.identifier}"
+                                  notification-target-id="dbp-notification-apply"
+                                  @dbp-job-offer-applied="${() =>
+                                      this.close()}"></dbp-bulletin-job-offer-form>
                           `
                         : ''}
                 </div>
@@ -719,50 +481,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .requirements-list li {
                 margin-bottom: 0.4rem;
-            }
-
-            /* Application form */
-            .apply-form {
-                border: var(--dbp-border);
-                border-radius: var(--dbp-border-radius);
-                padding: 1.25rem;
-                margin-top: 1.5rem;
-            }
-
-            .apply-heading {
-                font-size: 1.1rem;
-                font-weight: 700;
-                margin: 0 0 1rem 0;
-            }
-
-            /* Three-column form row for first name, last name, email */
-            .form-row {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 1rem;
-                margin-bottom: 0.75rem;
-            }
-
-            @media (max-width: 560px) {
-                .form-row {
-                    grid-template-columns: 1fr;
-                }
-            }
-
-            .form-row dbp-string-element {
-                margin-bottom: 0;
-            }
-
-            /* Vertical spacing for the message element */
-            .apply-form dbp-string-element {
-                display: block;
-                margin-bottom: 0.75rem;
-            }
-
-            .form-footer {
-                display: flex;
-                justify-content: flex-end;
-                margin-top: 1rem;
             }
 
             /* Detail content padding */
