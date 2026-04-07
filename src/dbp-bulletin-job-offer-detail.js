@@ -133,6 +133,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                         body: this._i18n.t('job-offer-detail.notification.error-body'),
                         type: 'danger',
                         timeout: 0,
+                        replaceId: 'dbp-notification-apply',
+                        targetNotificationId: 'dbp-notification-apply',
                     });
                 }
             }
@@ -258,6 +260,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     body: t('job-offer-detail.notification.error-body'),
                     type: 'danger',
                     timeout: 0,
+                    replaceId: 'dbp-notification-apply',
+                    targetNotificationId: 'dbp-notification-apply',
                 });
                 return;
             }
@@ -268,6 +272,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 icon: 'checkmark',
                 type: 'success',
                 timeout: 5,
+                replaceId: 'dbp-notification-apply',
+                targetNotificationId: 'dbp-notification-apply',
             });
 
             this._firstName = '';
@@ -282,6 +288,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 body: t('job-offer-detail.notification.error-body'),
                 type: 'danger',
                 timeout: 0,
+                replaceId: 'dbp-notification-apply',
+                targetNotificationId: 'dbp-notification-apply',
             });
         } finally {
             this._isSubmitting = false;
@@ -301,6 +309,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <dbp-notification
                         id="dbp-notification-copy"
                         lang="en"
+                        inline></dbp-notification>
+                    <dbp-notification
+                        id="dbp-notification-apply"
+                        lang="${this.lang}"
                         inline></dbp-notification>
                 </div>
                 <!-- Title slot -->
