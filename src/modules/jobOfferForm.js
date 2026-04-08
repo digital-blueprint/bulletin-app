@@ -589,8 +589,10 @@ export class JobOfferFormElement extends BaseFormElement {
         this._messageRef = createRef();
 
         this._isSubmitting = false;
-        /** @type {boolean} True after a successful submission; hides the form and shows a confirmation message */
+        /** @type {boolean} True after a successful submission or when a prior submission is detected on open */
         this._hasApplied = false;
+        /** @type {boolean} True while the prior-submission check is in progress */
+        this._checkingApplied = false;
     }
 
     static get properties() {
@@ -599,7 +601,59 @@ export class JobOfferFormElement extends BaseFormElement {
             notificationTargetId: {type: String, attribute: 'notification-target-id'},
             _isSubmitting: {state: true},
             _hasApplied: {state: true},
+            _checkingApplied: {state: true},
         };
+    }
+
+    async update(changedProperties) {
+        await super.update(changedProperties);
+
+        // Re-run the prior-submission check whenever the form identifier or auth token changes
+        if (changedProperties.has('formIdentifier') || changedProperties.has('auth')) {
+            if (this.formIdentifier && this.auth?.token) {
+                this._checkAlreadyApplied();
+            }
+        }
+    }
+
+    /**
+     * Fetches the current user's submissions for this form from the formalize API.
+     * Sets _hasApplied to true if at least one submission is found.
+     */
+    async _checkAlreadyApplied() {
+        const userId = this.auth?.['user-id'];
+        if (!userId || !this.formIdentifier || !this.entryPointUrl) {
+            return;
+        }
+
+        this._checkingApplied = true;
+
+        try {
+            const url =
+                `${this.entryPointUrl}/formalize/submissions` +
+                `?formIdentifier=${encodeURIComponent(this.formIdentifier)}` +
+                `&perPage=1` +
+                `&creatorIdEquals=${encodeURIComponent(userId)}`;
+
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${this.auth.token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const members = data['hydra:member'] ?? [];
+                if (members.length > 0) {
+                    this._hasApplied = true;
+                }
+            }
+        } catch (error) {
+            // Non-fatal: if the check fails we simply show the form as normal
+            console.error('Error checking prior application:', error);
+        } finally {
+            this._checkingApplied = false;
+        }
     }
 
     connectedCallback() {
@@ -801,6 +855,12 @@ export class JobOfferFormElement extends BaseFormElement {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
 
+        if (this._checkingApplied) {
+            return html`
+                <div class="checking-spinner"><dbp-icon name="reload"></dbp-icon></div>
+            `;
+        }
+
         if (this._hasApplied) {
             return html`
                 <div class="applied-notice">
@@ -915,6 +975,16 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: flex;
                     justify-content: flex-end;
                     margin-top: 1rem;
+                }
+
+                .checking-spinner {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2rem;
+                    margin-top: 1.5rem;
+                    color: var(--dbp-muted);
+                    font-size: 1.5rem;
                 }
 
                 .applied-notice {
