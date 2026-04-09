@@ -11,3 +11,5 @@
 - For dialogs always use dbp-modal.
 - Don't update files in `dist/` as they are generated from the source files in `src/`
 - If you need to update the `CHANGELOG.md`, make sure to follow the existing format and include the version number and a clear description of the changes made
+- For building the whitelabel app the folder `assets/` is used for configuration and assets
+- For building the TU Graz app the folder `assets_custom/` is used for configuration and assets
