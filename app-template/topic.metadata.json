@@ -16,5 +16,5 @@
         {"path": "/app/dbp-bulletin-view-job-offers.metadata.json", "visible": true},
         {"path": "/app/dbp-formalize-manage-forms.metadata.json", "visible": true}
     ],
-    "attributes": []
+    "attributes": ["hide-create-submission-button"]
 }
