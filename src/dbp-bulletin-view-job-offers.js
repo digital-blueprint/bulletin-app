@@ -7,7 +7,7 @@ import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElements
 import {Icon, MiniSpinner} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
-import JobOfferModule, {AREAS_OF_INTEREST} from './modules/jobOfferForm.js';
+import JobOfferModule, {AREAS_OF_INTEREST, JOB_TYPES} from './modules/jobOfferForm.js';
 
 const PAGE_SIZE_OPTIONS = [6, 12, 24];
 const DEFAULT_PAGE_SIZE = 12;
@@ -39,8 +39,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loading = false;
         /** @type {boolean} Whether the API request failed */
         this._loadError = false;
-        /** @type {string[]} Unique sorted job-type values derived from loaded data */
-        this._jobTypes = [];
+        /** @type {Array<[string, string]>} Job-type options shared with the form module */
+        this._jobTypes = Object.entries(JOB_TYPES);
         /** @type {Array<[string, string]>} Area-of-interest options shared with the form module */
         this._areasOfInterest = Object.entries(AREAS_OF_INTEREST);
     }
@@ -131,8 +131,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         identifier: form.identifier,
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
-                        jobType: extra.jobType ?? '',
-                        areaOfInterest: extra.areaOfInterest ?? '',
+                        jobType: this._normalizeEnumValue(extra.jobType, JOB_TYPES),
+                        areaOfInterest: this._normalizeEnumValue(
+                            extra.areaOfInterest,
+                            AREAS_OF_INTEREST,
+                        ),
                         publishedAt: extra.publishedAt ?? '',
                         deadline: extra.deadline ?? '',
                         startDate: extra.startDate ?? '',
@@ -154,11 +157,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 })
                 // Only show offers with a future or missing deadline
                 .filter((job) => !job.deadline || new Date(job.deadline) >= new Date());
-
-            // Build unique sorted job-type filter options from the loaded data
-            this._jobTypes = [
-                ...new Set(this._jobOffers.map((j) => j.jobType).filter(Boolean)),
-            ].sort();
         } catch (error) {
             console.error('Error loading job offers:', error);
             this._loadError = true;
@@ -179,6 +177,36 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
         const match = localizedNames.find((n) => n.languageTag === this.lang);
         return (match ?? localizedNames[0]).name ?? '';
+    }
+
+    /**
+     * Normalizes enum values from stored form data to their canonical enum key.
+     * Accepts both the key itself and legacy records that stored the display label.
+     * @param {string} value
+     * @param {Record<string, string>} items
+     * @returns {string}
+     */
+    _normalizeEnumValue(value, items) {
+        if (!value) {
+            return '';
+        }
+
+        if (value in items) {
+            return value;
+        }
+
+        const match = Object.entries(items).find(([, label]) => label === value);
+        return match ? match[0] : value;
+    }
+
+    /**
+     * Returns the display label for an enum key, or the raw value if unknown.
+     * @param {string} value
+     * @param {Record<string, string>} items
+     * @returns {string}
+     */
+    _getEnumLabel(value, items) {
+        return items[value] ?? value;
     }
 
     /**
@@ -246,11 +274,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const query = this.searchQuery.toLowerCase().trim();
         return this._jobOffers
             .filter((job) => {
+                const jobTypeLabel = this._getEnumLabel(job.jobType, JOB_TYPES);
+                const areaOfInterestLabel = this._getEnumLabel(
+                    job.areaOfInterest,
+                    AREAS_OF_INTEREST,
+                );
                 const matchesSearch =
                     !query ||
                     job.title.toLowerCase().includes(query) ||
-                    job.areaOfInterest.toLowerCase().includes(query) ||
-                    job.jobType.toLowerCase().includes(query) ||
+                    areaOfInterestLabel.toLowerCase().includes(query) ||
+                    jobTypeLabel.toLowerCase().includes(query) ||
                     job.description.toLowerCase().includes(query);
                 const matchesJobType = !this.filterJobType || job.jobType === this.filterJobType;
                 const matchesAreaOfInterest =
@@ -377,11 +410,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 .value="${this.filterJobType}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
                                 ${this._jobTypes.map(
-                                    (type) => html`
+                                    ([value, label]) => html`
                                         <option
-                                            value="${type}"
-                                            ?selected="${this.filterJobType === type}">
-                                            ${type}
+                                            value="${value}"
+                                            ?selected="${this.filterJobType === value}">
+                                            ${label}
                                         </option>
                                     `,
                                 )}
@@ -457,7 +490,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               ${job.areaOfInterest
                                                   ? html`
                                                         <span class="job-tag">
-                                                            ${job.areaOfInterest}
+                                                            ${this._getEnumLabel(
+                                                                job.areaOfInterest,
+                                                                AREAS_OF_INTEREST,
+                                                            )}
                                                         </span>
                                                     `
                                                   : ''}

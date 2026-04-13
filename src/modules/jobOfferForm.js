@@ -52,7 +52,7 @@ class JobOfferModule extends BaseObject {
 export default JobOfferModule;
 
 // Available job types and areas of interest for the enum selects
-const JOB_TYPES = {
+export const JOB_TYPES = {
     'full-time': 'Full-time',
     'part-time': 'Part-time',
     temporary: 'Temporary',
