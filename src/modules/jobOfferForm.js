@@ -70,6 +70,11 @@ export const AREAS_OF_INTEREST = {
     other: 'Other',
 };
 
+const withEmptySelectOption = (items, placeholder) => ({
+    '': placeholder,
+    ...items,
+});
+
 /**
  * Web component for editing a job-offer form (create or update).
  *
@@ -392,6 +397,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
+        const optionalSelectItems = {
+            jobTypes: withEmptySelectOption(JOB_TYPES, t('manage-job-offers.select-placeholder')),
+            areasOfInterest: withEmptySelectOption(
+                AREAS_OF_INTEREST,
+                t('manage-job-offers.select-placeholder'),
+            ),
+        };
 
         return html`
             <!-- Mandatory fields -->
@@ -467,7 +479,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 name="job-type"
                 lang="${this.lang}"
                 label="${t('manage-job-offers.field-job-type')}"
-                .items="${JOB_TYPES}"
+                .items="${optionalSelectItems.jobTypes}"
                 .value="${this._jobType}"
                 @change="${(e) => (this._jobType = e.detail.value)}"></dbp-enum-element>
 
@@ -475,7 +487,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 name="area-of-interest"
                 lang="${this.lang}"
                 label="${t('manage-job-offers.field-area-of-interest')}"
-                .items="${AREAS_OF_INTEREST}"
+                .items="${optionalSelectItems.areasOfInterest}"
                 .value="${this._areaOfInterest}"
                 @change="${(e) => (this._areaOfInterest = e.detail.value)}"></dbp-enum-element>
 
