@@ -60,7 +60,7 @@ const JOB_TYPES = {
     student: 'Student position',
 };
 
-const AREAS_OF_INTEREST = {
+export const AREAS_OF_INTEREST = {
     engineering: 'Engineering',
     science: 'Science',
     administration: 'Administration',

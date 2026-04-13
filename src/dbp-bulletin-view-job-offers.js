@@ -7,7 +7,7 @@ import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElements
 import {Icon, MiniSpinner} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
-import JobOfferModule from './modules/jobOfferForm.js';
+import JobOfferModule, {AREAS_OF_INTEREST} from './modules/jobOfferForm.js';
 
 const PAGE_SIZE_OPTIONS = [6, 12, 24];
 const DEFAULT_PAGE_SIZE = 12;
@@ -41,8 +41,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loadError = false;
         /** @type {string[]} Unique sorted job-type values derived from loaded data */
         this._jobTypes = [];
-        /** @type {string[]} Unique sorted area-of-interest values derived from loaded data */
-        this._areasOfInterest = [];
+        /** @type {Array<[string, string]>} Area-of-interest options shared with the form module */
+        this._areasOfInterest = Object.entries(AREAS_OF_INTEREST);
     }
 
     static get properties() {
@@ -155,12 +155,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 // Only show offers with a future or missing deadline
                 .filter((job) => !job.deadline || new Date(job.deadline) >= new Date());
 
-            // Build unique sorted filter option lists from the loaded data
+            // Build unique sorted job-type filter options from the loaded data
             this._jobTypes = [
                 ...new Set(this._jobOffers.map((j) => j.jobType).filter(Boolean)),
-            ].sort();
-            this._areasOfInterest = [
-                ...new Set(this._jobOffers.map((j) => j.areaOfInterest).filter(Boolean)),
             ].sort();
         } catch (error) {
             console.error('Error loading job offers:', error);
@@ -403,11 +400,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 .value="${this.filterAreaOfInterest}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
                                 ${this._areasOfInterest.map(
-                                    (area) => html`
+                                    ([value, label]) => html`
                                         <option
-                                            value="${area}"
-                                            ?selected="${this.filterAreaOfInterest === area}">
-                                            ${area}
+                                            value="${value}"
+                                            ?selected="${this.filterAreaOfInterest === value}">
+                                            ${label}
                                         </option>
                                     `,
                                 )}
