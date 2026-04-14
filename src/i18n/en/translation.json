@@ -49,6 +49,13 @@
         "weekly-hours": "Weekly hours"
     },
     "manage-job-offers": {
+        "area-of-interest-administration": "Administration",
+        "area-of-interest-engineering": "Engineering",
+        "area-of-interest-it": "IT",
+        "area-of-interest-other": "Other",
+        "area-of-interest-research": "Research",
+        "area-of-interest-science": "Science",
+        "area-of-interest-teaching": "Teaching",
         "col-id": "ID",
         "col-title": "Title",
         "create-btn": "Create new job offer",

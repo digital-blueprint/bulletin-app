@@ -10,7 +10,9 @@ import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
     AREAS_OF_INTEREST,
     JOB_CATEGORIES,
+    getAreaOfInterestLabel,
     getJobCategoryLabel,
+    normalizeAreaOfInterestValue,
 } from './modules/jobOfferForm.js';
 
 const PAGE_SIZE_OPTIONS = [6, 12, 24];
@@ -45,8 +47,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loadError = false;
         /** @type {Array<string>} Job-category option values shared with the form module */
         this._jobCategories = Object.keys(JOB_CATEGORIES);
-        /** @type {Array<[string, string]>} Area-of-interest options shared with the form module */
-        this._areasOfInterest = Object.entries(AREAS_OF_INTEREST);
+        /** @type {Array<string>} Area-of-interest option values shared with the form module */
+        this._areasOfInterest = Object.keys(AREAS_OF_INTEREST);
     }
 
     static get properties() {
@@ -136,9 +138,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
                         jobCategory: extra.jobCategory ?? extra.jobType ?? '',
-                        areaOfInterest: this._normalizeEnumValue(
+                        areaOfInterest: normalizeAreaOfInterestValue(
                             extra.areaOfInterest,
-                            AREAS_OF_INTEREST,
+                            this._i18n.t.bind(this._i18n),
                         ),
                         publishedAt: extra.publishedAt ?? '',
                         deadline: extra.deadline ?? '',
@@ -181,36 +183,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
         const match = localizedNames.find((n) => n.languageTag === this.lang);
         return (match ?? localizedNames[0]).name ?? '';
-    }
-
-    /**
-     * Normalizes enum values from stored form data to their canonical enum key.
-     * Accepts both the key itself and legacy records that stored the display label.
-     * @param {string} value
-     * @param {Record<string, string>} items
-     * @returns {string}
-     */
-    _normalizeEnumValue(value, items) {
-        if (!value) {
-            return '';
-        }
-
-        if (value in items) {
-            return value;
-        }
-
-        const match = Object.entries(items).find(([, label]) => label === value);
-        return match ? match[0] : value;
-    }
-
-    /**
-     * Returns the display label for an enum key, or the raw value if unknown.
-     * @param {string} value
-     * @param {Record<string, string>} items
-     * @returns {string}
-     */
-    _getEnumLabel(value, items) {
-        return items[value] ?? value;
     }
 
     /**
@@ -282,9 +254,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     job.jobCategory,
                     this._i18n.t.bind(this._i18n),
                 );
-                const areaOfInterestLabel = this._getEnumLabel(
+                const areaOfInterestLabel = getAreaOfInterestLabel(
                     job.areaOfInterest,
-                    AREAS_OF_INTEREST,
+                    this._i18n.t.bind(this._i18n),
                 );
                 const matchesSearch =
                     !query ||
@@ -444,11 +416,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 .value="${this.filterAreaOfInterest}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
                                 ${this._areasOfInterest.map(
-                                    ([value, label]) => html`
+                                    (value) => html`
                                         <option
                                             value="${value}"
                                             ?selected="${this.filterAreaOfInterest === value}">
-                                            ${label}
+                                            ${getAreaOfInterestLabel(value, t)}
                                         </option>
                                     `,
                                 )}
@@ -501,9 +473,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               ${job.areaOfInterest
                                                   ? html`
                                                         <span class="job-tag">
-                                                            ${this._getEnumLabel(
+                                                            ${getAreaOfInterestLabel(
                                                                 job.areaOfInterest,
-                                                                AREAS_OF_INTEREST,
+                                                                t,
                                                             )}
                                                         </span>
                                                     `

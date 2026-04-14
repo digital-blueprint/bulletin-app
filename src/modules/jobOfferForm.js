@@ -64,6 +64,16 @@ export const JOB_CATEGORIES = {
 };
 
 export const AREAS_OF_INTEREST = {
+    engineering: 'manage-job-offers.area-of-interest-engineering',
+    science: 'manage-job-offers.area-of-interest-science',
+    administration: 'manage-job-offers.area-of-interest-administration',
+    teaching: 'manage-job-offers.area-of-interest-teaching',
+    research: 'manage-job-offers.area-of-interest-research',
+    it: 'manage-job-offers.area-of-interest-it',
+    other: 'manage-job-offers.area-of-interest-other',
+};
+
+const LEGACY_AREA_OF_INTEREST_LABELS = {
     engineering: 'Engineering',
     science: 'Science',
     administration: 'Administration',
@@ -91,6 +101,41 @@ export const getJobCategoryItems = (t, placeholder) =>
         ),
         placeholder,
     );
+
+export const getAreaOfInterestLabel = (value, t) => {
+    const translationKey = AREAS_OF_INTEREST[value];
+
+    return translationKey ? t(translationKey) : value;
+};
+
+export const getAreaOfInterestItems = (t, placeholder) =>
+    withEmptySelectOption(
+        Object.fromEntries(
+            Object.keys(AREAS_OF_INTEREST).map((value) => [
+                value,
+                getAreaOfInterestLabel(value, t),
+            ]),
+        ),
+        placeholder,
+    );
+
+export const normalizeAreaOfInterestValue = (value, t) => {
+    if (!value) {
+        return '';
+    }
+
+    if (value in AREAS_OF_INTEREST) {
+        return value;
+    }
+
+    const match = Object.keys(AREAS_OF_INTEREST).find(
+        (key) =>
+            getAreaOfInterestLabel(key, t) === value ||
+            LEGACY_AREA_OF_INTEREST_LABELS[key] === value,
+    );
+
+    return match ?? value;
+};
 
 /**
  * Web component for editing a job-offer form (create or update).
@@ -416,10 +461,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const optionalSelectItems = {
             jobCategories: getJobCategoryItems(t, t('manage-job-offers.select-placeholder')),
-            areasOfInterest: withEmptySelectOption(
-                AREAS_OF_INTEREST,
-                t('manage-job-offers.select-placeholder'),
-            ),
+            areasOfInterest: getAreaOfInterestItems(t, t('manage-job-offers.select-placeholder')),
         };
 
         return html`

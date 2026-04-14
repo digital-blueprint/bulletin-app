@@ -49,6 +49,13 @@
         "weekly-hours": "Anstellungsausmaß"
     },
     "manage-job-offers": {
+        "area-of-interest-administration": "Verwaltung",
+        "area-of-interest-engineering": "Technik",
+        "area-of-interest-it": "IT",
+        "area-of-interest-other": "Sonstiges",
+        "area-of-interest-research": "Forschung",
+        "area-of-interest-science": "Wissenschaft",
+        "area-of-interest-teaching": "Lehre",
         "col-id": "ID",
         "col-title": "Titel",
         "create-btn": "Neues Jobangebot erstellen",
