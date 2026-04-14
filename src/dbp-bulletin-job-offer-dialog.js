@@ -5,11 +5,11 @@ import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElements
 import {Icon, Modal} from '@dbp-toolkit/common';
 import {DbpStringElement, DbpDateElement, DbpEnumElement} from '@dbp-toolkit/form-elements';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
-import {MOCK_JOB_OFFERS} from './utils/mock.js';
-import {getJobCategoryItems} from './modules/jobOfferForm.js';
-
-// Derive sorted unique option sets from the mock data
-const AREAS_OF_INTEREST = [...new Set(MOCK_JOB_OFFERS.map((j) => j.areaOfInterest))].sort();
+import {
+    getAreaOfInterestItems,
+    getJobCategoryItems,
+    normalizeAreaOfInterestValues,
+} from './modules/jobOfferForm.js';
 
 export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -49,8 +49,8 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._formWeeklyHours = '';
         /** @type {string} Optional job category (enum) */
         this._formJobCategory = '';
-        /** @type {string} Optional area of interest (enum) */
-        this._formAreaOfInterest = '';
+        /** @type {string[]} Optional areas of interest (enum) */
+        this._formAreasOfInterest = [];
     }
 
     static get properties() {
@@ -92,7 +92,9 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._formSalary = job.salary ?? '';
         this._formWeeklyHours = job.weeklyHours ?? '';
         this._formJobCategory = job.jobCategory ?? '';
-        this._formAreaOfInterest = job.areaOfInterest ?? '';
+        this._formAreasOfInterest = normalizeAreaOfInterestValues(
+            job.areasOfInterest ?? job.areaOfInterest,
+        );
     }
 
     /** Resets all form fields to empty defaults. */
@@ -107,7 +109,7 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._formSalary = '';
         this._formWeeklyHours = '';
         this._formJobCategory = '';
-        this._formAreaOfInterest = '';
+        this._formAreasOfInterest = [];
     }
 
     /**
@@ -161,7 +163,8 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
             salary: this._formSalary,
             weeklyHours: this._formWeeklyHours,
             jobCategory: this._formJobCategory,
-            areaOfInterest: this._formAreaOfInterest,
+            areasOfInterest: this._formAreasOfInterest,
+            areaOfInterest: this._formAreasOfInterest[0] ?? '',
         };
 
         const eventName = this.job ? 'dbp-job-offer-update' : 'dbp-job-offer-create';
@@ -191,11 +194,7 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
     _getAreaOfInterestItems() {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
-        const items = {'': t('manage-job-offers.select-placeholder')};
-        AREAS_OF_INTEREST.forEach((area) => {
-            items[area] = area;
-        });
-        return items;
+        return getAreaOfInterestItems(t);
     }
 
     render() {
@@ -358,10 +357,13 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
                         name="area-of-interest"
                         lang="${this.lang}"
                         label="${t('manage-job-offers.field-area-of-interest')}"
+                        multiple
                         .items="${this._getAreaOfInterestItems()}"
-                        .value="${this._formAreaOfInterest}"
+                        .value="${this._formAreasOfInterest}"
                         @change="${(e) =>
-                            (this._formAreaOfInterest = e.detail.value)}"></dbp-enum-element>
+                            (this._formAreasOfInterest = normalizeAreaOfInterestValues(
+                                e.detail.value,
+                            ))}"></dbp-enum-element>
                 </div>
             </dbp-modal>
         `;

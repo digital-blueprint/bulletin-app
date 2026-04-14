@@ -64,23 +64,93 @@ export const JOB_CATEGORIES = {
 };
 
 export const AREAS_OF_INTEREST = {
-    engineering: 'manage-job-offers.area-of-interest-engineering',
-    science: 'manage-job-offers.area-of-interest-science',
     administration: 'manage-job-offers.area-of-interest-administration',
     teaching: 'manage-job-offers.area-of-interest-teaching',
     research: 'manage-job-offers.area-of-interest-research',
+    'natural-sciences': 'manage-job-offers.area-of-interest-natural-sciences',
+    'language-linguistics': 'manage-job-offers.area-of-interest-language-linguistics',
+    medicine: 'manage-job-offers.area-of-interest-medicine',
+    engineering: 'manage-job-offers.area-of-interest-engineering',
     it: 'manage-job-offers.area-of-interest-it',
+    management: 'manage-job-offers.area-of-interest-management',
+    law: 'manage-job-offers.area-of-interest-law',
+    'art-culture-design': 'manage-job-offers.area-of-interest-art-culture-design',
+    'communication-marketing': 'manage-job-offers.area-of-interest-communication-marketing',
+    'library-services': 'manage-job-offers.area-of-interest-library-services',
+    'consulting-support': 'manage-job-offers.area-of-interest-consulting-support',
+    'human-resources': 'manage-job-offers.area-of-interest-human-resources',
+    'finance-controlling': 'manage-job-offers.area-of-interest-finance-controlling',
+    infrastructure: 'manage-job-offers.area-of-interest-infrastructure',
+    'sustainability-environment': 'manage-job-offers.area-of-interest-sustainability-environment',
+    'didactics-educational-development':
+        'manage-job-offers.area-of-interest-didactics-educational-development',
+};
+
+const LEGACY_AREA_OF_INTERESTS = {
     other: 'manage-job-offers.area-of-interest-other',
 };
 
-const LEGACY_AREA_OF_INTEREST_LABELS = {
-    engineering: 'Engineering',
-    science: 'Science',
-    administration: 'Administration',
-    teaching: 'Teaching',
-    research: 'Research',
-    it: 'IT',
-    other: 'Other',
+const AREA_OF_INTEREST_ALIASES = {
+    administration: ['administration', 'verwaltung'],
+    teaching: ['teaching', 'lehre'],
+    research: ['research', 'forschung'],
+    'natural-sciences': [
+        'natural-sciences',
+        'natural sciences',
+        'naturwissenschaften',
+        'science',
+        'wissenschaft',
+    ],
+    'language-linguistics': [
+        'language-linguistics',
+        'language and linguistics',
+        'sprache und linguistik',
+    ],
+    medicine: ['medicine', 'medizin'],
+    engineering: ['engineering', 'technik'],
+    it: ['it'],
+    management: ['management'],
+    law: ['law', 'recht'],
+    'art-culture-design': [
+        'art-culture-design',
+        'art, culture and design',
+        'kunst, kultur und design',
+    ],
+    'communication-marketing': [
+        'communication-marketing',
+        'communication and marketing',
+        'kommunikation und marketing',
+        'kommunikation & marketing',
+    ],
+    'library-services': [
+        'library-services',
+        'library services',
+        'library science',
+        'bibliothekswesen',
+    ],
+    'consulting-support': [
+        'consulting-support',
+        'consulting and support',
+        'beratung und betreuung',
+    ],
+    'human-resources': ['human-resources', 'human resources', 'personalwesen'],
+    'finance-controlling': [
+        'finance-controlling',
+        'finance and controlling',
+        'finanzen und controlling',
+    ],
+    infrastructure: ['infrastructure', 'infrastruktur'],
+    'sustainability-environment': [
+        'sustainability-environment',
+        'sustainability and environment',
+        'nachhaltigkeit und umwelt',
+    ],
+    'didactics-educational-development': [
+        'didactics-educational-development',
+        'didactics and educational development',
+        'didaktik und bildungsentwicklung',
+    ],
+    other: ['other', 'sonstiges'],
 };
 
 const withEmptySelectOption = (items, placeholder) => ({
@@ -103,39 +173,75 @@ export const getJobCategoryItems = (t, placeholder) =>
     );
 
 export const getAreaOfInterestLabel = (value, t) => {
-    const translationKey = AREAS_OF_INTEREST[value];
+    const translationKey = AREAS_OF_INTEREST[value] ?? LEGACY_AREA_OF_INTERESTS[value];
 
     return translationKey ? t(translationKey) : value;
 };
 
-export const getAreaOfInterestItems = (t, placeholder) =>
-    withEmptySelectOption(
-        Object.fromEntries(
-            Object.keys(AREAS_OF_INTEREST).map((value) => [
-                value,
-                getAreaOfInterestLabel(value, t),
-            ]),
-        ),
-        placeholder,
+export const getAreaOfInterestItems = (t, placeholder = null) => {
+    const items = Object.fromEntries(
+        Object.keys(AREAS_OF_INTEREST).map((value) => [value, getAreaOfInterestLabel(value, t)]),
     );
 
-export const normalizeAreaOfInterestValue = (value, t) => {
-    if (!value) {
-        return '';
-    }
+    return placeholder ? withEmptySelectOption(items, placeholder) : items;
+};
 
-    if (value in AREAS_OF_INTEREST) {
+const parseAreaOfInterestValues = (value) => {
+    if (Array.isArray(value)) {
         return value;
     }
 
-    const match = Object.keys(AREAS_OF_INTEREST).find(
-        (key) =>
-            getAreaOfInterestLabel(key, t) === value ||
-            LEGACY_AREA_OF_INTEREST_LABELS[key] === value,
+    if (typeof value !== 'string') {
+        return value ? [value] : [];
+    }
+
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
+        return [];
+    }
+
+    if (trimmedValue.startsWith('[')) {
+        try {
+            const parsedValue = JSON.parse(trimmedValue);
+            return Array.isArray(parsedValue) ? parsedValue : [trimmedValue];
+        } catch {
+            return [trimmedValue];
+        }
+    }
+
+    return [trimmedValue];
+};
+
+const normalizeSingleAreaOfInterestValue = (value) => {
+    if (typeof value !== 'string') {
+        return value ? String(value) : '';
+    }
+
+    const normalizedValue = value.trim().toLowerCase();
+    if (!normalizedValue) {
+        return '';
+    }
+
+    const match = Object.entries(AREA_OF_INTEREST_ALIASES).find(([, aliases]) =>
+        aliases.includes(normalizedValue),
     );
 
-    return match ?? value;
+    return match?.[0] ?? value.trim();
 };
+
+export const normalizeAreaOfInterestValues = (value) => [
+    ...new Set(
+        parseAreaOfInterestValues(value).map(normalizeSingleAreaOfInterestValue).filter(Boolean),
+    ),
+];
+
+export const getAreaOfInterestLabels = (value, t) =>
+    normalizeAreaOfInterestValues(value).map((areaOfInterestValue) =>
+        getAreaOfInterestLabel(areaOfInterestValue, t),
+    );
+
+export const normalizeAreaOfInterestValue = (value) =>
+    normalizeAreaOfInterestValues(value)[0] ?? '';
 
 /**
  * Web component for editing a job-offer form (create or update).
@@ -184,7 +290,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._weeklyHours = '';
         this._salary = '';
         this._jobCategory = '';
-        this._areaOfInterest = '';
+        this._areasOfInterest = [];
         this._linkName = '';
         this._linkUrl = '';
         /** @type {string} Newline-separated list of requirements entered by the user */
@@ -216,7 +322,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _weeklyHours: {state: true},
             _salary: {state: true},
             _jobCategory: {state: true},
-            _areaOfInterest: {state: true},
+            _areasOfInterest: {state: true},
             _linkName: {state: true},
             _linkUrl: {state: true},
             _requirementsText: {state: true},
@@ -246,7 +352,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._weeklyHours = d.weeklyHours || '';
                 this._salary = d.salary || '';
                 this._jobCategory = d.jobCategory || d.jobType || '';
-                this._areaOfInterest = d.areaOfInterest || '';
+                this._areasOfInterest = normalizeAreaOfInterestValues(
+                    d.areasOfInterest ?? d.areaOfInterest,
+                );
                 this._linkName = d.linkName || '';
                 this._linkUrl = d.linkUrl || '';
                 this._requirementsText = Array.isArray(d.requirements)
@@ -288,7 +396,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._weeklyHours = '';
         this._salary = '';
         this._jobCategory = '';
-        this._areaOfInterest = '';
+        this._areasOfInterest = [];
         this._linkName = '';
         this._linkUrl = '';
         this._requirementsText = '';
@@ -393,7 +501,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),
             jobCategory: this._jobCategory,
-            areaOfInterest: this._areaOfInterest,
+            areasOfInterest: this._areasOfInterest,
             linkName: this._linkName.trim(),
             linkUrl: this._linkUrl.trim(),
             requirements: this._parseRequirements(),
@@ -461,7 +569,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const optionalSelectItems = {
             jobCategories: getJobCategoryItems(t, t('manage-job-offers.select-placeholder')),
-            areasOfInterest: getAreaOfInterestItems(t, t('manage-job-offers.select-placeholder')),
+            areasOfInterest: getAreaOfInterestItems(t),
         };
 
         return html`
@@ -546,9 +654,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 name="area-of-interest"
                 lang="${this.lang}"
                 label="${t('manage-job-offers.field-area-of-interest')}"
+                multiple
                 .items="${optionalSelectItems.areasOfInterest}"
-                .value="${this._areaOfInterest}"
-                @change="${(e) => (this._areaOfInterest = e.detail.value)}"></dbp-enum-element>
+                .value="${this._areasOfInterest}"
+                @change="${(e) =>
+                    (this._areasOfInterest = normalizeAreaOfInterestValues(
+                        e.detail.value,
+                    ))}"></dbp-enum-element>
 
             <dbp-string-element
                 name="requirements"
@@ -773,7 +885,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
     /**
      * Returns a customValidator function for the email field.
-     * @returns {Function}
+     * @returns {(value: string) => string[]}
      */
     get _emailValidator() {
         const i18n = this._i18n;
@@ -787,7 +899,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
     /**
      * Returns a customValidator function for the message field that enforces a 50-character minimum.
-     * @returns {Function}
+     * @returns {(value: string) => string[]}
      */
     get _messageValidator() {
         const i18n = this._i18n;

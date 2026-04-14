@@ -5,6 +5,7 @@ import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElements
 import {Icon, Modal} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDialog} from './dbp-bulletin-job-offer-dialog.js';
+import {getAreaOfInterestLabels} from './modules/jobOfferForm.js';
 
 export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -72,6 +73,27 @@ export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitEle
         }
     }
 
+    _renderAreaOfInterestTags(job, t) {
+        const areaOfInterestLabels = getAreaOfInterestLabels(
+            job.areasOfInterest ?? job.areaOfInterest,
+            t,
+        );
+
+        if (areaOfInterestLabels.length === 0) {
+            return '';
+        }
+
+        return html`
+            <div class="area-badges">
+                ${areaOfInterestLabels.map(
+                    (label) => html`
+                        <span class="area-badge">${label}</span>
+                    `,
+                )}
+            </div>
+        `;
+    }
+
     render() {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
@@ -116,13 +138,7 @@ export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitEle
 
                                   <!-- Right column: area badge at top, action buttons at bottom -->
                                   <div class="meta-right">
-                                      ${job.areaOfInterest
-                                          ? html`
-                                                <span class="area-badge">
-                                                    ${job.areaOfInterest}
-                                                </span>
-                                            `
-                                          : ''}
+                                      ${this._renderAreaOfInterestTags(job, t)}
                                       <div class="action-buttons">
                                           <button
                                               class="button is-secondary action-btn"
@@ -259,13 +275,19 @@ export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitEle
             }
 
             /* Area-of-interest badge */
+            .area-badges {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                justify-content: flex-end;
+            }
+
             .area-badge {
                 display: inline-block;
                 padding: 0.25rem 0.75rem;
                 border: 1px solid var(--dbp-content-surface, #333);
                 border-radius: 2px;
                 font-size: 0.9rem;
-                white-space: nowrap;
             }
 
             /* Action buttons row */

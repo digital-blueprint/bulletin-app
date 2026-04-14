@@ -11,8 +11,9 @@ import JobOfferModule, {
     AREAS_OF_INTEREST,
     JOB_CATEGORIES,
     getAreaOfInterestLabel,
+    getAreaOfInterestLabels,
     getJobCategoryLabel,
-    normalizeAreaOfInterestValue,
+    normalizeAreaOfInterestValues,
 } from './modules/jobOfferForm.js';
 
 const PAGE_SIZE_OPTIONS = [6, 12, 24];
@@ -132,16 +133,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             this._jobOffers = members
                 .map((form) => {
                     const extra = form.additionalData ?? {};
+                    const areasOfInterest = normalizeAreaOfInterestValues(
+                        extra.areasOfInterest ?? extra.areaOfInterest,
+                    );
+
                     return {
                         /** The form identifier is used as the job offer identifier */
                         identifier: form.identifier,
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
                         jobCategory: extra.jobCategory ?? extra.jobType ?? '',
-                        areaOfInterest: normalizeAreaOfInterestValue(
-                            extra.areaOfInterest,
-                            this._i18n.t.bind(this._i18n),
-                        ),
+                        areaOfInterest: areasOfInterest[0] ?? '',
+                        areasOfInterest,
                         publishedAt: extra.publishedAt ?? '',
                         deadline: extra.deadline ?? '',
                         startDate: extra.startDate ?? '',
@@ -254,23 +257,47 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     job.jobCategory,
                     this._i18n.t.bind(this._i18n),
                 );
-                const areaOfInterestLabel = getAreaOfInterestLabel(
-                    job.areaOfInterest,
+                const areaOfInterestLabels = getAreaOfInterestLabels(
+                    job.areasOfInterest ?? job.areaOfInterest,
                     this._i18n.t.bind(this._i18n),
                 );
                 const matchesSearch =
                     !query ||
                     job.title.toLowerCase().includes(query) ||
-                    areaOfInterestLabel.toLowerCase().includes(query) ||
+                    areaOfInterestLabels.some((label) => label.toLowerCase().includes(query)) ||
                     jobCategoryLabel.toLowerCase().includes(query) ||
                     job.description.toLowerCase().includes(query);
                 const matchesJobCategory =
                     !this.filterJobCategory || job.jobCategory === this.filterJobCategory;
                 const matchesAreaOfInterest =
-                    !this.filterAreaOfInterest || job.areaOfInterest === this.filterAreaOfInterest;
+                    !this.filterAreaOfInterest ||
+                    normalizeAreaOfInterestValues(
+                        job.areasOfInterest ?? job.areaOfInterest,
+                    ).includes(this.filterAreaOfInterest);
                 return matchesSearch && matchesJobCategory && matchesAreaOfInterest;
             })
             .sort((a, b) => this.compareJobsByDate(a, b));
+    }
+
+    _renderAreaOfInterestTags(job, t) {
+        const areaOfInterestLabels = getAreaOfInterestLabels(
+            job.areasOfInterest ?? job.areaOfInterest,
+            t,
+        );
+
+        if (areaOfInterestLabels.length === 0) {
+            return '';
+        }
+
+        return html`
+            <div class="job-tags">
+                ${areaOfInterestLabels.map(
+                    (label) => html`
+                        <span class="job-tag">${label}</span>
+                    `,
+                )}
+            </div>
+        `;
     }
 
     /**
@@ -506,16 +533,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       <div class="job-card">
                                           <div class="job-card-body">
                                               <h3 class="job-title">${job.title}</h3>
-                                              ${job.areaOfInterest
-                                                  ? html`
-                                                        <span class="job-tag">
-                                                            ${getAreaOfInterestLabel(
-                                                                job.areaOfInterest,
-                                                                t,
-                                                            )}
-                                                        </span>
-                                                    `
-                                                  : ''}
+                                              ${this._renderAreaOfInterestTags(job, t)}
                                               <p class="job-deadline">
                                                   ${t('view-job-offers.deadline')}:
                                                   ${this.formatDate(job.deadline)}
@@ -771,6 +789,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             /* Outlined badge matching the design */
+            .job-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                margin-bottom: 0.5rem;
+            }
+
             .job-tag {
                 display: inline-block;
                 border: 1px solid var(--dbp-content);
@@ -778,7 +803,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 0.1rem 0.4rem;
                 font-size: 1rem;
                 color: var(--dbp-content);
-                margin-bottom: 0.5rem;
             }
 
             .job-deadline {

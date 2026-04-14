@@ -6,7 +6,7 @@ import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {sendNotification} from '@dbp-toolkit/common';
 import {Notification} from '@dbp-toolkit/notification';
-import {JobOfferFormElement} from './modules/jobOfferForm.js';
+import {getAreaOfInterestLabels, JobOfferFormElement} from './modules/jobOfferForm.js';
 
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
@@ -65,7 +65,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
      * Renders the requirements list, preferring the English list when the current language is
      * English and the English list is non-empty.
      * @param {object} job
-     * @param {Function} t
+     * @param {(key: string) => string} t
      * @returns {import('lit').TemplateResult|string}
      */
     _renderRequirements(job, t) {
@@ -86,6 +86,27 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     `,
                 )}
             </ul>
+        `;
+    }
+
+    _renderAreaOfInterestTags(job, t) {
+        const areaOfInterestLabels = getAreaOfInterestLabels(
+            job.areasOfInterest ?? job.areaOfInterest,
+            t,
+        );
+
+        if (areaOfInterestLabels.length === 0) {
+            return '';
+        }
+
+        return html`
+            <div class="job-tags">
+                ${areaOfInterestLabels.map(
+                    (label) => html`
+                        <span class="job-tag">${label}</span>
+                    `,
+                )}
+            </div>
         `;
     }
 
@@ -253,11 +274,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   </dl>
 
                                   <div class="meta-actions">
-                                      ${job.areaOfInterest
-                                          ? html`
-                                                <span class="job-tag">${job.areaOfInterest}</span>
-                                            `
-                                          : ''}
+                                      ${this._renderAreaOfInterestTags(job, t)}
                                       <div class="action-buttons">
                                           <div class="share-button-container">
                                               <button
@@ -430,6 +447,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             /* Outlined area-of-interest badge */
+            .job-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                justify-content: flex-end;
+            }
+
             .job-tag {
                 display: inline-block;
                 border: 1px solid var(--dbp-content);
@@ -494,6 +518,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .meta-actions {
                     align-items: flex-start;
                 }
+
+                .job-tags {
+                    justify-content: flex-start;
+                }
+
                 .share-dropdown {
                     left: 0;
                     right: initial;
