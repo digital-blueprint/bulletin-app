@@ -7,7 +7,11 @@ import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElements
 import {Icon, MiniSpinner} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
-import JobOfferModule, {AREAS_OF_INTEREST, JOB_CATEGORIES} from './modules/jobOfferForm.js';
+import JobOfferModule, {
+    AREAS_OF_INTEREST,
+    JOB_CATEGORIES,
+    getJobCategoryLabel,
+} from './modules/jobOfferForm.js';
 
 const PAGE_SIZE_OPTIONS = [6, 12, 24];
 const DEFAULT_PAGE_SIZE = 12;
@@ -39,8 +43,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loading = false;
         /** @type {boolean} Whether the API request failed */
         this._loadError = false;
-        /** @type {Array<[string, string]>} Job-category options shared with the form module */
-        this._jobCategories = Object.entries(JOB_CATEGORIES);
+        /** @type {Array<string>} Job-category option values shared with the form module */
+        this._jobCategories = Object.keys(JOB_CATEGORIES);
         /** @type {Array<[string, string]>} Area-of-interest options shared with the form module */
         this._areasOfInterest = Object.entries(AREAS_OF_INTEREST);
     }
@@ -131,10 +135,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         identifier: form.identifier,
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
-                        jobCategory: this._normalizeEnumValue(
-                            extra.jobCategory ?? extra.jobType,
-                            JOB_CATEGORIES,
-                        ),
+                        jobCategory: extra.jobCategory ?? extra.jobType ?? '',
                         areaOfInterest: this._normalizeEnumValue(
                             extra.areaOfInterest,
                             AREAS_OF_INTEREST,
@@ -277,7 +278,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const query = this.searchQuery.toLowerCase().trim();
         return this._jobOffers
             .filter((job) => {
-                const jobCategoryLabel = this._getEnumLabel(job.jobCategory, JOB_CATEGORIES);
+                const jobCategoryLabel = getJobCategoryLabel(
+                    job.jobCategory,
+                    this._i18n.t.bind(this._i18n),
+                );
                 const areaOfInterestLabel = this._getEnumLabel(
                     job.areaOfInterest,
                     AREAS_OF_INTEREST,
@@ -414,11 +418,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 .value="${this.filterJobCategory}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
                                 ${this._jobCategories.map(
-                                    ([value, label]) => html`
+                                    (value) => html`
                                         <option
                                             value="${value}"
                                             ?selected="${this.filterJobCategory === value}">
-                                            ${label}
+                                            ${getJobCategoryLabel(
+                                                value,
+                                                this._i18n.t.bind(this._i18n),
+                                            )}
                                         </option>
                                     `,
                                 )}

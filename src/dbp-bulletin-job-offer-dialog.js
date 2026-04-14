@@ -6,9 +6,9 @@ import {Icon, Modal} from '@dbp-toolkit/common';
 import {DbpStringElement, DbpDateElement, DbpEnumElement} from '@dbp-toolkit/form-elements';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {MOCK_JOB_OFFERS} from './utils/mock.js';
+import {getJobCategoryItems} from './modules/jobOfferForm.js';
 
 // Derive sorted unique option sets from the mock data
-const JOB_CATEGORIES = [...new Set(MOCK_JOB_OFFERS.map((j) => j.jobCategory))].sort();
 const AREAS_OF_INTEREST = [...new Set(MOCK_JOB_OFFERS.map((j) => j.areaOfInterest))].sort();
 
 export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
@@ -184,11 +184,7 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
     _getJobCategoryItems() {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
-        const items = {'': t('manage-job-offers.select-placeholder')};
-        JOB_CATEGORIES.forEach((category) => {
-            items[category] = category;
-        });
-        return items;
+        return getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
     }
 
     /** Builds the key-value object for area of interest enum items. */

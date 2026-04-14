@@ -53,11 +53,14 @@ export default JobOfferModule;
 
 // Available job categories and areas of interest for the enum selects
 export const JOB_CATEGORIES = {
-    'full-time': 'Full-time',
-    'part-time': 'Part-time',
-    temporary: 'Temporary',
-    internship: 'Internship',
-    student: 'Student position',
+    'student-teaching-assistantship':
+        'manage-job-offers.job-category-student-teaching-assistantship',
+    'student-research-assistantship':
+        'manage-job-offers.job-category-student-research-assistantship',
+    'non-scientific-part-time-position':
+        'manage-job-offers.job-category-non-scientific-part-time-position',
+    'seasonal-position': 'manage-job-offers.job-category-seasonal-position',
+    internship: 'manage-job-offers.job-category-internship',
 };
 
 export const AREAS_OF_INTEREST = {
@@ -74,6 +77,20 @@ const withEmptySelectOption = (items, placeholder) => ({
     '': placeholder,
     ...items,
 });
+
+export const getJobCategoryLabel = (value, t) => {
+    const translationKey = JOB_CATEGORIES[value];
+
+    return translationKey ? t(translationKey) : value;
+};
+
+export const getJobCategoryItems = (t, placeholder) =>
+    withEmptySelectOption(
+        Object.fromEntries(
+            Object.keys(JOB_CATEGORIES).map((value) => [value, getJobCategoryLabel(value, t)]),
+        ),
+        placeholder,
+    );
 
 /**
  * Web component for editing a job-offer form (create or update).
@@ -398,10 +415,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const optionalSelectItems = {
-            jobCategories: withEmptySelectOption(
-                JOB_CATEGORIES,
-                t('manage-job-offers.select-placeholder'),
-            ),
+            jobCategories: getJobCategoryItems(t, t('manage-job-offers.select-placeholder')),
             areasOfInterest: withEmptySelectOption(
                 AREAS_OF_INTEREST,
                 t('manage-job-offers.select-placeholder'),
