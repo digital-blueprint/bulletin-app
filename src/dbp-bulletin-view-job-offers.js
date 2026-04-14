@@ -7,7 +7,7 @@ import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElements
 import {Icon, MiniSpinner} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
-import JobOfferModule, {AREAS_OF_INTEREST, JOB_TYPES} from './modules/jobOfferForm.js';
+import JobOfferModule, {AREAS_OF_INTEREST, JOB_CATEGORIES} from './modules/jobOfferForm.js';
 
 const PAGE_SIZE_OPTIONS = [6, 12, 24];
 const DEFAULT_PAGE_SIZE = 12;
@@ -24,7 +24,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
         this.searchQuery = '';
-        this.filterJobType = '';
+        this.filterJobCategory = '';
         this.filterAreaOfInterest = '';
         this.sortOrder = 'date-asc';
         this.currentPage = 1;
@@ -39,8 +39,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loading = false;
         /** @type {boolean} Whether the API request failed */
         this._loadError = false;
-        /** @type {Array<[string, string]>} Job-type options shared with the form module */
-        this._jobTypes = Object.entries(JOB_TYPES);
+        /** @type {Array<[string, string]>} Job-category options shared with the form module */
+        this._jobCategories = Object.entries(JOB_CATEGORIES);
         /** @type {Array<[string, string]>} Area-of-interest options shared with the form module */
         this._areasOfInterest = Object.entries(AREAS_OF_INTEREST);
     }
@@ -49,7 +49,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return {
             ...super.properties,
             searchQuery: {type: String, state: true},
-            filterJobType: {type: String, state: true},
+            filterJobCategory: {type: String, state: true},
             filterAreaOfInterest: {type: String, state: true},
             sortOrder: {type: String, state: true},
             currentPage: {type: Number, state: true},
@@ -58,7 +58,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             _jobOffers: {state: true},
             _loading: {state: true},
             _loadError: {state: true},
-            _jobTypes: {state: true},
+            _jobCategories: {state: true},
             _areasOfInterest: {state: true},
         };
     }
@@ -131,7 +131,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         identifier: form.identifier,
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
-                        jobType: this._normalizeEnumValue(extra.jobType, JOB_TYPES),
+                        jobCategory: this._normalizeEnumValue(
+                            extra.jobCategory ?? extra.jobType,
+                            JOB_CATEGORIES,
+                        ),
                         areaOfInterest: this._normalizeEnumValue(
                             extra.areaOfInterest,
                             AREAS_OF_INTEREST,
@@ -274,7 +277,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const query = this.searchQuery.toLowerCase().trim();
         return this._jobOffers
             .filter((job) => {
-                const jobTypeLabel = this._getEnumLabel(job.jobType, JOB_TYPES);
+                const jobCategoryLabel = this._getEnumLabel(job.jobCategory, JOB_CATEGORIES);
                 const areaOfInterestLabel = this._getEnumLabel(
                     job.areaOfInterest,
                     AREAS_OF_INTEREST,
@@ -283,12 +286,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     !query ||
                     job.title.toLowerCase().includes(query) ||
                     areaOfInterestLabel.toLowerCase().includes(query) ||
-                    jobTypeLabel.toLowerCase().includes(query) ||
+                    jobCategoryLabel.toLowerCase().includes(query) ||
                     job.description.toLowerCase().includes(query);
-                const matchesJobType = !this.filterJobType || job.jobType === this.filterJobType;
+                const matchesJobCategory =
+                    !this.filterJobCategory || job.jobCategory === this.filterJobCategory;
                 const matchesAreaOfInterest =
                     !this.filterAreaOfInterest || job.areaOfInterest === this.filterAreaOfInterest;
-                return matchesSearch && matchesJobType && matchesAreaOfInterest;
+                return matchesSearch && matchesJobCategory && matchesAreaOfInterest;
             })
             .sort((a, b) => {
                 const dateA = new Date(a.deadline).getTime();
@@ -313,8 +317,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.currentPage = 1;
     }
 
-    onJobTypeChange(e) {
-        this.filterJobType = e.target.value;
+    onJobCategoryChange(e) {
+        this.filterJobCategory = e.target.value;
         this.currentPage = 1;
     }
 
@@ -400,20 +404,20 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 <!-- Filters row -->
                 <div class="filters-row">
                     <div class="field">
-                        <label class="label" for="filter-job-type">
-                            ${t('view-job-offers.job-type')}
+                        <label class="label" for="filter-job-category">
+                            ${t('view-job-offers.job-category')}
                         </label>
                         <div class="control">
                             <select
-                                id="filter-job-type"
-                                @change="${this.onJobTypeChange}"
-                                .value="${this.filterJobType}">
+                                id="filter-job-category"
+                                @change="${this.onJobCategoryChange}"
+                                .value="${this.filterJobCategory}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
-                                ${this._jobTypes.map(
+                                ${this._jobCategories.map(
                                     ([value, label]) => html`
                                         <option
                                             value="${value}"
-                                            ?selected="${this.filterJobType === value}">
+                                            ?selected="${this.filterJobCategory === value}">
                                             ${label}
                                         </option>
                                     `,

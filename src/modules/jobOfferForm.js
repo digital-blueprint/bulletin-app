@@ -51,8 +51,8 @@ class JobOfferModule extends BaseObject {
 
 export default JobOfferModule;
 
-// Available job types and areas of interest for the enum selects
-export const JOB_TYPES = {
+// Available job categories and areas of interest for the enum selects
+export const JOB_CATEGORIES = {
     'full-time': 'Full-time',
     'part-time': 'Part-time',
     temporary: 'Temporary',
@@ -121,7 +121,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
-        this._jobType = '';
+        this._jobCategory = '';
         this._areaOfInterest = '';
         this._linkName = '';
         this._linkUrl = '';
@@ -153,7 +153,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _startDate: {state: true},
             _weeklyHours: {state: true},
             _salary: {state: true},
-            _jobType: {state: true},
+            _jobCategory: {state: true},
             _areaOfInterest: {state: true},
             _linkName: {state: true},
             _linkUrl: {state: true},
@@ -183,7 +183,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
                 this._salary = d.salary || '';
-                this._jobType = d.jobType || '';
+                this._jobCategory = d.jobCategory || d.jobType || '';
                 this._areaOfInterest = d.areaOfInterest || '';
                 this._linkName = d.linkName || '';
                 this._linkUrl = d.linkUrl || '';
@@ -225,7 +225,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
-        this._jobType = '';
+        this._jobCategory = '';
         this._areaOfInterest = '';
         this._linkName = '';
         this._linkUrl = '';
@@ -330,7 +330,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),
-            jobType: this._jobType,
+            jobCategory: this._jobCategory,
             areaOfInterest: this._areaOfInterest,
             linkName: this._linkName.trim(),
             linkUrl: this._linkUrl.trim(),
@@ -398,7 +398,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const optionalSelectItems = {
-            jobTypes: withEmptySelectOption(JOB_TYPES, t('manage-job-offers.select-placeholder')),
+            jobCategories: withEmptySelectOption(
+                JOB_CATEGORIES,
+                t('manage-job-offers.select-placeholder'),
+            ),
             areasOfInterest: withEmptySelectOption(
                 AREAS_OF_INTEREST,
                 t('manage-job-offers.select-placeholder'),
@@ -476,12 +479,12 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 @change="${(e) => (this._salary = e.detail.value)}"></dbp-string-element>
 
             <dbp-enum-element
-                name="job-type"
+                name="job-category"
                 lang="${this.lang}"
-                label="${t('manage-job-offers.field-job-type')}"
-                .items="${optionalSelectItems.jobTypes}"
-                .value="${this._jobType}"
-                @change="${(e) => (this._jobType = e.detail.value)}"></dbp-enum-element>
+                label="${t('manage-job-offers.field-job-category')}"
+                .items="${optionalSelectItems.jobCategories}"
+                .value="${this._jobCategory}"
+                @change="${(e) => (this._jobCategory = e.detail.value)}"></dbp-enum-element>
 
             <dbp-enum-element
                 name="area-of-interest"
@@ -580,7 +583,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 export class JobOfferFormElement extends BaseFormElement {
     constructor() {
         super();
-        this.jobTypes = JOB_TYPES;
+        this.jobCategories = JOB_CATEGORIES;
         this.areasOfInterest = AREAS_OF_INTEREST;
 
         // Override the formalize i18n instance with the app's own instance so that

@@ -2,7 +2,7 @@
  * @typedef {object} JobOffer
  * @property {string} identifier
  * @property {string} title
- * @property {string} jobType
+ * @property {string} jobCategory
  * @property {string} areaOfInterest
  * @property {string} publishedAt
  * @property {string} deadline
@@ -21,7 +21,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0001-4000-8000-000000000001',
         title: 'Universitätsassistent*in im Bereich Elektrotechnik (m/w/d)',
-        jobType: 'Universitätsstelle',
+        jobCategory: 'Universitätsstelle',
         areaOfInterest: 'Elektronik',
         publishedAt: '2026-01-15',
         deadline: '2030-01-01',
@@ -40,7 +40,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0002-4000-8000-000000000002',
         title: 'Werkstudent*in (m/w/d) als Projektunterstützung 6h pro Woche',
-        jobType: 'Werkstudentenstelle',
+        jobCategory: 'Werkstudentenstelle',
         areaOfInterest: 'Architektur & Bauwesen',
         publishedAt: '2026-02-01',
         deadline: '2030-01-01',
@@ -57,7 +57,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0003-4000-8000-000000000003',
         title: 'Assistant Marketing Research (m/w/d) 20h',
-        jobType: 'Teilzeitstelle',
+        jobCategory: 'Teilzeitstelle',
         areaOfInterest: 'Kommunikation & Marketing',
         publishedAt: '2026-02-10',
         deadline: '2030-01-01',
@@ -76,7 +76,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0004-4000-8000-000000000004',
         title: 'Studentische Mitarbeiter*in: Planung Hochbau',
-        jobType: 'Werkstudentenstelle',
+        jobCategory: 'Werkstudentenstelle',
         areaOfInterest: 'Architektur & Bauwesen',
         publishedAt: '2026-02-15',
         deadline: '2030-01-01',
@@ -93,7 +93,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0005-4000-8000-000000000005',
         title: 'Student Support "Informationstechnologie" (m/w/d)',
-        jobType: 'Werkstudentenstelle',
+        jobCategory: 'Werkstudentenstelle',
         areaOfInterest: 'Informatik',
         publishedAt: '2026-03-15',
         deadline: '2026-06-30',
@@ -113,7 +113,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0006-4000-8000-000000000006',
         title: 'Praktikant*in / Werkstudent*in im Bereich Reporting',
-        jobType: 'Praktikum',
+        jobCategory: 'Praktikum',
         areaOfInterest: 'Fahrzeugsicherheit',
         publishedAt: '2026-02-20',
         deadline: '2030-01-01',
@@ -130,7 +130,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0007-4000-8000-000000000007',
         title: 'Werkstudent*in R&D - Technical Design Tool (m/w/d)',
-        jobType: 'Werkstudentenstelle',
+        jobCategory: 'Werkstudentenstelle',
         areaOfInterest: 'Architektur & Bauwesen',
         publishedAt: '2026-03-01',
         deadline: '2030-01-01',
@@ -147,7 +147,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0008-4000-8000-000000000008',
         title: 'Marketing Mitarbeiter*in Schwerpunkt Digital Marketing & Social Media',
-        jobType: 'Vollzeitstelle',
+        jobCategory: 'Vollzeitstelle',
         areaOfInterest: 'Kommunikation & Marketing',
         publishedAt: '2026-03-05',
         deadline: '2030-01-01',
@@ -166,7 +166,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0009-4000-8000-000000000009',
         title: 'Werkstudent:in im Bereich Produktdigitalisierung (teilzeit)',
-        jobType: 'Werkstudentenstelle',
+        jobCategory: 'Werkstudentenstelle',
         areaOfInterest: 'Wärmetechnik',
         publishedAt: '2026-03-08',
         deadline: '2030-01-01',
@@ -183,7 +183,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0010-4000-8000-000000000010',
         title: 'Universitätsassistent*in im Bereich Elektrotechnik (m/w/d)',
-        jobType: 'Universitätsstelle',
+        jobCategory: 'Universitätsstelle',
         areaOfInterest: 'Elektronik',
         publishedAt: '2026-01-20',
         deadline: '2030-01-01',
@@ -200,7 +200,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0011-4000-8000-000000000011',
         title: 'Werkstudent*in (m/w/d) als Projektunterstützung 6h pro Woche',
-        jobType: 'Werkstudentenstelle',
+        jobCategory: 'Werkstudentenstelle',
         areaOfInterest: 'Architektur & Bauwesen',
         publishedAt: '2026-02-05',
         deadline: '2030-01-01',
@@ -217,7 +217,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0012-4000-8000-000000000012',
         title: 'Software-Entwickler*in (m/w/d) Backend',
-        jobType: 'Vollzeitstelle',
+        jobCategory: 'Vollzeitstelle',
         areaOfInterest: 'Informatik',
         publishedAt: '2026-03-10',
         deadline: '2030-03-31',
@@ -237,7 +237,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0013-4000-8000-000000000013',
         title: 'Forschungsassistent*in Maschinenbau (m/w/d)',
-        jobType: 'Universitätsstelle',
+        jobCategory: 'Universitätsstelle',
         areaOfInterest: 'Maschinenbau',
         publishedAt: '2026-01-25',
         deadline: '2030-02-28',
@@ -254,7 +254,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0014-4000-8000-000000000014',
         title: 'Praktikant*in Datenanalyse (m/w/d)',
-        jobType: 'Praktikum',
+        jobCategory: 'Praktikum',
         areaOfInterest: 'Informatik',
         publishedAt: '2026-03-12',
         deadline: '2026-12-31',
@@ -271,7 +271,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0015-4000-8000-000000000015',
         title: 'Teamassistenz im Bereich Kommunikation (m/w/d)',
-        jobType: 'Teilzeitstelle',
+        jobCategory: 'Teilzeitstelle',
         areaOfInterest: 'Kommunikation & Marketing',
         publishedAt: '2026-02-25',
         deadline: '2030-01-01',
@@ -288,7 +288,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0016-4000-8000-000000000016',
         title: 'Werkstudent*in Energie- und Umwelttechnik (m/w/d)',
-        jobType: 'Werkstudentenstelle',
+        jobCategory: 'Werkstudentenstelle',
         areaOfInterest: 'Wärmetechnik',
         publishedAt: '2026-03-02',
         deadline: '2030-06-30',
@@ -305,7 +305,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0017-4000-8000-000000000017',
         title: 'Junior Data Scientist (m/w/d)',
-        jobType: 'Vollzeitstelle',
+        jobCategory: 'Vollzeitstelle',
         areaOfInterest: 'Informatik',
         publishedAt: '2026-03-11',
         deadline: '2030-04-15',
@@ -325,7 +325,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0018-4000-8000-000000000018',
         title: 'Konstrukteur*in Fahrzeugtechnik (m/w/d)',
-        jobType: 'Vollzeitstelle',
+        jobCategory: 'Vollzeitstelle',
         areaOfInterest: 'Fahrzeugsicherheit',
         publishedAt: '2026-02-28',
         deadline: '2030-01-01',
@@ -342,7 +342,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0019-4000-8000-000000000019',
         title: 'Lehrassistenz Grundlagen Elektrotechnik',
-        jobType: 'Universitätsstelle',
+        jobCategory: 'Universitätsstelle',
         areaOfInterest: 'Elektronik',
         publishedAt: '2026-01-30',
         deadline: '2030-08-31',
@@ -359,7 +359,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0020-4000-8000-000000000020',
         title: 'Projektmanager*in Bauplanung (m/w/d)',
-        jobType: 'Vollzeitstelle',
+        jobCategory: 'Vollzeitstelle',
         areaOfInterest: 'Architektur & Bauwesen',
         publishedAt: '2026-03-06',
         deadline: '2030-01-01',
@@ -376,7 +376,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0021-4000-8000-000000000021',
         title: 'Praktikant*in im Bereich Wärmetechnik',
-        jobType: 'Praktikum',
+        jobCategory: 'Praktikum',
         areaOfInterest: 'Wärmetechnik',
         publishedAt: '2026-01-10',
         deadline: '2027-03-31',
@@ -393,7 +393,7 @@ export const MOCK_JOB_OFFERS = [
     {
         identifier: 'a1b2c3d4-0022-4000-8000-000000000022',
         title: 'Content Creator & Social Media Manager*in (m/w/d)',
-        jobType: 'Teilzeitstelle',
+        jobCategory: 'Teilzeitstelle',
         areaOfInterest: 'Kommunikation & Marketing',
         publishedAt: '2026-03-09',
         deadline: '2030-01-01',

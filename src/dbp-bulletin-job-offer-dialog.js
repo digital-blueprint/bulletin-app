@@ -8,7 +8,7 @@ import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {MOCK_JOB_OFFERS} from './utils/mock.js';
 
 // Derive sorted unique option sets from the mock data
-const JOB_TYPES = [...new Set(MOCK_JOB_OFFERS.map((j) => j.jobType))].sort();
+const JOB_CATEGORIES = [...new Set(MOCK_JOB_OFFERS.map((j) => j.jobCategory))].sort();
 const AREAS_OF_INTEREST = [...new Set(MOCK_JOB_OFFERS.map((j) => j.areaOfInterest))].sort();
 
 export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
@@ -47,8 +47,8 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._formSalary = '';
         /** @type {string} Optional weekly hours / employment level */
         this._formWeeklyHours = '';
-        /** @type {string} Optional job type (enum) */
-        this._formJobType = '';
+        /** @type {string} Optional job category (enum) */
+        this._formJobCategory = '';
         /** @type {string} Optional area of interest (enum) */
         this._formAreaOfInterest = '';
     }
@@ -91,7 +91,7 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._formStartDate = job.startDate ?? '';
         this._formSalary = job.salary ?? '';
         this._formWeeklyHours = job.weeklyHours ?? '';
-        this._formJobType = job.jobType ?? '';
+        this._formJobCategory = job.jobCategory ?? '';
         this._formAreaOfInterest = job.areaOfInterest ?? '';
     }
 
@@ -106,7 +106,7 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._formStartDate = '';
         this._formSalary = '';
         this._formWeeklyHours = '';
-        this._formJobType = '';
+        this._formJobCategory = '';
         this._formAreaOfInterest = '';
     }
 
@@ -160,7 +160,7 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
             startDate: this._formStartDate,
             salary: this._formSalary,
             weeklyHours: this._formWeeklyHours,
-            jobType: this._formJobType,
+            jobCategory: this._formJobCategory,
             areaOfInterest: this._formAreaOfInterest,
         };
 
@@ -180,13 +180,13 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.close();
     }
 
-    /** Builds the key-value object for job type enum items. */
-    _getJobTypeItems() {
+    /** Builds the key-value object for job category enum items. */
+    _getJobCategoryItems() {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
         const items = {'': t('manage-job-offers.select-placeholder')};
-        JOB_TYPES.forEach((type) => {
-            items[type] = type;
+        JOB_CATEGORIES.forEach((category) => {
+            items[category] = category;
         });
         return items;
     }
@@ -347,14 +347,15 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
                         @change="${(e) =>
                             (this._formWeeklyHours = e.detail.value)}"></dbp-string-element>
 
-                    <!-- Job type dropdown (full width) -->
+                    <!-- Job category dropdown (full width) -->
                     <dbp-enum-element
-                        name="job-type"
+                        name="job-category"
                         lang="${this.lang}"
-                        label="${t('manage-job-offers.field-job-type')}"
-                        .items="${this._getJobTypeItems()}"
-                        .value="${this._formJobType}"
-                        @change="${(e) => (this._formJobType = e.detail.value)}"></dbp-enum-element>
+                        label="${t('manage-job-offers.field-job-category')}"
+                        .items="${this._getJobCategoryItems()}"
+                        .value="${this._formJobCategory}"
+                        @change="${(e) =>
+                            (this._formJobCategory = e.detail.value)}"></dbp-enum-element>
 
                     <!-- Area of interest dropdown (full width) -->
                     <dbp-enum-element
