@@ -270,11 +270,47 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     !this.filterAreaOfInterest || job.areaOfInterest === this.filterAreaOfInterest;
                 return matchesSearch && matchesJobCategory && matchesAreaOfInterest;
             })
-            .sort((a, b) => {
-                const dateA = new Date(a.deadline).getTime();
-                const dateB = new Date(b.deadline).getTime();
-                return this.sortOrder === 'date-desc' ? dateB - dateA : dateA - dateB;
-            });
+            .sort((a, b) => this.compareJobsByDate(a, b));
+    }
+
+    /**
+     * Parses a date string to a comparable timestamp.
+     * Invalid or missing dates are sorted last.
+     * @param {string} value
+     * @returns {number}
+     */
+    getSortableTimestamp(value) {
+        if (!value) {
+            return Number.POSITIVE_INFINITY;
+        }
+
+        const timestamp = Date.parse(value);
+        return Number.isNaN(timestamp) ? Number.POSITIVE_INFINITY : timestamp;
+    }
+
+    /**
+     * Compares two jobs by deadline and uses publication date as a deterministic tie-breaker.
+     * @param {object} a
+     * @param {object} b
+     * @returns {number}
+     */
+    compareJobsByDate(a, b) {
+        const direction = this.sortOrder === 'date-desc' ? -1 : 1;
+        const primaryComparison =
+            this.getSortableTimestamp(a.deadline) - this.getSortableTimestamp(b.deadline);
+
+        if (primaryComparison !== 0) {
+            return primaryComparison * direction;
+        }
+
+        const secondaryComparison =
+            this.getSortableTimestamp(a.publishedAt) - this.getSortableTimestamp(b.publishedAt);
+
+        if (secondaryComparison !== 0) {
+            return secondaryComparison * direction;
+        }
+
+        return a.identifier.localeCompare(b.identifier) * direction;
     }
 
     /**
