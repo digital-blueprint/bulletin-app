@@ -111,6 +111,29 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
+     * Renders the localized job description while preserving line breaks from the stored text.
+     * @param {object} job
+     * @returns {import('lit').TemplateResult}
+     */
+    _renderDescription(job) {
+        const description = this._localized(job.description, job.descriptionEn ?? '');
+        const lines = description.split(/\r?\n/);
+
+        return html`
+            <p class="job-description">
+                ${lines.map((line, index) =>
+                    index === 0
+                        ? line
+                        : html`
+                              <br />
+                              ${line}
+                          `,
+                )}
+            </p>
+        `;
+    }
+
+    /**
      * Formats an ISO date string (YYYY-MM-DD) to DD.MM.YYYY.
      * @param {string} isoDate
      * @returns {string}
@@ -378,9 +401,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                               </div>
 
                               <!-- Job description: use English text when language is English and available -->
-                              <p class="job-description">
-                                  ${this._localized(job.description, job.descriptionEn ?? '')}
-                              </p>
+                              ${this._renderDescription(job)}
 
                               <!-- Requirements section: use English requirements when language is English and available -->
                               ${this._renderRequirements(job, t)}
