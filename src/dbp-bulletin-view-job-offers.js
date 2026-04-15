@@ -33,7 +33,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.searchQuery = '';
         this.filterJobCategory = '';
         this.filterAreaOfInterest = '';
-        this.sortOrder = 'date-asc';
+        this.sortOrder = 'date-desc';
         this.currentPage = 1;
         this.pageSize = DEFAULT_PAGE_SIZE;
         /** @type {object|null} Currently selected job offer shown in the detail dialog */
@@ -145,7 +145,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         jobCategory: extra.jobCategory ?? extra.jobType ?? '',
                         areaOfInterest: areasOfInterest[0] ?? '',
                         areasOfInterest,
-                        publishedAt: extra.publishedAt ?? '',
+                        publishedAt: form.publishedAt ?? extra.publishedAt ?? '',
                         deadline: extra.deadline ?? '',
                         startDate: extra.startDate ?? '',
                         weeklyHours: extra.weeklyHours ?? '',
@@ -302,42 +302,48 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /**
      * Parses a date string to a comparable timestamp.
-     * Invalid or missing dates are sorted last.
+     * Invalid or missing dates return null so callers can sort them last.
      * @param {string} value
-     * @returns {number}
+     * @returns {number|null}
      */
     getSortableTimestamp(value) {
         if (!value) {
-            return Number.POSITIVE_INFINITY;
+            return null;
         }
 
         const timestamp = Date.parse(value);
-        return Number.isNaN(timestamp) ? Number.POSITIVE_INFINITY : timestamp;
+        return Number.isNaN(timestamp) ? null : timestamp;
     }
 
     /**
-     * Compares two jobs by deadline and uses publication date as a deterministic tie-breaker.
+     * Compares two jobs by publication date and keeps missing dates at the end.
      * @param {object} a
      * @param {object} b
      * @returns {number}
      */
     compareJobsByDate(a, b) {
-        const direction = this.sortOrder === 'date-desc' ? -1 : 1;
-        const primaryComparison =
-            this.getSortableTimestamp(a.deadline) - this.getSortableTimestamp(b.deadline);
+        const publishedAtA = this.getSortableTimestamp(a.publishedAt);
+        const publishedAtB = this.getSortableTimestamp(b.publishedAt);
 
-        if (primaryComparison !== 0) {
-            return primaryComparison * direction;
+        if (publishedAtA === null && publishedAtB === null) {
+            return a.identifier.localeCompare(b.identifier);
         }
 
-        const secondaryComparison =
-            this.getSortableTimestamp(a.publishedAt) - this.getSortableTimestamp(b.publishedAt);
-
-        if (secondaryComparison !== 0) {
-            return secondaryComparison * direction;
+        if (publishedAtA === null) {
+            return 1;
         }
 
-        return a.identifier.localeCompare(b.identifier) * direction;
+        if (publishedAtB === null) {
+            return -1;
+        }
+
+        if (publishedAtA !== publishedAtB) {
+            return this.sortOrder === 'date-desc'
+                ? publishedAtB - publishedAtA
+                : publishedAtA - publishedAtB;
+        }
+
+        return a.identifier.localeCompare(b.identifier);
     }
 
     /**
