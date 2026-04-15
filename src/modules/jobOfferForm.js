@@ -235,6 +235,18 @@ export const normalizeAreaOfInterestValues = (value) => [
     ),
 ];
 
+const areStringArraysEqual = (left, right) => {
+    if (left === right) {
+        return true;
+    }
+
+    if (!Array.isArray(left) || !Array.isArray(right) || left.length !== right.length) {
+        return false;
+    }
+
+    return left.every((value, index) => value === right[index]);
+};
+
 export const getAreaOfInterestLabels = (value, t) =>
     normalizeAreaOfInterestValues(value).map((areaOfInterestValue) =>
         getAreaOfInterestLabel(areaOfInterestValue, t),
@@ -270,6 +282,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this.lang = this._i18n.language;
         this.auth = {};
         this.entryPointUrl = '';
+        this._areaOfInterestItems = this._createAreaOfInterestItems();
 
         /**
          * When set by the parent dialog, the component operates in edit mode.
@@ -306,6 +319,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._isSubmitting = false;
     }
 
+    _createAreaOfInterestItems() {
+        return getAreaOfInterestItems((key, opts) => this._i18n.t(key, opts));
+    }
+
     static get properties() {
         return {
             ...super.properties,
@@ -338,6 +355,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         changedProperties.forEach((oldValue, propName) => {
             if (propName === 'lang') {
                 this._i18n.changeLanguage(this.lang);
+                this._areaOfInterestItems = this._createAreaOfInterestItems();
             }
 
             // Pre-populate form fields when an existing form is provided for editing
@@ -567,10 +585,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
-        const optionalSelectItems = {
-            jobCategories: getJobCategoryItems(t, t('manage-job-offers.select-placeholder')),
-            areasOfInterest: getAreaOfInterestItems(t),
-        };
+        const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
 
         return html`
             <!-- Mandatory fields -->
@@ -646,7 +661,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 name="job-category"
                 lang="${this.lang}"
                 label="${t('manage-job-offers.field-job-category')}"
-                .items="${optionalSelectItems.jobCategories}"
+                .items="${jobCategoryItems}"
                 .value="${this._jobCategory}"
                 @change="${(e) => (this._jobCategory = e.detail.value)}"></dbp-enum-element>
 
@@ -655,12 +670,17 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 lang="${this.lang}"
                 label="${t('manage-job-offers.field-area-of-interest')}"
                 multiple
-                .items="${optionalSelectItems.areasOfInterest}"
+                display-mode="tags"
+                .items="${this._areaOfInterestItems}"
                 .value="${this._areasOfInterest}"
-                @change="${(e) =>
-                    (this._areasOfInterest = normalizeAreaOfInterestValues(
-                        e.detail.value,
-                    ))}"></dbp-enum-element>
+                @change="${(e) => {
+                    const nextAreasOfInterest = normalizeAreaOfInterestValues(e.detail.value);
+
+                    // Avoid rewriting the same selection and retriggering Select2.
+                    if (!areStringArraysEqual(this._areasOfInterest, nextAreasOfInterest)) {
+                        this._areasOfInterest = nextAreasOfInterest;
+                    }
+                }}"></dbp-enum-element>
 
             <dbp-string-element
                 name="requirements"
