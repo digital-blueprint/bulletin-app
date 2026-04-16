@@ -591,23 +591,42 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             <!-- Mandatory fields -->
             <h4 class="section-heading">${t('manage-job-offers.section-mandatory')}</h4>
 
-            <dbp-string-element
-                name="title"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-job-title')}"
-                .value="${this._title}"
-                required
-                @change="${(e) => (this._title = e.detail.value)}"></dbp-string-element>
+            <div class="translation-row">
+                <dbp-string-element
+                    name="title"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-job-title')}"
+                    .value="${this._title}"
+                    required
+                    @change="${(e) => (this._title = e.detail.value)}"></dbp-string-element>
 
-            <dbp-string-element
-                name="description"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-description')}"
-                placeholder="${t('manage-job-offers.field-description-placeholder')}"
-                .value="${this._description}"
-                rows="5"
-                required
-                @change="${(e) => (this._description = e.detail.value)}"></dbp-string-element>
+                <dbp-string-element
+                    name="title-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-job-title-en')}"
+                    .value="${this._titleEn}"
+                    @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
+            </div>
+
+            <div class="translation-row">
+                <dbp-string-element
+                    name="description"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-description')}"
+                    placeholder="${t('manage-job-offers.field-description-placeholder')}"
+                    .value="${this._description}"
+                    rows="5"
+                    required
+                    @change="${(e) => (this._description = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="description-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-description-en')}"
+                    .value="${this._descriptionEn}"
+                    rows="5"
+                    @change="${(e) => (this._descriptionEn = e.detail.value)}"></dbp-string-element>
+            </div>
 
             <dbp-date-element
                 name="published-at"
@@ -625,13 +644,23 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 required
                 @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
 
-            <dbp-string-element
-                name="organization"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-organization')}"
-                .value="${this._organization}"
-                required
-                @change="${(e) => (this._organization = e.detail.value)}"></dbp-string-element>
+            <div class="translation-row">
+                <dbp-string-element
+                    name="organization"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-organization')}"
+                    .value="${this._organization}"
+                    required
+                    @change="${(e) => (this._organization = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="organization-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-organization-en')}"
+                    .value="${this._organizationEn}"
+                    @change="${(e) =>
+                        (this._organizationEn = e.detail.value)}"></dbp-string-element>
+            </div>
 
             <!-- Optional fields -->
             <h4 class="section-heading">${t('manage-job-offers.section-optional')}</h4>
@@ -682,13 +711,25 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     }
                 }}"></dbp-enum-element>
 
-            <dbp-string-element
-                name="requirements"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-requirements')}"
-                .value="${this._requirementsText}"
-                rows="4"
-                @change="${(e) => (this._requirementsText = e.detail.value)}"></dbp-string-element>
+            <div class="translation-row">
+                <dbp-string-element
+                    name="requirements"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-requirements')}"
+                    .value="${this._requirementsText}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._requirementsText = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="requirements-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-requirements-en')}"
+                    .value="${this._requirementsTextEn}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
+            </div>
 
             <dbp-string-element
                 name="link-name"
@@ -705,40 +746,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
                 .value="${this._linkUrl}"
                 @change="${(e) => (this._linkUrl = e.detail.value)}"></dbp-string-element>
-
-            <!-- English texts (optional) -->
-            <h4 class="section-heading">${t('manage-job-offers.section-english')}</h4>
-
-            <dbp-string-element
-                name="title-en"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-job-title-en')}"
-                .value="${this._titleEn}"
-                @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
-
-            <dbp-string-element
-                name="description-en"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-description-en')}"
-                .value="${this._descriptionEn}"
-                rows="5"
-                @change="${(e) => (this._descriptionEn = e.detail.value)}"></dbp-string-element>
-
-            <dbp-string-element
-                name="organization-en"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-organization-en')}"
-                .value="${this._organizationEn}"
-                @change="${(e) => (this._organizationEn = e.detail.value)}"></dbp-string-element>
-
-            <dbp-string-element
-                name="requirements-en"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-requirements-en')}"
-                .value="${this._requirementsTextEn}"
-                rows="4"
-                @change="${(e) =>
-                    (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
         `;
     }
 
@@ -755,6 +762,23 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 font-size: 1rem;
                 font-weight: 700;
                 margin: 1.25rem 0 0.75rem;
+            }
+
+            .translation-row {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1rem;
+            }
+
+            .translation-row dbp-string-element {
+                margin-bottom: 0;
+            }
+
+            @media (max-width: 900px) {
+                .translation-row {
+                    grid-template-columns: 1fr;
+                    gap: 0;
+                }
             }
 
             /* Vertical spacing between form elements */
