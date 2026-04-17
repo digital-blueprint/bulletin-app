@@ -558,14 +558,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               <button
                                                   class="button is-secondary"
                                                   @click="${() => this.openJob(job)}"
+                                                  title="${t('view-job-offers.show-applications')}"
                                                   aria-label="${t(
-                                                      'view-job-offers.view-details',
+                                                      'view-job-offers.show-applications',
                                                   )} – ${job.title}">
                                                   <dbp-icon
                                                       class="btn-icon"
-                                                      name="magnifier"
+                                                      name="users"
                                                       aria-hidden="true"></dbp-icon>
-                                                  ${t('view-job-offers.view-details')}
+                                                  ${t('view-job-offers.show-applications')}
                                               </button>
                                           </div>
                                       </div>
