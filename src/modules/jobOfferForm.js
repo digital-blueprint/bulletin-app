@@ -255,6 +255,23 @@ export const getAreaOfInterestLabels = (value, t) =>
 export const normalizeAreaOfInterestValue = (value) =>
     normalizeAreaOfInterestValues(value)[0] ?? '';
 
+const getSubmissionCheckAuthContext = (auth) => ({
+    loginStatus: auth?.['login-status'] ?? '',
+    userId: auth?.['user-id'] ?? '',
+    subject: auth?.subject ?? '',
+});
+
+export const hasSubmissionCheckContextChanged = (previousAuth, nextAuth) => {
+    const previousContext = getSubmissionCheckAuthContext(previousAuth);
+    const nextContext = getSubmissionCheckAuthContext(nextAuth);
+
+    return (
+        previousContext.loginStatus !== nextContext.loginStatus ||
+        previousContext.userId !== nextContext.userId ||
+        previousContext.subject !== nextContext.subject
+    );
+};
+
 const parseMultilineList = (value) =>
     value
         .split('\n')
@@ -947,9 +964,18 @@ export class JobOfferFormElement extends BaseFormElement {
     async update(changedProperties) {
         await super.update(changedProperties);
 
-        // Re-run the prior-submission check whenever the form identifier or auth token changes
-        if (changedProperties.has('formIdentifier') || changedProperties.has('auth')) {
-            if (this.formIdentifier && this.auth?.token) {
+        const formIdentifierChanged = changedProperties.has('formIdentifier');
+        const authContextChanged =
+            changedProperties.has('auth') &&
+            hasSubmissionCheckContextChanged(changedProperties.get('auth'), this.auth);
+
+        // Only re-check when the active job or the logged-in user changes.
+        // Token refreshes keep the same user context and must not tear down the form mid-edit.
+        if (formIdentifierChanged || authContextChanged) {
+            this._hasApplied = false;
+            this._checkingApplied = false;
+
+            if (this.formIdentifier && this.auth?.token && this.auth?.['user-id']) {
                 this._checkAlreadyApplied();
             }
         }
@@ -961,7 +987,10 @@ export class JobOfferFormElement extends BaseFormElement {
      */
     async _checkAlreadyApplied() {
         const userId = this.auth?.['user-id'];
-        if (!userId || !this.formIdentifier || !this.entryPointUrl) {
+        const token = this.auth?.token;
+        const formIdentifier = this.formIdentifier;
+
+        if (!userId || !formIdentifier || !this.entryPointUrl || !token) {
             return;
         }
 
@@ -970,28 +999,30 @@ export class JobOfferFormElement extends BaseFormElement {
         try {
             const url =
                 `${this.entryPointUrl}/formalize/submissions` +
-                `?formIdentifier=${encodeURIComponent(this.formIdentifier)}` +
+                `?formIdentifier=${encodeURIComponent(formIdentifier)}` +
                 `&perPage=1` +
                 `&creatorIdEquals=${encodeURIComponent(userId)}`;
 
             const response = await fetch(url, {
                 headers: {
-                    Authorization: `Bearer ${this.auth.token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
             if (response.ok) {
                 const data = await response.json();
                 const members = data['hydra:member'] ?? [];
-                if (members.length > 0) {
-                    this._hasApplied = true;
+                if (this.formIdentifier === formIdentifier && this.auth?.['user-id'] === userId) {
+                    this._hasApplied = members.length > 0;
                 }
             }
         } catch (error) {
             // Non-fatal: if the check fails we simply show the form as normal
             console.error('Error checking prior application:', error);
         } finally {
-            this._checkingApplied = false;
+            if (this.formIdentifier === formIdentifier && this.auth?.['user-id'] === userId) {
+                this._checkingApplied = false;
+            }
         }
     }
 

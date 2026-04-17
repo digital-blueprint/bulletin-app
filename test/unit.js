@@ -2,7 +2,11 @@ import {assert} from 'chai';
 
 import '../src/dbp-bulletin-view-job-offers';
 import '../src/dbp-bulletin.js';
-import {normalizeAreaOfInterestValues} from '../src/modules/jobOfferForm.js';
+import {
+    JobOfferFormElement,
+    hasSubmissionCheckContextChanged,
+    normalizeAreaOfInterestValues,
+} from '../src/modules/jobOfferForm.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
@@ -94,5 +98,71 @@ suite('jobOfferForm area normalization', () => {
         assert.deepEqual(normalizeAreaOfInterestValues('Science'), ['natural-sciences']);
         assert.deepEqual(normalizeAreaOfInterestValues('Wissenschaft'), ['natural-sciences']);
         assert.deepEqual(normalizeAreaOfInterestValues(['IT', 'Management']), ['it', 'management']);
+    });
+});
+
+suite('jobOfferForm auth refresh handling', () => {
+    test('should ignore token-only auth changes for submission checks', () => {
+        assert.isFalse(
+            hasSubmissionCheckContextChanged(
+                {'login-status': 'logged-in', 'user-id': 'user-1', subject: 'user-1', token: 'a'},
+                {'login-status': 'logged-in', 'user-id': 'user-1', subject: 'user-1', token: 'b'},
+            ),
+        );
+    });
+
+    test('should re-check when the logged-in user changes', () => {
+        assert.isTrue(
+            hasSubmissionCheckContextChanged(
+                {'login-status': 'logged-in', 'user-id': 'user-1', subject: 'user-1'},
+                {'login-status': 'logged-in', 'user-id': 'user-2', subject: 'user-2'},
+            ),
+        );
+    });
+
+    test('should not re-run prior-submission checks on token refresh', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        let checkCalls = 0;
+
+        element.entryPointUrl = 'https://example.invalid';
+        element.formIdentifier = 'job-1';
+        element._checkAlreadyApplied = async () => {
+            checkCalls += 1;
+        };
+
+        document.body.appendChild(element);
+
+        element.auth = {
+            'login-status': 'logged-in',
+            'user-id': 'user-1',
+            subject: 'user-1',
+            token: 'token-1',
+        };
+        await element.updateComplete;
+
+        element.auth = {
+            'login-status': 'logged-in',
+            'user-id': 'user-1',
+            subject: 'user-1',
+            token: 'token-2',
+        };
+        await element.updateComplete;
+
+        element.auth = {
+            'login-status': 'logged-in',
+            'user-id': 'user-2',
+            subject: 'user-2',
+            token: 'token-3',
+        };
+        await element.updateComplete;
+
+        assert.equal(checkCalls, 2);
+
+        element.remove();
     });
 });
