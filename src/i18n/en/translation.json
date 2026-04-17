@@ -130,7 +130,7 @@
         "pagination-next": "Next",
         "pagination-prev": "Prev",
         "search-placeholder": "Search",
-        "select-placeholder": "--Please select--",
+        "select-placeholder": "--Everything--",
         "sort-by": "Sort by:",
         "sort-date-asc": "Date ↑",
         "sort-date-desc": "Date ↓",
