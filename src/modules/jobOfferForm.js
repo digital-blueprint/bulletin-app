@@ -1507,6 +1507,10 @@ export class JobOfferFormElement extends BaseFormElement {
                         class="button is-primary"
                         type="submit"
                         ?disabled="${this._isSubmitting}">
+                        <dbp-icon
+                            class="btn-icon"
+                            name="send-diagonal"
+                            aria-hidden="true"></dbp-icon>
                         ${t('job-offer-detail.submit')}
                     </button>
                 </div>
@@ -1632,6 +1636,17 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: flex;
                     justify-content: flex-end;
                     margin-top: 1rem;
+                }
+
+                .form-footer .button {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                }
+
+                .btn-icon {
+                    flex-shrink: 0;
+                    top: 0;
                 }
 
                 .checking-spinner {

@@ -392,7 +392,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               }}">
                                               <dbp-icon
                                                   class="btn-icon"
-                                                  name="checkmark"
+                                                  name="chevron-down"
                                                   aria-hidden="true"></dbp-icon>
                                               ${t('job-offer-detail.apply')}
                                           </button>
