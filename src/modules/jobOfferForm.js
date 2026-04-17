@@ -255,6 +255,20 @@ export const getAreaOfInterestLabels = (value, t) =>
 export const normalizeAreaOfInterestValue = (value) =>
     normalizeAreaOfInterestValues(value)[0] ?? '';
 
+const parseMultilineList = (value) =>
+    value
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+const normalizeMultilineValue = (value) => {
+    if (Array.isArray(value)) {
+        return value.join('\n');
+    }
+
+    return typeof value === 'string' ? value : '';
+};
+
 /**
  * Web component for editing a job-offer form (create or update).
  *
@@ -296,18 +310,26 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._description = '';
         this._publishedAt = '';
         this._deadline = '';
+        this._applicationDeadline = '';
         this._organization = '';
 
         // Optional job detail fields
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
+        this._contractDuration = '';
         this._jobCategory = '';
         this._areasOfInterest = [];
         this._linkName = '';
         this._linkUrl = '';
         /** @type {string} Newline-separated list of requirements entered by the user */
         this._requirementsText = '';
+        /** @type {string} Newline-separated list of responsibilities entered by the user */
+        this._responsibilitiesText = '';
+        /** @type {string} Newline-separated list of qualifications entered by the user */
+        this._requiredQualificationText = '';
+        /** @type {string} Newline-separated list of benefits entered by the user */
+        this._weOfferText = '';
 
         // Optional English translations of text fields
         this._titleEn = '';
@@ -334,15 +356,20 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _description: {state: true},
             _publishedAt: {state: true},
             _deadline: {state: true},
+            _applicationDeadline: {state: true},
             _organization: {state: true},
             _startDate: {state: true},
             _weeklyHours: {state: true},
             _salary: {state: true},
+            _contractDuration: {state: true},
             _jobCategory: {state: true},
             _areasOfInterest: {state: true},
             _linkName: {state: true},
             _linkUrl: {state: true},
             _requirementsText: {state: true},
+            _responsibilitiesText: {state: true},
+            _requiredQualificationText: {state: true},
+            _weOfferText: {state: true},
             _titleEn: {state: true},
             _descriptionEn: {state: true},
             _organizationEn: {state: true},
@@ -365,25 +392,26 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._description = d.description || '';
                 this._publishedAt = d.publishedAt || '';
                 this._deadline = d.deadline || '';
+                this._applicationDeadline = d.applicationDeadline || '';
                 this._organization = d.organization || '';
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
                 this._salary = d.salary || '';
+                this._contractDuration = d.contractDuration || '';
                 this._jobCategory = d.jobCategory || d.jobType || '';
                 this._areasOfInterest = normalizeAreaOfInterestValues(
                     d.areasOfInterest ?? d.areaOfInterest,
                 );
                 this._linkName = d.linkName || '';
                 this._linkUrl = d.linkUrl || '';
-                this._requirementsText = Array.isArray(d.requirements)
-                    ? d.requirements.join('\n')
-                    : '';
+                this._requirementsText = normalizeMultilineValue(d.requirements);
+                this._responsibilitiesText = normalizeMultilineValue(d.responsibilities);
+                this._requiredQualificationText = normalizeMultilineValue(d.requiredQualification);
+                this._weOfferText = normalizeMultilineValue(d.weOffer);
                 this._titleEn = d.titleEn || '';
                 this._descriptionEn = d.descriptionEn || '';
                 this._organizationEn = d.organizationEn || '';
-                this._requirementsTextEn = Array.isArray(d.requirementsEn)
-                    ? d.requirementsEn.join('\n')
-                    : '';
+                this._requirementsTextEn = normalizeMultilineValue(d.requirementsEn);
             }
         });
         super.update(changedProperties);
@@ -399,6 +427,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._description.trim() !== '' &&
             this._publishedAt.trim() !== '' &&
             this._deadline.trim() !== '' &&
+            this._applicationDeadline.trim() !== '' &&
             this._organization.trim() !== ''
         );
     }
@@ -409,15 +438,20 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._description = '';
         this._publishedAt = '';
         this._deadline = '';
+        this._applicationDeadline = '';
         this._organization = '';
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
+        this._contractDuration = '';
         this._jobCategory = '';
         this._areasOfInterest = [];
         this._linkName = '';
         this._linkUrl = '';
         this._requirementsText = '';
+        this._responsibilitiesText = '';
+        this._requiredQualificationText = '';
+        this._weOfferText = '';
         this._titleEn = '';
         this._descriptionEn = '';
         this._organizationEn = '';
@@ -430,10 +464,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
      * @returns {string[]}
      */
     _parseRequirements() {
-        return this._requirementsText
-            .split('\n')
-            .map((line) => line.trim())
-            .filter(Boolean);
+        return parseMultilineList(this._requirementsText);
     }
 
     /**
@@ -441,10 +472,31 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
      * @returns {string[]}
      */
     _parseRequirementsEn() {
-        return this._requirementsTextEn
-            .split('\n')
-            .map((line) => line.trim())
-            .filter(Boolean);
+        return parseMultilineList(this._requirementsTextEn);
+    }
+
+    /**
+     * Splits the responsibilities text area into a trimmed array of non-empty lines.
+     * @returns {string[]}
+     */
+    _parseResponsibilities() {
+        return parseMultilineList(this._responsibilitiesText);
+    }
+
+    /**
+     * Splits the required qualification text area into a trimmed array of non-empty lines.
+     * @returns {string[]}
+     */
+    _parseRequiredQualification() {
+        return parseMultilineList(this._requiredQualificationText);
+    }
+
+    /**
+     * Splits the we-offer text area into a trimmed array of non-empty lines.
+     * @returns {string[]}
+     */
+    _parseWeOffer() {
+        return parseMultilineList(this._weOfferText);
     }
 
     /**
@@ -514,15 +566,20 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             description: this._description.trim(),
             publishedAt: this._publishedAt.trim(),
             deadline: this._deadline.trim(),
+            applicationDeadline: this._applicationDeadline.trim(),
             organization: this._organization.trim(),
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),
+            contractDuration: this._contractDuration.trim(),
             jobCategory: this._jobCategory,
             areasOfInterest: this._areasOfInterest,
             linkName: this._linkName.trim(),
             linkUrl: this._linkUrl.trim(),
             requirements: this._parseRequirements(),
+            responsibilities: this._parseResponsibilities(),
+            requiredQualification: this._parseRequiredQualification(),
+            weOffer: this._parseWeOffer(),
             titleEn: this._titleEn.trim(),
             descriptionEn: this._descriptionEn.trim(),
             organizationEn: this._organizationEn.trim(),
@@ -586,6 +643,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
+        const multilineHint = t('manage-job-offers.field-list-items-hint');
 
         return html`
             <!-- Mandatory fields -->
@@ -644,6 +702,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 required
                 @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
 
+            <dbp-date-element
+                name="application-deadline"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-application-deadline')}"
+                .value="${this._applicationDeadline}"
+                required
+                @change="${(e) => (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
+
             <div class="translation-row">
                 <dbp-string-element
                     name="organization"
@@ -685,6 +751,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 label="${t('manage-job-offers.field-salary')}"
                 .value="${this._salary}"
                 @change="${(e) => (this._salary = e.detail.value)}"></dbp-string-element>
+
+            <dbp-string-element
+                name="contract-duration"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-contract-duration')}"
+                .value="${this._contractDuration}"
+                @change="${(e) => (this._contractDuration = e.detail.value)}"></dbp-string-element>
 
             <dbp-enum-element
                 name="job-category"
@@ -731,6 +804,41 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
             </div>
 
+            <div class="field-with-hint">
+                <dbp-string-element
+                    name="responsibilities"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-responsibilities')}"
+                    .value="${this._responsibilitiesText}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._responsibilitiesText = e.detail.value)}"></dbp-string-element>
+                <div class="field-hint">${multilineHint}</div>
+            </div>
+
+            <div class="field-with-hint">
+                <dbp-string-element
+                    name="required-qualification"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-required-qualification')}"
+                    .value="${this._requiredQualificationText}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._requiredQualificationText = e.detail.value)}"></dbp-string-element>
+                <div class="field-hint">${multilineHint}</div>
+            </div>
+
+            <div class="field-with-hint">
+                <dbp-string-element
+                    name="we-offer"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-we-offer')}"
+                    .value="${this._weOfferText}"
+                    rows="4"
+                    @change="${(e) => (this._weOfferText = e.detail.value)}"></dbp-string-element>
+                <div class="field-hint">${multilineHint}</div>
+            </div>
+
             <dbp-string-element
                 name="link-name"
                 lang="${this.lang}"
@@ -772,6 +880,20 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             .translation-row dbp-string-element {
                 margin-bottom: 0;
+            }
+
+            .field-with-hint {
+                margin-bottom: 0.75rem;
+            }
+
+            .field-with-hint dbp-string-element {
+                margin-bottom: 0.25rem;
+            }
+
+            .field-hint {
+                color: var(--dbp-muted);
+                font-size: 0.875rem;
+                line-height: 1.4;
             }
 
             @media (max-width: 900px) {
