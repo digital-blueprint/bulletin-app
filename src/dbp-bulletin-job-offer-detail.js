@@ -409,6 +409,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                               <!-- Application form rendered by the JobOfferFormElement component -->
                               <dbp-bulletin-job-offer-form
                                   lang="${this.lang}"
+                                  .job="${job}"
                                   .auth="${this.auth}"
                                   entry-point-url="${this.entryPointUrl}"
                                   form-identifier="${job.identifier}"

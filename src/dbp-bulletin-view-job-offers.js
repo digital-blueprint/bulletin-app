@@ -147,12 +147,21 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         areasOfInterest,
                         publishedAt: form.publishedAt ?? extra.publishedAt ?? '',
                         deadline: extra.deadline ?? '',
+                        applicationDeadline: extra.applicationDeadline ?? '',
                         startDate: extra.startDate ?? '',
                         weeklyHours: extra.weeklyHours ?? '',
                         salary: extra.salary ?? '',
+                        contractDuration: extra.contractDuration ?? '',
                         organization: extra.organization ?? '',
                         description: extra.description ?? '',
                         requirements: Array.isArray(extra.requirements) ? extra.requirements : [],
+                        responsibilities: Array.isArray(extra.responsibilities)
+                            ? extra.responsibilities
+                            : [],
+                        requiredQualification: Array.isArray(extra.requiredQualification)
+                            ? extra.requiredQualification
+                            : [],
+                        weOffer: Array.isArray(extra.weOffer) ? extra.weOffer : [],
                         linkName: extra.linkName ?? '',
                         linkUrl: extra.linkUrl ?? '',
                         // Optional English translations

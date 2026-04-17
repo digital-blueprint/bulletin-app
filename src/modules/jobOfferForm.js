@@ -269,6 +269,14 @@ const normalizeMultilineValue = (value) => {
     return typeof value === 'string' ? value : '';
 };
 
+const normalizeStringList = (value) => {
+    if (Array.isArray(value)) {
+        return value.map((item) => String(item).trim()).filter(Boolean);
+    }
+
+    return parseMultilineList(normalizeMultilineValue(value));
+};
+
 /**
  * Web component for editing a job-offer form (create or update).
  *
@@ -919,6 +927,7 @@ export class JobOfferFormElement extends BaseFormElement {
         super();
         this.jobCategories = JOB_CATEGORIES;
         this.areasOfInterest = AREAS_OF_INTEREST;
+        this.job = null;
 
         // Override the formalize i18n instance with the app's own instance so that
         // job-offer-detail.* translation keys are resolved correctly.
@@ -947,6 +956,7 @@ export class JobOfferFormElement extends BaseFormElement {
     static get properties() {
         return {
             ...super.properties,
+            job: {type: Object},
             notificationTargetId: {type: String, attribute: 'notification-target-id'},
             _isSubmitting: {state: true},
             _hasApplied: {state: true},
@@ -1078,6 +1088,222 @@ export class JobOfferFormElement extends BaseFormElement {
     }
 
     /**
+     * Returns the English value when the current language is English and a translation exists.
+     * @param {string} primary
+     * @param {string} en
+     * @returns {string}
+     */
+    _localized(primary, en = '') {
+        return this.lang === 'en' && en ? en : primary;
+    }
+
+    /**
+     * Formats an ISO date string (YYYY-MM-DD) to DD.MM.YYYY.
+     * @param {string} isoDate
+     * @returns {string}
+     */
+    _formatDisplayDate(isoDate) {
+        if (!isoDate || !isoDate.includes('-')) {
+            return isoDate;
+        }
+
+        const [year, month, day] = isoDate.split('-');
+        return year && month && day ? `${day}.${month}.${year}` : isoDate;
+    }
+
+    /**
+     * Renders multiline plain text while preserving line breaks.
+     * @param {string} value
+     * @param {string} className
+     * @returns {import('lit').TemplateResult|string}
+     */
+    _renderTextWithLineBreaks(value, className) {
+        if (!value) {
+            return '';
+        }
+
+        const lines = value.split(/\r?\n/);
+        return html`
+            <p class="${className}">
+                ${lines.map((line, index) =>
+                    index === 0
+                        ? line
+                        : html`
+                              <br />
+                              ${line}
+                          `,
+                )}
+            </p>
+        `;
+    }
+
+    /**
+     * Renders a metadata row when a value is present.
+     * @param {string} label
+     * @param {string|import('lit').TemplateResult} value
+     * @returns {import('lit').TemplateResult|string}
+     */
+    _renderJobMetaItem(label, value) {
+        if (!value) {
+            return '';
+        }
+
+        return html`
+            <div class="job-overview-meta-item">
+                <dt>${label}:</dt>
+                <dd>${value}</dd>
+            </div>
+        `;
+    }
+
+    /**
+     * Renders a list section when at least one item is available.
+     * @param {string} title
+     * @param {unknown} value
+     * @returns {import('lit').TemplateResult|string}
+     */
+    _renderJobListSection(title, value) {
+        const items = normalizeStringList(value);
+        if (items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <section class="job-overview-section">
+                <h5 class="job-overview-section-title">${title}</h5>
+                <ul class="job-overview-list">
+                    ${items.map(
+                        (item) => html`
+                            <li>${item}</li>
+                        `,
+                    )}
+                </ul>
+            </section>
+        `;
+    }
+
+    /**
+     * Renders a summary of the current job above the application form.
+     * @returns {import('lit').TemplateResult|string}
+     */
+    _renderJobOverview() {
+        if (!this.job) {
+            return '';
+        }
+
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const job = this.job;
+        const localizedTitle = this._localized(job.title ?? '', job.titleEn ?? '');
+        const localizedDescription = this._localized(
+            job.description ?? '',
+            job.descriptionEn ?? '',
+        );
+        const localizedOrganization = this._localized(
+            job.organization ?? '',
+            job.organizationEn ?? '',
+        );
+        const requirements =
+            this.lang === 'en' && normalizeStringList(job.requirementsEn).length > 0
+                ? job.requirementsEn
+                : job.requirements;
+        const areaOfInterestLabels = getAreaOfInterestLabels(
+            job.areasOfInterest ?? job.areaOfInterest,
+            t,
+        );
+        const jobCategoryLabel = job.jobCategory ? getJobCategoryLabel(job.jobCategory, t) : '';
+
+        return html`
+            <section class="job-overview" aria-label="${localizedTitle}">
+                ${localizedTitle
+                    ? html`
+                          <h4 class="job-overview-title">${localizedTitle}</h4>
+                      `
+                    : ''}
+                ${this._renderTextWithLineBreaks(localizedDescription, 'job-overview-description')}
+
+                <dl class="job-overview-meta-list">
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-published-at'),
+                        this._formatDisplayDate(job.publishedAt ?? ''),
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-deadline'),
+                        this._formatDisplayDate(job.deadline ?? ''),
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-application-deadline'),
+                        this._formatDisplayDate(job.applicationDeadline ?? ''),
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-start-date'),
+                        this._formatDisplayDate(job.startDate ?? ''),
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-weekly-hours'),
+                        job.weeklyHours ?? '',
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-salary'),
+                        job.salary ?? '',
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-contract-duration'),
+                        job.contractDuration ?? '',
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-job-category'),
+                        jobCategoryLabel,
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-organization'),
+                        localizedOrganization,
+                    )}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-link-url'),
+                        job.linkUrl
+                            ? html`
+                                  <a
+                                      href="${job.linkUrl}"
+                                      target="_blank"
+                                      rel="noopener noreferrer">
+                                      ${job.linkName || job.linkUrl}
+                                  </a>
+                              `
+                            : '',
+                    )}
+                </dl>
+
+                ${areaOfInterestLabels.length > 0
+                    ? html`
+                          <section class="job-overview-section">
+                              <h5 class="job-overview-section-title">
+                                  ${t('manage-job-offers.field-area-of-interest')}
+                              </h5>
+                              <div class="job-overview-tags">
+                                  ${areaOfInterestLabels.map(
+                                      (label) => html`
+                                          <span class="job-overview-tag">${label}</span>
+                                      `,
+                                  )}
+                              </div>
+                          </section>
+                      `
+                    : ''}
+                ${this._renderJobListSection(t('job-offer-detail.requirements'), requirements)}
+                ${this._renderJobListSection(
+                    t('manage-job-offers.field-responsibilities'),
+                    job.responsibilities,
+                )}
+                ${this._renderJobListSection(
+                    t('manage-job-offers.field-required-qualification'),
+                    job.requiredQualification,
+                )}
+                ${this._renderJobListSection(t('manage-job-offers.field-we-offer'), job.weOffer)}
+            </section>
+        `;
+    }
+
+    /**
      * Handles the application form submission triggered by the native form submit event.
      * Validates inline, then delegates to sendSubmission() from the base class which
      * gathers form data and dispatches DbpFormalizeFormSubmission.
@@ -1203,6 +1429,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
+        const jobOverview = this._renderJobOverview();
 
         if (this._checkingApplied) {
             return html`
@@ -1212,15 +1439,20 @@ export class JobOfferFormElement extends BaseFormElement {
 
         if (this._hasApplied) {
             return html`
-                <div class="applied-notice">
-                    <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
-                    <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
+                <div class="apply-form">
+                    ${jobOverview}
+                    <div class="applied-notice">
+                        <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
+                        <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
+                    </div>
                 </div>
             `;
         }
 
         return html`
             <form class="apply-form" @submit="${this._onApplySubmit}" novalidate>
+                ${jobOverview}
+
                 <h4 class="apply-heading">${t('job-offer-detail.application-title')}</h4>
 
                 <div class="form-row">
@@ -1296,6 +1528,72 @@ export class JobOfferFormElement extends BaseFormElement {
                     margin: 0 0 1rem 0;
                 }
 
+                .job-overview {
+                    border-bottom: var(--dbp-border);
+                    margin-bottom: 1.25rem;
+                    padding-bottom: 1.25rem;
+                }
+
+                .job-overview-title {
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    margin: 0 0 0.75rem 0;
+                }
+
+                .job-overview-description {
+                    margin: 0 0 1rem 0;
+                    line-height: 1.5;
+                }
+
+                .job-overview-meta-list {
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 0.75rem 1rem;
+                    margin: 0 0 1rem 0;
+                }
+
+                .job-overview-meta-item {
+                    display: grid;
+                    gap: 0.15rem;
+                }
+
+                .job-overview-meta-item dt {
+                    color: var(--dbp-muted);
+                    font-weight: 600;
+                }
+
+                .job-overview-meta-item dd {
+                    margin: 0;
+                }
+
+                .job-overview-section {
+                    margin-top: 1rem;
+                }
+
+                .job-overview-section-title {
+                    font-size: 1rem;
+                    font-weight: 700;
+                    margin: 0 0 0.5rem 0;
+                }
+
+                .job-overview-list {
+                    margin: 0;
+                    padding-left: 1.25rem;
+                }
+
+                .job-overview-tags {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                }
+
+                .job-overview-tag {
+                    background: var(--dbp-secondary-surface, #f2f4f7);
+                    border-radius: 999px;
+                    font-size: 0.875rem;
+                    padding: 0.25rem 0.75rem;
+                }
+
                 /* Three-column form row for first name, last name, email */
                 .form-row {
                     display: grid;
@@ -1305,6 +1603,10 @@ export class JobOfferFormElement extends BaseFormElement {
                 }
 
                 @media (max-width: 560px) {
+                    .job-overview-meta-list {
+                        grid-template-columns: 1fr;
+                    }
+
                     .form-row {
                         grid-template-columns: 1fr;
                     }
