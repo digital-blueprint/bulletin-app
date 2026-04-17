@@ -398,6 +398,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     render() {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
+        const sortedJobCategories = [...this._jobCategories].sort((a, b) =>
+            getJobCategoryLabel(a, t).localeCompare(getJobCategoryLabel(b, t), this.lang),
+        );
+        const sortedAreasOfInterest = [...this._areasOfInterest].sort((a, b) =>
+            getAreaOfInterestLabel(a, t).localeCompare(getAreaOfInterestLabel(b, t), this.lang),
+        );
 
         // Loading state
         if (this._loading) {
@@ -467,7 +473,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 @change="${this.onJobCategoryChange}"
                                 .value="${this.filterJobCategory}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
-                                ${this._jobCategories.map(
+                                ${sortedJobCategories.map(
                                     (value) => html`
                                         <option
                                             value="${value}"
@@ -493,7 +499,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 @change="${this.onAreaOfInterestChange}"
                                 .value="${this.filterAreaOfInterest}">
                                 <option value="">${t('view-job-offers.select-placeholder')}</option>
-                                ${this._areasOfInterest.map(
+                                ${sortedAreasOfInterest.map(
                                     (value) => html`
                                         <option
                                             value="${value}"
