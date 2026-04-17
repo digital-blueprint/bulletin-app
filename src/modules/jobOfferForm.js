@@ -812,40 +812,34 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
             </div>
 
-            <div class="field-with-hint">
-                <dbp-string-element
-                    name="responsibilities"
-                    lang="${this.lang}"
-                    label="${t('manage-job-offers.field-responsibilities')}"
-                    .value="${this._responsibilitiesText}"
-                    rows="4"
-                    @change="${(e) =>
-                        (this._responsibilitiesText = e.detail.value)}"></dbp-string-element>
-                <div class="field-hint">${multilineHint}</div>
-            </div>
+            <dbp-string-element
+                name="responsibilities"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-responsibilities')}"
+                description="${multilineHint}"
+                .value="${this._responsibilitiesText}"
+                rows="4"
+                @change="${(e) =>
+                    (this._responsibilitiesText = e.detail.value)}"></dbp-string-element>
 
-            <div class="field-with-hint">
-                <dbp-string-element
-                    name="required-qualification"
-                    lang="${this.lang}"
-                    label="${t('manage-job-offers.field-required-qualification')}"
-                    .value="${this._requiredQualificationText}"
-                    rows="4"
-                    @change="${(e) =>
-                        (this._requiredQualificationText = e.detail.value)}"></dbp-string-element>
-                <div class="field-hint">${multilineHint}</div>
-            </div>
+            <dbp-string-element
+                name="required-qualification"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-required-qualification')}"
+                description="${multilineHint}"
+                .value="${this._requiredQualificationText}"
+                rows="4"
+                @change="${(e) =>
+                    (this._requiredQualificationText = e.detail.value)}"></dbp-string-element>
 
-            <div class="field-with-hint">
-                <dbp-string-element
-                    name="we-offer"
-                    lang="${this.lang}"
-                    label="${t('manage-job-offers.field-we-offer')}"
-                    .value="${this._weOfferText}"
-                    rows="4"
-                    @change="${(e) => (this._weOfferText = e.detail.value)}"></dbp-string-element>
-                <div class="field-hint">${multilineHint}</div>
-            </div>
+            <dbp-string-element
+                name="we-offer"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-we-offer')}"
+                description="${multilineHint}"
+                .value="${this._weOfferText}"
+                rows="4"
+                @change="${(e) => (this._weOfferText = e.detail.value)}"></dbp-string-element>
 
             <dbp-string-element
                 name="link-name"
@@ -888,20 +882,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             .translation-row dbp-string-element {
                 margin-bottom: 0;
-            }
-
-            .field-with-hint {
-                margin-bottom: 0.75rem;
-            }
-
-            .field-with-hint dbp-string-element {
-                margin-bottom: 0.25rem;
-            }
-
-            .field-hint {
-                color: var(--dbp-muted);
-                font-size: 0.875rem;
-                line-height: 1.4;
             }
 
             @media (max-width: 900px) {
