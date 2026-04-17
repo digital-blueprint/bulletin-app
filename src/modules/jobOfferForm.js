@@ -1194,10 +1194,6 @@ export class JobOfferFormElement extends BaseFormElement {
         const t = (key, opts) => this._i18n.t(key, opts);
         const job = this.job;
         const localizedTitle = this._localized(job.title ?? '', job.titleEn ?? '');
-        const localizedDescription = this._localized(
-            job.description ?? '',
-            job.descriptionEn ?? '',
-        );
         const localizedOrganization = this._localized(
             job.organization ?? '',
             job.organizationEn ?? '',
@@ -1219,7 +1215,6 @@ export class JobOfferFormElement extends BaseFormElement {
                           <h4 class="job-overview-title">${localizedTitle}</h4>
                       `
                     : ''}
-                ${this._renderTextWithLineBreaks(localizedDescription, 'job-overview-description')}
 
                 <dl class="job-overview-meta-list">
                     ${this._renderJobMetaItem(
