@@ -131,9 +131,9 @@
         "pagination-prev": "Zurück",
         "search-placeholder": "Suche",
         "select-placeholder": "--Wählen Sie--",
-        "show-applications": "Bewerbungen anzeigen",
         "sort-by": "Sortieren nach:",
         "sort-date-asc": "Datum ↑",
-        "sort-date-desc": "Datum ↓"
+        "sort-date-desc": "Datum ↓",
+        "view-details": "Anzeigen"
     }
 }

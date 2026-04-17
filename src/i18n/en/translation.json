@@ -131,9 +131,9 @@
         "pagination-prev": "Prev",
         "search-placeholder": "Search",
         "select-placeholder": "--Please select--",
-        "show-applications": "Show applications",
         "sort-by": "Sort by:",
         "sort-date-asc": "Date ↑",
-        "sort-date-desc": "Date ↓"
+        "sort-date-desc": "Date ↓",
+        "view-details": "View"
     }
 }
