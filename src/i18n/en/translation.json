@@ -117,23 +117,26 @@
         "select-placeholder": "-- please select --"
     },
     "view-job-offers": {
+        "application-deadline": "Application deadline",
         "areas-of-interest": "Areas of Interest",
         "available-positions": "Available Positions",
-        "deadline": "Application deadline",
         "error-load-failed": "Failed to load job offers. Please try again later.",
         "job-category": "Job category",
         "loading": "Loading job offers…",
         "no-results": "No job offers found.",
+        "organizational-unit": "Organisational unit",
         "page-size": "Items per page",
         "pagination-first": "First",
         "pagination-last": "Last",
         "pagination-next": "Next",
         "pagination-prev": "Prev",
+        "published-at": "Published on",
         "search-placeholder": "Search",
         "select-placeholder": "--Everything--",
         "sort-by": "Sort by:",
         "sort-date-asc": "Date ↑",
         "sort-date-desc": "Date ↓",
-        "view-details": "View"
+        "view-details": "View",
+        "weekly-hours": "Hours per week"
     }
 }

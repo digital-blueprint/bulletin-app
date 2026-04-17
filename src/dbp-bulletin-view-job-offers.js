@@ -152,6 +152,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         weeklyHours: extra.weeklyHours ?? '',
                         salary: extra.salary ?? '',
                         contractDuration: extra.contractDuration ?? '',
+                        organizationalUnit:
+                            extra.organizationalUnit ??
+                            extra.organisationalUnit ??
+                            extra.organization ??
+                            '',
                         organization: extra.organization ?? '',
                         description: extra.description ?? '',
                         requirements: Array.isArray(extra.requirements) ? extra.requirements : [],
@@ -167,6 +172,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         // Optional English translations
                         titleEn: extra.titleEn ?? '',
                         descriptionEn: extra.descriptionEn ?? '',
+                        organizationalUnitEn:
+                            extra.organizationalUnitEn ??
+                            extra.organisationalUnitEn ??
+                            extra.organizationEn ??
+                            '',
                         organizationEn: extra.organizationEn ?? '',
                         requirementsEn: Array.isArray(extra.requirementsEn)
                             ? extra.requirementsEn
@@ -305,6 +315,36 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         <span class="job-tag">${label}</span>
                     `,
                 )}
+            </div>
+        `;
+    }
+
+    /**
+     * Returns the English value when the current language is English and the English text is
+     * non-empty; otherwise returns the primary value.
+     * @param {string} primary
+     * @param {string} en
+     * @returns {string}
+     */
+    _localized(primary, en) {
+        return this.lang === 'en' && en ? en : primary;
+    }
+
+    /**
+     * Renders a metadata row for the search-result card when a value is available.
+     * @param {string} label
+     * @param {string} value
+     * @returns {import('lit').TemplateResult|string}
+     */
+    _renderJobMetaItem(label, value) {
+        if (!value) {
+            return '';
+        }
+
+        return html`
+            <div class="job-meta-item">
+                <dt>${label}:</dt>
+                <dd>${value}</dd>
             </div>
         `;
     }
@@ -554,11 +594,30 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       <div class="job-card">
                                           <div class="job-card-body">
                                               <h3 class="job-title">${job.title}</h3>
+                                              <dl class="job-meta-list">
+                                                  ${this._renderJobMetaItem(
+                                                      t('view-job-offers.organizational-unit'),
+                                                      this._localized(
+                                                          job.organizationalUnit,
+                                                          job.organizationalUnitEn ?? '',
+                                                      ),
+                                                  )}
+                                                  ${this._renderJobMetaItem(
+                                                      t('view-job-offers.weekly-hours'),
+                                                      job.weeklyHours,
+                                                  )}
+                                                  ${this._renderJobMetaItem(
+                                                      t('view-job-offers.published-at'),
+                                                      this.formatDate(job.publishedAt),
+                                                  )}
+                                                  ${this._renderJobMetaItem(
+                                                      t('view-job-offers.application-deadline'),
+                                                      this.formatDate(
+                                                          job.applicationDeadline || job.deadline,
+                                                      ),
+                                                  )}
+                                              </dl>
                                               ${this._renderAreaOfInterestTags(job, t)}
-                                              <p class="job-deadline">
-                                                  ${t('view-job-offers.deadline')}:
-                                                  ${this.formatDate(job.deadline)}
-                                              </p>
                                           </div>
                                           <div class="job-card-footer">
                                               <button
@@ -809,6 +868,33 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 line-height: 1.35;
             }
 
+            .job-meta-list {
+                display: grid;
+                gap: 0.4rem;
+                margin: 0 0 0.75rem 0;
+            }
+
+            .job-meta-item {
+                display: grid;
+                gap: 0.15rem;
+                margin: 0;
+            }
+
+            .job-meta-item dt,
+            .job-meta-item dd {
+                margin: 0;
+            }
+
+            .job-meta-item dt {
+                font-size: 0.95rem;
+                font-weight: 600;
+            }
+
+            .job-meta-item dd {
+                font-size: 1rem;
+                line-height: 1.35;
+            }
+
             /* Outlined badge matching the design */
             .job-tags {
                 display: flex;
@@ -824,11 +910,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 0.1rem 0.4rem;
                 font-size: 1rem;
                 color: var(--dbp-content);
-            }
-
-            .job-deadline {
-                margin: 0 0 0.75rem 0;
-                font-size: 1rem;
             }
 
             .job-card-footer {
