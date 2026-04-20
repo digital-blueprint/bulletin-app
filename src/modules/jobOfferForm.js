@@ -1498,7 +1498,6 @@ export class JobOfferFormElement extends BaseFormElement {
                     name="freeText"
                     label="${t('job-offer-detail.message')}"
                     .value="${this.formData?.freeText ?? ''}"
-                    required
                     .customValidator="${this._messageValidator}"
                     rows="4"></dbp-form-string-element>
 
