@@ -1,10 +1,10 @@
-import {css, html} from 'lit';
+import {css, html, nothing, unsafeCSS} from 'lit';
 import {ref, createRef} from 'lit/directives/ref.js';
 import {repeat} from 'lit/directives/repeat.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {Icon, MiniSpinner} from '@dbp-toolkit/common';
+import {Icon, MiniSpinner, getIconSVGURL} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
@@ -16,8 +16,8 @@ import JobOfferModule, {
     normalizeAreaOfInterestValues,
 } from './modules/jobOfferForm.js';
 
-const PAGE_SIZE_OPTIONS = [6, 12, 24];
-const DEFAULT_PAGE_SIZE = 12;
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100];
+const DEFAULT_PAGE_SIZE = 10;
 
 class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -645,11 +645,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     ? html`
                           <div class="pagination-bar">
                               <div class="page-size-wrapper">
-                                  <label class="label" for="page-size">
+                                  <label class="label pagination-label" for="page-size">
                                       ${t('view-job-offers.page-size')}
                                   </label>
-                                  <div class="control">
-                                      <select id="page-size" @change="${this.onPageSizeChange}">
+                                  <div class="page-size-select-wrapper">
+                                      <select
+                                          id="page-size"
+                                          class="pagination-page-size"
+                                          @change="${this.onPageSizeChange}">
                                           ${PAGE_SIZE_OPTIONS.map(
                                               (n) => html`
                                                   <option
@@ -664,42 +667,58 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                               </div>
 
                               <div class="pagination-buttons">
-                                  <button
-                                      class="button"
-                                      ?disabled="${page <= 1}"
-                                      @click="${() => this.goToPage(1)}">
-                                      ${t('view-job-offers.pagination-first')}
-                                  </button>
-                                  <button
-                                      class="button"
-                                      ?disabled="${page <= 1}"
-                                      @click="${() => this.goToPage(page - 1)}">
-                                      ${t('view-job-offers.pagination-prev')}
-                                  </button>
-                                  ${pageNumbers.map(
-                                      (p) => html`
-                                          <button
-                                              class="button pagination-page ${p === page
-                                                  ? 'is-primary'
-                                                  : ''}"
-                                              @click="${() => this.goToPage(p)}"
-                                              aria-current="${p === page ? 'page' : 'false'}">
-                                              ${p}
-                                          </button>
-                                      `,
-                                  )}
-                                  <button
-                                      class="button"
-                                      ?disabled="${page >= totalPages}"
-                                      @click="${() => this.goToPage(page + 1)}">
-                                      ${t('view-job-offers.pagination-next')}
-                                  </button>
-                                  <button
-                                      class="button"
-                                      ?disabled="${page >= totalPages}"
-                                      @click="${() => this.goToPage(totalPages)}">
-                                      ${t('view-job-offers.pagination-last')}
-                                  </button>
+                                  <div class="pagination-nav-group">
+                                      <button
+                                          type="button"
+                                          class="button pagination-button"
+                                          ?disabled="${page <= 1}"
+                                          aria-label="${t('view-job-offers.pagination-first')}"
+                                          @click="${() => this.goToPage(1)}">
+                                          &lt;&lt;
+                                      </button>
+                                      <button
+                                          type="button"
+                                          class="button pagination-button pagination-button-compact"
+                                          ?disabled="${page <= 1}"
+                                          aria-label="${t('view-job-offers.pagination-prev')}"
+                                          @click="${() => this.goToPage(page - 1)}">
+                                          &lt;
+                                      </button>
+                                  </div>
+                                  <div class="pagination-pages-group">
+                                      ${pageNumbers.map(
+                                          (p) => html`
+                                              <button
+                                                  type="button"
+                                                  class="button pagination-button pagination-page ${p ===
+                                                  page
+                                                      ? 'is-active'
+                                                      : ''}"
+                                                  @click="${() => this.goToPage(p)}"
+                                                  aria-current="${p === page ? 'page' : nothing}">
+                                                  ${p}
+                                              </button>
+                                          `,
+                                      )}
+                                  </div>
+                                  <div class="pagination-nav-group">
+                                      <button
+                                          type="button"
+                                          class="button pagination-button pagination-button-compact"
+                                          ?disabled="${page >= totalPages}"
+                                          aria-label="${t('view-job-offers.pagination-next')}"
+                                          @click="${() => this.goToPage(page + 1)}">
+                                          &gt;
+                                      </button>
+                                      <button
+                                          type="button"
+                                          class="button pagination-button"
+                                          ?disabled="${page >= totalPages}"
+                                          aria-label="${t('view-job-offers.pagination-last')}"
+                                          @click="${() => this.goToPage(totalPages)}">
+                                          &gt;&gt;
+                                      </button>
+                                  </div>
                               </div>
                           </div>
                       `
@@ -945,47 +964,163 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 align-items: center;
                 justify-content: center;
                 flex-wrap: wrap;
-                gap: 0.75rem;
+                gap: 0.5rem;
                 padding: 0.5rem 0;
+                color: var(--dbp-content);
             }
 
             .page-size-wrapper {
                 display: flex;
                 align-items: center;
-                gap: 0.4rem;
+                gap: 0;
             }
 
-            .page-size-wrapper .label {
+            .pagination-label {
                 margin-bottom: 0;
                 white-space: nowrap;
                 font-size: 1rem;
+                color: var(--dbp-content);
+                font-weight: 400;
+                padding-right: 14px;
             }
 
-            .page-size-wrapper .control select {
+            .page-size-select-wrapper {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .page-size-select-wrapper::after {
+                content: '';
+                position: absolute;
+                right: 0.6rem;
+                width: 1rem;
+                height: 1rem;
+                pointer-events: none;
+                background-color: var(--dbp-content);
+                mask-image: url('${unsafeCSS(getIconSVGURL('chevron-down'))}');
+                -webkit-mask-image: url('${unsafeCSS(getIconSVGURL('chevron-down'))}');
+                mask-repeat: no-repeat;
+                -webkit-mask-repeat: no-repeat;
+                mask-position: center;
+                -webkit-mask-position: center;
+                mask-size: contain;
+                -webkit-mask-size: contain;
+            }
+
+            .pagination-page-size {
+                box-sizing: border-box;
                 width: auto;
                 min-height: var(--pagination-control-height);
-                padding: 0 0.5em;
+                padding: calc(0.5em - 1px) 1.95em calc(0.5em - 1px) 0.75em;
+                padding-left: 0.75em !important;
+                padding-right: 1.95em !important;
+                color: var(--dbp-content);
+                background-color: var(--dbp-background);
+                border: var(--dbp-border);
+                border-radius: var(--dbp-border-radius);
+                cursor: pointer;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background: none;
+                background-image: none !important;
             }
 
             .pagination-buttons {
                 display: flex;
                 align-items: center;
+                gap: 0.75rem;
+            }
+
+            .pagination-nav-group,
+            .pagination-pages-group {
+                display: flex;
+                align-items: center;
+            }
+
+            .pagination-nav-group {
                 gap: 0.25rem;
             }
 
-            .pagination-buttons .button {
+            .pagination-button {
+                opacity: unset;
+                border-radius: var(--dbp-border-radius);
+                cursor: pointer;
+                padding: calc(0.375em - 1px) 0.75em;
+                text-align: center;
+                white-space: nowrap;
+                font-size: inherit;
+                font-weight: bolder;
+                font-family: inherit;
+                transition:
+                    all 0.15s ease 0s,
+                    color 0.15s ease 0s;
+                background: var(--dbp-secondary-surface);
+                color: var(--dbp-on-secondary-surface);
+                border-color: var(--dbp-secondary-surface-border-color);
                 height: var(--pagination-control-height);
+                min-width: var(--pagination-control-height);
                 min-height: var(--pagination-control-height);
                 box-sizing: border-box;
                 display: inline-flex;
+                justify-content: center;
                 align-items: center;
                 padding-top: 0;
                 padding-bottom: 0;
                 line-height: 1;
             }
 
+            .pagination-button:hover:not([disabled]) {
+                background: var(--dbp-hover-background-color);
+                color: var(--dbp-hover-color, var(--dbp-on-secondary-surface));
+            }
+
+            .pagination-button[disabled] {
+                opacity: 0.45;
+                cursor: default;
+            }
+
             .pagination-page {
-                min-width: 2rem;
+                min-width: var(--pagination-control-height);
+            }
+
+            .pagination-button-compact {
+                min-width: 2.25rem;
+                padding-left: 0.4rem;
+                padding-right: 0.4rem;
+            }
+
+            .pagination-page.is-active {
+                background: var(--dbp-on-secondary-surface);
+                color: var(--dbp-secondary-surface);
+                border-color: var(--dbp-on-secondary-surface);
+            }
+
+            @media (max-width: 600px) {
+                .pagination-bar {
+                    justify-content: flex-start;
+                }
+
+                .pagination-label {
+                    display: none;
+                }
+
+                .pagination-buttons {
+                    gap: 0.375rem;
+                }
+
+                .pagination-nav-group {
+                    gap: 0.125rem;
+                }
+
+                .pagination-button {
+                    border: none;
+                }
+
+                .pagination-page-size {
+                    padding-right: 1.5em;
+                }
             }
         `;
     }
