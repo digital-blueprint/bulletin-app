@@ -1928,6 +1928,57 @@ export class JobOfferFormElement extends BaseFormElement {
                     margin-top: 0.75rem;
                 }
 
+                .uploaded-files .file-block {
+                    display: grid;
+                    grid-template-columns: minmax(0, 1fr) auto;
+                    gap: 0.75rem;
+                    align-items: center;
+                }
+
+                .uploaded-files .file-info {
+                    min-width: 0;
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: 0.35rem 0.75rem;
+                }
+
+                .uploaded-files .file-name {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .uploaded-files .additional-data {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.35rem 0.75rem;
+                }
+
+                .uploaded-files .file-action-buttons {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: flex-end;
+                    gap: 0.5rem;
+                    max-width: 100%;
+                }
+
+                .uploaded-files .file-action-buttons .button {
+                    flex: 0 1 auto;
+                    max-width: 100%;
+                }
+
+                @media (max-width: 900px) {
+                    .uploaded-files .file-block {
+                        grid-template-columns: 1fr;
+                        align-items: stretch;
+                    }
+
+                    .uploaded-files .file-action-buttons {
+                        justify-content: flex-start;
+                    }
+                }
+
                 .form-footer .button {
                     display: inline-flex;
                     align-items: center;
