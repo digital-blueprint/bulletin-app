@@ -8,6 +8,9 @@
         "application-title": "Application",
         "apply": "Apply",
         "apply-success": "Your application has been submitted successfully.",
+        "attachments": "Attachments",
+        "attachments-help_one": "PDF files only, up to {{count}} file, max. {{size}} MB per file.",
+        "attachments-help_other": "PDF files only, up to {{count}} files, max. {{size}} MB per file.",
         "deadline": "Application deadline",
         "email": "E-Mail Address",
         "email-invalid": "Please enter a valid email address.",
@@ -16,6 +19,8 @@
         "message": "Free text",
         "message-min-length": "The free text field must contain at least 50 characters (currently: {{current}}).",
         "notification": {
+            "attachment-limit-body_one": "You can upload at most {{count}} PDF file.",
+            "attachment-limit-body_other": "You can upload at most {{count}} PDF files.",
             "error-body": "An error occurred while copying the link. Please try copying it manually or share the link using the other available options.",
             "error-heading": "Error",
             "submit-error-body": "An error occurred while submitting your application. Please try again or contact support.",
@@ -115,6 +120,12 @@
         "section-mandatory": "Mandatory Data",
         "section-optional": "Optional Data",
         "select-placeholder": "-- please select --"
+    },
+    "render-form": {
+        "download-widget": {
+            "upload-file-button-label_one": "Select file",
+            "upload-file-button-label_other": "Select files"
+        }
     },
     "view-job-offers": {
         "application-deadline": "Application deadline",

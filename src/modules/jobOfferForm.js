@@ -2,6 +2,9 @@ import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-
 import {css, html} from 'lit';
 import {createRef, ref} from 'lit/directives/ref.js';
 import {DbpStringElement, DbpDateElement, DbpEnumElement} from '@dbp-toolkit/form-elements';
+import {FileSource, FileSink} from '@dbp-toolkit/file-handling';
+import {Modal} from '@dbp-toolkit/common/src/modal.js';
+import {PdfViewer} from '@dbp-toolkit/pdf-viewer';
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
 import {
     ScopedElementsMixin,
@@ -16,6 +19,12 @@ import {apiCreateForm, apiUpdateForm} from '../../vendor/formalize/src/manage-fo
 import {createInstance} from '../i18n.js';
 
 const i18n = createInstance();
+
+const JOB_APPLICATION_ATTACHMENT_GROUP = 'attachments';
+const JOB_APPLICATION_ATTACHMENT_LIMIT = 5;
+const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB = 10000;
+const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
+const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
 
 class JobOfferModule extends BaseObject {
     getUrlSlug() {
@@ -550,6 +559,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             title: 'JobApplication',
             type: 'object',
             additionalProperties: false,
+            files: {
+                [JOB_APPLICATION_ATTACHMENT_GROUP]: {
+                    minNumber: 0,
+                    maxNumber: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                    maxSizeMb: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                    allowedMimeTypes: JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES,
+                },
+            },
             properties: {
                 givenName: {
                     type: 'string',
@@ -942,12 +959,16 @@ export class JobOfferFormElement extends BaseFormElement {
         this._emailRef = createRef();
         /** @type {import('lit/directives/ref.js').Ref} Ref to the message field element */
         this._messageRef = createRef();
+        this._attachmentLimitNotified = false;
+        this._applicationDataFeedSchema = '';
 
         this._isSubmitting = false;
         /** @type {boolean} True after a successful submission or when a prior submission is detected on open */
         this._hasApplied = false;
         /** @type {boolean} True while the prior-submission check is in progress */
         this._checkingApplied = false;
+
+        this.getOrCreateFileGroup(JOB_APPLICATION_ATTACHMENT_GROUP);
     }
 
     static get properties() {
@@ -955,6 +976,7 @@ export class JobOfferFormElement extends BaseFormElement {
             ...super.properties,
             job: {type: Object},
             notificationTargetId: {type: String, attribute: 'notification-target-id'},
+            _applicationDataFeedSchema: {state: true},
             _isSubmitting: {state: true},
             _hasApplied: {state: true},
             _checkingApplied: {state: true},
@@ -965,9 +987,18 @@ export class JobOfferFormElement extends BaseFormElement {
         await super.update(changedProperties);
 
         const formIdentifierChanged = changedProperties.has('formIdentifier');
+        const jobChanged = changedProperties.has('job');
         const authContextChanged =
             changedProperties.has('auth') &&
             hasSubmissionCheckContextChanged(changedProperties.get('auth'), this.auth);
+
+        if (formIdentifierChanged || jobChanged) {
+            this._applicationDataFeedSchema = this.job?.dataFeedSchema ?? '';
+        }
+
+        if (formIdentifierChanged || jobChanged || authContextChanged) {
+            this._loadApplicationFormSchema();
+        }
 
         // Only re-check when the active job or the logged-in user changes.
         // Token refreshes keep the same user context and must not tear down the form mid-edit.
@@ -1030,11 +1061,24 @@ export class JobOfferFormElement extends BaseFormElement {
         super.connectedCallback();
 
         this.updateComplete.then(() => {
+            this.addEventListener(
+                'dbp-file-source-file-selected',
+                this._handleAttachmentFilesSelected,
+            );
+
             // Listen for the form submission event dispatched by sendSubmission() in base class
             this.addEventListener('DbpFormalizeFormSubmission', async (event) => {
                 await this._handleSubmission(event.detail);
             });
         });
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this.removeEventListener(
+            'dbp-file-source-file-selected',
+            this._handleAttachmentFilesSelected,
+        );
     }
 
     /**
@@ -1050,6 +1094,116 @@ export class JobOfferFormElement extends BaseFormElement {
         fields.filter(Boolean).forEach((field) => {
             field.errorMessages = [];
         });
+    }
+
+    _getAttachmentGroupData() {
+        return this.getOrCreateFileGroup(JOB_APPLICATION_ATTACHMENT_GROUP);
+    }
+
+    async _loadApplicationFormSchema() {
+        const formIdentifier = this.formIdentifier;
+
+        if (!formIdentifier || !this.entryPointUrl || !this.auth?.token) {
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${this.entryPointUrl}/formalize/forms/${formIdentifier}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/ld+json',
+                        Authorization: `Bearer ${this.auth.token}`,
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+            if (this.formIdentifier === formIdentifier) {
+                this._applicationDataFeedSchema = data.dataFeedSchema ?? '';
+            }
+        } catch (error) {
+            console.error('Error loading job application form schema:', error);
+        }
+    }
+
+    _supportsApplicationAttachments() {
+        const dataFeedSchema =
+            this._applicationDataFeedSchema ??
+            this.job?.dataFeedSchema ??
+            this.formProperties?.dataFeedSchema ??
+            '';
+
+        if (!dataFeedSchema) {
+            return false;
+        }
+
+        try {
+            const schema = JSON.parse(dataFeedSchema);
+            return Boolean(schema?.files?.[JOB_APPLICATION_ATTACHMENT_GROUP]);
+        } catch (error) {
+            console.error('Failed to parse job application file schema:', error);
+            return false;
+        }
+    }
+
+    _openAttachmentPicker(event) {
+        event.preventDefault();
+
+        if (!this._supportsApplicationAttachments()) {
+            return;
+        }
+
+        this.currentUploadGroup = JOB_APPLICATION_ATTACHMENT_GROUP;
+        this._attachmentLimitNotified = false;
+        const fileSource = this._('#file-source');
+        if (fileSource) {
+            fileSource.setAttribute('dialog-open', '');
+        }
+    }
+
+    _notifyAttachmentLimitReached() {
+        if (this._attachmentLimitNotified) {
+            return;
+        }
+
+        const t = (key, opts) => this._i18n.t(key, opts);
+        this._attachmentLimitNotified = true;
+        sendNotification({
+            summary: t('job-offer-detail.notification.submit-error-heading'),
+            body: t('job-offer-detail.notification.attachment-limit-body', {
+                count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+            }),
+            type: 'warning',
+            timeout: 5,
+            replaceId: 'dbp-notification-apply',
+            targetNotificationId: this.notificationTargetId,
+        });
+    }
+
+    _handleAttachmentFilesSelected(event) {
+        if (!this._supportsApplicationAttachments()) {
+            return;
+        }
+
+        const groupData = this._getAttachmentGroupData();
+
+        if (groupData.filesToSubmit.size >= JOB_APPLICATION_ATTACHMENT_LIMIT) {
+            this._notifyAttachmentLimitReached();
+            return;
+        }
+
+        super.handleFilesToSubmit(event);
+        this._attachmentLimitNotified = false;
+    }
+
+    deleteAttachment(fileIdentifier, fileGroup = JOB_APPLICATION_ATTACHMENT_GROUP) {
+        super.deleteAttachment(fileIdentifier, fileGroup);
+        this._attachmentLimitNotified = false;
     }
 
     /**
@@ -1353,11 +1507,19 @@ export class JobOfferFormElement extends BaseFormElement {
     async _handleSubmission(detail) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const {formData} = detail;
+        const attachmentGroup = this._getAttachmentGroupData();
+        const supportsApplicationAttachments = this._supportsApplicationAttachments();
 
         const postFormData = new FormData();
         postFormData.append('form', '/formalize/forms/' + this.formIdentifier);
         postFormData.append('dataFeedElement', JSON.stringify(formData));
         postFormData.append('submissionState', String(SUBMISSION_STATES_BINARY.SUBMITTED));
+
+        if (supportsApplicationAttachments) {
+            attachmentGroup.filesToSubmit.forEach((file) => {
+                postFormData.append(`${JOB_APPLICATION_ATTACHMENT_GROUP}[]`, file, file.name);
+            });
+        }
 
         try {
             const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
@@ -1428,6 +1590,10 @@ export class JobOfferFormElement extends BaseFormElement {
             'dbp-form-string-element': DbpStringElement,
             'dbp-form-date-element': DbpDateElement,
             'dbp-form-enum-element': DbpEnumElement,
+            'dbp-file-source': FileSource,
+            'dbp-file-sink': FileSink,
+            'dbp-modal': Modal,
+            'dbp-pdf-viewer': PdfViewer,
             'dbp-button': Button,
             'dbp-icon': Icon,
         };
@@ -1436,6 +1602,9 @@ export class JobOfferFormElement extends BaseFormElement {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const jobOverview = this._renderJobOverview();
+        const supportsApplicationAttachments = this._supportsApplicationAttachments();
+        const attachmentGroup = this._getAttachmentGroupData();
+        const attachmentCount = attachmentGroup.filesToSubmit.size;
 
         if (this._checkingApplied) {
             return html`
@@ -1501,6 +1670,40 @@ export class JobOfferFormElement extends BaseFormElement {
                     .customValidator="${this._messageValidator}"
                     rows="4"></dbp-form-string-element>
 
+                ${supportsApplicationAttachments
+                    ? html`
+                          <div class="file-upload-container">
+                              <div class="file-upload-title-container">
+                                  <h5 class="attachments-title">
+                                      ${t('job-offer-detail.attachments')}
+                                  </h5>
+                                  <span class="file-upload-limit-warning">
+                                      ${t('job-offer-detail.attachments-help', {
+                                          count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                          size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                                      })}
+                                  </span>
+                              </div>
+
+                              <div class="uploaded-files">
+                                  ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
+                              </div>
+
+                              <button
+                                  class="button is-secondary upload-button upload-button--attachment"
+                                  type="button"
+                                  ?disabled="${this._isSubmitting ||
+                                  attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT}"
+                                  @click="${this._openAttachmentPicker}">
+                                  <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
+                                  ${t('render-form.download-widget.upload-file-button-label', {
+                                      count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                  })}
+                              </button>
+                          </div>
+                      `
+                    : ''}
+
                 <div class="form-footer">
                     <button
                         class="button is-primary"
@@ -1514,6 +1717,37 @@ export class JobOfferFormElement extends BaseFormElement {
                     </button>
                 </div>
             </form>
+
+            <dbp-file-source
+                id="file-source"
+                class="file-source"
+                lang="${this.lang}"
+                allowed-mime-types="application/pdf"
+                max-file-size="${JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB}"
+                number-of-files="${JOB_APPLICATION_ATTACHMENT_LIMIT}"
+                enabled-targets="local,clipboard,nextcloud"
+                subscribe="nextcloud-auth-url,nextcloud-web-dav-url,nextcloud-name,nextcloud-file-url"></dbp-file-source>
+
+            <dbp-file-sink
+                id="file-sink"
+                class="file-sink"
+                lang="${this.lang}"
+                allowed-mime-types="application/pdf,.pdf"
+                enabled-targets="local,clipboard,nextcloud"
+                subscribe="nextcloud-auth-url,nextcloud-web-dav-url,nextcloud-name,nextcloud-file-url"></dbp-file-sink>
+
+            <dbp-modal
+                id="pdf-view-modal"
+                class="pdf-view-modal"
+                modal-id="job-application-pdf-viewer"
+                subscribe="lang">
+                <div slot="content">
+                    <dbp-pdf-viewer
+                        id="dbp-pdf-viewer"
+                        lang="${this.lang}"
+                        auto-resize="cover"></dbp-pdf-viewer>
+                </div>
+            </dbp-modal>
         `;
     }
 
@@ -1635,6 +1869,36 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: flex;
                     justify-content: flex-end;
                     margin-top: 1rem;
+                }
+
+                .file-upload-container {
+                    margin-top: 1rem;
+                }
+
+                .file-upload-title-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: baseline;
+                    gap: 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
+
+                .attachments-title {
+                    font-size: 1rem;
+                    font-weight: 700;
+                    margin: 0;
+                }
+
+                .file-upload-limit-warning {
+                    color: var(--dbp-muted);
+                    font-size: 0.9rem;
+                }
+
+                .upload-button {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                    margin-top: 0.75rem;
                 }
 
                 .form-footer .button {

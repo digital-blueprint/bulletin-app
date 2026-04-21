@@ -140,6 +140,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     return {
                         /** The form identifier is used as the job offer identifier */
                         identifier: form.identifier,
+                        dataFeedSchema: form.dataFeedSchema ?? '',
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
                         jobCategory: extra.jobCategory ?? extra.jobType ?? '',

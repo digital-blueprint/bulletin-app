@@ -8,6 +8,9 @@
         "application-title": "Bewerbung",
         "apply": "Bewerben",
         "apply-success": "Ihre Bewerbung wurde erfolgreich übermittelt.",
+        "attachments": "Anhänge",
+        "attachments-help_one": "Nur PDF-Dateien, maximal {{count}} Datei, je Datei max. {{size}} MB.",
+        "attachments-help_other": "Nur PDF-Dateien, maximal {{count}} Dateien, je Datei max. {{size}} MB.",
         "deadline": "Bewerbungsfrist",
         "email": "E-Mail Adresse",
         "email-invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
@@ -16,6 +19,8 @@
         "message": "Freitextfeld",
         "message-min-length": "Das Freitextfeld muss mindestens 50 Zeichen enthalten (aktuell: {{current}}).",
         "notification": {
+            "attachment-limit-body_one": "Sie können maximal {{count}} PDF-Datei hochladen.",
+            "attachment-limit-body_other": "Sie können maximal {{count}} PDF-Dateien hochladen.",
             "error-body": "Beim Kopieren des Links ist ein Fehler aufgetreten. Bitte versuchen Sie es manuell oder teilen Sie die Stelle über die anderen verfügbaren Optionen.",
             "error-heading": "Fehler",
             "submit-error-body": "Beim Übermitteln Ihrer Bewerbung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support.",
@@ -115,6 +120,12 @@
         "section-mandatory": "Pflichtangaben",
         "section-optional": "Optionale Angaben",
         "select-placeholder": "-- bitte wählen --"
+    },
+    "render-form": {
+        "download-widget": {
+            "upload-file-button-label_one": "Dokument auswählen",
+            "upload-file-button-label_other": "Dokumente auswählen"
+        }
     },
     "view-job-offers": {
         "application-deadline": "Bewerbungsfrist",
