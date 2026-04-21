@@ -123,8 +123,15 @@
     },
     "render-form": {
         "download-widget": {
+            "attachment-deletion-warning-text": "(Die Dokumente werden beim Absenden gelöscht.)",
+            "attachment-remove-file-text": "Dateien zum Entfernen",
+            "attachment-upload-file-text": "Dateien zum Hochladen",
+            "attachment-upload-warning-text": "(Dokumente werden beim Absenden hochgeladen.)",
+            "delete-attachment": "Löschen",
+            "download-attachment": "Herunterladen",
             "upload-file-button-label_one": "Dokument auswählen",
-            "upload-file-button-label_other": "Dokumente auswählen"
+            "upload-file-button-label_other": "Dokumente auswählen",
+            "view-attachment": "Ansehen"
         }
     },
     "view-job-offers": {

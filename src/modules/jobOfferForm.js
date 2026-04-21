@@ -26,6 +26,26 @@ const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB = 10000;
 const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
 const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
 
+const keepJobOfferAttachmentTranslations = (t) => {
+    t('job-offer-detail.attachments-help', {
+        count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+        size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+    });
+    t('job-offer-detail.notification.attachment-limit-body', {
+        count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+    });
+    t('render-form.download-widget.attachment-upload-file-text');
+    t('render-form.download-widget.attachment-upload-warning-text');
+    t('render-form.download-widget.attachment-remove-file-text');
+    t('render-form.download-widget.attachment-deletion-warning-text');
+    t('render-form.download-widget.view-attachment');
+    t('render-form.download-widget.download-attachment');
+    t('render-form.download-widget.delete-attachment');
+    t('render-form.download-widget.upload-file-button-label', {
+        count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+    });
+};
+
 class JobOfferModule extends BaseObject {
     getUrlSlug() {
         return 'job-offer';
@@ -684,6 +704,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
+        keepJobOfferAttachmentTranslations(t);
         const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
         const multilineHint = t('manage-job-offers.field-list-items-hint');
 
@@ -1605,6 +1626,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
+        keepJobOfferAttachmentTranslations(t);
         const jobOverview = this._renderJobOverview();
         const supportsApplicationAttachments = this._supportsApplicationAttachments();
         const attachmentGroup = this._getAttachmentGroupData();
