@@ -1206,6 +1206,10 @@ export class JobOfferFormElement extends BaseFormElement {
         this._attachmentLimitNotified = false;
     }
 
+    _handlePdfPreviewClosed(event) {
+        event.stopPropagation();
+    }
+
     /**
      * Calls handleErrors() on every form field to reveal inline validation messages.
      * Returns true only when all fields pass validation.
@@ -1740,6 +1744,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 id="pdf-view-modal"
                 class="pdf-view-modal"
                 modal-id="job-application-pdf-viewer"
+                @dbp-modal-closed="${this._handlePdfPreviewClosed}"
                 subscribe="lang">
                 <div slot="content">
                     <dbp-pdf-viewer
