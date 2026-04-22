@@ -61,6 +61,14 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return this.lang === 'en' && en ? en : primary;
     }
 
+    _getLocalizedTitle(job) {
+        return this._localized(job.title ?? '', job.titleEn ?? '');
+    }
+
+    _getLocalizedDescription(job) {
+        return this._localized(job.description ?? '', job.descriptionEn ?? '');
+    }
+
     _renderAreaOfInterestTags(job, t) {
         const areaOfInterestLabels = getAreaOfInterestLabels(
             job.areasOfInterest ?? job.areaOfInterest,
@@ -88,7 +96,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
      * @returns {import('lit').TemplateResult}
      */
     _renderDescription(job) {
-        const description = this._localized(job.description, job.descriptionEn ?? '');
+        const description = this._getLocalizedDescription(job);
         const lines = description.split(/\r?\n/);
 
         return html`
@@ -121,9 +129,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     async onShare() {
         if ('share' in navigator) {
             try {
+                const title = this._getLocalizedTitle(this.job);
+                const description = this._getLocalizedDescription(this.job);
                 await navigator.share({
-                    title: this.job.title,
-                    text: this.job.description.slice(0, 100),
+                    title,
+                    text: description.slice(0, 100),
                     url: this.getShareUrl(),
                 });
             } catch (error) {
@@ -175,8 +185,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     // Shares the job offer via email
     shareViaEmail() {
         const url = this.getShareUrl();
-        const subject = this.job.title;
-        const body = this.job.title + '\n\n' + this.job.description.slice(0, 100) + '\n\n' + url;
+        const title = this._getLocalizedTitle(this.job);
+        const description = this._getLocalizedDescription(this.job);
+        const subject = title;
+        const body = title + '\n\n' + description.slice(0, 100) + '\n\n' + url;
         window.open(
             `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
             '_self',
@@ -185,7 +197,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     // Shares the job offer on WhatsApp.
     shareOnWhatsApp() {
         const url = this.getShareUrl();
-        const text = this.job.title + '\n' + this.job.description.slice(0, 100) + '\n';
+        const title = this._getLocalizedTitle(this.job);
+        const description = this._getLocalizedDescription(this.job);
+        const text = title + '\n' + description.slice(0, 100) + '\n';
         window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
     }
     /*
@@ -232,7 +246,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 </div>
                 <!-- Title slot -->
                 <div slot="title">
-                    <h2 class="modal-title">${job ? job.title : ''}</h2>
+                    <h2 class="modal-title">${job ? this._getLocalizedTitle(job) : ''}</h2>
                 </div>
                 <!-- Main content slot — empty when no job is selected -->
                 <div slot="content" class="detail-content">
@@ -255,7 +269,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       </div>
                                       <div class="meta-item">
                                           <dt>${t('job-offer-detail.weekly-hours')}:</dt>
-                                          <dd>${job.weeklyHours}</dd>
+                                          <dd>
+                                              ${this._localized(
+                                                  job.weeklyHours,
+                                                  job.weeklyHoursEn ?? '',
+                                              )}
+                                          </dd>
                                       </div>
                                       <div class="meta-item">
                                           <dt>${t('job-offer-detail.organization')}:</dt>

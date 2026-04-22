@@ -94,6 +94,14 @@ export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitEle
         `;
     }
 
+    _localized(primary, en = '') {
+        return this.lang === 'en' && en ? en : primary;
+    }
+
+    _localizedList(primary, en = []) {
+        return this.lang === 'en' && Array.isArray(en) && en.length > 0 ? en : primary;
+    }
+
     render() {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
@@ -105,7 +113,9 @@ export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitEle
                 lang="${this.lang}"
                 style="--dbp-modal-min-width: min(95vw, 760px); --dbp-modal-max-width: min(95vw, 760px); --dbp-modal-max-height: 90vh; --dbp-modal-content-overflow-y: auto;">
                 <div slot="title">
-                    <h3 class="preview-title">${job ? job.title : ''}</h3>
+                    <h3 class="preview-title">
+                        ${job ? this._localized(job.title, job.titleEn ?? '') : ''}
+                    </h3>
                 </div>
 
                 <div slot="content" class="preview-content">
@@ -128,11 +138,17 @@ export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitEle
                                       </p>
                                       <p class="meta-item">
                                           <strong>${t('job-offer-preview.weekly-hours')}:</strong>
-                                          ${job.weeklyHours ?? ''}
+                                          ${this._localized(
+                                              job.weeklyHours ?? '',
+                                              job.weeklyHoursEn ?? '',
+                                          )}
                                       </p>
                                       <p class="meta-item">
                                           <strong>${t('job-offer-preview.organization')}:</strong>
-                                          ${job.organization ?? ''}
+                                          ${this._localized(
+                                              job.organization ?? '',
+                                              job.organizationEn ?? '',
+                                          )}
                                       </p>
                                   </div>
 
@@ -183,16 +199,21 @@ export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitEle
                               </div>
 
                               <!-- Description -->
-                              <p class="description">${job.description}</p>
+                              <p class="description">
+                                  ${this._localized(job.description, job.descriptionEn ?? '')}
+                              </p>
 
                               <!-- Requirements section -->
-                              ${job.requirements && job.requirements.length > 0
+                              ${this._localizedList(job.requirements, job.requirementsEn).length > 0
                                   ? html`
                                         <h4 class="section-heading">
                                             ${t('job-offer-preview.requirements')}
                                         </h4>
                                         <ul class="requirements-list">
-                                            ${job.requirements.map(
+                                            ${this._localizedList(
+                                                job.requirements,
+                                                job.requirementsEn,
+                                            ).map(
                                                 (req) => html`
                                                     <li>${req}</li>
                                                 `,
@@ -202,14 +223,21 @@ export class JobOfferPreviewDialog extends ScopedElementsMixin(DBPBulletinLitEle
                                   : ''}
 
                               <!-- Optional link -->
-                              ${job.linkName && job.linkUrl
+                              ${this._localized(job.linkName ?? '', job.linkNameEn ?? '') &&
+                              this._localized(job.linkUrl ?? '', job.linkUrlEn ?? '')
                                   ? html`
                                         <p class="link-row">
                                             <a
-                                                href="${job.linkUrl}"
+                                                href="${this._localized(
+                                                    job.linkUrl,
+                                                    job.linkUrlEn ?? '',
+                                                )}"
                                                 target="_blank"
                                                 rel="noopener noreferrer">
-                                                ${job.linkName}
+                                                ${this._localized(
+                                                    job.linkName,
+                                                    job.linkNameEn ?? '',
+                                                )}
                                             </a>
                                         </p>
                                     `

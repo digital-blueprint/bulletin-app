@@ -128,8 +128,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             // Map each form entry to a JobOffer shape that the rest of the UI expects.
             // The job details are stored in the form's additionalData field at creation time.
-            // English translations (titleEn, descriptionEn, organizationEn, requirementsEn) are
-            // optional and only present when the form creator entered them.
+            // English translations are optional and only present when the form creator entered
+            // them.
             this._jobOffers = members
                 .map((form) => {
                     const extra = form.additionalData ?? {};
@@ -151,8 +151,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         applicationDeadline: extra.applicationDeadline ?? '',
                         startDate: extra.startDate ?? '',
                         weeklyHours: extra.weeklyHours ?? '',
+                        weeklyHoursEn: extra.weeklyHoursEn ?? '',
                         salary: extra.salary ?? '',
+                        salaryEn: extra.salaryEn ?? '',
                         contractDuration: extra.contractDuration ?? '',
+                        contractDurationEn: extra.contractDurationEn ?? '',
                         organizationalUnit:
                             extra.organizationalUnit ??
                             extra.organisationalUnit ??
@@ -169,7 +172,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                             : [],
                         weOffer: Array.isArray(extra.weOffer) ? extra.weOffer : [],
                         linkName: extra.linkName ?? '',
+                        linkNameEn: extra.linkNameEn ?? '',
                         linkUrl: extra.linkUrl ?? '',
+                        linkUrlEn: extra.linkUrlEn ?? '',
                         // Optional English translations
                         titleEn: extra.titleEn ?? '',
                         descriptionEn: extra.descriptionEn ?? '',
@@ -182,6 +187,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         requirementsEn: Array.isArray(extra.requirementsEn)
                             ? extra.requirementsEn
                             : [],
+                        responsibilitiesEn: Array.isArray(extra.responsibilitiesEn)
+                            ? extra.responsibilitiesEn
+                            : [],
+                        requiredQualificationEn: Array.isArray(extra.requiredQualificationEn)
+                            ? extra.requiredQualificationEn
+                            : [],
+                        weOfferEn: Array.isArray(extra.weOfferEn) ? extra.weOfferEn : [],
                     };
                 })
                 // Only show offers with a future or missing deadline
@@ -286,7 +298,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     job.title.toLowerCase().includes(query) ||
                     areaOfInterestLabels.some((label) => label.toLowerCase().includes(query)) ||
                     jobCategoryLabel.toLowerCase().includes(query) ||
-                    job.description.toLowerCase().includes(query);
+                    this._getLocalizedDescription(job).toLowerCase().includes(query);
                 const matchesJobCategory =
                     !this.filterJobCategory || job.jobCategory === this.filterJobCategory;
                 const matchesAreaOfInterest =
@@ -329,6 +341,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     _localized(primary, en) {
         return this.lang === 'en' && en ? en : primary;
+    }
+
+    /**
+     * Returns the localized description for search and display contexts.
+     * @param {object} job
+     * @returns {string}
+     */
+    _getLocalizedDescription(job) {
+        return this._localized(job.description ?? '', job.descriptionEn ?? '');
     }
 
     /**
@@ -605,7 +626,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   )}
                                                   ${this._renderJobMetaItem(
                                                       t('view-job-offers.weekly-hours'),
-                                                      job.weeklyHours,
+                                                      this._localized(
+                                                          job.weeklyHours,
+                                                          job.weeklyHoursEn ?? '',
+                                                      ),
                                                   )}
                                                   ${this._renderJobMetaItem(
                                                       t('view-job-offers.published-at'),

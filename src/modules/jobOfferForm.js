@@ -389,8 +389,19 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._titleEn = '';
         this._descriptionEn = '';
         this._organizationEn = '';
+        this._weeklyHoursEn = '';
+        this._salaryEn = '';
+        this._contractDurationEn = '';
+        this._linkNameEn = '';
+        this._linkUrlEn = '';
         /** @type {string} Newline-separated list of requirements in English entered by the user */
         this._requirementsTextEn = '';
+        /** @type {string} Newline-separated list of responsibilities in English entered by the user */
+        this._responsibilitiesTextEn = '';
+        /** @type {string} Newline-separated list of required qualifications in English entered by the user */
+        this._requiredQualificationTextEn = '';
+        /** @type {string} Newline-separated list of benefits in English entered by the user */
+        this._weOfferTextEn = '';
 
         this._isSubmitting = false;
     }
@@ -427,7 +438,15 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _titleEn: {state: true},
             _descriptionEn: {state: true},
             _organizationEn: {state: true},
+            _weeklyHoursEn: {state: true},
+            _salaryEn: {state: true},
+            _contractDurationEn: {state: true},
+            _linkNameEn: {state: true},
+            _linkUrlEn: {state: true},
             _requirementsTextEn: {state: true},
+            _responsibilitiesTextEn: {state: true},
+            _requiredQualificationTextEn: {state: true},
+            _weOfferTextEn: {state: true},
             _isSubmitting: {state: true},
         };
     }
@@ -465,7 +484,17 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._titleEn = d.titleEn || '';
                 this._descriptionEn = d.descriptionEn || '';
                 this._organizationEn = d.organizationEn || '';
+                this._weeklyHoursEn = d.weeklyHoursEn || '';
+                this._salaryEn = d.salaryEn || '';
+                this._contractDurationEn = d.contractDurationEn || '';
+                this._linkNameEn = d.linkNameEn || '';
+                this._linkUrlEn = d.linkUrlEn || '';
                 this._requirementsTextEn = normalizeMultilineValue(d.requirementsEn);
+                this._responsibilitiesTextEn = normalizeMultilineValue(d.responsibilitiesEn);
+                this._requiredQualificationTextEn = normalizeMultilineValue(
+                    d.requiredQualificationEn,
+                );
+                this._weOfferTextEn = normalizeMultilineValue(d.weOfferEn);
             }
         });
         super.update(changedProperties);
@@ -509,7 +538,15 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._titleEn = '';
         this._descriptionEn = '';
         this._organizationEn = '';
+        this._weeklyHoursEn = '';
+        this._salaryEn = '';
+        this._contractDurationEn = '';
+        this._linkNameEn = '';
+        this._linkUrlEn = '';
         this._requirementsTextEn = '';
+        this._responsibilitiesTextEn = '';
+        this._requiredQualificationTextEn = '';
+        this._weOfferTextEn = '';
         this._isSubmitting = false;
     }
 
@@ -530,6 +567,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     /**
+     * Splits the English responsibilities text area into a trimmed array of non-empty lines.
+     * @returns {string[]}
+     */
+    _parseResponsibilitiesEn() {
+        return parseMultilineList(this._responsibilitiesTextEn);
+    }
+
+    /**
      * Splits the responsibilities text area into a trimmed array of non-empty lines.
      * @returns {string[]}
      */
@@ -546,11 +591,27 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     /**
+     * Splits the English required qualification text area into a trimmed array of non-empty lines.
+     * @returns {string[]}
+     */
+    _parseRequiredQualificationEn() {
+        return parseMultilineList(this._requiredQualificationTextEn);
+    }
+
+    /**
      * Splits the we-offer text area into a trimmed array of non-empty lines.
      * @returns {string[]}
      */
     _parseWeOffer() {
         return parseMultilineList(this._weOfferText);
+    }
+
+    /**
+     * Splits the English we-offer text area into a trimmed array of non-empty lines.
+     * @returns {string[]}
+     */
+    _parseWeOfferEn() {
+        return parseMultilineList(this._weOfferTextEn);
     }
 
     /**
@@ -645,7 +706,15 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             titleEn: this._titleEn.trim(),
             descriptionEn: this._descriptionEn.trim(),
             organizationEn: this._organizationEn.trim(),
+            weeklyHoursEn: this._weeklyHoursEn.trim(),
+            salaryEn: this._salaryEn.trim(),
+            contractDurationEn: this._contractDurationEn.trim(),
+            linkNameEn: this._linkNameEn.trim(),
+            linkUrlEn: this._linkUrlEn.trim(),
             requirementsEn: this._parseRequirementsEn(),
+            responsibilitiesEn: this._parseResponsibilitiesEn(),
+            requiredQualificationEn: this._parseRequiredQualificationEn(),
+            weOfferEn: this._parseWeOfferEn(),
         };
 
         // Use the English title for the 'en' localizedName when provided, otherwise fall back to the primary title
@@ -801,26 +870,55 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 .value="${this._startDate}"
                 @change="${(e) => (this._startDate = e.detail.value)}"></dbp-date-element>
 
-            <dbp-string-element
-                name="weekly-hours"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-weekly-hours')}"
-                .value="${this._weeklyHours}"
-                @change="${(e) => (this._weeklyHours = e.detail.value)}"></dbp-string-element>
+            <div class="translation-row">
+                <dbp-string-element
+                    name="weekly-hours"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-weekly-hours')}"
+                    .value="${this._weeklyHours}"
+                    @change="${(e) => (this._weeklyHours = e.detail.value)}"></dbp-string-element>
 
-            <dbp-string-element
-                name="salary"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-salary')}"
-                .value="${this._salary}"
-                @change="${(e) => (this._salary = e.detail.value)}"></dbp-string-element>
+                <dbp-string-element
+                    name="weekly-hours-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-weekly-hours-en')}"
+                    .value="${this._weeklyHoursEn}"
+                    @change="${(e) => (this._weeklyHoursEn = e.detail.value)}"></dbp-string-element>
+            </div>
 
-            <dbp-string-element
-                name="contract-duration"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-contract-duration')}"
-                .value="${this._contractDuration}"
-                @change="${(e) => (this._contractDuration = e.detail.value)}"></dbp-string-element>
+            <div class="translation-row">
+                <dbp-string-element
+                    name="salary"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-salary')}"
+                    .value="${this._salary}"
+                    @change="${(e) => (this._salary = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="salary-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-salary-en')}"
+                    .value="${this._salaryEn}"
+                    @change="${(e) => (this._salaryEn = e.detail.value)}"></dbp-string-element>
+            </div>
+
+            <div class="translation-row">
+                <dbp-string-element
+                    name="contract-duration"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-contract-duration')}"
+                    .value="${this._contractDuration}"
+                    @change="${(e) =>
+                        (this._contractDuration = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="contract-duration-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-contract-duration-en')}"
+                    .value="${this._contractDurationEn}"
+                    @change="${(e) =>
+                        (this._contractDurationEn = e.detail.value)}"></dbp-string-element>
+            </div>
 
             <dbp-enum-element
                 name="job-category"
@@ -867,50 +965,104 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
             </div>
 
-            <dbp-string-element
-                name="responsibilities"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-responsibilities')}"
-                description="${multilineHint}"
-                .value="${this._responsibilitiesText}"
-                rows="4"
-                @change="${(e) =>
-                    (this._responsibilitiesText = e.detail.value)}"></dbp-string-element>
+            <div class="translation-row">
+                <dbp-string-element
+                    name="responsibilities"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-responsibilities')}"
+                    description="${multilineHint}"
+                    .value="${this._responsibilitiesText}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._responsibilitiesText = e.detail.value)}"></dbp-string-element>
 
-            <dbp-string-element
-                name="required-qualification"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-required-qualification')}"
-                description="${multilineHint}"
-                .value="${this._requiredQualificationText}"
-                rows="4"
-                @change="${(e) =>
-                    (this._requiredQualificationText = e.detail.value)}"></dbp-string-element>
+                <dbp-string-element
+                    name="responsibilities-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-responsibilities-en')}"
+                    description="${multilineHint}"
+                    .value="${this._responsibilitiesTextEn}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._responsibilitiesTextEn = e.detail.value)}"></dbp-string-element>
+            </div>
 
-            <dbp-string-element
-                name="we-offer"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-we-offer')}"
-                description="${multilineHint}"
-                .value="${this._weOfferText}"
-                rows="4"
-                @change="${(e) => (this._weOfferText = e.detail.value)}"></dbp-string-element>
+            <div class="translation-row">
+                <dbp-string-element
+                    name="required-qualification"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-required-qualification')}"
+                    description="${multilineHint}"
+                    .value="${this._requiredQualificationText}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._requiredQualificationText = e.detail.value)}"></dbp-string-element>
 
-            <dbp-string-element
-                name="link-name"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-link-name')}"
-                placeholder="${t('manage-job-offers.field-link-name-placeholder')}"
-                .value="${this._linkName}"
-                @change="${(e) => (this._linkName = e.detail.value)}"></dbp-string-element>
+                <dbp-string-element
+                    name="required-qualification-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-required-qualification-en')}"
+                    description="${multilineHint}"
+                    .value="${this._requiredQualificationTextEn}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._requiredQualificationTextEn = e.detail.value)}"></dbp-string-element>
+            </div>
 
-            <dbp-string-element
-                name="link-url"
-                lang="${this.lang}"
-                label="${t('manage-job-offers.field-link-url')}"
-                placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
-                .value="${this._linkUrl}"
-                @change="${(e) => (this._linkUrl = e.detail.value)}"></dbp-string-element>
+            <div class="translation-row">
+                <dbp-string-element
+                    name="we-offer"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-we-offer')}"
+                    description="${multilineHint}"
+                    .value="${this._weOfferText}"
+                    rows="4"
+                    @change="${(e) => (this._weOfferText = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="we-offer-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-we-offer-en')}"
+                    description="${multilineHint}"
+                    .value="${this._weOfferTextEn}"
+                    rows="4"
+                    @change="${(e) => (this._weOfferTextEn = e.detail.value)}"></dbp-string-element>
+            </div>
+
+            <div class="translation-row">
+                <dbp-string-element
+                    name="link-name"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-link-name')}"
+                    placeholder="${t('manage-job-offers.field-link-name-placeholder')}"
+                    .value="${this._linkName}"
+                    @change="${(e) => (this._linkName = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="link-name-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-link-name-en')}"
+                    .value="${this._linkNameEn}"
+                    @change="${(e) => (this._linkNameEn = e.detail.value)}"></dbp-string-element>
+            </div>
+
+            <div class="translation-row">
+                <dbp-string-element
+                    name="link-url"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-link-url')}"
+                    placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
+                    .value="${this._linkUrl}"
+                    @change="${(e) => (this._linkUrl = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="link-url-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-link-url-en')}"
+                    placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
+                    .value="${this._linkUrlEn}"
+                    @change="${(e) => (this._linkUrlEn = e.detail.value)}"></dbp-string-element>
+            </div>
         `;
     }
 
@@ -1288,6 +1440,16 @@ export class JobOfferFormElement extends BaseFormElement {
     }
 
     /**
+     * Returns the English list when the current language is English and translated items exist.
+     * @param {unknown} primary
+     * @param {unknown} en
+     * @returns {unknown}
+     */
+    _localizedList(primary, en) {
+        return this.lang === 'en' && normalizeStringList(en).length > 0 ? en : primary;
+    }
+
+    /**
      * Formats an ISO date string (YYYY-MM-DD) to DD.MM.YYYY.
      * @param {string} isoDate
      * @returns {string}
@@ -1388,10 +1550,24 @@ export class JobOfferFormElement extends BaseFormElement {
             job.organization ?? '',
             job.organizationEn ?? '',
         );
-        const requirements =
-            this.lang === 'en' && normalizeStringList(job.requirementsEn).length > 0
-                ? job.requirementsEn
-                : job.requirements;
+        const localizedWeeklyHours = this._localized(
+            job.weeklyHours ?? '',
+            job.weeklyHoursEn ?? '',
+        );
+        const localizedSalary = this._localized(job.salary ?? '', job.salaryEn ?? '');
+        const localizedContractDuration = this._localized(
+            job.contractDuration ?? '',
+            job.contractDurationEn ?? '',
+        );
+        const localizedLinkName = this._localized(job.linkName ?? '', job.linkNameEn ?? '');
+        const localizedLinkUrl = this._localized(job.linkUrl ?? '', job.linkUrlEn ?? '');
+        const requirements = this._localizedList(job.requirements, job.requirementsEn);
+        const responsibilities = this._localizedList(job.responsibilities, job.responsibilitiesEn);
+        const requiredQualification = this._localizedList(
+            job.requiredQualification,
+            job.requiredQualificationEn,
+        );
+        const weOffer = this._localizedList(job.weOffer, job.weOfferEn);
         const areaOfInterestLabels = getAreaOfInterestLabels(
             job.areasOfInterest ?? job.areaOfInterest,
             t,
@@ -1425,15 +1601,12 @@ export class JobOfferFormElement extends BaseFormElement {
                     )}
                     ${this._renderJobMetaItem(
                         t('manage-job-offers.field-weekly-hours'),
-                        job.weeklyHours ?? '',
+                        localizedWeeklyHours,
                     )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-salary'),
-                        job.salary ?? '',
-                    )}
+                    ${this._renderJobMetaItem(t('manage-job-offers.field-salary'), localizedSalary)}
                     ${this._renderJobMetaItem(
                         t('manage-job-offers.field-contract-duration'),
-                        job.contractDuration ?? '',
+                        localizedContractDuration,
                     )}
                     ${this._renderJobMetaItem(
                         t('manage-job-offers.field-job-category'),
@@ -1445,13 +1618,13 @@ export class JobOfferFormElement extends BaseFormElement {
                     )}
                     ${this._renderJobMetaItem(
                         t('manage-job-offers.field-link-url'),
-                        job.linkUrl
+                        localizedLinkUrl
                             ? html`
                                   <a
-                                      href="${job.linkUrl}"
+                                      href="${localizedLinkUrl}"
                                       target="_blank"
                                       rel="noopener noreferrer">
-                                      ${job.linkName || job.linkUrl}
+                                      ${localizedLinkName || localizedLinkUrl}
                                   </a>
                               `
                             : '',
@@ -1477,13 +1650,13 @@ export class JobOfferFormElement extends BaseFormElement {
                 ${this._renderJobListSection(t('job-offer-detail.requirements'), requirements)}
                 ${this._renderJobListSection(
                     t('manage-job-offers.field-responsibilities'),
-                    job.responsibilities,
+                    responsibilities,
                 )}
                 ${this._renderJobListSection(
                     t('manage-job-offers.field-required-qualification'),
-                    job.requiredQualification,
+                    requiredQualification,
                 )}
-                ${this._renderJobListSection(t('manage-job-offers.field-we-offer'), job.weOffer)}
+                ${this._renderJobListSection(t('manage-job-offers.field-we-offer'), weOffer)}
             </section>
         `;
     }
