@@ -61,34 +61,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return this.lang === 'en' && en ? en : primary;
     }
 
-    /**
-     * Renders the requirements list, preferring the English list when the current language is
-     * English and the English list is non-empty.
-     * @param {object} job
-     * @param {(key: string) => string} t
-     * @returns {import('lit').TemplateResult|string}
-     */
-    _renderRequirements(job, t) {
-        const enReqs = Array.isArray(job.requirementsEn) ? job.requirementsEn : [];
-        const primaryReqs = Array.isArray(job.requirements) ? job.requirements : [];
-        const reqs = this.lang === 'en' && enReqs.length > 0 ? enReqs : primaryReqs;
-
-        if (reqs.length === 0) {
-            return '';
-        }
-
-        return html`
-            <h4 class="requirements-heading">${t('job-offer-detail.requirements')}</h4>
-            <ul class="requirements-list">
-                ${reqs.map(
-                    (req) => html`
-                        <li>${req}</li>
-                    `,
-                )}
-            </ul>
-        `;
-    }
-
     _renderAreaOfInterestTags(job, t) {
         const areaOfInterestLabels = getAreaOfInterestLabels(
             job.areasOfInterest ?? job.areaOfInterest,
@@ -403,9 +375,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                               <!-- Job description: use English text when language is English and available -->
                               ${this._renderDescription(job)}
 
-                              <!-- Requirements section: use English requirements when language is English and available -->
-                              ${this._renderRequirements(job, t)}
-
                               <!-- Application form rendered by the JobOfferFormElement component -->
                               <dbp-bulletin-job-offer-form
                                   lang="${this.lang}"
@@ -508,23 +477,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-description {
                 margin: 0 0 1.5rem 0;
                 line-height: 1.6;
-            }
-
-            /* Requirements section */
-            .requirements-heading {
-                font-size: 1.1rem;
-                font-weight: 700;
-                margin: 0 0 0.75rem 0;
-            }
-
-            .requirements-list {
-                margin: 0 0 1.5rem 0;
-                padding-left: 1.4rem;
-                line-height: 1.6;
-            }
-
-            .requirements-list li {
-                margin-bottom: 0.4rem;
             }
 
             /* Detail content padding */
