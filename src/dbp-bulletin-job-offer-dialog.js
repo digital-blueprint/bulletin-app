@@ -241,7 +241,11 @@ export class JobOfferDialog extends ScopedElementsMixin(DBPBulletinLitElement) {
                             ?disabled="${saveDisabled}"
                             @click="${this._onSave}">
                             <dbp-icon class="btn-icon" name="save" aria-hidden="true"></dbp-icon>
-                            ${t('manage-job-offers.dialog-save')}
+                            ${t(
+                                isEditMode
+                                    ? 'manage-job-offers.dialog-save'
+                                    : 'manage-job-offers.dialog-publish',
+                            )}
                         </button>
                     </div>
 
