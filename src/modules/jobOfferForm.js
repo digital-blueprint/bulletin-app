@@ -959,29 +959,25 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 }}"></dbp-enum-element>
 
             <div class="translation-row">
-                <div class="field-with-note">
-                    <dbp-string-element
-                        name="requirements"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-requirements')}"
-                        .value="${this._requirementsText}"
-                        rows="4"
-                        @change="${(e) =>
-                            (this._requirementsText = e.detail.value)}"></dbp-string-element>
-                    <div class="field-note">${multilineHint}</div>
-                </div>
+                <dbp-string-element
+                    name="requirements"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-requirements')}"
+                    description="${multilineHint}"
+                    .value="${this._requirementsText}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._requirementsText = e.detail.value)}"></dbp-string-element>
 
-                <div class="field-with-note">
-                    <dbp-string-element
-                        name="requirements-en"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-requirements-en')}"
-                        .value="${this._requirementsTextEn}"
-                        rows="4"
-                        @change="${(e) =>
-                            (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
-                    <div class="field-note">${multilineHint}</div>
-                </div>
+                <dbp-string-element
+                    name="requirements-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-requirements-en')}"
+                    description="${multilineHint}"
+                    .value="${this._requirementsTextEn}"
+                    rows="4"
+                    @change="${(e) =>
+                        (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
             </div>
 
             <div class="translation-row">
