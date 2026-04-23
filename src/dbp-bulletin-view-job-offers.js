@@ -196,8 +196,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         weOfferEn: Array.isArray(extra.weOfferEn) ? extra.weOfferEn : [],
                     };
                 })
-                // Only show offers with a future or missing deadline
-                .filter((job) => !job.deadline || new Date(job.deadline) >= new Date());
+                // Keep date-only deadlines visible for the full deadline day.
+                .filter((job) => this._isDeadlineVisible(job.deadline));
         } catch (error) {
             console.error('Error loading job offers:', error);
             this._loadError = true;
@@ -350,6 +350,28 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     _getLocalizedDescription(job) {
         return this._localized(job.description ?? '', job.descriptionEn ?? '');
+    }
+
+    /**
+     * Returns whether a deadline should still be visible in the list.
+     * Date-only values stay visible until the next local midnight.
+     * @param {string} deadline
+     * @returns {boolean}
+     */
+    _isDeadlineVisible(deadline) {
+        if (!deadline) {
+            return true;
+        }
+
+        const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(deadline);
+        if (dateOnlyMatch) {
+            const [, year, month, day] = dateOnlyMatch;
+            const expiresAt = new Date(Number(year), Number(month) - 1, Number(day) + 1);
+            return expiresAt > new Date();
+        }
+
+        const timestamp = Date.parse(deadline);
+        return !Number.isNaN(timestamp) && timestamp >= Date.now();
     }
 
     /**
