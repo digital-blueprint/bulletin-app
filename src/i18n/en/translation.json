@@ -145,8 +145,10 @@
     "view-job-offers": {
         "application-deadline": "Application deadline",
         "areas-of-interest": "Areas of Interest",
+        "auth-loading": "Checking login status...",
         "available-positions": "Available Positions",
         "error-load-failed": "Failed to load job offers. Please try again later.",
+        "error-login-required": "Please log in to view job offers.",
         "job-category": "Job category",
         "loading": "Loading job offers…",
         "no-results": "No job offers found.",

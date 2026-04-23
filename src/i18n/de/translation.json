@@ -145,8 +145,10 @@
     "view-job-offers": {
         "application-deadline": "Bewerbungsfrist",
         "areas-of-interest": "Interessensgebiete",
+        "auth-loading": "Anmeldestatus wird geprüft...",
         "available-positions": "Verfügbare Stellen",
         "error-load-failed": "Stellenangebote konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+        "error-login-required": "Bitte melden Sie sich an, um Stellenangebote anzusehen.",
         "job-category": "Stellenart",
         "loading": "Stellenangebote werden geladen…",
         "no-results": "Keine Stellenangebote gefunden.",

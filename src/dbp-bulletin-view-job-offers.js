@@ -460,6 +460,24 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     render() {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
+
+        if (this.isAuthPending()) {
+            return html`
+                <div class="loading-wrapper">
+                    <dbp-mini-spinner></dbp-mini-spinner>
+                    <span>${t('view-job-offers.auth-loading')}</span>
+                </div>
+            `;
+        }
+
+        if (!this.isLoggedIn()) {
+            return html`
+                <div class="notification is-warning login-required-message">
+                    ${t('view-job-offers.error-login-required')}
+                </div>
+            `;
+        }
+
         const sortedJobCategories = [...this._jobCategories].sort((a, b) =>
             getJobCategoryLabel(a, t).localeCompare(getJobCategoryLabel(b, t), this.lang),
         );
