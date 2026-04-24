@@ -1,0 +1,24 @@
+{
+    "dbp-formalize-manage-forms": {
+        "manage-forms": {
+            "edit-form-button": "Stellenangebot bearbeiten",
+            "name": "Stellenbezeichnung"
+        }
+    },
+    "dbp-formalize-manage-forms-overview-page": {
+        "manage-forms": {
+            "create-form-button": "Neues Stellenangebot erstellen"
+        }
+    },
+    "dbp-formalize-edit-form-dialog": {
+        "create-form": {
+            "create": "Veröffentlichen",
+            "dialog-title": "Neues Stellenangebot erstellen",
+            "field-form-type-placeholder": "Option auswählen",
+            "section-general": ""
+        },
+        "edit-form": {
+            "dialog-title": "Stellenangebot bearbeiten"
+        }
+    }
+}

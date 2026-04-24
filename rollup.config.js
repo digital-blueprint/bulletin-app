@@ -274,6 +274,10 @@ export default (async () => {
                             src: customAssetsPath + 'icon',
                             dest: 'dist/' + (await getDistPath(pkg.name, '.')),
                         },
+                        {
+                            src: customAssetsPath + 'translation-overrides',
+                            dest: 'dist/' + (await getDistPath(pkg.name)),
+                        },
                         {src: customAssetsPath + '*.metadata.json', dest: 'dist'},
                         {src: customAssetsPath + 'modules.json', dest: 'dist'},
                         {
@@ -309,6 +313,10 @@ export default (async () => {
                         {
                             src: 'assets/icon',
                             dest: 'dist/' + (await getDistPath(pkg.name, '.')),
+                        },
+                        {
+                            src: 'assets/translation-overrides',
+                            dest: 'dist/' + (await getDistPath(pkg.name)),
                         },
                         {src: 'src/*.metadata.json', dest: 'dist'},
                         {

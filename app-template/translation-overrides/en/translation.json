@@ -1,0 +1,24 @@
+{
+    "dbp-formalize-manage-forms": {
+        "manage-forms": {
+            "edit-form-button": "Edit job offer",
+            "name": "Position title"
+        }
+    },
+    "dbp-formalize-manage-forms-overview-page": {
+        "manage-forms": {
+            "create-form-button": "Create new job offer"
+        }
+    },
+    "dbp-formalize-edit-form-dialog": {
+        "create-form": {
+            "create": "Publish",
+            "dialog-title": "Create new job offer",
+            "field-form-type-placeholder": "Select option",
+            "section-general": ""
+        },
+        "edit-form": {
+            "dialog-title": "Edit job offer"
+        }
+    }
+}
