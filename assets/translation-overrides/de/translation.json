@@ -4,7 +4,7 @@
             "edit-form-button": "Stellenangebot bearbeiten",
             "name": "Stellenbezeichnung",
             "open-forms": "Stellenangebote verwalten",
-            "no-submission-data-available": "Keine Bewerbungen verfügbar."
+            "no-submission-data-available": "Für diese Stelle sind noch keine Bewerbungen vorhanden."
         }
     },
     "dbp-formalize-manage-forms-overview-page": {
