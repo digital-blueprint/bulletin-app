@@ -2,7 +2,9 @@
     "dbp-formalize-manage-forms": {
         "manage-forms": {
             "edit-form-button": "Stellenangebot bearbeiten",
-            "name": "Stellenbezeichnung"
+            "name": "Stellenbezeichnung",
+            "open-forms": "Stellenangebote verwalten",
+            "no-submission-data-available": "Keine Bewerbungen verfügbar."
         }
     },
     "dbp-formalize-manage-forms-overview-page": {
@@ -19,6 +21,11 @@
         },
         "edit-form": {
             "dialog-title": "Stellenangebot bearbeiten"
+        }
+    },
+    "dbp-formalize-manage-form-submissions-page": {
+        "manage-forms": {
+            "back-text": "Zurück zu den Stellenangeboten"
         }
     }
 }

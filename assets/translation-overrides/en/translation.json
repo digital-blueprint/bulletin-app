@@ -2,7 +2,9 @@
     "dbp-formalize-manage-forms": {
         "manage-forms": {
             "edit-form-button": "Edit job offer",
-            "name": "Position title"
+            "name": "Position title",
+            "open-forms": "Manage job offers",
+            "no-submission-data-available": "No applications available."
         }
     },
     "dbp-formalize-manage-forms-overview-page": {
@@ -19,6 +21,11 @@
         },
         "edit-form": {
             "dialog-title": "Edit job offer"
+        }
+    },
+    "dbp-formalize-manage-form-submissions-page": {
+        "manage-forms": {
+            "back-text": "Back to job offers"
         }
     }
 }
