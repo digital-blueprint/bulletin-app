@@ -42,17 +42,6 @@
         "submit": "Submit application",
         "weekly-hours": "Hours per week"
     },
-    "job-offer-preview": {
-        "deadline": "Application deadline",
-        "delete": "Delete",
-        "edit": "Edit",
-        "organization": "Organisational unit",
-        "published-at": "Published on",
-        "requirements": "Requirements",
-        "start-date": "Start of employment",
-        "view-applications": "View applications",
-        "weekly-hours": "Hours per week"
-    },
     "manage-job-offers": {
         "area-of-interest-administration": "Administration",
         "area-of-interest-art-culture-design": "Art, Culture and Design",
@@ -74,16 +63,6 @@
         "area-of-interest-research": "Research",
         "area-of-interest-sustainability-environment": "Sustainability and Environment",
         "area-of-interest-teaching": "Teaching",
-        "col-id": "ID",
-        "col-title": "Position title",
-        "create-btn": "Create new job offer",
-        "dialog-cancel": "Cancel",
-        "dialog-publish": "Publish",
-        "dialog-save": "Save",
-        "dialog-title-create": "Create new job offer",
-        "dialog-title-edit": "Edit job offer",
-        "edit-btn-aria": "Edit job offer: {{title}}",
-        "edit-btn-title": "Edit job offer",
         "field-application-deadline": "Application deadline",
         "field-area-of-interest": "Areas of interest",
         "field-area-of-interest-placeholder": "Please select one or multiple options",
@@ -126,11 +105,7 @@
         "job-category-seasonal-position": "Seasonal position",
         "job-category-student-research-assistantship": "Student research assistantship",
         "job-category-student-teaching-assistantship": "Student teaching assistantship",
-        "preview-btn-aria": "Preview job offer: {{title}}",
-        "preview-btn-title": "Preview",
         "required-field-note": "* marks a required field",
-        "section-mandatory": "Mandatory Data",
-        "section-optional": "Optional Data",
         "select-placeholder": "Select option"
     },
     "render-form": {

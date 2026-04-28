@@ -42,17 +42,6 @@
         "submit": "Bewerbung abschicken",
         "weekly-hours": "Wochenstunden"
     },
-    "job-offer-preview": {
-        "deadline": "Bewerbungsfrist",
-        "delete": "Löschen",
-        "edit": "Bearbeiten",
-        "organization": "Organisationseinheit",
-        "published-at": "Veröffentlicht am",
-        "requirements": "Anforderungen",
-        "start-date": "Dienstbeginn",
-        "view-applications": "Bewerbungen ansehen",
-        "weekly-hours": "Wochenstunden"
-    },
     "manage-job-offers": {
         "area-of-interest-administration": "Verwaltung",
         "area-of-interest-art-culture-design": "Kunst, Kultur und Design",
@@ -74,16 +63,6 @@
         "area-of-interest-research": "Forschung",
         "area-of-interest-sustainability-environment": "Nachhaltigkeit und Umwelt",
         "area-of-interest-teaching": "Lehre",
-        "col-id": "ID",
-        "col-title": "Stellenbezeichnung",
-        "create-btn": "Neues Stellenangebot erstellen",
-        "dialog-cancel": "Abbrechen",
-        "dialog-publish": "Veröffentlichen",
-        "dialog-save": "Speichern",
-        "dialog-title-create": "Neues Stellenangebot erstellen",
-        "dialog-title-edit": "Stellenangebot bearbeiten",
-        "edit-btn-aria": "Stellenangebot bearbeiten: {{title}}",
-        "edit-btn-title": "Stellenangebot bearbeiten",
         "field-application-deadline": "Bewerbungsfrist",
         "field-area-of-interest": "Interessensgebiete",
         "field-area-of-interest-placeholder": "Wählen Sie eine oder mehrere Optionen aus",
@@ -126,11 +105,7 @@
         "job-category-seasonal-position": "Ferialmitarbeit",
         "job-category-student-research-assistantship": "Studentische Projektmitarbeit in der Forschung",
         "job-category-student-teaching-assistantship": "Studentische Mitarbeit in der Lehre",
-        "preview-btn-aria": "Stellenangebot ansehen: {{title}}",
-        "preview-btn-title": "Vorschau",
         "required-field-note": "* kennzeichnet ein Pflichtfeld",
-        "section-mandatory": "Pflichtangaben",
-        "section-optional": "Optionale Angaben",
         "select-placeholder": "Option auswählen"
     },
     "render-form": {
