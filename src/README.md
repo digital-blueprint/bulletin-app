@@ -24,24 +24,8 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 
 #### Slots
 
-You use templates tags to inject slots into the activity.
+You use template tags to inject slots into the activity.
 These templates will be converted to div containers when the page is loaded and will not show up before that.
-
-### dbp-bulletin-manage-job-offers
-
-A hidden activity used by the application to manage job offer entries.
-
-#### Attributes
-
-- `routing-url`: identifier used by the activity routing
-    - example `routing-url="manage-job-offers"`
-- `lang` (optional, default: `de`): set to `de` or `en` for German or English
-    - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
-    - example `entry-point-url="https://api-dev.tugraz.at"`
-- `auth` object: you need to set that object property for the auth token
-    - example auth property: `{token: "THE_BEARER_TOKEN"}`
-    - note: most often this should be an attribute that is not set directly, but subscribed at a provider
 
 ## Design Note
 

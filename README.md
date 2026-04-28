@@ -57,7 +57,7 @@ Also make sure to add all of your resources you are using (like your API and Key
 `Content-Security-Policy` in your `bulletin-app/public/.htaccess`, so the browser allows access to those sites.
 
 You can also use this app directly from the [Unpkg CDN](https://unpkg.com/browse/@digital-blueprint/bulletin-app/)
-for example like this: [dbp-bulletin/index.html](https://github.com/digital-blueprint/bulletin-app/tree/main/examples/dbp-bulletin/index.html)
+for example, like this: [dbp-bulletin/index.html](https://github.com/digital-blueprint/bulletin-app/tree/main/examples/dbp-bulletin/index.html)
 
 Note that you will need a Keycloak server along with a client id for the domain you are running this html on.
 
@@ -70,14 +70,14 @@ npx @digital-blueprint/cli update-app bulletin
 ```
 
 **Warning:** There may be issues when you run these commands as root user, best use a non-root user, like `www-data`.
-To do this you can for example open a shell with `runuser -u www-data -- bash`.
+To do this, you can for example open a shell with `runuser -u www-data -- bash`.
 
 ## Activities
 
 This app has the following activities:
 
 - `dbp-bulletin-view-job-offers`
-- `dbp-bulletin-manage-job-offers`
+- `dbp-formalize-manage-forms` from Formalize, used to manage job offer forms
 
 You can find the documentation of the activity in the [bulletin activities documentation](https://github.com/digital-blueprint/bulletin-app/tree/main/src).
 
@@ -115,7 +115,7 @@ For frontend design customizations, such as logo, colors, font, favicon, and mor
 ## "dbp-bulletin" slots
 
 These are common slots for the app-shell. You can find the documentation of these slots in the [app-shell documentation](https://gitlab.tugraz.at/dbp/web-components/toolkit/-/tree/master/packages/app-shell).
-For the app specific slots take a look at the [bulletin activities](https://github.com/digital-blueprint/bulletin-app/tree/main/src).
+For the appspecific slots take a look at the [bulletin activities](https://github.com/digital-blueprint/bulletin-app/tree/main/src).
 
 ## Notice
 

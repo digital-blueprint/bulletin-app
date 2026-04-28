@@ -125,7 +125,6 @@ config.CSP = `default-src 'self' 'unsafe-inline' \
 let input = [
     'src/' + appName + '.js',
     'src/dbp-bulletin-view-job-offers.js',
-    'src/dbp-bulletin-manage-job-offers.js',
     'vendor/formalize/src/dbp-formalize-manage-forms.js',
     'src/modules/jobOfferForm.js',
 ];
