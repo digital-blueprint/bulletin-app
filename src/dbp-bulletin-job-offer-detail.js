@@ -446,11 +446,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             /* Meta section: info on the left, tag+actions on the right */
             .meta-row {
-                display: flex;
-                justify-content: space-between;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) max-content;
                 align-items: flex-start;
-                gap: 1rem;
-                flex-wrap: wrap;
+                column-gap: 1rem;
                 margin-bottom: 1.5rem;
             }
 
@@ -458,6 +457,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin: 0;
                 padding: 0;
                 list-style: none;
+                min-width: 0;
             }
 
             .meta-item {
@@ -476,13 +476,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin: 0;
             }
 
-            /* Right-side tag and action buttons */
+            /* Right-side tag and action buttons stay in the second grid column */
             .meta-actions {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-end;
                 gap: 0.75rem;
-                flex-shrink: 0;
+                min-width: 0;
             }
 
             /* Outlined area-of-interest badge */
@@ -491,6 +491,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 flex-wrap: wrap;
                 gap: 0.4rem;
                 justify-content: flex-end;
+                max-width: min(100%, 28rem);
             }
 
             .job-tag {
@@ -551,6 +552,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             @media (max-width: 560px) {
                 .meta-row {
+                    display: flex;
                     flex-direction: column;
                 }
 
