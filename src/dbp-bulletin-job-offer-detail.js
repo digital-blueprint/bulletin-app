@@ -202,8 +202,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const text = title + '\n' + description.slice(0, 100) + '\n';
         window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
     }
-    /*
-     // Shares the job offer on Facebook.
+    // Shares the job offer on Facebook.
     shareOnFacebook() {
         const url = this.getShareUrl();
         window.open(
@@ -215,16 +214,18 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     shareOnLinkedIn() {
         const url = this.getShareUrl();
         window.open(
-            `https://www.linkedin.com/sharing/share-offline?url=${encodeURIComponent(url)}"`,
+            `https://www.linkedin.com/sharing/share-offline?url=${encodeURIComponent(url)}`,
             '_blank',
         );
     }
-     // Shares the job offer on Xing.
-    shareOnXing() {
-        const url = this.getShareUrl();
-        window.open(`https://www.xing.com/spi/shares/new?url=${encodeURIComponent(url)}`, '_blank');
+    // Shares the job offer on Instagram (opens Instagram website, no direct share API available).
+    shareOnInstagram() {
+        window.open('https://www.instagram.com/', '_blank');
     }
-    */
+    // Shares the job offer on Discord by copying the link (Discord has no direct share URL API).
+    async shareOnDiscord() {
+        await this.shareCopy();
+    }
     render() {
         const job = this.job;
         const i18n = this._i18n;
@@ -333,7 +334,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                     'job-offer-detail.share-whatsapp',
                                                                 )}
                                                             </button>
-                                                            <!--
                                                             <button
                                                                 class="button"
                                                                 @click="${this.shareOnLinkedIn}">
@@ -342,29 +342,42 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                     aria-hidden="true"
                                                                     class="btn-icon"></dbp-icon>
                                                                 ${t(
-                                                                'job-offer-detail.share-linkedin',
-                                                            )}
+                                                                    'job-offer-detail.share-linkedin',
+                                                                )}
                                                             </button>
                                                             <button
                                                                 class="button"
                                                                 @click="${this.shareOnFacebook}">
                                                                 <dbp-icon
-                                                                    name="facebook"
+                                                                    name="facebook-original"
                                                                     aria-hidden="true"
                                                                     class="btn-icon"></dbp-icon>
                                                                 ${t(
-                                                                'job-offer-detail.share-facebook',
-                                                            )}
+                                                                    'job-offer-detail.share-facebook',
+                                                                )}
                                                             </button>
                                                             <button
                                                                 class="button"
-                                                                @click="${this.shareOnXing}">
+                                                                @click="${this.shareOnInstagram}">
+                                                                <dbp-icon
+                                                                    name="instagram-original"
+                                                                    aria-hidden="true"
+                                                                    class="btn-icon"></dbp-icon>
+                                                                ${t(
+                                                                    'job-offer-detail.share-instagram',
+                                                                )}
+                                                            </button>
+                                                            <button
+                                                                class="button"
+                                                                @click="${this.shareOnDiscord}">
                                                                 <dbp-icon
                                                                     name="share2"
                                                                     aria-hidden="true"
                                                                     class="btn-icon"></dbp-icon>
-                                                                ${t('job-offer-detail.share-xing')}
-                                                            </button>-->
+                                                                ${t(
+                                                                    'job-offer-detail.share-discord',
+                                                                )}
+                                                            </button>
                                                         </div>
                                                     `
                                                   : ''}
@@ -393,6 +406,22 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                               <!-- Job description: use English text when language is English and available -->
                               ${this._renderDescription(job)}
+
+                              <!-- Contact information block shown when provided; use English value when language is English -->
+                              ${job.contactInformation || job.contactInformationEn
+                                  ? html`
+                                        <div class="contact-information">
+                                            <h3 class="contact-information-heading">
+                                                ${t('job-offer-detail.contact-information')}
+                                            </h3>
+                                            <p>
+                                                ${(this.lang === 'en' &&
+                                                    job.contactInformationEn) ||
+                                                job.contactInformation}
+                                            </p>
+                                        </div>
+                                    `
+                                  : ''}
 
                               <!-- Application form rendered by the JobOfferFormElement component -->
                               <dbp-bulletin-job-offer-form
@@ -496,6 +525,23 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-description {
                 margin: 0 0 1.5rem 0;
                 line-height: 1.6;
+            }
+
+            /* Contact information block */
+            .contact-information {
+                margin: 0 0 1.5rem 0;
+            }
+
+            .contact-information-heading {
+                font-size: 1rem;
+                font-weight: 700;
+                margin: 0 0 0.4rem 0;
+            }
+
+            .contact-information p {
+                margin: 0;
+                line-height: 1.6;
+                white-space: pre-wrap;
             }
 
             /* Detail content padding */

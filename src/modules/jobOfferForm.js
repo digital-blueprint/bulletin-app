@@ -1,7 +1,13 @@
 import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-object.js';
 import {css, html} from 'lit';
 import {createRef, ref} from 'lit/directives/ref.js';
-import {DbpStringElement, DbpDateElement, DbpEnumElement} from '@dbp-toolkit/form-elements';
+import {
+    DbpStringElement,
+    DbpDateElement,
+    DbpEnumElement,
+    DbpNumberElement,
+} from '@dbp-toolkit/form-elements';
+import {ResourceSelect} from '@dbp-toolkit/resource-select';
 import {FileSource, FileSink} from '@dbp-toolkit/file-handling';
 import {Modal} from '@dbp-toolkit/common/src/modal.js';
 import {PdfViewer} from '@dbp-toolkit/pdf-viewer';
@@ -102,6 +108,8 @@ export const AREAS_OF_INTEREST = {
     medicine: 'manage-job-offers.area-of-interest-medicine',
     engineering: 'manage-job-offers.area-of-interest-engineering',
     it: 'manage-job-offers.area-of-interest-it',
+    'software-development': 'manage-job-offers.area-of-interest-software-development',
+    design: 'manage-job-offers.area-of-interest-design',
     management: 'manage-job-offers.area-of-interest-management',
     law: 'manage-job-offers.area-of-interest-law',
     'art-culture-design': 'manage-job-offers.area-of-interest-art-culture-design',
@@ -139,6 +147,8 @@ const AREA_OF_INTEREST_ALIASES = {
     medicine: ['medicine', 'medizin'],
     engineering: ['engineering', 'technik'],
     it: ['it'],
+    'software-development': ['software-development', 'softwareentwicklung', 'software development'],
+    design: ['design'],
     management: ['management'],
     law: ['law', 'recht'],
     'art-culture-design': [
@@ -340,6 +350,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             'dbp-string-element': DbpStringElement,
             'dbp-date-element': DbpDateElement,
             'dbp-enum-element': DbpEnumElement,
+            'dbp-number-element': DbpNumberElement,
+            'dbp-resource-select': ResourceSelect,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
         };
@@ -367,6 +379,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._deadline = '';
         this._applicationDeadline = '';
         this._organization = '';
+        /** @type {string} The API identifier for the selected organizational unit */
+        this._organizationId = '';
 
         // Optional job detail fields
         this._startDate = '';
@@ -377,6 +391,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._areasOfInterest = [];
         this._linkName = '';
         this._linkUrl = '';
+        /** @type {string} Contact information for the job offer */
+        this._contactInformation = '';
+        /** @type {string} Contact information in English for the job offer */
+        this._contactInformationEn = '';
         /** @type {string} Newline-separated list of requirements entered by the user */
         this._requirementsText = '';
         /** @type {string} Newline-separated list of responsibilities entered by the user */
@@ -424,6 +442,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _deadline: {state: true},
             _applicationDeadline: {state: true},
             _organization: {state: true},
+            _organizationId: {state: true},
             _startDate: {state: true},
             _weeklyHours: {state: true},
             _salary: {state: true},
@@ -432,6 +451,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _areasOfInterest: {state: true},
             _linkName: {state: true},
             _linkUrl: {state: true},
+            _contactInformation: {state: true},
+            _contactInformationEn: {state: true},
             _requirementsText: {state: true},
             _responsibilitiesText: {state: true},
             _requiredQualificationText: {state: true},
@@ -468,6 +489,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._deadline = d.deadline || '';
                 this._applicationDeadline = d.applicationDeadline || '';
                 this._organization = d.organization || '';
+                this._organizationId = d.organizationId || '';
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
                 this._salary = d.salary || '';
@@ -478,6 +500,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 );
                 this._linkName = d.linkName || '';
                 this._linkUrl = d.linkUrl || '';
+                this._contactInformation = d.contactInformation || '';
+                this._contactInformationEn = d.contactInformationEn || '';
                 this._requirementsText = normalizeMultilineValue(d.requirements);
                 this._responsibilitiesText = normalizeMultilineValue(d.responsibilities);
                 this._requiredQualificationText = normalizeMultilineValue(d.requiredQualification);
@@ -524,6 +548,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._deadline = '';
         this._applicationDeadline = '';
         this._organization = '';
+        this._organizationId = '';
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
@@ -532,6 +557,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._areasOfInterest = [];
         this._linkName = '';
         this._linkUrl = '';
+        this._contactInformation = '';
+        this._contactInformationEn = '';
         this._requirementsText = '';
         this._responsibilitiesText = '';
         this._requiredQualificationText = '';
@@ -692,6 +719,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             deadline: this._deadline.trim(),
             applicationDeadline: this._applicationDeadline.trim(),
             organization: this._organization.trim(),
+            organizationId: this._organizationId.trim(),
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),
@@ -700,6 +728,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             areasOfInterest: this._areasOfInterest,
             linkName: this._linkName.trim(),
             linkUrl: this._linkUrl.trim(),
+            contactInformation: this._contactInformation.trim(),
+            contactInformationEn: this._contactInformationEn.trim(),
             requirements: this._parseRequirements(),
             responsibilities: this._parseResponsibilities(),
             requiredQualification: this._parseRequiredQualification(),
@@ -857,22 +887,29 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 required
                 @change="${(e) => (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
 
-            <div class="translation-row">
-                <dbp-string-element
+            <div class="organization-field">
+                <label class="organization-label">
+                    ${t('manage-job-offers.field-organization')}
+                    <span class="required-star" aria-hidden="true">*</span>
+                </label>
+                <dbp-resource-select
                     name="organization"
                     lang="${this.lang}"
-                    label="${t('manage-job-offers.field-organization')}"
-                    .value="${this._organization}"
-                    required
-                    @change="${(e) => (this._organization = e.detail.value)}"></dbp-string-element>
-
-                <dbp-string-element
-                    name="organization-en"
-                    lang="${this.lang}"
-                    label="${t('manage-job-offers.field-organization-en')}"
-                    .value="${this._organizationEn}"
-                    @change="${(e) =>
-                        (this._organizationEn = e.detail.value)}"></dbp-string-element>
+                    resource-path="/base/organizations"
+                    entry-point-url="${this.entryPointUrl}"
+                    .auth="${this.auth}"
+                    .value="${this._organizationId
+                        ? `/base/organizations/${this._organizationId}`
+                        : null}"
+                    @change="${(e) => {
+                        // Store both the OE identifier and its display name
+                        const obj = e.detail?.object;
+                        const rawValue = e.detail?.value ?? e.target?.value ?? '';
+                        this._organizationId = rawValue.startsWith('/base/organizations/')
+                            ? rawValue.replace('/base/organizations/', '')
+                            : rawValue;
+                        this._organization = obj?.name ?? rawValue;
+                    }}"></dbp-resource-select>
             </div>
 
             <dbp-date-element
@@ -882,21 +919,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 .value="${this._startDate}"
                 @change="${(e) => (this._startDate = e.detail.value)}"></dbp-date-element>
 
-            <div class="translation-row">
-                <dbp-string-element
-                    name="weekly-hours"
-                    lang="${this.lang}"
-                    label="${t('manage-job-offers.field-weekly-hours')}"
-                    .value="${this._weeklyHours}"
-                    @change="${(e) => (this._weeklyHours = e.detail.value)}"></dbp-string-element>
-
-                <dbp-string-element
-                    name="weekly-hours-en"
-                    lang="${this.lang}"
-                    label="${t('manage-job-offers.field-weekly-hours-en')}"
-                    .value="${this._weeklyHoursEn}"
-                    @change="${(e) => (this._weeklyHoursEn = e.detail.value)}"></dbp-string-element>
-            </div>
+            <dbp-number-element
+                name="weekly-hours"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-weekly-hours')}"
+                min="0"
+                step="0.5"
+                .value="${this._weeklyHours}"
+                @change="${(e) => (this._weeklyHours = e.detail.value)}"></dbp-number-element>
 
             <div class="translation-row">
                 <dbp-string-element
@@ -1078,6 +1108,26 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     .value="${this._linkUrlEn}"
                     @change="${(e) => (this._linkUrlEn = e.detail.value)}"></dbp-string-element>
             </div>
+
+            <div class="translation-row">
+                <dbp-string-element
+                    name="contact-information"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-contact-information')}"
+                    .value="${this._contactInformation}"
+                    rows="3"
+                    @change="${(e) =>
+                        (this._contactInformation = e.detail.value)}"></dbp-string-element>
+
+                <dbp-string-element
+                    name="contact-information-en"
+                    lang="${this.lang}"
+                    label="${t('manage-job-offers.field-contact-information-en')}"
+                    .value="${this._contactInformationEn}"
+                    rows="3"
+                    @change="${(e) =>
+                        (this._contactInformationEn = e.detail.value)}"></dbp-string-element>
+            </div>
         `;
     }
 
@@ -1128,9 +1178,23 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             /* Vertical spacing between form elements */
             dbp-string-element,
             dbp-date-element,
-            dbp-enum-element {
+            dbp-enum-element,
+            dbp-number-element,
+            .organization-field {
                 display: block;
                 margin-bottom: 0.75rem;
+            }
+
+            /* Label styling for the raw resource-select wrapper */
+            .organization-label {
+                display: block;
+                font-weight: 700;
+                margin-bottom: 0.25rem;
+            }
+
+            /* Required field asterisk — matches dbp form element convention */
+            .required-star {
+                color: var(--dbp-danger, red);
             }
         `;
     }
