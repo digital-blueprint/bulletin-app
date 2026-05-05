@@ -228,9 +228,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     shareOnInstagram() {
         window.open('https://www.instagram.com/', '_blank');
     }
-    // Shares the job offer on Discord by copying the link (Discord has no direct share URL API).
+    // Shares the job offer on Discord by opening Discord and keeping the URL ready to paste.
     async shareOnDiscord() {
         await this.shareCopy();
+        window.open('https://discord.com/channels/@me', '_blank');
     }
     render() {
         const job = this.job;
