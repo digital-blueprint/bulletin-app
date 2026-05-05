@@ -159,7 +159,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
      * @returns {string}
      */
     getShareUrl() {
-        return `${window.location.origin}${window.location.pathname}`;
+        const url = new URL(window.location.href);
+        url.search = '';
+        url.hash = '';
+
+        return url.toString();
     }
     // Shares the job offer using copying the URL.
     async shareCopy() {
@@ -213,8 +217,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     // Shares the job offer on LinkedIn.
     shareOnLinkedIn() {
         const url = this.getShareUrl();
+        const title = this._getLocalizedTitle(this.job);
+        const text = title + '\n' + url;
         window.open(
-            `https://www.linkedin.com/sharing/share-offline?url=${encodeURIComponent(url)}`,
+            `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
             '_blank',
         );
     }
