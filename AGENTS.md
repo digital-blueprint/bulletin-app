@@ -13,4 +13,5 @@
 - If you need to update the `CHANGELOG.md`, make sure to follow the existing format and include the version number and a clear description of the changes made
 - For building the whitelabel app the folder `assets/` is used for configuration and assets
 - For building the TU Graz app the folder `assets_custom/` is used for configuration and assets
+- For metadata changes you probably need to update files in `app-templates/`, `assets/` and `assets_custom/`
 - Never use the every-word-capitalization form of writing because it's not consistent with the rest of the code!
