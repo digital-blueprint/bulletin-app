@@ -655,7 +655,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 summary: t('create-job-offer.error-title'),
                 body: t('create-job-offer.validation-required'),
                 type: 'warning',
-                timeout: 5,
+                timeout: 0,
                 targetNotificationId: 'edit-form-dialog-notification',
             });
             return null;
@@ -1443,7 +1443,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 count: JOB_APPLICATION_ATTACHMENT_LIMIT,
             }),
             type: 'warning',
-            timeout: 5,
+            timeout: 0,
             replaceId: 'dbp-notification-apply',
             targetNotificationId: this.notificationTargetId,
         });
