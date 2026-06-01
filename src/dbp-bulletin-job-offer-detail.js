@@ -294,10 +294,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               )}
                                           </dd>
                                       </div>
+                                      <div class="meta-item tag">
+                                          ${this._renderAreaOfInterestTags(job, t)}
+                                      </div>
                                   </dl>
 
                                   <div class="meta-actions">
-                                      ${this._renderAreaOfInterestTags(job, t)}
                                       <div class="action-buttons">
                                           <div class="share-button-container">
                                               <button
@@ -482,6 +484,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .meta-item dd {
                 margin: 0;
+                text-wrap-mode: nowrap;
+            }
+
+            .meta-item.tag {
+                margin-top: 0.5rem;
             }
 
             /* Right-side tag and action buttons stay in the second grid column */
