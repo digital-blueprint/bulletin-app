@@ -32,6 +32,28 @@ const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB = 10000;
 const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
 const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
 const JOB_DESCRIPTION_MAX_LENGTH = 2500;
+const TEXT_EDITING_KEYS = new Set([
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+    'Backspace',
+    'Delete',
+    'Home',
+    'End',
+    'PageUp',
+    'PageDown',
+]);
+const TEXT_EDITING_EVENT_TYPES = new Set([
+    'click',
+    'copy',
+    'cut',
+    'mousedown',
+    'mouseup',
+    'paste',
+    'pointerdown',
+    'selectstart',
+]);
 
 const keepJobOfferAttachmentTranslations = (t) => {
     t('job-offer-detail.attachments-help', {
@@ -1274,6 +1296,116 @@ export class JobOfferFormElement extends BaseFormElement {
                 this._checkAlreadyApplied();
             }
         }
+
+        this._enableMessageFieldTextEditing();
+    }
+
+    _shouldKeepMessageFieldEventLocal(event) {
+        const target = event.target;
+
+        if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) {
+            return false;
+        }
+
+        if (target.readOnly || target.disabled) {
+            return false;
+        }
+
+        if (TEXT_EDITING_EVENT_TYPES.has(event.type)) {
+            return true;
+        }
+
+        if (event.key === 'Tab' || event.key === 'Escape' || event.key === 'Enter') {
+            return false;
+        }
+
+        if (event.ctrlKey || event.metaKey) {
+            return ['a', 'c', 'v', 'x', 'z', 'y'].includes(event.key.toLowerCase());
+        }
+
+        return TEXT_EDITING_KEYS.has(event.key);
+    }
+
+    _stopMessageFieldEventPropagation = (event) => {
+        if (this._shouldKeepMessageFieldEventLocal(event)) {
+            event.stopPropagation();
+        }
+    };
+
+    _enableMessageFieldTextEditing() {
+        const messageField = this._messageRef.value;
+        const messageInput = messageField?.shadowRoot?.querySelector('textarea, input');
+        const selectionStyleId = 'dbp-message-selection-style';
+
+        if (!messageInput || messageInput.dataset.dbpTextEditingEnabled === 'true') {
+            return;
+        }
+
+        // Keep native text selection enabled inside the field even when used in modal/dialog contexts.
+        messageField.style.userSelect = 'text';
+        messageField.style.webkitUserSelect = 'text';
+        messageField.style.cursor = 'pointer';
+        messageInput.style.userSelect = 'text';
+        messageInput.style.webkitUserSelect = 'text';
+        messageInput.style.pointerEvents = 'auto';
+        messageInput.style.cursor = 'text';
+
+        if (messageField.shadowRoot && !messageField.shadowRoot.getElementById(selectionStyleId)) {
+            const selectionStyle = document.createElement('style');
+            selectionStyle.id = selectionStyleId;
+            selectionStyle.textContent = `
+                :host {
+                    user-select: text;
+                    -webkit-user-select: text;
+                    cursor: pointer;
+                }
+
+                fieldset,
+                label,
+                .description {
+                    user-select: text;
+                    -webkit-user-select: text;
+                }
+
+                textarea,
+                input {
+                    user-select: text;
+                    -webkit-user-select: text;
+                    pointer-events: auto;
+                    cursor: text;
+                    caret-color: var(--dbp-primary, currentColor);
+                }
+
+                textarea::selection,
+                input::selection {
+                    color: var(--dbp-on-primary-surface, #ffffff);
+                    background: var(--dbp-primary-surface, #0b5fff);
+                }
+
+                textarea::-moz-selection,
+                input::-moz-selection {
+                    color: var(--dbp-on-primary-surface, #ffffff);
+                    background: var(--dbp-primary-surface, #0b5fff);
+                }
+            `;
+            messageField.shadowRoot.append(selectionStyle);
+        }
+
+        [
+            'click',
+            'copy',
+            'cut',
+            'keydown',
+            'mousedown',
+            'mouseup',
+            'paste',
+            'pointerdown',
+            'selectstart',
+        ].forEach((eventName) => {
+            messageInput.addEventListener(eventName, this._stopMessageFieldEventPropagation);
+        });
+
+        messageInput.dataset.dbpTextEditingEnabled = 'true';
     }
 
     /**
