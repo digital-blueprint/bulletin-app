@@ -2255,9 +2255,11 @@ export class JobOfferFormElement extends BaseFormElement {
 
                 .job-overview-tag {
                     background: var(--dbp-secondary-surface, #f2f4f7);
-                    border-radius: 999px;
-                    font-size: 0.875rem;
+                    border: 1px solid var(--dbp-content);
+                    border-radius: 2px;
+                    font-size: 1rem;
                     padding: 0.25rem 0.75rem;
+                    color: var(--dbp-content);
                 }
 
                 /* Three-column form row for first name, last name, email */
