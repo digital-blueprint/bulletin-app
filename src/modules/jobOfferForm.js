@@ -2224,7 +2224,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 }
 
                 .job-overview-meta-item dt {
-                    color: var(--dbp-muted);
+                    color: var(--dbp-content);
                     font-weight: 600;
                 }
 
