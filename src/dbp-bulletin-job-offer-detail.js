@@ -15,6 +15,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.job = null;
         /** @type {boolean} Whether the share dropdown is open */
         this._shareDropdownOpen = false;
+        this._onDocumentPointerDown = this._handleDocumentPointerDown.bind(this);
     }
 
     static get scopedElements() {
@@ -34,6 +35,16 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         };
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        document.addEventListener('pointerdown', this._onDocumentPointerDown);
+    }
+
+    disconnectedCallback() {
+        document.removeEventListener('pointerdown', this._onDocumentPointerDown);
+        super.disconnectedCallback();
+    }
+
     /** Opens the modal dialog. */
     open() {
         const modal = this.shadowRoot?.querySelector('dbp-modal');
@@ -44,6 +55,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /** Closes the modal dialog. */
     close() {
+        this._shareDropdownOpen = false;
         const modal = this.shadowRoot?.querySelector('dbp-modal');
         if (modal) {
             modal.close();
@@ -234,6 +246,24 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         await this.shareCopy();
         window.open('https://discord.com/channels/@me', '_blank');
     }
+
+    _handleDocumentPointerDown(event) {
+        if (!this._shareDropdownOpen) {
+            return;
+        }
+
+        const shareContainer = this.shadowRoot?.querySelector('.share-button-container');
+        if (!shareContainer || event.composedPath().includes(shareContainer)) {
+            return;
+        }
+
+        this._shareDropdownOpen = false;
+    }
+
+    _handleModalClosed() {
+        this._shareDropdownOpen = false;
+    }
+
     render() {
         const job = this.job;
         const i18n = this._i18n;
@@ -242,6 +272,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             <dbp-modal
                 modal-id="job-offer-detail-dialog"
                 lang="${this.lang}"
+                @dbp-modal-closed="${this._handleModalClosed}"
                 style="--dbp-modal-min-width: min(95vw, 700px); --dbp-modal-max-width: min(95vw, 700px); --dbp-modal-max-height: 90vh; --dbp-modal-content-overflow-y: auto;">
                 <div slot="header">
                     <dbp-notification
