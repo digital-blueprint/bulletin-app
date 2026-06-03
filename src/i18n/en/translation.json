@@ -1,4 +1,17 @@
 {
+    "company-form": {
+        "field-address": "Address",
+        "field-company-name": "Company name",
+        "field-contact-email": "Contact email",
+        "field-contact-name": "Contact person",
+        "field-contact-phone": "Contact phone",
+        "field-industry": "Industry",
+        "field-notes": "Notes",
+        "field-website": "Website",
+        "field-website-placeholder": "https://...",
+        "form-type-name": "Company",
+        "required-field-note": "* marks a required field"
+    },
     "create-job-offer": {
         "error-title": "Error",
         "validation-required": "Please fill in all required fields."

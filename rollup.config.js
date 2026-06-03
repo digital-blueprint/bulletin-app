@@ -126,7 +126,9 @@ let input = [
     'src/' + appName + '.js',
     'src/dbp-bulletin-view-job-offers.js',
     'vendor/formalize/src/dbp-formalize-manage-forms.js',
+    'vendor/formalize/src/dbp-formalize-submission-edit.js',
     'src/modules/jobOfferForm.js',
+    'src/modules/companyForm.js',
 ];
 
 export default (async () => {
@@ -318,6 +320,7 @@ export default (async () => {
                             dest: 'dist/' + (await getDistPath(pkg.name)),
                         },
                         {src: 'src/*.metadata.json', dest: 'dist'},
+                        {src: 'assets/modules.json', dest: 'dist'},
                         {
                             src: 'assets/site.webmanifest',
                             dest: 'dist',

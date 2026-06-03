@@ -1,4 +1,17 @@
 {
+    "company-form": {
+        "field-address": "Adresse",
+        "field-company-name": "Firmenname",
+        "field-contact-email": "Kontakt-E-Mail",
+        "field-contact-name": "Kontaktperson",
+        "field-contact-phone": "Kontakttelefon",
+        "field-industry": "Branche",
+        "field-notes": "Notizen",
+        "field-website": "Website",
+        "field-website-placeholder": "https://...",
+        "form-type-name": "Firma",
+        "required-field-note": "* kennzeichnet ein Pflichtfeld"
+    },
     "create-job-offer": {
         "error-title": "Fehler",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus."
