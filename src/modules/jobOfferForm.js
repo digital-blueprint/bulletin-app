@@ -6,6 +6,7 @@ import {
     DbpDateElement,
     DbpEnumElement,
     DbpNumberElement,
+    DbpSubmissionSelectElement,
 } from '@dbp-toolkit/form-elements';
 import {ResourceSelect} from '@dbp-toolkit/resource-select';
 import {FileSource, FileSink} from '@dbp-toolkit/file-handling';
@@ -373,6 +374,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             'dbp-date-element': DbpDateElement,
             'dbp-enum-element': DbpEnumElement,
             'dbp-number-element': DbpNumberElement,
+            'dbp-submission-select-element': DbpSubmissionSelectElement,
             'dbp-resource-select': ResourceSelect,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
@@ -403,6 +405,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._organization = '';
         /** @type {string} The API identifier for the selected organizational unit */
         this._organizationId = '';
+        /** @type {string} The Formalize submission identifier for the selected company */
+        this._companySubmissionId = '';
 
         // Optional job detail fields
         this._startDate = '';
@@ -465,6 +469,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _applicationDeadline: {state: true},
             _organization: {state: true},
             _organizationId: {state: true},
+            _companySubmissionId: {state: true},
             _startDate: {state: true},
             _weeklyHours: {state: true},
             _salary: {state: true},
@@ -512,6 +517,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._applicationDeadline = d.applicationDeadline || '';
                 this._organization = d.organization || '';
                 this._organizationId = d.organizationId || '';
+                this._companySubmissionId = d.companySubmissionId || '';
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
                 this._salary = d.salary || '';
@@ -571,6 +577,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._applicationDeadline = '';
         this._organization = '';
         this._organizationId = '';
+        this._companySubmissionId = '';
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
@@ -742,6 +749,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             applicationDeadline: this._applicationDeadline.trim(),
             organization: this._organization.trim(),
             organizationId: this._organizationId.trim(),
+            companySubmissionId: this._companySubmissionId.trim(),
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),
@@ -933,6 +941,18 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         this._organization = obj?.name ?? rawValue;
                     }}"></dbp-resource-select>
             </div>
+
+            <dbp-submission-select-element
+                name="company-submission"
+                lang="${this.lang}"
+                label="${t('manage-job-offers.field-company')}"
+                entry-point-url="${this.entryPointUrl}"
+                frontend-key="company"
+                submission-element-name="name"
+                .auth="${this.auth}"
+                .value="${this._companySubmissionId}"
+                @change="${(e) =>
+                    (this._companySubmissionId = e.detail.value)}"></dbp-submission-select-element>
 
             <dbp-date-element
                 name="start-date"
@@ -1201,6 +1221,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             dbp-string-element,
             dbp-date-element,
             dbp-enum-element,
+            dbp-submission-select-element,
             dbp-number-element,
             .organization-field {
                 display: block;
