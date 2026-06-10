@@ -230,7 +230,7 @@ class CompanyModule extends BaseObject {
     }
 
     getFormFrontendKey() {
-        return 'company';
+        return 'bulletin-company';
     }
 
     getFormName(lang = i18n.language) {

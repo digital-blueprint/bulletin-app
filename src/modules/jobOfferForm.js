@@ -947,7 +947,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 lang="${this.lang}"
                 label="${t('manage-job-offers.field-company')}"
                 entry-point-url="${this.entryPointUrl}"
-                frontend-key="company"
+                frontend-key="bulletin-company"
                 submission-element-name="name"
                 .auth="${this.auth}"
                 .value="${this._companySubmissionId}"

@@ -1,6 +1,7 @@
 -- Creates the Formalize form used by src/modules/companyForm.js.
 -- The form identifier is reused when a company form already exists.
 SET @company_form_identifier = COALESCE(
+    (SELECT identifier FROM formalize_forms WHERE frontend_key = 'bulletin-company' LIMIT 1),
     (SELECT identifier FROM formalize_forms WHERE frontend_key = 'company' LIMIT 1),
     UUID()
 );
@@ -49,7 +50,7 @@ SELECT
     1,
     10000,
     NULL,
-    'company',
+    'bulletin-company',
     NULL
 WHERE NOT EXISTS (
     SELECT 1
@@ -58,8 +59,11 @@ WHERE NOT EXISTS (
 );
 
 UPDATE formalize_forms
-SET data_feed_schema = @company_data_feed_schema
-WHERE frontend_key = 'company';
+SET
+    data_feed_schema = @company_data_feed_schema,
+    frontend_key = 'bulletin-company'
+WHERE identifier = @company_form_identifier
+   OR frontend_key = 'company';
 
 INSERT INTO formalize_localized_form_names (
     form_identifier,
