@@ -218,6 +218,7 @@ const keepCompanyFormTranslations = (t) => {
     t('company-form.partner-type-3');
     t('company-form.partner-type-4');
     t('company-form.partner-type-5');
+    t('company-form.required-field-note-text');
 };
 
 class CompanyModule extends BaseObject {
@@ -358,7 +359,10 @@ class CompanyFormElement extends BaseFormElement {
 
         return html`
             <form class="formalize-form">
-                <p class="required-field-note">${t('company-form.required-field-note')}</p>
+                <p class="required-field-note">
+                    <span class="red-marked-asterisk">*</span>
+                    ${t('company-form.required-field-note-text')}
+                </p>
 
                 <section class="form-section">
                     <h3>${t('company-form.section-basic-data')}</h3>
@@ -543,9 +547,12 @@ class CompanyFormElement extends BaseFormElement {
             }
 
             .required-field-note {
-                color: var(--dbp-muted);
-                font-size: 0.875rem;
                 margin: 0 0 0.75rem;
+            }
+
+            .red-marked-asterisk {
+                color: var(--dbp-danger);
+                font-weight: bold;
             }
 
             .form-section {
