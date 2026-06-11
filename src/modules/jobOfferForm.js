@@ -1865,10 +1865,11 @@ export class JobOfferFormElement extends BaseFormElement {
                         localizedLinkUrl
                             ? html`
                                   <a
+                                      class="job-overview-meta-link"
                                       href="${localizedLinkUrl}"
                                       target="_blank"
                                       rel="noopener noreferrer">
-                                      ${localizedLinkName || localizedLinkUrl}
+                                      <span>${localizedLinkName || localizedLinkUrl}</span>
                                   </a>
                               `
                             : '',
@@ -2251,6 +2252,14 @@ export class JobOfferFormElement extends BaseFormElement {
 
                 .job-overview-meta-item dd {
                     margin: 0;
+                }
+
+                .job-overview-meta-link {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                    text-decoration: underline;
+                    text-underline-offset: 0.15em;
                 }
 
                 .job-overview-section {
