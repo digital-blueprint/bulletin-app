@@ -126,7 +126,7 @@ let input = [
     'src/' + appName + '.js',
     'src/dbp-bulletin-view-job-offers.js',
     'vendor/formalize/src/dbp-formalize-manage-forms.js',
-    'vendor/formalize/src/dbp-formalize-submission-edit.js',
+    'vendor/formalize/src/dbp-formalize-manage-fields.js',
     'src/modules/jobOfferForm.js',
     'src/modules/companyForm.js',
 ];
