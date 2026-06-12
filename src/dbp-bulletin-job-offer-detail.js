@@ -621,7 +621,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 position: absolute;
                 top: 100%;
                 right: 0;
-                background: white;
+                background: var(--dbp-background);
                 border: 1px solid var(--dbp-border);
                 border-radius: var(--dbp-border-radius);
                 box-shadow:
