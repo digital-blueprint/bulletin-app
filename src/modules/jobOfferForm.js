@@ -925,7 +925,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 <dbp-resource-select
                     name="organization"
                     lang="${this.lang}"
-                    resource-path="/base/organizations"
+                    resource-path="/base/organizations?perPage=99999"
                     entry-point-url="${this.entryPointUrl}"
                     .auth="${this.auth}"
                     .value="${this._organizationId
