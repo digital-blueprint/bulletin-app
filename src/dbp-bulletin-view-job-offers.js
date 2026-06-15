@@ -469,12 +469,25 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     onWeeklyHoursMinChange(e) {
-        this.filterWeeklyHoursMin = e.target.value;
+        // Keep only integer digits and cap the input at two characters.
+        const sanitizedValue = (e.target.value ?? '').replace(/\D+/g, '').slice(0, 2);
+
+        if (e.target.value !== sanitizedValue) {
+            e.target.value = sanitizedValue;
+        }
+
+        this.filterWeeklyHoursMin = sanitizedValue;
         this.currentPage = 1;
     }
 
     onWeeklyHoursMaxChange(e) {
-        this.filterWeeklyHoursMax = e.target.value;
+        const sanitizedValue = (e.target.value ?? '').replace(/\D+/g, '').slice(0, 2);
+
+        if (e.target.value !== sanitizedValue) {
+            e.target.value = sanitizedValue;
+        }
+
+        this.filterWeeklyHoursMax = sanitizedValue;
         this.currentPage = 1;
     }
 
@@ -612,6 +625,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 type="number"
                                 class="input"
                                 min="0"
+                                max="99"
                                 step="1"
                                 placeholder="${t('view-job-offers.weekly-hours-min')}"
                                 .value="${this.filterWeeklyHoursMin}"
@@ -622,6 +636,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 type="number"
                                 class="input"
                                 min="0"
+                                max="99"
                                 step="1"
                                 placeholder="${t('view-job-offers.weekly-hours-max')}"
                                 .value="${this.filterWeeklyHoursMax}"
