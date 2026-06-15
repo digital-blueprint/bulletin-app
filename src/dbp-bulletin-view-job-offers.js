@@ -4,7 +4,7 @@ import {repeat} from 'lit/directives/repeat.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {Icon, MiniSpinner, getIconSVGURL} from '@dbp-toolkit/common';
+import {DBPSelect, Icon, MiniSpinner, getIconSVGURL} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
@@ -20,6 +20,7 @@ const DEFAULT_PAGE_SIZE = 10;
 class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
+            'dbp-select': DBPSelect,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
             'dbp-bulletin-job-offer-detail': JobOfferDetail,
@@ -463,7 +464,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     onAreaOfInterestChange(e) {
-        this.filterAreaOfInterest = e.target.value;
+        this.filterAreaOfInterest = e.detail?.value ?? e.target.value;
         this.currentPage = 1;
     }
 
@@ -515,6 +516,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const sortedAreasOfInterest = [...this._areasOfInterest].sort((a, b) =>
             getAreaOfInterestLabel(a, t).localeCompare(getAreaOfInterestLabel(b, t), this.lang),
         );
+        const areaOfInterestOptions = [
+            {
+                value: '',
+                label: t('view-job-offers.select-placeholder'),
+            },
+            ...sortedAreasOfInterest.map((value) => ({
+                value,
+                label: getAreaOfInterestLabel(value, t),
+            })),
+        ];
+        const selectedAreaOfInterestLabel =
+            areaOfInterestOptions.find((option) => option.value === this.filterAreaOfInterest)
+                ?.label ?? t('view-job-offers.select-placeholder');
 
         // Loading state
         if (this._loading) {
@@ -579,21 +593,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                             ${t('view-job-offers.areas-of-interest')}
                         </label>
                         <div class="control">
-                            <select
+                            <dbp-select
                                 id="filter-area-of-interest"
-                                @change="${this.onAreaOfInterestChange}"
-                                .value="${this.filterAreaOfInterest}">
-                                <option value="">${t('view-job-offers.select-placeholder')}</option>
-                                ${sortedAreasOfInterest.map(
-                                    (value) => html`
-                                        <option
-                                            value="${value}"
-                                            ?selected="${this.filterAreaOfInterest === value}">
-                                            ${getAreaOfInterestLabel(value, t)}
-                                        </option>
-                                    `,
-                                )}
-                            </select>
+                                class="filter-select"
+                                allow-expand
+                                align="left"
+                                label="${selectedAreaOfInterestLabel}"
+                                .options="${areaOfInterestOptions}"
+                                .value="${this.filterAreaOfInterest}"
+                                @change="${this.onAreaOfInterestChange}"></dbp-select>
                         </div>
                     </div>
 
@@ -846,6 +854,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .search-control {
                 position: relative;
+            }
+
+            .filter-select {
+                display: block;
+                width: 100%;
+            }
+
+            .filter-select::part(trigger) {
+                width: 100%;
+                justify-content: space-between;
             }
 
             .search-control .input {
