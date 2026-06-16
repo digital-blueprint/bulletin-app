@@ -1618,6 +1618,14 @@ export class JobOfferFormElement extends BaseFormElement {
         this._attachmentLimitNotified = false;
     }
 
+    _handleAttachmentPickerClosed(event) {
+        if (event.detail.id !== 'modal-picker-dialog') {
+            return;
+        }
+
+        event.stopPropagation();
+    }
+
     deleteAttachment(fileIdentifier, fileGroup = JOB_APPLICATION_ATTACHMENT_GROUP) {
         super.deleteAttachment(fileIdentifier, fileGroup);
         this._attachmentLimitNotified = false;
@@ -2170,6 +2178,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 max-file-size="${JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB}"
                 number-of-files="${JOB_APPLICATION_ATTACHMENT_LIMIT}"
                 enabled-targets="local,clipboard,nextcloud"
+                @dbp-modal-closed="${this._handleAttachmentPickerClosed}"
                 subscribe="nextcloud-auth-url,nextcloud-web-dav-url,nextcloud-name,nextcloud-file-url"></dbp-file-source>
 
             <dbp-file-sink
