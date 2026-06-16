@@ -407,6 +407,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._organizationId = '';
         /** @type {string} The Formalize submission identifier for the selected company */
         this._companySubmissionId = '';
+        /** @type {string} The display name of the selected company (kept so it can be shown even if the company submission is deleted) */
+        this._companyName = '';
 
         // Optional job detail fields
         this._startDate = '';
@@ -470,6 +472,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _organization: {state: true},
             _organizationId: {state: true},
             _companySubmissionId: {state: true},
+            _companyName: {state: true},
             _startDate: {state: true},
             _weeklyHours: {state: true},
             _salary: {state: true},
@@ -518,6 +521,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._organization = d.organization || '';
                 this._organizationId = d.organizationId || '';
                 this._companySubmissionId = d.companySubmissionId || '';
+                this._companyName = d.companyName || '';
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
                 this._salary = d.salary || '';
@@ -578,6 +582,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._organization = '';
         this._organizationId = '';
         this._companySubmissionId = '';
+        this._companyName = '';
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
@@ -672,6 +677,40 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     /**
+     * Resolves the display name of the selected company from the submission-select element.
+     *
+     * Prefers the element's own label resolution for the matching submission, falling back to
+     * the selected option's text content. Returns an empty string when no company is selected.
+     *
+     * @param {HTMLElement} selectElement - The dbp-submission-select-element that emitted the change.
+     * @param {string} submissionId - The identifier of the selected company submission.
+     * @returns {string}
+     */
+    _resolveCompanyName(selectElement, submissionId) {
+        if (!submissionId) {
+            return '';
+        }
+
+        // Prefer the element's own label resolution from its loaded submissions.
+        const submissions = selectElement?.submissions;
+        if (Array.isArray(submissions) && typeof selectElement.getSubmissionLabel === 'function') {
+            const match = submissions.find(
+                (submission) => selectElement.getSubmissionValue(submission) === submissionId,
+            );
+            if (match) {
+                return selectElement.getSubmissionLabel(match);
+            }
+        }
+
+        // Fall back to the text of the currently selected option.
+        const selectedOption =
+            selectElement?.shadowRoot?.querySelector('option[selected]') ??
+            selectElement?.shadowRoot?.querySelector(`option[value="${submissionId}"]`);
+
+        return selectedOption?.textContent?.trim() ?? '';
+    }
+
+    /**
      * Builds the form payload and calls apiCreateForm or apiUpdateForm depending on mode.
      * On success dispatches a form event, on failure shows an error notification.
      */
@@ -750,6 +789,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             organization: this._organization.trim(),
             organizationId: this._organizationId.trim(),
             companySubmissionId: this._companySubmissionId.trim(),
+            companyName: this._companyName.trim(),
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),
@@ -951,8 +991,12 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 submission-element-name="name"
                 .auth="${this.auth}"
                 .value="${this._companySubmissionId}"
-                @change="${(e) =>
-                    (this._companySubmissionId = e.detail.value)}"></dbp-submission-select-element>
+                @change="${(e) => {
+                    this._companySubmissionId = e.detail.value;
+                    // Store the display name of the selected company so it can still be shown
+                    // in the detail view even after the company submission is deleted.
+                    this._companyName = this._resolveCompanyName(e.target, e.detail.value);
+                }}"></dbp-submission-select-element>
 
             <dbp-date-element
                 name="start-date"

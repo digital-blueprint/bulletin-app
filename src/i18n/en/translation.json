@@ -143,6 +143,7 @@
         "attachments": "Attachments",
         "attachments-help_one": "PDF files only, up to {{count}} file, max. {{size}} MB per file.",
         "attachments-help_other": "PDF files only, up to {{count}} files, max. {{size}} MB per file.",
+        "company": "Company",
         "contact-information": "Contact information",
         "deadline": "Application deadline",
         "email": "Email address",

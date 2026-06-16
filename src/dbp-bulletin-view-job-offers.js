@@ -160,6 +160,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                             extra.organization ??
                             '',
                         organization: extra.organization ?? '',
+                        companySubmissionId: extra.companySubmissionId ?? '',
+                        // The company name is stored at creation time so it can still be shown
+                        // even if the company submission has since been deleted.
+                        companyName: extra.companyName ?? '',
                         description: extra.description ?? '',
                         requirements: Array.isArray(extra.requirements) ? extra.requirements : [],
                         responsibilities: Array.isArray(extra.responsibilities)

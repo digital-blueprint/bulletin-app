@@ -325,6 +325,14 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               )}
                                           </dd>
                                       </div>
+                                      ${job.companyName
+                                          ? html`
+                                                <div class="meta-item">
+                                                    <dt>${t('job-offer-detail.company')}:</dt>
+                                                    <dd>${job.companyName}</dd>
+                                                </div>
+                                            `
+                                          : ''}
                                       <div class="meta-item tag">
                                           ${this._renderAreaOfInterestTags(job, t)}
                                       </div>
