@@ -141,6 +141,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         dataFeedSchema: form.dataFeedSchema ?? '',
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
+                        jobOfferType: extra.jobOfferType ?? '',
                         jobCategory: extra.jobCategory ?? extra.jobType ?? '',
                         areaOfInterest: areasOfInterest[0] ?? '',
                         areasOfInterest,
@@ -164,6 +165,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         // The company name is stored at creation time so it can still be shown
                         // even if the company submission has since been deleted.
                         companyName: extra.companyName ?? '',
+                        companyData: extra.companyData ?? {},
+                        externalJobUrl: extra.externalJobUrl ?? '',
                         description: extra.description ?? '',
                         requirements: Array.isArray(extra.requirements) ? extra.requirements : [],
                         responsibilities: Array.isArray(extra.responsibilities)

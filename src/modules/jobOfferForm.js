@@ -33,6 +33,9 @@ const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB = 10000;
 const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
 const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
 const JOB_DESCRIPTION_MAX_LENGTH = 2500;
+const JOB_OFFER_TYPE_INTERNAL = 'internal';
+const JOB_OFFER_TYPE_EXTERNAL = 'external';
+const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
 
 const keepJobOfferAttachmentTranslations = (t) => {
     t('job-offer-detail.attachments-help', {
@@ -335,6 +338,15 @@ const normalizeStringList = (value) => {
     return parseMultilineList(normalizeMultilineValue(value));
 };
 
+const normalizeHttpUrl = (value) => {
+    try {
+        const url = new URL(String(value).trim());
+        return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+    } catch {
+        return '';
+    }
+};
+
 /**
  * Web component for editing a job-offer form (create or update).
  *
@@ -380,6 +392,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._publishedAt = '';
         this._deadline = '';
         this._applicationDeadline = '';
+        this._jobOfferType = JOB_OFFER_TYPE_INTERNAL;
         this._organization = '';
         /** @type {string} The API identifier for the selected organizational unit */
         this._organizationId = '';
@@ -387,6 +400,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._companySubmissionId = '';
         /** @type {string} The display name of the selected company (kept so it can be shown even if the company submission is deleted) */
         this._companyName = '';
+        /** @type {object} Snapshot of the selected company submission data */
+        this._companyData = {};
+        /** @type {string} URL to the external application page for external jobs */
+        this._externalJobUrl = '';
 
         // Optional job detail fields
         this._startDate = '';
@@ -447,10 +464,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _publishedAt: {state: true},
             _deadline: {state: true},
             _applicationDeadline: {state: true},
+            _jobOfferType: {state: true},
             _organization: {state: true},
             _organizationId: {state: true},
             _companySubmissionId: {state: true},
             _companyName: {state: true},
+            _companyData: {state: true},
+            _externalJobUrl: {state: true},
             _startDate: {state: true},
             _weeklyHours: {state: true},
             _salary: {state: true},
@@ -496,10 +516,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._publishedAt = d.publishedAt || '';
                 this._deadline = d.deadline || '';
                 this._applicationDeadline = d.applicationDeadline || '';
+                this._jobOfferType = this._normalizeJobOfferType(d.jobOfferType, d);
                 this._organization = d.organization || '';
                 this._organizationId = d.organizationId || '';
                 this._companySubmissionId = d.companySubmissionId || '';
                 this._companyName = d.companyName || '';
+                this._companyData = d.companyData || {};
+                this._externalJobUrl = d.externalJobUrl || '';
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
                 this._salary = d.salary || '';
@@ -540,14 +563,41 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
      * @returns {boolean}
      */
     get _isFormValid() {
+        const hasJobOwner = this._isInternalJob
+            ? this._organization.trim() !== ''
+            : this._companySubmissionId.trim() !== '' && this._isExternalJobUrlValid();
+
         return (
             this._title.trim() !== '' &&
             this._description.trim() !== '' &&
             this._publishedAt.trim() !== '' &&
             this._deadline.trim() !== '' &&
             this._applicationDeadline.trim() !== '' &&
-            this._organization.trim() !== ''
+            this._jobOfferType.trim() !== '' &&
+            hasJobOwner
         );
+    }
+
+    get _isInternalJob() {
+        return this._jobOfferType === JOB_OFFER_TYPE_INTERNAL;
+    }
+
+    get _isExternalJob() {
+        return this._jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
+    }
+
+    _isExternalJobUrlValid() {
+        return normalizeHttpUrl(this._externalJobUrl) !== '';
+    }
+
+    _normalizeJobOfferType(value, data = {}) {
+        if (JOB_OFFER_TYPES.includes(value)) {
+            return value;
+        }
+
+        return data.companySubmissionId && !data.organization
+            ? JOB_OFFER_TYPE_EXTERNAL
+            : JOB_OFFER_TYPE_INTERNAL;
     }
 
     /** Resets all form fields to empty defaults. */
@@ -557,10 +607,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._publishedAt = '';
         this._deadline = '';
         this._applicationDeadline = '';
+        this._jobOfferType = JOB_OFFER_TYPE_INTERNAL;
         this._organization = '';
         this._organizationId = '';
         this._companySubmissionId = '';
         this._companyName = '';
+        this._companyData = {};
+        this._externalJobUrl = '';
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
@@ -688,6 +741,26 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return selectedOption?.textContent?.trim() ?? '';
     }
 
+    _resolveCompanyData(selectElement, submissionId) {
+        if (!submissionId) {
+            return {};
+        }
+
+        const submissions = selectElement?.submissions;
+        if (
+            !Array.isArray(submissions) ||
+            typeof selectElement.parseDataFeedElement !== 'function'
+        ) {
+            return {};
+        }
+
+        const match = submissions.find(
+            (submission) => selectElement.getSubmissionValue(submission) === submissionId,
+        );
+
+        return match ? selectElement.parseDataFeedElement(match.dataFeedElement) : {};
+    }
+
     /**
      * Builds the form payload and calls apiCreateForm or apiUpdateForm depending on mode.
      * On success dispatches a form event, on failure shows an error notification.
@@ -764,10 +837,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             publishedAt: this._publishedAt.trim(),
             deadline: this._deadline.trim(),
             applicationDeadline: this._applicationDeadline.trim(),
-            organization: this._organization.trim(),
-            organizationId: this._organizationId.trim(),
-            companySubmissionId: this._companySubmissionId.trim(),
-            companyName: this._companyName.trim(),
+            jobOfferType: this._jobOfferType,
+            organization: this._isInternalJob ? this._organization.trim() : '',
+            organizationId: this._isInternalJob ? this._organizationId.trim() : '',
+            companySubmissionId: this._isExternalJob ? this._companySubmissionId.trim() : '',
+            companyName: this._isExternalJob ? this._companyName.trim() : '',
+            companyData: this._isExternalJob ? this._companyData : {},
+            externalJobUrl: this._isExternalJob ? normalizeHttpUrl(this._externalJobUrl) : '',
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),
@@ -784,7 +860,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             weOffer: this._parseWeOffer(),
             titleEn: this._titleEn.trim(),
             descriptionEn: this._descriptionEn.trim(),
-            organizationEn: this._organizationEn.trim(),
+            organizationEn: this._isInternalJob ? this._organizationEn.trim() : '',
             weeklyHoursEn: this._weeklyHoursEn.trim(),
             salaryEn: this._salaryEn.trim(),
             contractDurationEn: this._contractDurationEn.trim(),
@@ -853,6 +929,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         keepJobOfferAttachmentTranslations(t);
+        const jobTypeItems = {
+            [JOB_OFFER_TYPE_INTERNAL]: t('manage-job-offers.job-type-internal'),
+            [JOB_OFFER_TYPE_EXTERNAL]: t('manage-job-offers.job-type-external'),
+        };
         const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
         const multilineHint = t('manage-job-offers.field-list-items-hint');
         const requiredFieldNote = t('manage-job-offers.required-field-note');
@@ -935,46 +1015,80 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 required
                 @change="${(e) => (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
 
-            <div class="organization-field">
-                <label class="organization-label">
-                    ${t('manage-job-offers.field-organization')}
-                    <span class="required-star" aria-hidden="true">*</span>
-                </label>
-                <dbp-resource-select
-                    name="organization"
-                    lang="${this.lang}"
-                    resource-path="/base/organizations?perPage=99999"
-                    entry-point-url="${this.entryPointUrl}"
-                    .auth="${this.auth}"
-                    .value="${this._organizationId
-                        ? `/base/organizations/${this._organizationId}`
-                        : null}"
-                    @change="${(e) => {
-                        // Store both the OE identifier and its display name
-                        const obj = e.detail?.object;
-                        const rawValue = e.detail?.value ?? e.target?.value ?? '';
-                        this._organizationId = rawValue.startsWith('/base/organizations/')
-                            ? rawValue.replace('/base/organizations/', '')
-                            : rawValue;
-                        this._organization = obj?.name ?? rawValue;
-                    }}"></dbp-resource-select>
-            </div>
-
-            <dbp-submission-select-element
-                name="company-submission"
+            <dbp-enum-element
+                name="job-offer-type"
                 lang="${this.lang}"
-                label="${t('manage-job-offers.field-company')}"
-                entry-point-url="${this.entryPointUrl}"
-                frontend-key="bulletin-company"
-                submission-element-name="name"
-                .auth="${this.auth}"
-                .value="${this._companySubmissionId}"
-                @change="${(e) => {
-                    this._companySubmissionId = e.detail.value;
-                    // Store the display name of the selected company so it can still be shown
-                    // in the detail view even after the company submission is deleted.
-                    this._companyName = this._resolveCompanyName(e.target, e.detail.value);
-                }}"></dbp-submission-select-element>
+                label="${t('manage-job-offers.field-job-type')}"
+                display-mode="list"
+                layout-type="inline"
+                .items="${jobTypeItems}"
+                .value="${this._jobOfferType}"
+                required
+                @change="${(e) => (this._jobOfferType = e.detail.value)}"></dbp-enum-element>
+
+            ${this._isInternalJob
+                ? html`
+                      <div class="organization-field">
+                          <label class="organization-label">
+                              ${t('manage-job-offers.field-organization')}
+                              <span class="required-star" aria-hidden="true">*</span>
+                          </label>
+                          <dbp-resource-select
+                              name="organization"
+                              lang="${this.lang}"
+                              resource-path="/base/organizations?perPage=99999"
+                              entry-point-url="${this.entryPointUrl}"
+                              .auth="${this.auth}"
+                              .value="${this._organizationId
+                                  ? `/base/organizations/${this._organizationId}`
+                                  : null}"
+                              @change="${(e) => {
+                                  // Store both the OE identifier and its display name.
+                                  const obj = e.detail?.object;
+                                  const rawValue = e.detail?.value ?? e.target?.value ?? '';
+                                  this._organizationId = rawValue.startsWith('/base/organizations/')
+                                      ? rawValue.replace('/base/organizations/', '')
+                                      : rawValue;
+                                  this._organization = obj?.name ?? rawValue;
+                              }}"></dbp-resource-select>
+                      </div>
+                  `
+                : html`
+                      <dbp-submission-select-element
+                          name="company-submission"
+                          lang="${this.lang}"
+                          label="${t('manage-job-offers.field-company')}"
+                          entry-point-url="${this.entryPointUrl}"
+                          frontend-key="bulletin-company"
+                          submission-element-name="name"
+                          .auth="${this.auth}"
+                          .value="${this._companySubmissionId}"
+                          required
+                          @change="${(e) => {
+                              this._companySubmissionId = e.detail.value;
+                              // Store the display name of the selected company so it can still be shown
+                              // in the detail view even after the company submission is deleted.
+                              this._companyName = this._resolveCompanyName(
+                                  e.target,
+                                  e.detail.value,
+                              );
+                              this._companyData = this._resolveCompanyData(
+                                  e.target,
+                                  e.detail.value,
+                              );
+                          }}"></dbp-submission-select-element>
+
+                      <dbp-string-element
+                          name="external-job-url"
+                          lang="${this.lang}"
+                          label="${t('manage-job-offers.field-external-job-url')}"
+                          placeholder="${t('manage-job-offers.field-external-job-url-placeholder')}"
+                          type="url"
+                          .value="${this._externalJobUrl}"
+                          required
+                          @change="${(e) =>
+                              (this._externalJobUrl = e.detail.value)}"></dbp-string-element>
+                  `}
 
             <dbp-date-element
                 name="start-date"
@@ -1325,6 +1439,12 @@ export class JobOfferFormElement extends BaseFormElement {
             this._applicationDataFeedSchema = this.job?.dataFeedSchema ?? '';
         }
 
+        if (this._isExternalJobOffer) {
+            this._hasApplied = false;
+            this._checkingApplied = false;
+            return;
+        }
+
         if (formIdentifierChanged || jobChanged || authContextChanged) {
             this._loadApplicationFormSchema();
         }
@@ -1593,6 +1713,14 @@ export class JobOfferFormElement extends BaseFormElement {
         };
     }
 
+    get _isExternalJobOffer() {
+        return this.job?.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
+    }
+
+    _getExternalJobUrl() {
+        return normalizeHttpUrl(this.job?.externalJobUrl ?? '');
+    }
+
     /**
      * Returns the English value when the current language is English and a translation exists.
      * @param {string} primary
@@ -1714,6 +1842,11 @@ export class JobOfferFormElement extends BaseFormElement {
             job.organization ?? '',
             job.organizationEn ?? '',
         );
+        const isExternalJob = job.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
+        const organizationLabel = isExternalJob
+            ? t('manage-job-offers.field-company')
+            : t('manage-job-offers.field-organization');
+        const organizationValue = isExternalJob ? (job.companyName ?? '') : localizedOrganization;
         const localizedWeeklyHours = this._localized(
             job.weeklyHours ?? '',
             job.weeklyHoursEn ?? '',
@@ -1776,10 +1909,7 @@ export class JobOfferFormElement extends BaseFormElement {
                         t('manage-job-offers.field-job-category'),
                         jobCategoryLabel,
                     )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-organization'),
-                        localizedOrganization,
-                    )}
+                    ${this._renderJobMetaItem(organizationLabel, organizationValue)}
                     ${this._renderJobMetaItem(
                         t('manage-job-offers.field-link-url'),
                         localizedLinkUrl
@@ -1823,6 +1953,42 @@ export class JobOfferFormElement extends BaseFormElement {
                 )}
                 ${this._renderJobListSection(t('manage-job-offers.field-we-offer'), weOffer)}
             </section>
+        `;
+    }
+
+    _renderExternalApplication(jobOverview) {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const externalJobUrl = this._getExternalJobUrl();
+
+        return html`
+            <div class="apply-form">
+                ${jobOverview}
+
+                <h4 class="apply-heading">${t('job-offer-detail.external-application-title')}</h4>
+                <p class="external-application-text">
+                    ${t('job-offer-detail.external-application-text')}
+                </p>
+
+                ${externalJobUrl
+                    ? html`
+                          <a
+                              class="button is-primary external-application-link"
+                              href="${externalJobUrl}"
+                              target="_blank"
+                              rel="noopener noreferrer">
+                              <dbp-icon
+                                  class="btn-icon"
+                                  name="send-diagonal"
+                                  aria-hidden="true"></dbp-icon>
+                              ${t('job-offer-detail.apply-external')}
+                          </a>
+                      `
+                    : html`
+                          <p class="external-application-missing">
+                              ${t('job-offer-detail.external-application-missing')}
+                          </p>
+                      `}
+            </div>
         `;
     }
 
@@ -1966,6 +2132,11 @@ export class JobOfferFormElement extends BaseFormElement {
         const t = (key, opts) => this._i18n.t(key, opts);
         keepJobOfferAttachmentTranslations(t);
         const jobOverview = this._renderJobOverview();
+
+        if (this._isExternalJobOffer) {
+            return this._renderExternalApplication(jobOverview);
+        }
+
         const supportsApplicationAttachments = this._supportsApplicationAttachments();
         const attachmentGroup = this._getAttachmentGroupData();
         const attachmentCount = attachmentGroup.filesToSubmit.size;
@@ -2332,6 +2503,22 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.35rem;
+                }
+
+                .external-application-text {
+                    margin: 0 0 1rem 0;
+                    line-height: 1.5;
+                }
+
+                .external-application-link {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                }
+
+                .external-application-missing {
+                    color: var(--dbp-danger);
+                    margin: 0;
                 }
 
                 .btn-icon {

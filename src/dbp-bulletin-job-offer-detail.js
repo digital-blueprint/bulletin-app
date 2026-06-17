@@ -135,6 +135,141 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return `${day}.${month}.${year}`;
     }
 
+    _isExternalJob(job = this.job) {
+        return job?.jobOfferType === 'external';
+    }
+
+    _getExternalJobUrl(job = this.job) {
+        try {
+            const url = new URL(String(job?.externalJobUrl ?? '').trim());
+            return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+        } catch {
+            return '';
+        }
+    }
+
+    _getCompanyValue(companyData, primaryKey, fallbackKeys = []) {
+        const keys = [primaryKey, ...fallbackKeys];
+        const value = keys.map((key) => companyData?.[key]).find((item) => item);
+
+        return Array.isArray(value) ? value.join(', ') : String(value ?? '').trim();
+    }
+
+    _renderCompanyMetaItem(label, value) {
+        if (!value) {
+            return '';
+        }
+
+        return html`
+            <div class="company-info-item">
+                <dt>${label}:</dt>
+                <dd>${value}</dd>
+            </div>
+        `;
+    }
+
+    _renderCompanyTextBlock(title, value) {
+        if (!value) {
+            return '';
+        }
+
+        const lines = value.split(/\r?\n/);
+
+        return html`
+            <section class="company-info-block">
+                <h4>${title}</h4>
+                <p>
+                    ${lines.map((line, index) =>
+                        index === 0
+                            ? line
+                            : html`
+                                  <br />
+                                  ${line}
+                              `,
+                    )}
+                </p>
+            </section>
+        `;
+    }
+
+    _renderCompanyInformation(job, t) {
+        const companyData = job.companyData ?? {};
+        const companyName =
+            this._getCompanyValue(companyData, 'name', ['companyName']) || job.companyName;
+        const department = this._getCompanyValue(companyData, 'abteilung', ['department']);
+        const address = this._getCompanyValue(companyData, 'adresse', ['address']);
+        const postalCode = this._getCompanyValue(companyData, 'plz', ['postalCode']);
+        const city = this._getCompanyValue(companyData, 'ort', ['city']);
+        const contactPerson = this._getCompanyValue(companyData, 'kontaktperson', ['contactName']);
+        const phone = this._getCompanyValue(companyData, 'telefonnummer', ['contactPhone']);
+        const email = this._getCompanyValue(companyData, 'email', ['contactEmail']);
+        const website = this._getCompanyValue(companyData, 'url', ['website']);
+        const teaser = this._getCompanyValue(companyData, 'teaser');
+        const description = this._getCompanyValue(companyData, 'beschreibung', ['description']);
+        const products = this._getCompanyValue(companyData, 'produkte', ['products']);
+        const locations = this._getCompanyValue(companyData, 'standorte', ['locations']);
+        const location = [postalCode, city].filter(Boolean).join(' ');
+
+        if (
+            !companyName &&
+            !department &&
+            !address &&
+            !location &&
+            !email &&
+            !website &&
+            !description
+        ) {
+            return '';
+        }
+
+        return html`
+            <section class="company-info">
+                <h3>${t('job-offer-detail.company')}</h3>
+                <dl class="company-info-list">
+                    ${this._renderCompanyMetaItem(t('company-form.field-name'), companyName)}
+                    ${this._renderCompanyMetaItem(t('company-form.field-department'), department)}
+                    ${this._renderCompanyMetaItem(t('company-form.field-address'), address)}
+                    ${this._renderCompanyMetaItem(t('company-form.field-city'), location)}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-contact-person'),
+                        contactPerson,
+                    )}
+                    ${this._renderCompanyMetaItem(t('company-form.field-phone-number'), phone)}
+                    ${this._renderCompanyMetaItem(t('company-form.field-email'), email)}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-url'),
+                        website
+                            ? html`
+                                  <a href="${website}" target="_blank" rel="noopener noreferrer">
+                                      ${website}
+                                  </a>
+                              `
+                            : '',
+                    )}
+                </dl>
+                ${this._renderCompanyTextBlock(t('company-form.field-teaser'), teaser)}
+                ${this._renderCompanyTextBlock(t('company-form.field-description'), description)}
+                ${this._renderCompanyTextBlock(t('company-form.field-products'), products)}
+                ${this._renderCompanyTextBlock(t('company-form.field-locations'), locations)}
+            </section>
+        `;
+    }
+
+    _handleApply() {
+        if (this._isExternalJob()) {
+            const externalJobUrl = this._getExternalJobUrl();
+            if (externalJobUrl) {
+                window.open(externalJobUrl, '_blank', 'noopener,noreferrer');
+            }
+            return;
+        }
+
+        const formEl = this.shadowRoot?.querySelector('dbp-bulletin-job-offer-form');
+        if (formEl) {
+            formEl.scrollIntoView({behavior: 'smooth'});
+        }
+    }
+
     /**
      * Handles the share button — uses native share if available, otherwise toggles the custom share dropdown.
      */
@@ -268,6 +403,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const job = this.job;
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
+        const isExternalJob = this._isExternalJob(job);
         return html`
             <dbp-modal
                 modal-id="job-offer-detail-dialog"
@@ -316,16 +452,20 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               )}
                                           </dd>
                                       </div>
-                                      <div class="meta-item">
-                                          <dt>${t('job-offer-detail.organization')}:</dt>
-                                          <dd>
-                                              ${this._localized(
-                                                  job.organization,
-                                                  job.organizationEn ?? '',
-                                              )}
-                                          </dd>
-                                      </div>
-                                      ${job.companyName
+                                      ${!isExternalJob
+                                          ? html`
+                                                <div class="meta-item">
+                                                    <dt>${t('job-offer-detail.organization')}:</dt>
+                                                    <dd>
+                                                        ${this._localized(
+                                                            job.organization,
+                                                            job.organizationEn ?? '',
+                                                        )}
+                                                    </dd>
+                                                </div>
+                                            `
+                                          : ''}
+                                      ${isExternalJob && job.companyName
                                           ? html`
                                                 <div class="meta-item">
                                                     <dt>${t('job-offer-detail.company')}:</dt>
@@ -434,18 +574,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           <button
                                               class="button is-primary apply-anchor-btn"
                                               type="button"
-                                              @click="${() => {
-                                                  // Scroll to the job offer form component
-                                                  const formEl = this.shadowRoot?.querySelector(
-                                                      'dbp-bulletin-job-offer-form',
-                                                  );
-                                                  if (formEl) {
-                                                      formEl.scrollIntoView({behavior: 'smooth'});
-                                                  }
-                                              }}">
+                                              @click="${() => this._handleApply()}">
                                               <dbp-icon
                                                   class="btn-icon"
-                                                  name="chevron-down"
+                                                  name="${isExternalJob
+                                                      ? 'send-diagonal'
+                                                      : 'chevron-down'}"
                                                   aria-hidden="true"></dbp-icon>
                                               ${t('job-offer-detail.apply')}
                                           </button>
@@ -455,6 +589,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                               <!-- Job description: use English text when language is English and available -->
                               ${this._renderDescription(job)}
+                              ${isExternalJob ? this._renderCompanyInformation(job, t) : ''}
 
                               <!-- Contact information block shown when provided; use English value when language is English -->
                               ${job.contactInformation || job.contactInformationEn
@@ -582,6 +717,54 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 line-height: 1.6;
             }
 
+            .company-info {
+                border: var(--dbp-border);
+                border-radius: var(--dbp-border-radius);
+                margin: 0 0 1.5rem 0;
+                padding: 1rem;
+            }
+
+            .company-info h3 {
+                font-size: 1.1rem;
+                font-weight: 700;
+                margin: 0 0 0.75rem 0;
+            }
+
+            .company-info-list {
+                display: grid;
+                gap: 0.5rem 1rem;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                margin: 0;
+            }
+
+            .company-info-item {
+                display: grid;
+                gap: 0.15rem;
+            }
+
+            .company-info-item dt,
+            .company-info-block h4 {
+                font-weight: 700;
+            }
+
+            .company-info-item dd,
+            .company-info-block p {
+                margin: 0;
+            }
+
+            .company-info-block {
+                margin-top: 1rem;
+            }
+
+            .company-info-block h4 {
+                font-size: 1rem;
+                margin: 0 0 0.35rem 0;
+            }
+
+            .company-info-block p {
+                line-height: 1.6;
+            }
+
             /* Contact information block */
             .contact-information {
                 margin: 0 0 1.5rem 0;
@@ -616,6 +799,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 .job-tags {
                     justify-content: flex-start;
+                }
+
+                .company-info-list {
+                    grid-template-columns: 1fr;
                 }
 
                 .share-dropdown {
