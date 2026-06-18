@@ -42,6 +42,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._detailRef = createRef();
         /** @type {Array} Job offers loaded from the formalize API */
         this._jobOffers = [];
+        /** @type {Record<string, Record<string, string>>} Organizational unit names by language and id */
+        this._organizationNamesByLanguage = {};
         /** @type {boolean} Whether the API request is in progress */
         this._loading = false;
         /** @type {boolean} Whether the API request failed */
@@ -83,6 +85,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             switch (propName) {
                 case 'routingUrl':
                     this.handleRoutingUrlChange();
+                    break;
+                case 'lang':
+                    this._applyLocalizedOrganizationNames();
                     break;
             }
         });
@@ -161,6 +166,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                             extra.organization ??
                             '',
                         organization: extra.organization ?? '',
+                        organizationId: this._getResourceIdentifier(extra.organizationId),
                         companySubmissionId: extra.companySubmissionId ?? '',
                         // The company name is stored at creation time so it can still be shown
                         // even if the company submission has since been deleted.
@@ -205,11 +211,130 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 })
                 // Keep date-only deadlines visible for the full deadline day.
                 .filter((job) => this._isDeadlineVisible(job.deadline));
+            await this._applyLocalizedOrganizationNames();
         } catch (error) {
             console.error('Error loading job offers:', error);
             this._loadError = true;
         } finally {
             this._loading = false;
+        }
+    }
+
+    _getResourceIdentifier(value) {
+        const stringValue = String(value ?? '').trim();
+        return stringValue.startsWith('/base/organizations/')
+            ? stringValue.replace('/base/organizations/', '')
+            : stringValue;
+    }
+
+    _getOrganizationName(organization, lang) {
+        if (organization?.name) {
+            return organization.name;
+        }
+
+        const localizedNames = organization?.localizedNames;
+        if (Array.isArray(localizedNames)) {
+            const match = localizedNames.find((n) => n.languageTag === lang);
+            return (match ?? localizedNames[0]).name ?? '';
+        }
+
+        return organization?.['@id'] ?? '';
+    }
+
+    async _getOrganizationNameForLanguage(identifier, lang) {
+        if (this._organizationNamesByLanguage[lang]?.[identifier]) {
+            return this._organizationNamesByLanguage[lang][identifier];
+        }
+
+        if (!this.auth?.token || !this.entryPointUrl || !identifier) {
+            return '';
+        }
+
+        const url = new URL(
+            `/base/organizations/${encodeURIComponent(identifier)}`,
+            this.entryPointUrl,
+        ).href;
+        const response = await fetch(url, {
+            headers: {
+                'Content-Type': 'application/ld+json',
+                'Accept-Language': lang,
+                Authorization: 'Bearer ' + this.auth.token,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to load organizational units, status: ${response.status}`);
+        }
+
+        const organization = await response.json();
+        const name = this._getOrganizationName(organization, lang);
+
+        this._organizationNamesByLanguage = {
+            ...this._organizationNamesByLanguage,
+            [lang]: {
+                ...(this._organizationNamesByLanguage[lang] ?? {}),
+                [identifier]: name,
+            },
+        };
+
+        return name;
+    }
+
+    async _applyLocalizedOrganizationNames() {
+        const lang = this.lang;
+        const jobsWithOrganizationIds = this._jobOffers.filter((job) => job.organizationId);
+
+        if (jobsWithOrganizationIds.length === 0) {
+            return;
+        }
+
+        try {
+            const organizationNames = {};
+            const organizationIds = [
+                ...new Set(
+                    jobsWithOrganizationIds.map((job) =>
+                        this._getResourceIdentifier(job.organizationId),
+                    ),
+                ),
+            ];
+
+            await Promise.all(
+                organizationIds.map(async (identifier) => {
+                    organizationNames[identifier] = await this._getOrganizationNameForLanguage(
+                        identifier,
+                        lang,
+                    );
+                }),
+            );
+
+            if (lang !== this.lang) {
+                await this._applyLocalizedOrganizationNames();
+                return;
+            }
+
+            this._jobOffers = this._jobOffers.map((job) => {
+                const organizationName =
+                    organizationNames[this._getResourceIdentifier(job.organizationId)];
+
+                if (!organizationName) {
+                    return job;
+                }
+
+                return {
+                    ...job,
+                    organization: organizationName,
+                    organizationalUnit: organizationName,
+                };
+            });
+
+            if (this._selectedJob) {
+                this._selectedJob =
+                    this._jobOffers.find(
+                        (job) => job.identifier === this._selectedJob.identifier,
+                    ) ?? this._selectedJob;
+            }
+        } catch (error) {
+            console.error('Error loading organizational unit names:', error);
         }
     }
 
