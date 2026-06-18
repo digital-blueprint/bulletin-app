@@ -86,9 +86,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 case 'routingUrl':
                     this.handleRoutingUrlChange();
                     break;
-                case 'lang':
-                    this._applyLocalizedOrganizationNames();
-                    break;
             }
         });
     }
@@ -211,7 +208,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 })
                 // Keep date-only deadlines visible for the full deadline day.
                 .filter((job) => this._isDeadlineVisible(job.deadline));
-            await this._applyLocalizedOrganizationNames();
+            await this._loadAndApplyLocalizedOrganizationNames();
         } catch (error) {
             console.error('Error loading job offers:', error);
             this._loadError = true;
@@ -241,19 +238,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return organization?.['@id'] ?? '';
     }
 
-    async _getOrganizationNameForLanguage(identifier, lang) {
-        if (this._organizationNamesByLanguage[lang]?.[identifier]) {
-            return this._organizationNamesByLanguage[lang][identifier];
+    async _loadOrganizationNamesForLanguage(lang) {
+        if (this._organizationNamesByLanguage[lang]) {
+            return this._organizationNamesByLanguage[lang];
         }
 
-        if (!this.auth?.token || !this.entryPointUrl || !identifier) {
-            return '';
+        if (!this.auth?.token || !this.entryPointUrl) {
+            return {};
         }
 
-        const url = new URL(
-            `/base/organizations/${encodeURIComponent(identifier)}`,
-            this.entryPointUrl,
-        ).href;
+        const url = new URL('/base/organizations?perPage=99999', this.entryPointUrl).href;
         const response = await fetch(url, {
             headers: {
                 'Content-Type': 'application/ld+json',
@@ -266,22 +260,27 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             throw new Error(`Failed to load organizational units, status: ${response.status}`);
         }
 
-        const organization = await response.json();
-        const name = this._getOrganizationName(organization, lang);
+        const data = await response.json();
+        const names = {};
+
+        for (const organization of data['hydra:member'] ?? []) {
+            const identifier = this._getResourceIdentifier(organization?.['@id']);
+            const name = this._getOrganizationName(organization, lang);
+
+            if (identifier && name) {
+                names[identifier] = name;
+            }
+        }
 
         this._organizationNamesByLanguage = {
             ...this._organizationNamesByLanguage,
-            [lang]: {
-                ...(this._organizationNamesByLanguage[lang] ?? {}),
-                [identifier]: name,
-            },
+            [lang]: names,
         };
 
-        return name;
+        return names;
     }
 
-    async _applyLocalizedOrganizationNames() {
-        const lang = this.lang;
+    async _loadAndApplyLocalizedOrganizationNames() {
         const jobsWithOrganizationIds = this._jobOffers.filter((job) => job.organizationId);
 
         if (jobsWithOrganizationIds.length === 0) {
@@ -289,41 +288,25 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         try {
-            const organizationNames = {};
-            const organizationIds = [
-                ...new Set(
-                    jobsWithOrganizationIds.map((job) =>
-                        this._getResourceIdentifier(job.organizationId),
-                    ),
-                ),
-            ];
-
-            await Promise.all(
-                organizationIds.map(async (identifier) => {
-                    organizationNames[identifier] = await this._getOrganizationNameForLanguage(
-                        identifier,
-                        lang,
-                    );
-                }),
+            const [organizationNamesDe, organizationNamesEn] = await Promise.all(
+                ['de', 'en'].map((lang) => this._loadOrganizationNamesForLanguage(lang)),
             );
 
-            if (lang !== this.lang) {
-                await this._applyLocalizedOrganizationNames();
-                return;
-            }
-
             this._jobOffers = this._jobOffers.map((job) => {
-                const organizationName =
-                    organizationNames[this._getResourceIdentifier(job.organizationId)];
+                const organizationId = this._getResourceIdentifier(job.organizationId);
+                const organizationNameDe = organizationNamesDe[organizationId];
+                const organizationNameEn = organizationNamesEn[organizationId];
 
-                if (!organizationName) {
+                if (!organizationNameDe && !organizationNameEn) {
                     return job;
                 }
 
                 return {
                     ...job,
-                    organization: organizationName,
-                    organizationalUnit: organizationName,
+                    organization: organizationNameDe || job.organization,
+                    organizationEn: organizationNameEn || job.organizationEn,
+                    organizationalUnit: organizationNameDe || job.organizationalUnit,
+                    organizationalUnitEn: organizationNameEn || job.organizationalUnitEn,
                 };
             });
 
