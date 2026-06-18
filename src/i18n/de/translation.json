@@ -147,13 +147,10 @@
         "company": "Firma",
         "contact-information": "Kontaktinformationen",
         "deadline": "Bewerbungsfrist",
-        "email": "E-Mail-Adresse",
         "email-invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
         "external-application-missing": "Der externe Bewerbungslink ist derzeit nicht verfügbar.",
         "external-application-text": "Bitte bewerben Sie sich direkt auf der Stellenwebseite der Firma.",
         "external-application-title": "Externe Bewerbung",
-        "first-name": "Vorname",
-        "last-name": "Nachname",
         "message": "Warum haben Sie Interesse an diesem Stellenangebot?",
         "message-min-length": "Ihre Begründung muss mindestens 50 Zeichen enthalten (aktuell: {{current}}).",
         "notification": {

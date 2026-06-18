@@ -147,13 +147,10 @@
         "company": "Company",
         "contact-information": "Contact information",
         "deadline": "Application deadline",
-        "email": "Email address",
         "email-invalid": "Please enter a valid email address.",
         "external-application-missing": "The external application link is currently unavailable.",
         "external-application-text": "Please apply directly on the company's job webpage.",
         "external-application-title": "External application",
-        "first-name": "First name",
-        "last-name": "Last name",
         "message": "Why are you interested in this job offer?",
         "message-min-length": "Your response must contain at least 50 characters (currently: {{current}}).",
         "notification": {

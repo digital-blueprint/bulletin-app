@@ -2165,37 +2165,6 @@ export class JobOfferFormElement extends BaseFormElement {
 
                 <h4 class="apply-heading">${t('job-offer-detail.application-title')}</h4>
 
-                <div class="form-row">
-                    <dbp-form-string-element
-                        ${ref(this._firstNameRef)}
-                        subscribe="lang"
-                        name="givenName"
-                        label="${t('job-offer-detail.first-name')}"
-                        .value="${this.formData?.givenName ?? ''}"
-                        required
-                        autocomplete="given-name"></dbp-form-string-element>
-
-                    <dbp-form-string-element
-                        ${ref(this._lastNameRef)}
-                        subscribe="lang"
-                        name="familyName"
-                        label="${t('job-offer-detail.last-name')}"
-                        .value="${this.formData?.familyName ?? ''}"
-                        required
-                        autocomplete="family-name"></dbp-form-string-element>
-
-                    <dbp-form-string-element
-                        ${ref(this._emailRef)}
-                        subscribe="lang"
-                        name="email"
-                        label="${t('job-offer-detail.email')}"
-                        .value="${this.formData?.email ?? ''}"
-                        type="email"
-                        required
-                        .customValidator="${this._emailValidator}"
-                        autocomplete="email"></dbp-form-string-element>
-                </div>
-
                 <dbp-form-string-element
                     ${ref(this._messageRef)}
                     subscribe="lang"
