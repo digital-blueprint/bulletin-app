@@ -998,6 +998,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 justify-content: space-between;
             }
 
+            .filter-select::part(menu) {
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
+                max-height: min(20rem, 60vh);
+                overflow-x: hidden;
+                overflow-y: auto;
+                top: 1rem;
+            }
+
             .search-control .input {
                 padding-right: 2.5rem;
                 width: 100%;
