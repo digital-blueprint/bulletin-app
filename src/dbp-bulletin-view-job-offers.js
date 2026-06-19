@@ -1005,7 +1005,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 max-height: min(20rem, 60vh);
                 overflow-x: hidden;
                 overflow-y: auto;
-                top: 1rem;
+                top: 2rem;
             }
 
             .search-control .input {
