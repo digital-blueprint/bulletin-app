@@ -127,6 +127,19 @@ export const AREAS_OF_INTEREST = {
     'sustainability-environment': 'manage-job-offers.area-of-interest-sustainability-environment',
     'didactics-educational-development':
         'manage-job-offers.area-of-interest-didactics-educational-development',
+    'plant-engineering-environmental-technology':
+        'manage-job-offers.area-of-interest-plant-engineering-environmental-technology',
+    'architecture-engineering-offices':
+        'manage-job-offers.area-of-interest-architecture-engineering-offices',
+    automotive: 'manage-job-offers.area-of-interest-automotive',
+    'non-university-research': 'manage-job-offers.area-of-interest-non-university-research',
+    'banks-insurance': 'manage-job-offers.area-of-interest-banks-insurance',
+    'building-materials': 'manage-job-offers.area-of-interest-building-materials',
+    'mining-metallurgy': 'manage-job-offers.area-of-interest-mining-metallurgy',
+    'chemistry-pharma': 'manage-job-offers.area-of-interest-chemistry-pharma',
+    electronics: 'manage-job-offers.area-of-interest-electronics',
+    'electrical-engineering': 'manage-job-offers.area-of-interest-electrical-engineering',
+    'energy-water-supply': 'manage-job-offers.area-of-interest-energy-water-supply',
 };
 
 const LEGACY_AREA_OF_INTERESTS = {
@@ -194,6 +207,45 @@ const AREA_OF_INTEREST_ALIASES = {
         'didactics-educational-development',
         'didactics and educational development',
         'didaktik und bildungsentwicklung',
+    ],
+    'plant-engineering-environmental-technology': [
+        'plant-engineering-environmental-technology',
+        'plant engineering/environmental technology',
+        'anlagenbau/umwelttechnik',
+    ],
+    'architecture-engineering-offices': [
+        'architecture-engineering-offices',
+        'architecture/engineering offices',
+        'architektur- / ing.büros',
+        'architektur-/ing.büros',
+    ],
+    automotive: ['automotive'],
+    'non-university-research': [
+        'non-university-research',
+        'non-university research',
+        'außeruniv. forschung',
+        'ausseruniv. forschung',
+    ],
+    'banks-insurance': ['banks-insurance', 'banks/insurance', 'banken/versicherungen'],
+    'building-materials': ['building-materials', 'building materials', 'baustoffe'],
+    'mining-metallurgy': [
+        'mining-metallurgy',
+        'mining/metallurgy',
+        'bergbau/hüttenwesen',
+        'bergbau/huettenwesen',
+    ],
+    'chemistry-pharma': ['chemistry-pharma', 'chemistry/pharma', 'chemie/pharma'],
+    electronics: ['electronics', 'elektronik'],
+    'electrical-engineering': [
+        'electrical-engineering',
+        'electrical engineering',
+        'elektrotechnik',
+    ],
+    'energy-water-supply': [
+        'energy-water-supply',
+        'energy/water supply',
+        'energie/wasserversorg',
+        'energie/wasserversorgung',
     ],
     other: ['other', 'sonstiges'],
 };
