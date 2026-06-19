@@ -252,7 +252,7 @@
         "field-we-offer": "We offer",
         "field-we-offer-en": "We offer (en)",
         "field-weekly-hours": "Hours per week",
-        "field-work-locations": "Work locations",
+        "field-work-locations": "Place of employment",
         "form-type-name": "Job offer",
         "job-category-internship": "Internship",
         "job-category-non-scientific-part-time-position": "Non-scientific part-time position",
@@ -267,7 +267,7 @@
         "work-location-city": "City",
         "work-location-city-placeholder": "Select a city",
         "work-location-country": "Country",
-        "work-location-empty": "No work locations selected yet.",
+        "work-location-empty": "No place of employment selected yet.",
         "work-location-region": "Region",
         "work-location-region-burgenland": "Burgenland",
         "work-location-region-carinthia": "Carinthia",
@@ -280,7 +280,7 @@
         "work-location-region-vienna": "Vienna",
         "work-location-region-vorarlberg": "Vorarlberg",
         "work-location-remove": "Remove",
-        "work-location-selected": "Selected work locations"
+        "work-location-selected": "Selected places of employment"
     },
     "render-form": {
         "download-widget": {

@@ -252,7 +252,7 @@
         "field-we-offer": "Wir bieten",
         "field-we-offer-en": "Wir bieten (en)",
         "field-weekly-hours": "Wochenstunden",
-        "field-work-locations": "Arbeitsorte",
+        "field-work-locations": "Dienstort",
         "form-type-name": "Stellenangebot",
         "job-category-internship": "Praktikum",
         "job-category-non-scientific-part-time-position": "Allgemeine Teilzeitstelle",
@@ -267,7 +267,7 @@
         "work-location-city": "Stadt",
         "work-location-city-placeholder": "Stadt auswählen",
         "work-location-country": "Land",
-        "work-location-empty": "Es wurden noch keine Arbeitsorte ausgewählt.",
+        "work-location-empty": "Es wurde noch kein Dienstort ausgewählt.",
         "work-location-region": "Bundesland",
         "work-location-region-burgenland": "Burgenland",
         "work-location-region-carinthia": "Kärnten",
@@ -280,7 +280,7 @@
         "work-location-region-vienna": "Wien",
         "work-location-region-vorarlberg": "Vorarlberg",
         "work-location-remove": "Entfernen",
-        "work-location-selected": "Ausgewählte Arbeitsorte"
+        "work-location-selected": "Ausgewählte Dienstorte"
     },
     "render-form": {
         "download-widget": {
