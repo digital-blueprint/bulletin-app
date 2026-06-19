@@ -182,6 +182,22 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
+    _renderWorkLocationList(labels) {
+        if (!labels.length) {
+            return '';
+        }
+
+        return html`
+            <ul class="work-location-list">
+                ${labels.map(
+                    (label) => html`
+                        <li>${label}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
     _renderCompanyTextBlock(title, value) {
         if (!value) {
             return '';
@@ -491,7 +507,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       ${isExternalJob
                                           ? this._renderJobMetaItem(
                                                 t('manage-job-offers.field-work-locations'),
-                                                workLocationLabels.join(', '),
+                                                this._renderWorkLocationList(workLocationLabels),
                                             )
                                           : ''}
                                       <div class="meta-item tag">
@@ -680,6 +696,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             .meta-item dd {
                 margin: 0;
                 text-wrap-mode: nowrap;
+            }
+
+            .work-location-list {
+                margin: 0;
+                padding-left: 1.25rem;
+                text-wrap-mode: wrap;
             }
 
             .meta-item.tag {

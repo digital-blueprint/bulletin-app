@@ -1879,6 +1879,22 @@ export class JobOfferFormElement extends BaseFormElement {
         `;
     }
 
+    _renderWorkLocationList(labels) {
+        if (!labels.length) {
+            return '';
+        }
+
+        return html`
+            <ul class="job-overview-work-location-list">
+                ${labels.map(
+                    (label) => html`
+                        <li>${label}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
     /**
      * Renders a list section when at least one item is available.
      * @param {string} title
@@ -1992,7 +2008,7 @@ export class JobOfferFormElement extends BaseFormElement {
                     ${this._renderJobMetaItem(organizationLabel, organizationValue)}
                     ${this._renderJobMetaItem(
                         t('manage-job-offers.field-work-locations'),
-                        workLocationLabels.join(', '),
+                        this._renderWorkLocationList(workLocationLabels),
                     )}
                     ${this._renderJobMetaItem(
                         t('manage-job-offers.field-link-url'),
@@ -2397,6 +2413,11 @@ export class JobOfferFormElement extends BaseFormElement {
 
                 .job-overview-meta-item dd {
                     margin: 0;
+                }
+
+                .job-overview-work-location-list {
+                    margin: 0;
+                    padding-left: 1.25rem;
                 }
 
                 .job-overview-meta-link {
