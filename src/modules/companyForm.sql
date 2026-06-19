@@ -38,7 +38,7 @@ INSERT INTO formalize_forms (
 )
 SELECT
     @company_form_identifier,
-    'Companies',
+    'Company',
     CURRENT_TIMESTAMP,
     NULL,
     @company_data_feed_schema,
@@ -70,7 +70,7 @@ INSERT INTO formalize_localized_form_names (
     language_tag,
     name
 )
-SELECT @company_form_identifier, 'de', 'Firmen'
+SELECT @company_form_identifier, 'de', 'Firma'
 WHERE NOT EXISTS (
     SELECT 1
     FROM formalize_localized_form_names
@@ -83,7 +83,7 @@ INSERT INTO formalize_localized_form_names (
     language_tag,
     name
 )
-SELECT @company_form_identifier, 'en', 'Companies'
+SELECT @company_form_identifier, 'en', 'Company'
 WHERE NOT EXISTS (
     SELECT 1
     FROM formalize_localized_form_names
