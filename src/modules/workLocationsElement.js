@@ -13,7 +13,6 @@ import select2LangEn from '../../vendor/toolkit/packages/form-elements/src/i18n/
 import select2CSSPath from 'select2/dist/css/select2.min.css';
 
 const AUSTRIA_COUNTRY_CODE = 'AT';
-const STYRIA_REGION_CODE = 'styria';
 
 const AUSTRIA_REGIONS = [
     'burgenland',
@@ -27,34 +26,92 @@ const AUSTRIA_REGIONS = [
     'vienna',
 ];
 
-const STYRIA_CITIES = [
-    'graz',
-    'leoben',
-    'kapfenberg',
-    'bruck-an-der-mur',
-    'weiz',
-    'deutschlandsberg',
-    'feldbach',
-    'leibnitz',
-    'liezen',
-    'murau',
-    'voitsberg',
-    'judenburg',
-];
+const AUSTRIA_CITIES_BY_REGION = {
+    burgenland: ['eisenstadt', 'oberwart', 'neusiedl-am-see', 'mattersburg', 'guessing'],
+    carinthia: ['klagenfurt', 'villach', 'wolfsberg', 'spittal-an-der-drau', 'feldkirchen'],
+    'lower-austria': [
+        'sankt-poelten',
+        'wiener-neustadt',
+        'krems-an-der-donau',
+        'baden',
+        'moedling',
+        'amstetten',
+    ],
+    'upper-austria': ['linz', 'wels', 'steyr', 'leonding', 'traun', 'braunau-am-inn'],
+    salzburg: ['salzburg-city', 'hallein', 'saalfelden', 'sankt-johann-im-pongau', 'bischofshofen'],
+    styria: [
+        'graz',
+        'leoben',
+        'kapfenberg',
+        'bruck-an-der-mur',
+        'weiz',
+        'deutschlandsberg',
+        'feldbach',
+        'leibnitz',
+        'liezen',
+        'murau',
+        'voitsberg',
+        'judenburg',
+    ],
+    tyrol: ['innsbruck', 'kufstein', 'telfs', 'hall-in-tirol', 'schwaz', 'woergl', 'lienz'],
+    vorarlberg: ['dornbirn', 'feldkirch', 'bregenz', 'lustenau', 'hohenems', 'bludenz'],
+    vienna: ['vienna-city'],
+};
 
-const STYRIA_CITY_LABELS = {
+const CITY_LABELS = {
+    amstetten: 'Amstetten',
+    baden: 'Baden',
+    bischofshofen: 'Bischofshofen',
+    bludenz: 'Bludenz',
+    'braunau-am-inn': 'Braunau am Inn',
     graz: 'Graz',
-    leoben: 'Leoben',
-    kapfenberg: 'Kapfenberg',
+    bregenz: 'Bregenz',
     'bruck-an-der-mur': 'Bruck an der Mur',
-    weiz: 'Weiz',
     deutschlandsberg: 'Deutschlandsberg',
+    dornbirn: 'Dornbirn',
+    eisenstadt: 'Eisenstadt',
     feldbach: 'Feldbach',
-    leibnitz: 'Leibnitz',
-    liezen: 'Liezen',
-    murau: 'Murau',
-    voitsberg: 'Voitsberg',
+    feldkirch: 'Feldkirch',
+    feldkirchen: 'Feldkirchen',
+    guessing: 'Güssing',
+    'hall-in-tirol': 'Hall in Tirol',
+    hallein: 'Hallein',
+    hohenems: 'Hohenems',
+    innsbruck: 'Innsbruck',
     judenburg: 'Judenburg',
+    kapfenberg: 'Kapfenberg',
+    klagenfurt: 'Klagenfurt',
+    'krems-an-der-donau': 'Krems an der Donau',
+    kufstein: 'Kufstein',
+    leibnitz: 'Leibnitz',
+    leoben: 'Leoben',
+    leonding: 'Leonding',
+    lienz: 'Lienz',
+    liezen: 'Liezen',
+    linz: 'Linz',
+    lustenau: 'Lustenau',
+    mattersburg: 'Mattersburg',
+    moedling: 'Mödling',
+    murau: 'Murau',
+    'neusiedl-am-see': 'Neusiedl am See',
+    oberwart: 'Oberwart',
+    saalfelden: 'Saalfelden',
+    'salzburg-city': 'Salzburg',
+    'sankt-johann-im-pongau': 'Sankt Johann im Pongau',
+    'sankt-poelten': 'Sankt Pölten',
+    schwaz: 'Schwaz',
+    'spittal-an-der-drau': 'Spittal an der Drau',
+    steyr: 'Steyr',
+    telfs: 'Telfs',
+    traun: 'Traun',
+    'vienna-city': 'Wien',
+    villach: 'Villach',
+    voitsberg: 'Voitsberg',
+    weiz: 'Weiz',
+    wels: 'Wels',
+    'wiener-neustadt': 'Wiener Neustadt',
+    wolfsberg: 'Wolfsberg',
+    woergl: 'Wörgl',
 };
 
 const getLocationKey = (location) =>
@@ -97,7 +154,7 @@ export const getWorkLocationLabel = (location, t, lang = 'de') => {
     const region = location.region
         ? t(`manage-job-offers.work-location-region-${location.region}`)
         : '';
-    const city = location.city ? STYRIA_CITY_LABELS[location.city] || location.city : '';
+    const city = location.city ? CITY_LABELS[location.city] || location.city : '';
 
     return [city, region, country].filter(Boolean).join(', ');
 };
@@ -232,8 +289,9 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 this._region,
                 this._i18n.t('manage-job-offers.work-location-region-placeholder'),
                 (value) => {
+                    const previousRegion = this._region;
                     this._region = value;
-                    if (this._region !== STYRIA_REGION_CODE) {
+                    if (this._region !== previousRegion) {
                         this._city = '';
                     }
                 },
@@ -242,7 +300,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             this._destroySelect2(this._regionSelectId, 'change');
         }
 
-        if (this._country === AUSTRIA_COUNTRY_CODE && this._region === STYRIA_REGION_CODE) {
+        if (this._country === AUSTRIA_COUNTRY_CODE && this._region) {
             this._initSingleSelect2(
                 this._citySelectId,
                 'work-location-city-dropdown',
@@ -271,7 +329,9 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     _getCityItems(t) {
-        return Object.fromEntries(STYRIA_CITIES.map((city) => [city, STYRIA_CITY_LABELS[city]]));
+        return Object.fromEntries(
+            (AUSTRIA_CITIES_BY_REGION[this._region] ?? []).map((city) => [city, CITY_LABELS[city]]),
+        );
     }
 
     _onCountryChange(event) {
@@ -291,10 +351,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         const location = {
             country: this._country,
             region: this._country === AUSTRIA_COUNTRY_CODE ? this._region : '',
-            city:
-                this._country === AUSTRIA_COUNTRY_CODE && this._region === STYRIA_REGION_CODE
-                    ? this._city
-                    : '',
+            city: this._country === AUSTRIA_COUNTRY_CODE && this._region ? this._city : '',
         };
         const nextLocations = normalizeWorkLocations([...this.value, location]);
 
@@ -369,7 +426,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                               </label>
                           `
                         : ''}
-                    ${this._country === AUSTRIA_COUNTRY_CODE && this._region === STYRIA_REGION_CODE
+                    ${this._country === AUSTRIA_COUNTRY_CODE && this._region
                         ? html`
                               <label class="selector-label">
                                   <span>${t('manage-job-offers.work-location-city')}</span>
