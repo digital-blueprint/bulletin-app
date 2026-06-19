@@ -13,6 +13,7 @@ import JobOfferModule, {
     getAreaOfInterestLabels,
     normalizeAreaOfInterestValues,
 } from './modules/jobOfferForm.js';
+import {normalizeWorkLocations} from './modules/workLocationsElement.js';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100];
 const DEFAULT_PAGE_SIZE = 10;
@@ -170,6 +171,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         companyName: extra.companyName ?? '',
                         companyData: extra.companyData ?? {},
                         externalJobUrl: extra.externalJobUrl ?? '',
+                        workLocations: normalizeWorkLocations(extra.workLocations),
                         description: extra.description ?? '',
                         requirements: Array.isArray(extra.requirements) ? extra.requirements : [],
                         responsibilities: Array.isArray(extra.responsibilities)

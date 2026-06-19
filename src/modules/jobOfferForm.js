@@ -25,6 +25,10 @@ import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {apiCreateForm, apiUpdateForm} from '../../vendor/formalize/src/manage-forms-api.js';
 import {createInstance} from '../i18n.js';
+import WorkLocationsElement, {
+    getWorkLocationLabels,
+    normalizeWorkLocations,
+} from './workLocationsElement.js';
 
 const i18n = createInstance();
 
@@ -419,6 +423,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             'dbp-number-element': DbpNumberElement,
             'dbp-submission-select-element': DbpSubmissionSelectElement,
             'dbp-resource-select': ResourceSelect,
+            'dbp-work-locations-element': WorkLocationsElement,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
         };
@@ -458,6 +463,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._companyData = {};
         /** @type {string} URL to the external application page for external jobs */
         this._externalJobUrl = '';
+        /** @type {Array<{country: string, region: string, city: string}>} Work locations for external jobs */
+        this._workLocations = [];
 
         // Optional job detail fields
         this._startDate = '';
@@ -526,6 +533,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _companyName: {state: true},
             _companyData: {state: true},
             _externalJobUrl: {state: true},
+            _workLocations: {state: true},
             _startDate: {state: true},
             _weeklyHours: {state: true},
             _salary: {state: true},
@@ -582,6 +590,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._companyName = d.companyName || '';
                 this._companyData = d.companyData || {};
                 this._externalJobUrl = d.externalJobUrl || '';
+                this._workLocations = normalizeWorkLocations(d.workLocations);
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
                 this._salary = d.salary || '';
@@ -673,6 +682,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._companyName = '';
         this._companyData = {};
         this._externalJobUrl = '';
+        this._workLocations = [];
         this._startDate = '';
         this._weeklyHours = '';
         this._salary = '';
@@ -903,6 +913,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             companyName: this._isExternalJob ? this._companyName.trim() : '',
             companyData: this._isExternalJob ? this._companyData : {},
             externalJobUrl: this._isExternalJob ? normalizeHttpUrl(this._externalJobUrl) : '',
+            workLocations: this._isExternalJob ? this._workLocations : [],
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),
@@ -1147,6 +1158,15 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                           required
                           @change="${(e) =>
                               (this._externalJobUrl = e.detail.value)}"></dbp-string-element>
+
+                      <dbp-work-locations-element
+                          lang="${this.lang}"
+                          lang-dir="${this.langDir}"
+                          .value="${this._workLocations}"
+                          @change="${(e) =>
+                              (this._workLocations = normalizeWorkLocations(
+                                  e.detail.value,
+                              ))}"></dbp-work-locations-element>
                   `}
 
             <dbp-date-element
@@ -1929,6 +1949,7 @@ export class JobOfferFormElement extends BaseFormElement {
             t,
         );
         const jobCategoryLabel = job.jobCategory ? getJobCategoryLabel(job.jobCategory, t) : '';
+        const workLocationLabels = getWorkLocationLabels(job.workLocations, t, this.lang);
 
         return html`
             <section class="job-overview" aria-label="${localizedTitle}">
@@ -1969,6 +1990,10 @@ export class JobOfferFormElement extends BaseFormElement {
                         jobCategoryLabel,
                     )}
                     ${this._renderJobMetaItem(organizationLabel, organizationValue)}
+                    ${this._renderJobMetaItem(
+                        t('manage-job-offers.field-work-locations'),
+                        workLocationLabels.join(', '),
+                    )}
                     ${this._renderJobMetaItem(
                         t('manage-job-offers.field-link-url'),
                         localizedLinkUrl

@@ -7,6 +7,7 @@ import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {sendNotification} from '@dbp-toolkit/common';
 import {Notification} from '@dbp-toolkit/notification';
 import {getAreaOfInterestLabels, JobOfferFormElement} from './modules/jobOfferForm.js';
+import {getWorkLocationLabels} from './modules/workLocationsElement.js';
 
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
@@ -162,6 +163,19 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="company-info-item">
+                <dt>${label}:</dt>
+                <dd>${value}</dd>
+            </div>
+        `;
+    }
+
+    _renderJobMetaItem(label, value) {
+        if (!value) {
+            return '';
+        }
+
+        return html`
+            <div class="meta-item">
                 <dt>${label}:</dt>
                 <dd>${value}</dd>
             </div>
@@ -404,6 +418,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
         const isExternalJob = this._isExternalJob(job);
+        const workLocationLabels = getWorkLocationLabels(job?.workLocations, t, this.lang);
         return html`
             <dbp-modal
                 modal-id="job-offer-detail-dialog"
@@ -472,6 +487,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                     <dd>${job.companyName}</dd>
                                                 </div>
                                             `
+                                          : ''}
+                                      ${isExternalJob
+                                          ? this._renderJobMetaItem(
+                                                t('manage-job-offers.field-work-locations'),
+                                                workLocationLabels.join(', '),
+                                            )
                                           : ''}
                                       <div class="meta-item tag">
                                           ${this._renderAreaOfInterestTags(job, t)}
