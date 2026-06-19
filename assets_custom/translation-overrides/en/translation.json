@@ -27,5 +27,10 @@
         "manage-forms": {
             "back-text": "Back to job offers"
         }
+    },
+    "dbp-edit-form-job-offer": {
+        "manage-job-offers": {
+            "job-type-internal": "TU Graz position"
+        }
     }
 }

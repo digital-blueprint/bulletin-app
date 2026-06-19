@@ -247,8 +247,8 @@
         "job-category-seasonal-position": "Seasonal position",
         "job-category-student-research-assistantship": "Student research assistantship",
         "job-category-student-teaching-assistantship": "Student teaching assistantship",
-        "job-type-external": "External job",
-        "job-type-internal": "Internal job",
+        "job-type-external": "external position",
+        "job-type-internal": "internal position",
         "required-field-note": "* marks a required field",
         "select-placeholder": "Select option"
     },

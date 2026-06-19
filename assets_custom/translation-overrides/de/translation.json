@@ -27,5 +27,10 @@
         "manage-forms": {
             "back-text": "Zurück zu den Stellenangeboten"
         }
+    },
+    "dbp-edit-form-job-offer": {
+        "manage-job-offers": {
+            "job-type-internal": "TU-interne Stelle"
+        }
     }
 }

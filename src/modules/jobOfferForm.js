@@ -22,6 +22,7 @@ import {
 } from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/styles';
 import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
+import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {apiCreateForm, apiUpdateForm} from '../../vendor/formalize/src/manage-forms-api.js';
 import {createInstance} from '../i18n.js';
 
@@ -375,6 +376,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         super();
         this._i18n = createInstance();
         this.lang = this._i18n.language;
+        this.langDir = '';
         this.auth = {};
         this.entryPointUrl = '';
         this._areaOfInterestItems = this._createAreaOfInterestItems();
@@ -456,6 +458,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return {
             ...super.properties,
             lang: {type: String},
+            langDir: {type: String, attribute: 'lang-dir'},
             auth: {type: Object},
             entryPointUrl: {type: String, attribute: 'entry-point-url'},
             existingForm: {type: Object, attribute: false},
@@ -506,6 +509,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             if (propName === 'lang') {
                 this._i18n.changeLanguage(this.lang);
                 this._areaOfInterestItems = this._createAreaOfInterestItems();
+            }
+
+            if ((propName === 'lang' || propName === 'langDir') && this.langDir) {
+                setOverridesByGlobalCache(this._i18n, this);
             }
 
             // Pre-populate form fields when an existing form is provided for editing

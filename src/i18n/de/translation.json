@@ -247,8 +247,8 @@
         "job-category-seasonal-position": "Ferialmitarbeit",
         "job-category-student-research-assistantship": "Studentische Projektmitarbeit in der Forschung",
         "job-category-student-teaching-assistantship": "Studentische Mitarbeit in der Lehre",
-        "job-type-external": "Externe Stelle",
-        "job-type-internal": "Interne Stelle",
+        "job-type-external": "externe Stelle",
+        "job-type-internal": "interne Stelle",
         "required-field-note": "* kennzeichnet ein Pflichtfeld",
         "select-placeholder": "Option auswählen"
     },
