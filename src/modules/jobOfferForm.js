@@ -26,6 +26,7 @@ import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {apiCreateForm, apiUpdateForm} from '../../vendor/formalize/src/manage-forms-api.js';
 import {createInstance} from '../i18n.js';
 import WorkLocationsElement, {
+    getDefaultInternalWorkLocations,
     getWorkLocationLabels,
     normalizeWorkLocations,
 } from './workLocationsElement.js';
@@ -913,7 +914,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             companyName: this._isExternalJob ? this._companyName.trim() : '',
             companyData: this._isExternalJob ? this._companyData : {},
             externalJobUrl: this._isExternalJob ? normalizeHttpUrl(this._externalJobUrl) : '',
-            workLocations: this._isExternalJob ? this._workLocations : [],
+            workLocations: this._isExternalJob
+                ? this._workLocations
+                : getDefaultInternalWorkLocations(),
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             salary: this._salary.trim(),

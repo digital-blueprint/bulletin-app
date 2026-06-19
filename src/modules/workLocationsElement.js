@@ -162,6 +162,14 @@ export const getWorkLocationLabel = (location, t, lang = 'de') => {
 export const getWorkLocationLabels = (value, t, lang = 'de') =>
     normalizeWorkLocations(value).map((location) => getWorkLocationLabel(location, t, lang));
 
+export const getDefaultInternalWorkLocations = () => [
+    {
+        country: AUSTRIA_COUNTRY_CODE,
+        region: 'styria',
+        city: 'graz',
+    },
+];
+
 class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
     static get scopedElements() {
         return {
