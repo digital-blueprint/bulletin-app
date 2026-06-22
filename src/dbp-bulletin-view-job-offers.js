@@ -8,7 +8,6 @@ import {DBPSelect, Icon, MiniSpinner, getIconSVGURL} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
-    AREAS_OF_INTEREST,
     getAreaOfInterestLabel,
     getAreaOfInterestLabels,
     normalizeAreaOfInterestValues,
@@ -55,8 +54,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loading = false;
         /** @type {boolean} Whether the API request failed */
         this._loadError = false;
-        /** @type {Array<string>} Area-of-interest option values shared with the form module */
-        this._areasOfInterest = Object.keys(AREAS_OF_INTEREST);
     }
 
     static get properties() {
@@ -74,7 +71,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             _jobOffers: {state: true},
             _loading: {state: true},
             _loadError: {state: true},
-            _areasOfInterest: {state: true},
         };
     }
 
@@ -217,6 +213,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 })
                 // Keep date-only deadlines visible for the full deadline day.
                 .filter((job) => this._isDeadlineVisible(job.deadline));
+            this._clearUnavailableAreaOfInterest();
             await this._loadAndApplyLocalizedOrganizationNames();
         } catch (error) {
             console.error('Error loading job offers:', error);
@@ -405,7 +402,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      * Returns the loaded job offers filtered by search query and dropdowns, then sorted.
      * @returns {Array}
      */
-    getFilteredJobs({includeWorkLocation = true} = {}) {
+    getFilteredJobs({includeAreaOfInterest = true, includeWorkLocation = true} = {}) {
         const query = this.searchQuery.toLowerCase().trim();
         const minHours =
             this.filterWeeklyHoursMin !== '' ? parseFloat(this.filterWeeklyHoursMin) : null;
@@ -424,6 +421,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     areaOfInterestLabels.some((label) => label.toLowerCase().includes(query)) ||
                     this._getLocalizedDescription(job).toLowerCase().includes(query);
                 const matchesAreaOfInterest =
+                    !includeAreaOfInterest ||
                     !this.filterAreaOfInterest ||
                     normalizeAreaOfInterestValues(
                         job.areasOfInterest ?? job.areaOfInterest,
@@ -458,6 +456,27 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     getAvailableWorkLocations() {
         const jobs = this.getFilteredJobs({includeWorkLocation: false});
         return normalizeWorkLocations(jobs.flatMap((job) => job.workLocations ?? []));
+    }
+
+    getAvailableAreasOfInterest() {
+        const jobs = this.getFilteredJobs({includeAreaOfInterest: false});
+        return [
+            ...new Set(
+                jobs.flatMap((job) =>
+                    normalizeAreaOfInterestValues(job.areasOfInterest ?? job.areaOfInterest),
+                ),
+            ),
+        ];
+    }
+
+    _clearUnavailableAreaOfInterest() {
+        if (!this.filterAreaOfInterest) {
+            return;
+        }
+
+        if (!this.getAvailableAreasOfInterest().includes(this.filterAreaOfInterest)) {
+            this.filterAreaOfInterest = '';
+        }
     }
 
     _renderAreaOfInterestTags(job, t) {
@@ -601,6 +620,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     onSearchInput(e) {
         this.searchQuery = e.target.value;
+        this._clearUnavailableAreaOfInterest();
         this.currentPage = 1;
     }
 
@@ -611,6 +631,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     onWorkLocationChange(e) {
         this.filterWorkLocation = e.detail?.value ?? '';
+        this._clearUnavailableAreaOfInterest();
         this.currentPage = 1;
     }
 
@@ -623,6 +644,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         this.filterWeeklyHoursMin = sanitizedValue;
+        this._clearUnavailableAreaOfInterest();
         this.currentPage = 1;
     }
 
@@ -634,6 +656,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         this.filterWeeklyHoursMax = sanitizedValue;
+        this._clearUnavailableAreaOfInterest();
         this.currentPage = 1;
     }
 
@@ -672,7 +695,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             `;
         }
 
-        const sortedAreasOfInterest = [...this._areasOfInterest].sort((a, b) =>
+        const sortedAreasOfInterest = this.getAvailableAreasOfInterest().sort((a, b) =>
             getAreaOfInterestLabel(a, t).localeCompare(getAreaOfInterestLabel(b, t), this.lang),
         );
         const areaOfInterestOptions = [
