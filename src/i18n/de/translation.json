@@ -327,6 +327,7 @@
         "weekly-hours": "Stunden pro Woche",
         "weekly-hours-max": "Max",
         "weekly-hours-min": "Min",
-        "weekly-hours-range": "Wochenstunden"
+        "weekly-hours-range": "Wochenstunden",
+        "work-location": "Dienstort"
     }
 }

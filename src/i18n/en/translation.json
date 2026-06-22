@@ -327,6 +327,7 @@
         "weekly-hours": "Hours per week",
         "weekly-hours-max": "Max",
         "weekly-hours-min": "Min",
-        "weekly-hours-range": "Hours per week"
+        "weekly-hours-range": "Hours per week",
+        "work-location": "Place of employment"
     }
 }

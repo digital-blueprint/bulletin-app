@@ -114,7 +114,7 @@ const CITY_LABELS = {
     woergl: 'Wörgl',
 };
 
-const getLocationKey = (location) =>
+export const getLocationKey = (location) =>
     [location.country, location.region ?? '', location.city ?? ''].join('|');
 
 const areWorkLocationArraysEqual = (left, right) => {
@@ -159,6 +159,18 @@ export const getWorkLocationLabel = (location, t, lang = 'de') => {
     return [city, region, country].filter(Boolean).join(', ');
 };
 
+export const getWorkLocationPathLabel = (location, t, lang = 'de') => {
+    const country = location.country
+        ? new Intl.DisplayNames([lang], {type: 'region'}).of(location.country) || location.country
+        : '';
+    const region = location.region
+        ? t(`manage-job-offers.work-location-region-${location.region}`)
+        : '';
+    const city = location.city ? CITY_LABELS[location.city] || location.city : '';
+
+    return [country, region, city].filter(Boolean).join(' > ');
+};
+
 export const getWorkLocationLabels = (value, t, lang = 'de') =>
     normalizeWorkLocations(value).map((location) => getWorkLocationLabel(location, t, lang));
 
@@ -169,6 +181,246 @@ export const getDefaultInternalWorkLocations = () => [
         city: 'graz',
     },
 ];
+
+export class WorkLocationSelectElement extends DBPLitElement {
+    constructor() {
+        super();
+        this._i18n = createInstance();
+        this.lang = this._i18n.language;
+        this.langDir = '';
+        this.value = '';
+        this.locations = [];
+        this.disabled = false;
+        this.placeholder = '';
+        this._selectId = `work-location-filter-${commonUtils.makeId(24)}`;
+
+        select2(window, $);
+    }
+
+    static get properties() {
+        return {
+            ...super.properties,
+            lang: {type: String},
+            langDir: {type: String, attribute: 'lang-dir'},
+            value: {type: String},
+            locations: {type: Array},
+            disabled: {type: Boolean, reflect: true},
+            placeholder: {type: String},
+        };
+    }
+
+    update(changedProperties) {
+        changedProperties.forEach((oldValue, propName) => {
+            if (propName === 'lang') {
+                this._i18n.changeLanguage(this.lang);
+            }
+
+            if ((propName === 'lang' || propName === 'langDir') && this.langDir) {
+                setOverridesByGlobalCache(this._i18n, this);
+            }
+
+            if (propName === 'locations') {
+                const normalizedLocations = normalizeWorkLocations(this.locations);
+                if (!areWorkLocationArraysEqual(this.locations, normalizedLocations)) {
+                    this.locations = normalizedLocations;
+                }
+            }
+        });
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        super.updated(changedProperties);
+
+        if (
+            changedProperties.has('lang') ||
+            changedProperties.has('value') ||
+            changedProperties.has('locations') ||
+            changedProperties.has('disabled') ||
+            changedProperties.has('placeholder')
+        ) {
+            const availableValues = new Set(this._getLocationItems().map((item) => item.value));
+            if (this.value && !availableValues.has(this.value)) {
+                this.value = '';
+                this._dispatchChange();
+                return;
+            }
+
+            this._syncSelect2Control();
+        }
+    }
+
+    disconnectedCallback() {
+        this._destroySelect2();
+        super.disconnectedCallback();
+    }
+
+    _getSelect2Language() {
+        return this.lang === 'de' ? select2LangDe() : select2LangEn();
+    }
+
+    _getSelect2() {
+        const select = this.renderRoot?.querySelector(`#${this._selectId}`);
+        return select ? $(select) : null;
+    }
+
+    _destroySelect2() {
+        const select = this._getSelect2();
+        if (select?.hasClass('select2-hidden-accessible')) {
+            select.select2('destroy');
+            select.off('change');
+        }
+    }
+
+    _syncSelect2Control() {
+        const select = this._getSelect2();
+        if (!select) {
+            return;
+        }
+
+        if (select.hasClass('select2-hidden-accessible')) {
+            select.select2('destroy');
+            select.off('change');
+        }
+
+        select
+            .select2({
+                width: '100%',
+                language: this._getSelect2Language(),
+                allowClear: true,
+                placeholder: this.placeholder,
+                dropdownParent: this.$('#work-location-select-dropdown'),
+            })
+            .on('change', () => {
+                const nextValue = select.val() || '';
+                if (nextValue !== this.value) {
+                    this.value = nextValue;
+                    this._dispatchChange();
+                }
+            });
+
+        select.val(this.value || '').trigger('change.select2');
+    }
+
+    $(selector) {
+        return $(this.renderRoot.querySelector(selector));
+    }
+
+    _getLocationItems() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+
+        return normalizeWorkLocations(this.locations)
+            .map((location) => ({
+                value: getLocationKey(location),
+                label: getWorkLocationPathLabel(location, t, this.lang),
+                location,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label, this.lang));
+    }
+
+    _dispatchChange() {
+        const selectedLocation = this._getLocationItems().find((item) => item.value === this.value);
+
+        this.dispatchEvent(
+            new CustomEvent('change', {
+                detail: {value: this.value, location: selectedLocation?.location ?? null},
+                bubbles: true,
+                composed: true,
+            }),
+        );
+    }
+
+    render() {
+        const select2CSS = commonUtils.getAbsoluteURL(select2CSSPath);
+        const locationItems = this._getLocationItems();
+
+        return html`
+            <link rel="stylesheet" href="${select2CSS}" />
+            <div class="select">
+                <div class="field">
+                    <div class="select2-control control">
+                        <select
+                            id="${this._selectId}"
+                            name="work-location-filter"
+                            class="select"
+                            ?disabled="${this.disabled || locationItems.length === 0}">
+                            <option></option>
+                            ${locationItems.map(
+                                ({value, label}) => html`
+                                    <option value="${value}" ?selected="${value === this.value}">
+                                        ${label}
+                                    </option>
+                                `,
+                            )}
+                        </select>
+                    </div>
+                </div>
+                <div id="work-location-select-dropdown"></div>
+            </div>
+        `;
+    }
+
+    static get styles() {
+        return css`
+            ${commonStyles.getThemeCSS()}
+            ${commonStyles.getGeneralCSS()}
+            ${commonStyles.getSelect2CSS()}
+
+            :host {
+                display: block;
+            }
+
+            .select2-control.control {
+                width: 100%;
+            }
+
+            .select2-container {
+                width: 100% !important;
+            }
+
+            .select2-container--default .select2-selection--single {
+                align-items: center;
+                box-sizing: border-box;
+                display: flex;
+                height: var(--work-location-select-height, 2.2em) !important;
+                position: relative;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                flex: 1;
+                line-height: normal;
+                padding-left: calc(0.625em - 1px);
+                padding-right: 2.75rem;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__clear {
+                align-items: center;
+                bottom: 0;
+                display: inline-flex;
+                float: none;
+                height: 100%;
+                line-height: 1;
+                margin-right: 0;
+                padding-right: 0;
+                position: absolute;
+                right: 1.35rem;
+                top: 0;
+                z-index: 1;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 100%;
+                right: 0.25rem;
+                top: 0;
+            }
+
+            #work-location-select-dropdown {
+                position: relative;
+            }
+        `;
+    }
+}
 
 class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
     static get scopedElements() {

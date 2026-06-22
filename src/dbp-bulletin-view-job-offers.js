@@ -13,7 +13,11 @@ import JobOfferModule, {
     getAreaOfInterestLabels,
     normalizeAreaOfInterestValues,
 } from './modules/jobOfferForm.js';
-import {normalizeWorkLocations} from './modules/workLocationsElement.js';
+import {
+    WorkLocationSelectElement,
+    getLocationKey,
+    normalizeWorkLocations,
+} from './modules/workLocationsElement.js';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100];
 const DEFAULT_PAGE_SIZE = 10;
@@ -25,6 +29,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
             'dbp-bulletin-job-offer-detail': JobOfferDetail,
+            'dbp-work-location-select-element': WorkLocationSelectElement,
         };
     }
 
@@ -32,6 +37,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         super();
         this.searchQuery = '';
         this.filterAreaOfInterest = '';
+        this.filterWorkLocation = '';
         this.filterWeeklyHoursMin = '';
         this.filterWeeklyHoursMax = '';
         this.sortOrder = 'date-desc';
@@ -58,6 +64,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             ...super.properties,
             searchQuery: {type: String, state: true},
             filterAreaOfInterest: {type: String, state: true},
+            filterWorkLocation: {type: String, state: true},
             filterWeeklyHoursMin: {type: String, state: true},
             filterWeeklyHoursMax: {type: String, state: true},
             sortOrder: {type: String, state: true},
@@ -398,7 +405,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      * Returns the loaded job offers filtered by search query and dropdowns, then sorted.
      * @returns {Array}
      */
-    getFilteredJobs() {
+    getFilteredJobs({includeWorkLocation = true} = {}) {
         const query = this.searchQuery.toLowerCase().trim();
         const minHours =
             this.filterWeeklyHoursMin !== '' ? parseFloat(this.filterWeeklyHoursMin) : null;
@@ -421,6 +428,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     normalizeAreaOfInterestValues(
                         job.areasOfInterest ?? job.areaOfInterest,
                     ).includes(this.filterAreaOfInterest);
+                const matchesWorkLocation =
+                    !includeWorkLocation ||
+                    !this.filterWorkLocation ||
+                    normalizeWorkLocations(job.workLocations).some(
+                        (location) => getLocationKey(location) === this.filterWorkLocation,
+                    );
 
                 // Parse the weekly hours value for numeric range filtering
                 const jobHours = job.weeklyHours !== '' ? parseFloat(job.weeklyHours) : null;
@@ -431,9 +444,20 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     maxHours === null ||
                     (jobHours !== null && !isNaN(jobHours) && jobHours <= maxHours);
 
-                return matchesSearch && matchesAreaOfInterest && matchesMinHours && matchesMaxHours;
+                return (
+                    matchesSearch &&
+                    matchesAreaOfInterest &&
+                    matchesWorkLocation &&
+                    matchesMinHours &&
+                    matchesMaxHours
+                );
             })
             .sort((a, b) => this.compareJobsByDate(a, b));
+    }
+
+    getAvailableWorkLocations() {
+        const jobs = this.getFilteredJobs({includeWorkLocation: false});
+        return normalizeWorkLocations(jobs.flatMap((job) => job.workLocations ?? []));
     }
 
     _renderAreaOfInterestTags(job, t) {
@@ -585,6 +609,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.currentPage = 1;
     }
 
+    onWorkLocationChange(e) {
+        this.filterWorkLocation = e.detail?.value ?? '';
+        this.currentPage = 1;
+    }
+
     onWeeklyHoursMinChange(e) {
         // Keep only integer digits and cap the input at two characters.
         const sanitizedValue = (e.target.value ?? '').replace(/\D+/g, '').slice(0, 2);
@@ -677,6 +706,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             `;
         }
 
+        const availableWorkLocations = this.getAvailableWorkLocations();
         const filtered = this.getFilteredJobs();
         const totalPages = Math.max(1, Math.ceil(filtered.length / this.pageSize));
 
@@ -700,24 +730,24 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="job-board">
-                <!-- Search bar -->
-                <div class="field search-field">
-                    <div class="control search-control">
-                        <input
-                            type="text"
-                            class="input"
-                            placeholder="${t('view-job-offers.search-placeholder')}"
-                            .value="${this.searchQuery}"
-                            @input="${this.onSearchInput}"
-                            aria-label="${t('view-job-offers.search-placeholder')}" />
-                        <span class="search-icon" aria-hidden="true">
-                            <dbp-icon name="search"></dbp-icon>
-                        </span>
+                <div class="search-filter-row">
+                    <!-- Search bar -->
+                    <div class="field search-field">
+                        <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
+                        <div class="control search-control">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder="${t('view-job-offers.search-placeholder')}"
+                                .value="${this.searchQuery}"
+                                @input="${this.onSearchInput}"
+                                aria-label="${t('view-job-offers.search-placeholder')}" />
+                            <span class="search-icon" aria-hidden="true">
+                                <dbp-icon name="search"></dbp-icon>
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Filters row -->
-                <div class="filters-row">
                     <div class="field">
                         <label class="label" for="filter-area-of-interest">
                             ${t('view-job-offers.areas-of-interest')}
@@ -732,6 +762,26 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 .options="${areaOfInterestOptions}"
                                 .value="${this.filterAreaOfInterest}"
                                 @change="${this.onAreaOfInterestChange}"></dbp-select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters row -->
+                <div class="filters-row">
+                    <div class="field">
+                        <label class="label" for="filter-work-location">
+                            ${t('view-job-offers.work-location')}
+                        </label>
+                        <div class="control">
+                            <dbp-work-location-select-element
+                                id="filter-work-location"
+                                lang="${this.lang}"
+                                lang-dir="${this.langDir}"
+                                placeholder="${t('view-job-offers.select-placeholder')}"
+                                .locations="${availableWorkLocations}"
+                                .value="${this.filterWorkLocation}"
+                                @change="${this
+                                    .onWorkLocationChange}"></dbp-work-location-select-element>
                         </div>
                     </div>
 
@@ -1024,15 +1074,29 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 pointer-events: none;
             }
 
-            /* Filters row — two equal columns */
+            .search-filter-row,
             .filters-row {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
                 gap: 1rem;
             }
 
+            .search-filter-row,
+            .filters-row {
+                --filter-control-height: 2.1rem;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .filters-row dbp-work-location-select-element {
+                --work-location-select-height: var(--filter-control-height);
+            }
+
+            .search-filter-row .field,
             .filters-row .field {
                 margin-bottom: 0;
+            }
+
+            .search-label-spacer {
+                display: block;
             }
 
             /* Weekly hours range — two number inputs with a separator */
@@ -1043,6 +1107,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .weekly-hours-range .input {
+                box-sizing: border-box;
+                height: var(--filter-control-height);
+                min-height: var(--filter-control-height);
                 width: 100%;
             }
 
@@ -1052,8 +1119,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             @media (max-width: 600px) {
+                .search-filter-row,
                 .filters-row {
                     grid-template-columns: 1fr;
+                }
+
+                .search-label-spacer {
+                    display: none;
                 }
             }
 
