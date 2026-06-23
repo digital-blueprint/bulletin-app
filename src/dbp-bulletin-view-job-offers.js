@@ -469,6 +469,23 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         ];
     }
 
+    getInternalFavicon(job) {
+        const i18n = this._i18n;
+        const t = (key) => (i18n ? i18n.t(key) : key);
+        let getfaviconURL = commonUtils.getAssetURL(
+            '@digital-blueprint/bulletin-app',
+            'icon/favicon.svg',
+        );
+
+        if (!job.externalJobUrl) {
+            return html`
+                <img
+                    src="${getfaviconURL}"
+                    aria-label="${t('manage-job-offers.job-type-internal')}" />
+            `;
+        }
+    }
+
     _clearUnavailableAreaOfInterest() {
         if (!this.filterAreaOfInterest) {
             return;
@@ -876,7 +893,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   (job) => html`
                                       <div class="job-card">
                                           <div class="job-card-body">
-                                              <h3 class="job-title">${job.title}</h3>
+                                              <div class="job-card-header">
+                                                  <h3 class="job-title">${job.title}</h3>
+                                                  ${this.getInternalFavicon(job)}
+                                              </div>
+                                              ${this._renderAreaOfInterestTags(job, t)}
+                                          </div>
+                                          <div class="job-card-footer">
                                               <dl class="job-meta-list">
                                                   ${this._renderJobMetaItem(
                                                       t('view-job-offers.organizational-unit'),
@@ -897,15 +920,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       this.formatDate(job.publishedAt),
                                                   )}
                                                   ${this._renderJobMetaItem(
-                                                      t('view-job-offers.application-deadline'),
-                                                      this.formatDate(
-                                                          job.applicationDeadline || job.deadline,
-                                                      ),
+                                                      //   t('view-job-offers.application-deadline'),
+                                                      this
+                                                          .formatDate
+                                                          // job.applicationDeadline || job.deadline,
+                                                          (),
                                                   )}
                                               </dl>
-                                              ${this._renderAreaOfInterestTags(job, t)}
-                                          </div>
-                                          <div class="job-card-footer">
                                               <button
                                                   class="button is-secondary"
                                                   @click="${() => this.openJob(job)}"
@@ -1223,6 +1244,25 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-card-body {
                 flex: 1;
             }
+            
+            .job-card-header {
+                display:flex;
+                flex-direction:row;
+                justify-content: space-between;
+            }
+            
+            .job-card-header img{
+                width:40px;
+                height:40px;
+            }
+            
+            .favicon-visible {
+                display:block;
+            }
+            .favicon-hidden {
+                display:none;
+            }
+
 
             .job-title {
                 margin: 0 0 0.6rem 0;
@@ -1233,11 +1273,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .job-meta-list {
                 display: grid;
-                gap: 0.4rem;
-                margin: 0 0 0.75rem 0;
+                gap: 0.3rem;
             }
 
-            .job-meta-item {
+            .job-meta-list .button {
+                height:max-content;
+            }
+                .job-meta-item {
+                }
                 display: grid;
                 gap: 0.15rem;
                 margin: 0;
@@ -1277,8 +1320,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .job-card-footer {
                 display: flex;
-                justify-content: flex-end;
-                margin-top: 0.5rem;
+                justify-content: space-between;
+                align-items:flex-end;
             }
 
             /* Button icon aligned inside the secondary button */
@@ -1286,6 +1329,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: inline-flex;
                 align-items: center;
                 gap: 0.35rem;
+                height: max-content;
             }
 
             .btn-icon {
