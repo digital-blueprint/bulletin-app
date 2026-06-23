@@ -1252,8 +1252,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
             
             .job-card-header img{
-                width:40px;
-                height:40px;
+                width:35px;
+                height:35px;
             }
             
             .favicon-visible {
