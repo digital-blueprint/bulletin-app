@@ -1,6 +1,7 @@
 {
     "forms": {
-        "job-offer-form": "./jobOfferForm.js"
+        "job-offer-form": "./jobOfferForm.js",
+        "student-profile-form": "./jobProfileForm.js"
     },
     "items": {
         "company-form": "./companyForm.js"

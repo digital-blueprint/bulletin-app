@@ -128,6 +128,8 @@ let input = [
     'vendor/formalize/src/dbp-formalize-manage-forms.js',
     'vendor/formalize/src/dbp-formalize-manage-fields.js',
     'src/modules/jobOfferForm.js',
+    'src/modules/jobProfileForm.js',
+    'src/dbp-bulletin-student-profile.js',
     'src/modules/companyForm.js',
 ];
 

@@ -1,0 +1,18 @@
+{
+    "element": "dbp-bulletin-student-profile",
+    "module_src": "dbp-bulletin-student-profile.js",
+    "routing_name": "student-profile",
+    "name": {
+        "de": "Studierendenprofil",
+        "en": "Student profile"
+    },
+    "short_name": {
+        "de": "Studierendenprofil",
+        "en": "Student profile"
+    },
+    "description": {
+        "de": "Ermöglicht Studierenden das Erstellen eines Profils und das Anzeigen von Firmeninteressen.",
+        "en": "Allows students to create a profile and view company interest submissions."
+    },
+    "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url"
+}
