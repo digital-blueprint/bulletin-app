@@ -36,6 +36,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
         this._editDialogProfile = null;
         this._deleteDialogProfile = null;
         this._isDeletingProfile = false;
+        this._profilesLoaded = false;
     }
 
     static get properties() {
@@ -66,11 +67,28 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
         }
 
         if (changedProperties.has('auth') && this.auth?.token) {
+            const oldAuth = changedProperties.get('auth');
+            const userChanged = oldAuth?.['user-id'] !== this.auth?.['user-id'];
+
+            // Token refreshes update auth.token without changing the user. Do not reload the
+            // list in that case, otherwise the activity flashes a loading spinner periodically.
+            if (!this._profilesLoaded || userChanged) {
+                this._fetchProfiles();
+            }
+        }
+    }
+
+    loginCallback() {
+        if (!this._profilesLoaded && this.auth?.token) {
             this._fetchProfiles();
         }
     }
 
     async _fetchProfiles() {
+        if (this._loadingProfiles) {
+            return;
+        }
+
         if (!this.auth?.token || !this.entryPointUrl) {
             return;
         }
@@ -100,6 +118,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
 
             const data = await response.json();
             this._profiles = (data['hydra:member'] ?? []).map((form) => this._mapProfile(form));
+            this._profilesLoaded = true;
             this._handleRoutingUrlChange();
         } catch (error) {
             console.error('Error loading student profiles:', error);

@@ -25,6 +25,7 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
         this._selectedProfile = null;
         this._loadingProfiles = false;
         this._loadError = false;
+        this._profilesLoaded = false;
     }
 
     static get properties() {
@@ -49,6 +50,19 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
         }
 
         if (changedProperties.has('auth') && this.auth?.token) {
+            const oldAuth = changedProperties.get('auth');
+            const userChanged = oldAuth?.['user-id'] !== this.auth?.['user-id'];
+
+            // Token refreshes update auth.token without changing the user. Do not reload the
+            // table in that case, otherwise the browse page gets stuck behind a loading flash.
+            if (!this._profilesLoaded || userChanged) {
+                this._fetchProfiles();
+            }
+        }
+    }
+
+    loginCallback() {
+        if (!this._profilesLoaded && this.auth?.token) {
             this._fetchProfiles();
         }
     }
@@ -66,6 +80,10 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
     }
 
     async _fetchProfiles() {
+        if (this._loadingProfiles) {
+            return;
+        }
+
         if (!this.auth?.token || !this.entryPointUrl) {
             return;
         }
@@ -101,6 +119,7 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
 
             const data = await response.json();
             this._profiles = (data['hydra:member'] ?? []).map((form) => this._mapProfile(form));
+            this._profilesLoaded = true;
             this._handleRoutingUrlChange();
         } catch (error) {
             console.error('Error loading student profiles for company browsing:', error);
