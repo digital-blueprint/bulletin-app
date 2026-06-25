@@ -1,4 +1,17 @@
 {
+    "browse-student-profiles": {
+        "back-to-profiles": "Zurück zu den Studierendenprofilen",
+        "column-headline": "Profilüberschrift",
+        "column-name": "Name",
+        "column-skills": "Kompetenzen",
+        "column-study-program": "Studium",
+        "description": "Durchsuchen Sie Studierendenprofile und signalisieren Sie Ihr Firmeninteresse direkt in einem Profil.",
+        "load-error": "Die Studierendenprofile konnten nicht geladen werden.",
+        "load-error-title": "Laden fehlgeschlagen",
+        "no-profiles": "Es sind noch keine Studierendenprofile verfügbar.",
+        "title": "Studierendenprofile durchsuchen",
+        "view-profile": "Profil anzeigen"
+    },
     "company-form": {
         "country-1": "Österreich",
         "country-189": "Schweiz",

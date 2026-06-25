@@ -226,7 +226,6 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 body: t('student-profile-form.validation-required'),
                 type: 'warning',
                 timeout: 0,
-                targetNotificationId: 'student-profile-form-notification',
             });
             return null;
         }
@@ -316,7 +315,6 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 body: error.message,
                 type: 'danger',
                 timeout: 0,
-                targetNotificationId: 'student-profile-form-notification',
             });
         } finally {
             this._isSubmitting = false;
@@ -521,7 +519,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
         this._i18n = createInstance();
         this.lang = this._i18n.language;
         this.profile = null;
-        this.notificationTargetId = 'student-profile-form-notification';
         this._companySubmissionId = '';
         this._companyName = '';
         this._contactName = '';
@@ -537,7 +534,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
         return {
             ...super.properties,
             profile: {type: Object},
-            notificationTargetId: {type: String, attribute: 'notification-target-id'},
             _companySubmissionId: {state: true},
             _companyName: {state: true},
             _contactName: {state: true},
@@ -554,7 +550,12 @@ export class JobProfileInterestFormElement extends BaseFormElement {
 
         const formIdentifierChanged = changedProperties.has('formIdentifier');
         const authChanged = changedProperties.has('auth');
-        if ((formIdentifierChanged || authChanged) && this.formIdentifier && this.auth?.token) {
+        const companyChanged = changedProperties.has('_companySubmissionId');
+        if (
+            (formIdentifierChanged || authChanged || companyChanged) &&
+            this.formIdentifier &&
+            this.auth?.token
+        ) {
             this._checkAlreadySubmittedInterest();
         }
     }
@@ -562,30 +563,59 @@ export class JobProfileInterestFormElement extends BaseFormElement {
     async _checkAlreadySubmittedInterest() {
         const userId = this.auth?.['user-id'];
         const formIdentifier = this.formIdentifier;
+        const companySubmissionId = this._companySubmissionId;
 
-        if (!userId || !formIdentifier || !this.entryPointUrl || !this.auth?.token) {
+        if (!formIdentifier || !this.entryPointUrl || !this.auth?.token) {
             return;
         }
 
         this._checkingSubmittedInterest = true;
 
         try {
-            // Reuse the backend creator filter so the UI mirrors the one-submission rule.
-            const response = await fetch(
-                `${this.entryPointUrl}/formalize/submissions?formIdentifier=${encodeURIComponent(
-                    formIdentifier,
-                )}&perPage=1&creatorIdEquals=${encodeURIComponent(userId)}`,
-                {headers: {Authorization: `Bearer ${this.auth.token}`}},
-            );
+            const query = new URLSearchParams({
+                formIdentifier,
+                perPage: companySubmissionId ? '9999' : '1',
+            });
+            if (!companySubmissionId && userId) {
+                query.set('creatorIdEquals', userId);
+            }
+
+            // Once a company is selected, compare against companySubmissionId so multiple users
+            // from the same company cannot signal interest for the same profile twice.
+            const response = await fetch(`${this.entryPointUrl}/formalize/submissions?${query}`, {
+                headers: {Authorization: `Bearer ${this.auth.token}`},
+            });
 
             if (response.ok) {
                 const data = await response.json();
-                this._hasSubmittedInterest = (data['hydra:member'] ?? []).length > 0;
+                const submissions = data['hydra:member'] ?? [];
+                const hasSubmittedInterest = companySubmissionId
+                    ? submissions.some((submission) => {
+                          try {
+                              const submissionData = JSON.parse(submission.dataFeedElement || '{}');
+                              return submissionData.companySubmissionId === companySubmissionId;
+                          } catch {
+                              return false;
+                          }
+                      })
+                    : submissions.length > 0;
+
+                if (
+                    this.formIdentifier === formIdentifier &&
+                    this._companySubmissionId === companySubmissionId
+                ) {
+                    this._hasSubmittedInterest = hasSubmittedInterest;
+                }
             }
         } catch (error) {
             console.error('Error checking student profile interest submission:', error);
         } finally {
-            this._checkingSubmittedInterest = false;
+            if (
+                this.formIdentifier === formIdentifier &&
+                this._companySubmissionId === companySubmissionId
+            ) {
+                this._checkingSubmittedInterest = false;
+            }
         }
     }
 
@@ -610,6 +640,7 @@ export class JobProfileInterestFormElement extends BaseFormElement {
     get _isFormValid() {
         return (
             this._companyName.trim() !== '' &&
+            this._companySubmissionId.trim() !== '' &&
             this._contactName.trim() !== '' &&
             this._contactEmail.trim() !== ''
         );
@@ -625,12 +656,17 @@ export class JobProfileInterestFormElement extends BaseFormElement {
                 body: t('student-profile-form.validation-required'),
                 type: 'warning',
                 timeout: 0,
-                targetNotificationId: this.notificationTargetId,
             });
             return;
         }
 
         this._isSubmitting = true;
+
+        await this._checkAlreadySubmittedInterest();
+        if (this._hasSubmittedInterest) {
+            this._isSubmitting = false;
+            return;
+        }
 
         // Formalize accepts submissions as multipart data even when no files are attached.
         const postFormData = new FormData();
@@ -666,7 +702,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
                     body: errorBody.description || t('student-profile-form.interest-error'),
                     type: 'danger',
                     timeout: 0,
-                    targetNotificationId: this.notificationTargetId,
                 });
                 return;
             }
@@ -677,7 +712,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
                 body: t('student-profile-form.interest-success-body'),
                 type: 'success',
                 timeout: 5,
-                targetNotificationId: this.notificationTargetId,
             });
         } catch (error) {
             console.error('Error submitting student profile interest:', error);
@@ -686,7 +720,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
                 body: t('student-profile-form.interest-error'),
                 type: 'danger',
                 timeout: 0,
-                targetNotificationId: this.notificationTargetId,
             });
         } finally {
             this._isSubmitting = false;
@@ -726,6 +759,7 @@ export class JobProfileInterestFormElement extends BaseFormElement {
                     submission-element-name="name"
                     label="${t('student-profile-form.interest-company')}"
                     .value="${this._companySubmissionId}"
+                    required
                     @change="${(event) => {
                         this._companySubmissionId = event.detail.value;
                         this._companyName = this._resolveCompanyName(

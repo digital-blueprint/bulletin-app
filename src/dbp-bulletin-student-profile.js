@@ -639,7 +639,6 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                 title="${title}"
                 subscribe="lang">
                 <div slot="content">
-                    <div id="student-profile-form-notification"></div>
                     <dbp-job-profile-edit-form
                         lang="${this.lang}"
                         lang-dir="${this.langDir}"

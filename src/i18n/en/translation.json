@@ -1,4 +1,17 @@
 {
+    "browse-student-profiles": {
+        "back-to-profiles": "Back to student profiles",
+        "column-headline": "Profile headline",
+        "column-name": "Name",
+        "column-skills": "Skills",
+        "column-study-program": "Study program",
+        "description": "Browse student profiles and signal your company's interest directly from a profile.",
+        "load-error": "The student profiles could not be loaded.",
+        "load-error-title": "Loading failed",
+        "no-profiles": "No student profiles are available yet.",
+        "title": "Browse student profiles",
+        "view-profile": "View profile"
+    },
     "company-form": {
         "country-1": "Austria",
         "country-189": "Switzerland",

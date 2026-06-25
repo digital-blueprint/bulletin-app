@@ -130,6 +130,7 @@ let input = [
     'src/modules/jobOfferForm.js',
     'src/modules/jobProfileForm.js',
     'src/dbp-bulletin-student-profile.js',
+    'src/dbp-bulletin-browse-student-profiles.js',
     'src/modules/companyForm.js',
 ];
 
