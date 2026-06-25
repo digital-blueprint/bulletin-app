@@ -2,6 +2,7 @@ import {css, html} from 'lit';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
 import {Button, Icon, MiniSpinner, sendNotification} from '@dbp-toolkit/common';
 import {Modal} from '@dbp-toolkit/common/src/modal.js';
+import {Notification} from '@dbp-toolkit/notification';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
@@ -17,6 +18,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
             'dbp-modal': Modal,
+            'dbp-notification': Notification,
             'dbp-job-profile-edit-form': JobProfileEditFormElement,
             'dbp-job-profile-interest-form': JobProfileInterestFormElement,
         };
@@ -639,6 +641,9 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                 title="${title}"
                 subscribe="lang">
                 <div slot="content">
+                    <dbp-notification
+                        id="student-profile-form-notification"
+                        lang="${this.lang}"></dbp-notification>
                     <dbp-job-profile-edit-form
                         lang="${this.lang}"
                         lang-dir="${this.langDir}"

@@ -272,6 +272,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 body: t('student-profile-form.validation-required'),
                 type: 'warning',
                 timeout: 0,
+                targetNotificationId: 'student-profile-form-notification',
             });
             return null;
         }
@@ -361,6 +362,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 body: error.message,
                 type: 'danger',
                 timeout: 0,
+                targetNotificationId: 'student-profile-form-notification',
             });
         } finally {
             this._isSubmitting = false;
