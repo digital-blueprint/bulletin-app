@@ -111,6 +111,7 @@ export const JOB_CATEGORIES = {
 
 export const AREAS_OF_INTEREST = {
     administration: 'manage-job-offers.area-of-interest-administration',
+    'Administration-Healthcare': 'manage-job-offers.area-of-interest-Administration-Healthcare',
     teaching: 'manage-job-offers.area-of-interest-teaching',
     research: 'manage-job-offers.area-of-interest-research',
     'natural-sciences': 'manage-job-offers.area-of-interest-natural-sciences',
@@ -125,9 +126,17 @@ export const AREAS_OF_INTEREST = {
     it: 'manage-job-offers.area-of-interest-it',
     'software-development': 'manage-job-offers.area-of-interest-software-development',
     design: 'manage-job-offers.area-of-interest-design',
+    'Textiles-Clothing-Leather': 'manage-job-offers.area-of-interest-Textiles-Clothing-Leather',
     management: 'manage-job-offers.area-of-interest-management',
+    'Management-consulting': 'manage-job-offers.area-of-interest-Management-consulting',
+    telecommunications: 'manage-job-offers.area-of-interest-telecommunications',
     trade: 'manage-job-offers.area-of-interest-trade',
+    tourism: 'manage-job-offers.area-of-interest-tourism',
+    Advertising: 'manage-job-offers.area-of-interest-Advertising',
+    'Universities-Colleges': 'manage-job-offers.area-of-interest-Universities-Colleges',
     law: 'manage-job-offers.area-of-interest-law',
+    'Publishing-Printing-companies':
+        'manage-job-offers.area-of-interest-Publishing-Printing-companies',
     'art-culture-design': 'manage-job-offers.area-of-interest-art-culture-design',
     'communication-marketing': 'manage-job-offers.area-of-interest-communication-marketing',
     'library-services': 'manage-job-offers.area-of-interest-library-services',
@@ -143,6 +152,10 @@ export const AREAS_OF_INTEREST = {
     'architecture-engineering-offices':
         'manage-job-offers.area-of-interest-architecture-engineering-offices',
     'wooden-furniture': 'manage-job-offers.area-of-interest-wooden-furniture',
+    'Physical-chemical-laboratories':
+        'manage-job-offers.area-of-interest-Physical-chemical-laboratories',
+    'Real-Estate-Rental': 'manage-job-offers.area-of-interest-Real-Estate-Rental',
+    'Rail-vehicles': 'manage-job-offers.area-of-interest-Rail-vehicles',
     plastics: 'manage-job-offers.area-of-interest-plastics',
     'Agriculture-Forestry': 'manage-job-offers.area-of-interest-agriculture-forestry',
     'Measuring-instruments': 'manage-job-offers.area-of-interest-measuring-instruments',
@@ -161,6 +174,8 @@ export const AREAS_OF_INTEREST = {
     electronics: 'manage-job-offers.area-of-interest-electronics',
     'electrical-engineering': 'manage-job-offers.area-of-interest-electrical-engineering',
     'energy-water-supply': 'manage-job-offers.area-of-interest-energy-water-supply',
+    'Other-services': 'manage-job-offers.area-of-interest-other-services',
+    'Other-production': 'manage-job-offers.area-of-interest-other-production',
 };
 
 const LEGACY_AREA_OF_INTERESTS = {
