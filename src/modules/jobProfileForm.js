@@ -149,6 +149,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._languagesText = '';
         this._availability = '';
         this._contactEmail = '';
+        this._contactEmailPrefillUserId = '';
         this._linkUrl = '';
         this._isSubmitting = false;
     }
@@ -204,7 +205,52 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             }
         });
 
+        if (
+            !this.existingForm &&
+            (changedProperties.has('auth') ||
+                changedProperties.has('entryPointUrl') ||
+                changedProperties.has('existingForm'))
+        ) {
+            this._prefillContactEmail();
+        }
+
         super.update(changedProperties);
+    }
+
+    async _prefillContactEmail() {
+        const userId = this.auth?.['user-id'];
+        if (
+            !userId ||
+            !this.entryPointUrl ||
+            this._contactEmail ||
+            this._contactEmailPrefillUserId === userId
+        ) {
+            return;
+        }
+
+        this._contactEmailPrefillUserId = userId;
+
+        try {
+            const response = await fetch(
+                `${this.entryPointUrl}/base/people/${encodeURIComponent(userId)}?includeLocal=email`,
+                {
+                    headers: {
+                        'Content-Type': 'application/ld+json',
+                        Authorization: `Bearer ${this.auth.token}`,
+                    },
+                },
+            );
+
+            if (!response.ok || this.existingForm || this._contactEmail) {
+                return;
+            }
+
+            const person = await response.json();
+            // The base people endpoint exposes the preferred university email in localData.
+            this._contactEmail = person?.localData?.email || '';
+        } catch (error) {
+            console.error('Error pre-filling student profile contact email:', error);
+        }
     }
 
     get _isFormValid() {
