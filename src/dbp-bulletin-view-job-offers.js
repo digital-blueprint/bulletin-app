@@ -1432,6 +1432,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 background-image: none !important;
             }
 
+            .pagination-page-size  option {
+                background-color: var(--dbp-background);
+                color: var(--dbp-content);
+            }
+
             .pagination-buttons {
                 display: flex;
                 align-items: center;
@@ -1497,8 +1502,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .pagination-page.is-active {
-                background: var(--dbp-on-secondary-surface);
-                color: var(--dbp-secondary-surface);
+                background: var(--dbp-selected);
+                color: var(--dbp-on-selected-surface);
                 border-color: var(--dbp-on-secondary-surface);
             }
 
