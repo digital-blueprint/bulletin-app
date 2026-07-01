@@ -1180,7 +1180,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 font-weight:500;
             }
 
-            
+
             @media (max-width: 600px) {
                 .search-filter-row,
                 .filters-row {
@@ -1264,25 +1264,25 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 flex: 1;
                 margin-bottom:5px;
             }
-            
+
             .job-card-header {
                 display:flex;
                 flex-direction:row;
                 justify-content: space-between;
             }
-            
+
             .job-card-header img{
                 max-height: 28px;
                 object-fit: cover;
             }
-            
+
             .favicon-visible {
                 display:block;
             }
+
             .favicon-hidden {
                 display:none;
             }
-
 
             .job-title {
                 font-size: 1.15rem;
@@ -1303,7 +1303,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 }
             }
 
-        
+
             .job-meta-item dt,
             .job-meta-item dd {
                 margin: 0;
