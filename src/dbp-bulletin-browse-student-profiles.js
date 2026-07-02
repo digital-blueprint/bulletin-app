@@ -180,6 +180,11 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
         return this.lang === 'en' && data[englishKey] ? data[englishKey] : data[primaryKey] || '';
     }
 
+    _getProfileAlias(profile) {
+        const index = this._profiles.findIndex((item) => item.identifier === profile.identifier);
+        return this._i18n.t('browse-student-profiles.applicant-alias', {number: index + 1});
+    }
+
     _renderList(items) {
         if (!Array.isArray(items) || items.length === 0) {
             return '';
@@ -200,9 +205,9 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
         return this._profiles.map((profile) => {
             const data = profile.additionalData ?? {};
             return {
-                visibleName: data.visibleName || profile.formName,
-                headline: this._localized(profile, 'headline', 'headlineEn') || profile.formName,
-                studyProgram: this._localized(profile, 'studyProgram', 'studyProgramEn'),
+                alias: this._getProfileAlias(profile),
+                studyProgram: data.studyProgram || '',
+                previousExperience: data.previousExperience || '',
                 skills: Array.isArray(data.skills) ? data.skills.join(', ') : '',
                 profile,
             };
@@ -262,21 +267,21 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
             columns: [
                 {
                     title: t('browse-student-profiles.column-name'),
-                    field: 'visibleName',
+                    field: 'alias',
                     sorter: 'string',
                     minWidth: 180,
-                },
-                {
-                    title: t('browse-student-profiles.column-headline'),
-                    field: 'headline',
-                    sorter: 'string',
-                    minWidth: 240,
                 },
                 {
                     title: t('browse-student-profiles.column-study-program'),
                     field: 'studyProgram',
                     sorter: 'string',
                     minWidth: 220,
+                },
+                {
+                    title: t('browse-student-profiles.column-previous-experience'),
+                    field: 'previousExperience',
+                    sorter: 'string',
+                    minWidth: 240,
                 },
                 {
                     title: t('browse-student-profiles.column-skills'),
@@ -374,10 +379,7 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
 
             <article class="profile-detail">
                 <header>
-                    <p class="profile-name">${data.visibleName || profile.formName}</p>
-                    <h2>
-                        ${this._localized(profile, 'headline', 'headlineEn') || profile.formName}
-                    </h2>
+                    <h2>${this._getProfileAlias(profile)}</h2>
                 </header>
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
@@ -385,15 +387,11 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
                 <dl class="profile-meta">
                     ${this._renderMetaItem(
                         t('student-profile-form.field-study-program'),
-                        this._localized(profile, 'studyProgram', 'studyProgramEn'),
+                        data.studyProgram,
                     )}
                     ${this._renderMetaItem(
                         t('student-profile-form.field-availability'),
                         data.availability,
-                    )}
-                    ${this._renderMetaItem(
-                        t('student-profile-form.field-contact-email'),
-                        data.contactEmail,
                     )}
                     ${data.linkUrl
                         ? this._renderMetaItem(
@@ -410,6 +408,14 @@ class BrowseStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEl
                         : ''}
                 </dl>
 
+                ${data.previousExperience
+                    ? html`
+                          <section>
+                              <h3>${t('student-profile-form.field-previous-experience')}</h3>
+                              <p>${data.previousExperience}</p>
+                          </section>
+                      `
+                    : ''}
                 ${data.skills?.length
                     ? html`
                           <section>

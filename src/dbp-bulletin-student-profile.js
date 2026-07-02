@@ -174,6 +174,13 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
         }
 
         const profile = this._profiles.find((item) => item.identifier === profileId) ?? null;
+        if (profile && !this._isOwnProfile(profile)) {
+            this._selectedProfile = null;
+            this._submissions = [];
+            this._backToOverview();
+            return;
+        }
+
         this._selectedProfile = profile;
 
         if (profile && pathSegments[2] === 'submissions') {
@@ -370,11 +377,8 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
         return html`
             <article class="profile-card">
                 <div>
-                    <h3>
-                        ${this._localized(profile, 'headline', 'headlineEn') || profile.formName}
-                    </h3>
-                    <p class="profile-name">${data.visibleName || profile.formName}</p>
-                    <p>${this._localized(profile, 'studyProgram', 'studyProgramEn')}</p>
+                    <h3>${this._i18n.t('student-profile-activity.own-profile-title')}</h3>
+                    <p>${data.studyProgram || ''}</p>
                 </div>
                 <div class="profile-card-actions">
                     <button
@@ -449,11 +453,11 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                 : ''}
 
             <div class="profile-list">
-                ${this._profiles.length === 0 && !this._loadingProfiles
+                ${ownProfiles.length === 0 && !this._loadingProfiles
                     ? html`
                           <p>${t('student-profile-activity.no-profiles')}</p>
                       `
-                    : this._profiles.map((profile) => this._renderProfileCard(profile))}
+                    : ownProfiles.map((profile) => this._renderProfileCard(profile))}
             </div>
         `;
     }
@@ -475,10 +479,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
 
             <article class="profile-detail">
                 <header>
-                    <p class="profile-name">${data.visibleName || profile.formName}</p>
-                    <h2>
-                        ${this._localized(profile, 'headline', 'headlineEn') || profile.formName}
-                    </h2>
+                    <h2>${t('student-profile-activity.own-profile-title')}</h2>
                 </header>
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
@@ -486,15 +487,11 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                 <dl class="profile-meta">
                     ${this._renderMetaItem(
                         t('student-profile-form.field-study-program'),
-                        this._localized(profile, 'studyProgram', 'studyProgramEn'),
+                        data.studyProgram,
                     )}
                     ${this._renderMetaItem(
                         t('student-profile-form.field-availability'),
                         data.availability,
-                    )}
-                    ${this._renderMetaItem(
-                        t('student-profile-form.field-contact-email'),
-                        data.contactEmail,
                     )}
                     ${data.linkUrl
                         ? this._renderMetaItem(
@@ -511,6 +508,14 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                         : ''}
                 </dl>
 
+                ${data.previousExperience
+                    ? html`
+                          <section>
+                              <h3>${t('student-profile-form.field-previous-experience')}</h3>
+                              <p>${data.previousExperience}</p>
+                          </section>
+                      `
+                    : ''}
                 ${data.skills?.length
                     ? html`
                           <section>

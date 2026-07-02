@@ -2,7 +2,11 @@ import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
 import {css, html} from 'lit';
 import {createRef, ref} from 'lit/directives/ref.js';
-import {DbpStringElement, DbpSubmissionSelectElement} from '@dbp-toolkit/form-elements';
+import {
+    DbpDateElement,
+    DbpStringElement,
+    DbpSubmissionSelectElement,
+} from '@dbp-toolkit/form-elements';
 import {
     Button,
     Icon,
@@ -30,19 +34,17 @@ const normalizeMultilineValue = (value) => (Array.isArray(value) ? value.join('\
 const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.create-error-title');
     t('student-profile-form.create-success');
+    t('student-profile-form.contact-email-missing');
     t('student-profile-form.field-availability');
     t('student-profile-form.field-contact-email');
-    t('student-profile-form.field-headline');
-    t('student-profile-form.field-headline-en');
     t('student-profile-form.field-languages');
     t('student-profile-form.field-link-url');
     t('student-profile-form.field-link-url-placeholder');
+    t('student-profile-form.field-previous-experience');
     t('student-profile-form.field-profile-summary');
     t('student-profile-form.field-profile-summary-en');
     t('student-profile-form.field-skills');
     t('student-profile-form.field-study-program');
-    t('student-profile-form.field-study-program-en');
-    t('student-profile-form.field-visible-name');
     t('student-profile-form.form-type-name');
     t('student-profile-form.interest-already-submitted');
     t('student-profile-form.interest-company');
@@ -125,6 +127,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
     static get scopedElements() {
         return {
             'dbp-string-element': DbpStringElement,
+            'dbp-date-element': DbpDateElement,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
         };
@@ -138,18 +141,15 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this.auth = {};
         this.entryPointUrl = '';
         this.existingForm = null;
-        this._visibleName = '';
-        this._headline = '';
-        this._headlineEn = '';
         this._summary = '';
         this._summaryEn = '';
         this._studyProgram = '';
-        this._studyProgramEn = '';
+        this._previousExperience = '';
         this._skillsText = '';
         this._languagesText = '';
         this._availability = '';
         this._contactEmail = '';
-        this._contactEmailPrefillUserId = '';
+        this._studentDataPrefillUserId = '';
         this._linkUrl = '';
         this._isSubmitting = false;
     }
@@ -162,13 +162,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             auth: {type: Object},
             entryPointUrl: {type: String, attribute: 'entry-point-url'},
             existingForm: {type: Object, attribute: false},
-            _visibleName: {state: true},
-            _headline: {state: true},
-            _headlineEn: {state: true},
             _summary: {state: true},
             _summaryEn: {state: true},
             _studyProgram: {state: true},
-            _studyProgramEn: {state: true},
+            _previousExperience: {state: true},
             _skillsText: {state: true},
             _languagesText: {state: true},
             _availability: {state: true},
@@ -190,13 +187,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
 
             if (propName === 'existingForm' && this.existingForm) {
                 const data = this.existingForm.additionalData || {};
-                this._visibleName = data.visibleName || this.existingForm.formName || '';
-                this._headline = data.headline || '';
-                this._headlineEn = data.headlineEn || '';
                 this._summary = data.summary || '';
                 this._summaryEn = data.summaryEn || '';
                 this._studyProgram = data.studyProgram || '';
-                this._studyProgramEn = data.studyProgramEn || '';
+                this._previousExperience = data.previousExperience || '';
                 this._skillsText = normalizeMultilineValue(data.skills);
                 this._languagesText = normalizeMultilineValue(data.languages);
                 this._availability = data.availability || '';
@@ -211,60 +205,105 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 changedProperties.has('entryPointUrl') ||
                 changedProperties.has('existingForm'))
         ) {
-            this._prefillContactEmail();
+            this._prefillStudentData();
         }
 
         super.update(changedProperties);
     }
 
-    async _prefillContactEmail() {
+    async _prefillStudentData() {
         const userId = this.auth?.['user-id'];
         if (
             !userId ||
             !this.entryPointUrl ||
-            this._contactEmail ||
-            this._contactEmailPrefillUserId === userId
+            this._studentDataPrefillUserId === userId ||
+            (this._contactEmail && this._studyProgram)
         ) {
             return;
         }
 
-        this._contactEmailPrefillUserId = userId;
+        this._studentDataPrefillUserId = userId;
 
         try {
-            const response = await fetch(
-                `${this.entryPointUrl}/base/people/${encodeURIComponent(userId)}?includeLocal=email`,
-                {
-                    headers: {
-                        'Content-Type': 'application/ld+json',
-                        Authorization: `Bearer ${this.auth.token}`,
-                    },
-                },
-            );
+            const localData = await this._fetchPersonLocalData(userId, ['email']);
 
-            if (!response.ok || this.existingForm || this._contactEmail) {
+            if (this.existingForm) {
                 return;
             }
 
-            const person = await response.json();
-            // The base people endpoint exposes the preferred university email in localData.
-            this._contactEmail = person?.localData?.email || '';
+            // Email is kept in additionalData for contacting the student, but never shown to companies.
+            this._contactEmail = this._contactEmail || localData.email || '';
+            this._studyProgram = this._studyProgram || this._formatStudyProgram(localData);
         } catch (error) {
-            console.error('Error pre-filling student profile contact email:', error);
+            console.error('Error pre-filling student profile data:', error);
         }
     }
 
-    get _isFormValid() {
-        return (
-            this._visibleName.trim() !== '' &&
-            this._headline.trim() !== '' &&
-            this._summary.trim() !== '' &&
-            this._contactEmail.trim() !== ''
+    async _fetchPersonLocalData(userId, localDataAttributes) {
+        const includeLocal = localDataAttributes.join(',');
+        const response = await fetch(
+            `${this.entryPointUrl}/base/people/${encodeURIComponent(
+                userId,
+            )}?includeLocal=${encodeURIComponent(includeLocal)}`,
+            {
+                headers: {
+                    'Content-Type': 'application/ld+json',
+                    Authorization: `Bearer ${this.auth.token}`,
+                },
+            },
         );
+
+        if (!response.ok) {
+            throw new Error(response.statusText || response.status);
+        }
+
+        const person = await response.json();
+        return person?.localData ?? {};
+    }
+
+    _formatStudyProgram(localData) {
+        const value =
+            localData.studyProgram ??
+            localData.studyPrograms ??
+            localData.studies ??
+            localData.curriculum ??
+            localData.curricula ??
+            localData.degreeProgram ??
+            localData.degreePrograms ??
+            '';
+
+        if (Array.isArray(value)) {
+            return value
+                .map((item) => item?.name ?? item?.title ?? item?.identifier ?? item)
+                .filter(Boolean)
+                .join(', ');
+        }
+
+        if (typeof value === 'object' && value !== null) {
+            return value.name ?? value.title ?? value.identifier ?? '';
+        }
+
+        return String(value ?? '');
+    }
+
+    get _isFormValid() {
+        return this._summary.trim() !== '' && this._contactEmail.trim() !== '';
     }
 
     async submit() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const isEditMode = Boolean(this.existingForm?.formId);
+
+        if (!this._contactEmail.trim()) {
+            sendNotification({
+                summary: t('student-profile-form.create-error-title'),
+                body: t('student-profile-form.contact-email-missing'),
+                type: 'warning',
+                timeout: 0,
+                targetNotificationId: 'student-profile-form-notification',
+            });
+            return null;
+        }
 
         if (!this._isFormValid) {
             sendNotification({
@@ -295,13 +334,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         });
 
         const additionalData = {
-            visibleName: this._visibleName.trim(),
-            headline: this._headline.trim(),
-            headlineEn: this._headlineEn.trim(),
             summary: this._summary.trim(),
             summaryEn: this._summaryEn.trim(),
             studyProgram: this._studyProgram.trim(),
-            studyProgramEn: this._studyProgramEn.trim(),
+            previousExperience: this._previousExperience.trim(),
             skills: parseMultilineList(this._skillsText),
             languages: parseMultilineList(this._languagesText),
             availability: this._availability.trim(),
@@ -312,12 +348,12 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         };
 
         // The profile itself is a Formalize form; the public profile fields live in additionalData.
-        const headlineEn = this._headlineEn.trim() || this._headline.trim();
+        const formName = new JobProfileModule().getFormName(this.lang);
         const formData = {
-            name: this._headline.trim(),
+            name: formName,
             localizedNames: [
-                {languageTag: 'de', name: this._headline.trim()},
-                {languageTag: 'en', name: headlineEn},
+                {languageTag: 'de', name: new JobProfileModule().getFormName('de')},
+                {languageTag: 'en', name: new JobProfileModule().getFormName('en')},
             ],
             frontendKey: STUDENT_PROFILE_FRONTEND_KEY,
             additionalData,
@@ -387,45 +423,25 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         `;
     }
 
+    renderDateField(name, labelKey, value, onChange, options = {}) {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        return html`
+            <dbp-date-element
+                name="${name}"
+                lang="${this.lang}"
+                label="${t(labelKey)}"
+                .value="${value}"
+                ?required="${options.required}"
+                @change="${(event) => onChange(event.detail.value)}"></dbp-date-element>
+        `;
+    }
+
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         keepStudentProfileTranslations(t);
 
         return html`
             <p class="required-field-note">${t('student-profile-form.required-field-note')}</p>
-
-            <div class="translation-row">
-                ${this.renderTextField(
-                    'visibleName',
-                    'student-profile-form.field-visible-name',
-                    this._visibleName,
-                    (value) => (this._visibleName = value),
-                    {required: true},
-                )}
-                ${this.renderTextField(
-                    'contactEmail',
-                    'student-profile-form.field-contact-email',
-                    this._contactEmail,
-                    (value) => (this._contactEmail = value),
-                    {required: true},
-                )}
-            </div>
-
-            <div class="translation-row">
-                ${this.renderTextField(
-                    'headline',
-                    'student-profile-form.field-headline',
-                    this._headline,
-                    (value) => (this._headline = value),
-                    {required: true},
-                )}
-                ${this.renderTextField(
-                    'headlineEn',
-                    'student-profile-form.field-headline-en',
-                    this._headlineEn,
-                    (value) => (this._headlineEn = value),
-                )}
-            </div>
 
             <div class="translation-row">
                 ${this.renderTextField(
@@ -444,22 +460,31 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 )}
             </div>
 
-            <div class="translation-row">
-                ${this.renderTextField(
-                    'studyProgram',
-                    'student-profile-form.field-study-program',
-                    this._studyProgram,
-                    (value) => (this._studyProgram = value),
-                )}
-                ${this.renderTextField(
-                    'studyProgramEn',
-                    'student-profile-form.field-study-program-en',
-                    this._studyProgramEn,
-                    (value) => (this._studyProgramEn = value),
-                )}
-            </div>
+            ${this._studyProgram
+                ? html`
+                      <p class="profile-prefill-info">
+                          <strong>${t('student-profile-form.field-study-program')}:</strong>
+                          ${this._studyProgram}
+                      </p>
+                  `
+                : ''}
+            ${this._contactEmail
+                ? html`
+                      <p class="profile-prefill-info">
+                          <strong>${t('student-profile-form.field-contact-email')}:</strong>
+                          ${this._contactEmail}
+                      </p>
+                  `
+                : ''}
 
             <div class="translation-row">
+                ${this.renderTextField(
+                    'previousExperience',
+                    'student-profile-form.field-previous-experience',
+                    this._previousExperience,
+                    (value) => (this._previousExperience = value),
+                    {rows: 4},
+                )}
                 ${this.renderTextField(
                     'skills',
                     'student-profile-form.field-skills',
@@ -477,7 +502,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             </div>
 
             <div class="translation-row">
-                ${this.renderTextField(
+                ${this.renderDateField(
                     'availability',
                     'student-profile-form.field-availability',
                     this._availability,
@@ -527,6 +552,14 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     display: grid;
                     grid-template-columns: repeat(2, minmax(0, 1fr));
                     gap: 1rem;
+                }
+
+                .profile-prefill-info {
+                    background: var(--dbp-secondary-surface);
+                    border: var(--dbp-border);
+                    border-radius: var(--dbp-border-radius);
+                    margin: 0 0 1rem 0;
+                    padding: 0.75rem 1rem;
                 }
 
                 .form-footer {
