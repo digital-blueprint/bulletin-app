@@ -11,7 +11,7 @@ import JobProfileModule, {
     JobProfileInterestFormElement,
 } from './modules/jobProfileForm.js';
 
-class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
+class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
             'dbp-button': Button,
@@ -268,8 +268,8 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
 
         if (!profile && this._getOwnProfiles().length > 0) {
             sendNotification({
-                summary: this._i18n.t('student-profile-activity.one-profile-title'),
-                body: this._i18n.t('student-profile-activity.one-profile-body'),
+                summary: this._i18n.t('manage-your-profile.one-profile-title'),
+                body: this._i18n.t('manage-your-profile.one-profile-body'),
                 type: 'warning',
                 timeout: 5,
             });
@@ -319,13 +319,13 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                 throw new Error(
                     errorBody.description ||
                         errorBody['hydra:description'] ||
-                        this._i18n.t('student-profile-activity.delete-error'),
+                        this._i18n.t('manage-your-profile.delete-error'),
                 );
             }
 
             sendNotification({
-                summary: this._i18n.t('student-profile-activity.delete-success-title'),
-                body: this._i18n.t('student-profile-activity.delete-success-body'),
+                summary: this._i18n.t('manage-your-profile.delete-success-title'),
+                body: this._i18n.t('manage-your-profile.delete-success-body'),
                 type: 'success',
                 timeout: 5,
             });
@@ -339,8 +339,8 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
         } catch (error) {
             console.error('Error deleting student profile:', error);
             sendNotification({
-                summary: this._i18n.t('student-profile-activity.delete-error-title'),
-                body: error.message || this._i18n.t('student-profile-activity.delete-error'),
+                summary: this._i18n.t('manage-your-profile.delete-error-title'),
+                body: error.message || this._i18n.t('manage-your-profile.delete-error'),
                 type: 'danger',
                 timeout: 0,
             });
@@ -377,7 +377,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
         return html`
             <article class="profile-card">
                 <div>
-                    <h3>${this._i18n.t('student-profile-activity.own-profile-title')}</h3>
+                    <h3>${this._i18n.t('manage-your-profile.own-profile-title')}</h3>
                     <p>${data.studyProgram || ''}</p>
                 </div>
                 <div class="profile-card-actions">
@@ -385,7 +385,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                         class="button is-secondary"
                         type="button"
                         @click="${() => this._openProfile(profile)}">
-                        ${this._i18n.t('student-profile-activity.view-profile')}
+                        ${this._i18n.t('manage-your-profile.view-profile')}
                     </button>
                     ${isOwnProfile
                         ? html`
@@ -393,19 +393,19 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                                   class="button is-secondary"
                                   type="button"
                                   @click="${() => this._openEditDialog(profile)}">
-                                  ${this._i18n.t('student-profile-activity.edit-profile')}
+                                  ${this._i18n.t('manage-your-profile.edit-profile')}
                               </button>
                               <button
                                   class="button is-secondary"
                                   type="button"
                                   @click="${() => this._openDeleteDialog(profile)}">
-                                  ${this._i18n.t('student-profile-activity.delete-profile')}
+                                  ${this._i18n.t('manage-your-profile.delete-profile')}
                               </button>
                               <button
                                   class="button is-primary"
                                   type="button"
                                   @click="${() => this._openSubmissions(profile)}">
-                                  ${this._i18n.t('student-profile-activity.view-submissions')}
+                                  ${this._i18n.t('manage-your-profile.view-submissions')}
                               </button>
                           `
                         : ''}
@@ -421,8 +421,8 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
         return html`
             <section class="activity-header">
                 <div>
-                    <h2>${t('student-profile-activity.title')}</h2>
-                    <p>${t('student-profile-activity.description')}</p>
+                    <h2>${t('manage-your-profile.title')}</h2>
+                    <p>${t('manage-your-profile.description')}</p>
                 </div>
                 <button
                     class="button is-primary"
@@ -430,20 +430,18 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                     ?disabled="${ownProfiles.length > 0}"
                     @click="${() => this._openEditDialog()}">
                     <dbp-icon name="plus" aria-hidden="true"></dbp-icon>
-                    ${t('student-profile-activity.create-profile')}
+                    ${t('manage-your-profile.create-profile')}
                 </button>
             </section>
 
             ${ownProfiles.length > 0
                 ? html`
-                      <p class="hint">${t('student-profile-activity.one-profile-hint')}</p>
+                      <p class="hint">${t('manage-your-profile.one-profile-hint')}</p>
                   `
                 : ''}
             ${this._loadError
                 ? html`
-                      <p class="notification is-danger">
-                          ${t('student-profile-activity.load-error')}
-                      </p>
+                      <p class="notification is-danger">${t('manage-your-profile.load-error')}</p>
                   `
                 : ''}
             ${this._loadingProfiles
@@ -455,7 +453,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
             <div class="profile-list">
                 ${ownProfiles.length === 0 && !this._loadingProfiles
                     ? html`
-                          <p>${t('student-profile-activity.no-profiles')}</p>
+                          <p>${t('manage-your-profile.no-profiles')}</p>
                       `
                     : ownProfiles.map((profile) => this._renderProfileCard(profile))}
             </div>
@@ -471,15 +469,15 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
             <span class="back-navigation">
                 <a
                     @click="${this._backToOverview}"
-                    title="${t('student-profile-activity.back-to-profiles')}">
+                    title="${t('manage-your-profile.back-to-profiles')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
-                    ${t('student-profile-activity.back-to-profiles')}
+                    ${t('manage-your-profile.back-to-profiles')}
                 </a>
             </span>
 
             <article class="profile-detail">
                 <header>
-                    <h2>${t('student-profile-activity.own-profile-title')}</h2>
+                    <h2>${t('manage-your-profile.own-profile-title')}</h2>
                 </header>
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
@@ -541,19 +539,19 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                               class="button is-secondary"
                               type="button"
                               @click="${() => this._openEditDialog(profile)}">
-                              ${t('student-profile-activity.edit-profile')}
+                              ${t('manage-your-profile.edit-profile')}
                           </button>
                           <button
                               class="button is-secondary"
                               type="button"
                               @click="${() => this._openDeleteDialog(profile)}">
-                              ${t('student-profile-activity.delete-profile')}
+                              ${t('manage-your-profile.delete-profile')}
                           </button>
                           <button
                               class="button is-primary"
                               type="button"
                               @click="${() => this._openSubmissions(profile)}">
-                              ${t('student-profile-activity.view-submissions')}
+                              ${t('manage-your-profile.view-submissions')}
                           </button>
                       </div>
                   `
@@ -588,14 +586,14 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
             <span class="back-navigation">
                 <a
                     @click="${() => this._openProfile(profile)}"
-                    title="${t('student-profile-activity.back-to-profile')}">
+                    title="${t('manage-your-profile.back-to-profile')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
-                    ${t('student-profile-activity.back-to-profile')}
+                    ${t('manage-your-profile.back-to-profile')}
                 </a>
             </span>
 
             <section class="submissions-view">
-                <h2>${t('student-profile-activity.submissions-title')}</h2>
+                <h2>${t('manage-your-profile.submissions-title')}</h2>
                 <p>${this._localized(profile, 'headline', 'headlineEn') || profile.formName}</p>
 
                 ${this._loadingSubmissions
@@ -606,13 +604,13 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                 ${this._submissionsLoadError
                     ? html`
                           <p class="notification is-danger">
-                              ${t('student-profile-activity.submissions-load-error')}
+                              ${t('manage-your-profile.submissions-load-error')}
                           </p>
                       `
                     : ''}
                 ${!this._loadingSubmissions && this._submissions.length === 0
                     ? html`
-                          <p>${t('student-profile-activity.no-submissions')}</p>
+                          <p>${t('manage-your-profile.no-submissions')}</p>
                       `
                     : ''}
 
@@ -629,7 +627,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
 
         return html`
             <article class="submission-card">
-                <h3>${data.companyName || t('student-profile-activity.unknown-company')}</h3>
+                <h3>${data.companyName || t('manage-your-profile.unknown-company')}</h3>
                 <dl class="profile-meta">
                     ${this._renderMetaItem(
                         t('student-profile-form.interest-contact-name'),
@@ -655,8 +653,8 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
     _renderEditModal() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const title = this._editDialogProfile
-            ? t('student-profile-activity.edit-profile')
-            : t('student-profile-activity.create-profile');
+            ? t('manage-your-profile.edit-profile')
+            : t('manage-your-profile.create-profile');
 
         return html`
             <dbp-modal
@@ -692,19 +690,17 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
             <dbp-modal
                 id="student-profile-delete-modal"
                 modal-id="student-profile-delete-modal"
-                title="${t('student-profile-activity.delete-dialog-title')}"
+                title="${t('manage-your-profile.delete-dialog-title')}"
                 subscribe="lang">
                 <div slot="content" class="delete-dialog-content">
-                    <p>
-                        ${t('student-profile-activity.delete-dialog-message', {name: profileName})}
-                    </p>
+                    <p>${t('manage-your-profile.delete-dialog-message', {name: profileName})}</p>
                     <div class="delete-dialog-actions">
                         <button
                             class="button is-secondary"
                             type="button"
                             ?disabled="${this._isDeletingProfile}"
                             @click="${() => this._('#student-profile-delete-modal')?.close()}">
-                            ${t('student-profile-activity.delete-dialog-cancel')}
+                            ${t('manage-your-profile.delete-dialog-cancel')}
                         </button>
                         <button
                             class="button is-primary"
@@ -718,7 +714,7 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
                                 : html`
                                       <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
                                   `}
-                            ${t('student-profile-activity.delete-dialog-confirm')}
+                            ${t('manage-your-profile.delete-dialog-confirm')}
                         </button>
                     </div>
                 </div>
@@ -905,4 +901,4 @@ class StudentProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) 
     }
 }
 
-commonUtils.defineCustomElement('dbp-bulletin-student-profile', StudentProfileActivity);
+commonUtils.defineCustomElement('dbp-bulletin-manage-your-profile', ManageYourProfileActivity);

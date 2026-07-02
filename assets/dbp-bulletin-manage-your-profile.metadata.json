@@ -1,14 +1,14 @@
 {
-    "element": "dbp-bulletin-student-profile",
-    "module_src": "dbp-bulletin-student-profile.js",
-    "routing_name": "student-profile",
+    "element": "dbp-bulletin-manage-your-profile",
+    "module_src": "dbp-bulletin-manage-your-profile.js",
+    "routing_name": "manage-your-profile",
     "name": {
-        "de": "Studierendenprofil",
-        "en": "Student profile"
+        "de": "Eigenes Profil verwalten",
+        "en": "Manage your profile"
     },
     "short_name": {
-        "de": "Studierendenprofil",
-        "en": "Student profile"
+        "de": "Eigenes Profil verwalten",
+        "en": "Manage your profile"
     },
     "description": {
         "de": "Ermöglicht Studierenden das Erstellen eines Profils und das Anzeigen von Firmeninteressen.",

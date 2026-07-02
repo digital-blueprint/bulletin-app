@@ -1,18 +1,4 @@
 {
-    "browse-student-profiles": {
-        "applicant-alias": "Bewerber {{number}}",
-        "back-to-profiles": "Zurück zu den Studierendenprofilen",
-        "column-name": "Bewerber",
-        "column-previous-experience": "Vorerfahrung",
-        "column-skills": "Kompetenzen",
-        "column-study-program": "Studium",
-        "description": "Durchsuchen Sie Studierendenprofile und signalisieren Sie Ihr Firmeninteresse direkt in einem Profil.",
-        "load-error": "Die Studierendenprofile konnten nicht geladen werden.",
-        "load-error-title": "Laden fehlgeschlagen",
-        "no-profiles": "Es sind noch keine Studierendenprofile verfügbar.",
-        "title": "Studierendenprofile durchsuchen",
-        "view-profile": "Profil anzeigen"
-    },
     "company-form": {
         "country-1": "Österreich",
         "country-189": "Schweiz",
@@ -328,20 +314,7 @@
         "work-location-remove": "Entfernen",
         "work-location-selected": "Ausgewählte Dienstorte"
     },
-    "render-form": {
-        "download-widget": {
-            "attachment-deletion-warning-text": "(Die Dokumente werden beim Absenden gelöscht.)",
-            "attachment-remove-file-text": "Dateien zum Entfernen",
-            "attachment-upload-file-text": "Dateien zum Hochladen",
-            "attachment-upload-warning-text": "(Dokumente werden beim Absenden hochgeladen.)",
-            "delete-attachment": "Löschen",
-            "download-attachment": "Herunterladen",
-            "upload-file-button-label_one": "Dokument auswählen",
-            "upload-file-button-label_other": "Dokumente auswählen",
-            "view-attachment": "Ansehen"
-        }
-    },
-    "student-profile-activity": {
+    "manage-your-profile": {
         "back-to-profile": "Zurück zum Profil",
         "back-to-profiles": "Zurück zu den Studierendenprofilen",
         "create-profile": "Studierendenprofil erstellen",
@@ -365,10 +338,23 @@
         "own-profile-title": "Mein Studierendenprofil",
         "submissions-load-error": "Die Einreichungen für dieses Profil konnten nicht geladen werden.",
         "submissions-title": "Einreichungen mit Firmeninteresse",
-        "title": "Studierendenprofil",
+        "title": "Eigenes Profil verwalten",
         "unknown-company": "Unbekannte Firma",
         "view-profile": "Profil anzeigen",
         "view-submissions": "Einreichungen anzeigen"
+    },
+    "render-form": {
+        "download-widget": {
+            "attachment-deletion-warning-text": "(Die Dokumente werden beim Absenden gelöscht.)",
+            "attachment-remove-file-text": "Dateien zum Entfernen",
+            "attachment-upload-file-text": "Dateien zum Hochladen",
+            "attachment-upload-warning-text": "(Dokumente werden beim Absenden hochgeladen.)",
+            "delete-attachment": "Löschen",
+            "download-attachment": "Herunterladen",
+            "upload-file-button-label_one": "Dokument auswählen",
+            "upload-file-button-label_other": "Dokumente auswählen",
+            "view-attachment": "Ansehen"
+        }
     },
     "student-profile-form": {
         "contact-email-missing": "Ihre Kontakt-E-Mail konnte nicht automatisch geladen werden. Bitte versuchen Sie es später erneut oder wenden Sie sich an den Support.",
@@ -427,5 +413,19 @@
         "weekly-hours-min": "Min",
         "weekly-hours-range": "Wochenstunden",
         "work-location": "Dienstort"
+    },
+    "view-unsolicited-applications": {
+        "applicant-alias": "Bewerber {{number}}",
+        "back-to-profiles": "Zurück zu den Initiativbewerbungen",
+        "column-name": "Bewerber",
+        "column-previous-experience": "Vorerfahrung",
+        "column-skills": "Kompetenzen",
+        "column-study-program": "Studium",
+        "description": "Zeigen Sie Initiativbewerbungen an und signalisieren Sie Ihr Firmeninteresse direkt in einem Profil.",
+        "load-error": "Die Initiativbewerbungen konnten nicht geladen werden.",
+        "load-error-title": "Laden fehlgeschlagen",
+        "no-profiles": "Es sind noch keine Initiativbewerbungen verfügbar.",
+        "title": "Initiativbewerbungen anzeigen",
+        "view-profile": "Profil anzeigen"
     }
 }

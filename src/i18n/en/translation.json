@@ -1,18 +1,4 @@
 {
-    "browse-student-profiles": {
-        "applicant-alias": "Applicant {{number}}",
-        "back-to-profiles": "Back to student profiles",
-        "column-name": "Applicant",
-        "column-previous-experience": "Previous experience",
-        "column-skills": "Skills",
-        "column-study-program": "Study program",
-        "description": "Browse student profiles and signal your company's interest directly from a profile.",
-        "load-error": "The student profiles could not be loaded.",
-        "load-error-title": "Loading failed",
-        "no-profiles": "No student profiles are available yet.",
-        "title": "Browse student profiles",
-        "view-profile": "View profile"
-    },
     "company-form": {
         "country-1": "Austria",
         "country-189": "Switzerland",
@@ -328,20 +314,7 @@
         "work-location-remove": "Remove",
         "work-location-selected": "Selected places of employment"
     },
-    "render-form": {
-        "download-widget": {
-            "attachment-deletion-warning-text": "(Documents will be deleted when the application is submitted.)",
-            "attachment-remove-file-text": "Files to remove",
-            "attachment-upload-file-text": "Files to upload",
-            "attachment-upload-warning-text": "(Documents will be uploaded when the application is submitted.)",
-            "delete-attachment": "Delete",
-            "download-attachment": "Download",
-            "upload-file-button-label_one": "Select file",
-            "upload-file-button-label_other": "Select files",
-            "view-attachment": "View"
-        }
-    },
-    "student-profile-activity": {
+    "manage-your-profile": {
         "back-to-profile": "Back to profile",
         "back-to-profiles": "Back to student profiles",
         "create-profile": "Create student profile",
@@ -365,10 +338,23 @@
         "own-profile-title": "My student profile",
         "submissions-load-error": "The submissions for this profile could not be loaded.",
         "submissions-title": "Company interest submissions",
-        "title": "Student profile",
+        "title": "Manage your profile",
         "unknown-company": "Unknown company",
         "view-profile": "View profile",
         "view-submissions": "View submissions"
+    },
+    "render-form": {
+        "download-widget": {
+            "attachment-deletion-warning-text": "(Documents will be deleted when the application is submitted.)",
+            "attachment-remove-file-text": "Files to remove",
+            "attachment-upload-file-text": "Files to upload",
+            "attachment-upload-warning-text": "(Documents will be uploaded when the application is submitted.)",
+            "delete-attachment": "Delete",
+            "download-attachment": "Download",
+            "upload-file-button-label_one": "Select file",
+            "upload-file-button-label_other": "Select files",
+            "view-attachment": "View"
+        }
     },
     "student-profile-form": {
         "contact-email-missing": "Your contact email could not be loaded automatically. Please try again later or contact support.",
@@ -427,5 +413,19 @@
         "weekly-hours-min": "Min",
         "weekly-hours-range": "Hours per week",
         "work-location": "Place of employment"
+    },
+    "view-unsolicited-applications": {
+        "applicant-alias": "Applicant {{number}}",
+        "back-to-profiles": "Back to unsolicited applications",
+        "column-name": "Applicant",
+        "column-previous-experience": "Previous experience",
+        "column-skills": "Skills",
+        "column-study-program": "Study program",
+        "description": "View unsolicited applications and signal your company's interest directly from a profile.",
+        "load-error": "The unsolicited applications could not be loaded.",
+        "load-error-title": "Loading failed",
+        "no-profiles": "No unsolicited applications are available yet.",
+        "title": "View unsolicited applications",
+        "view-profile": "View profile"
     }
 }
