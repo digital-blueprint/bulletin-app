@@ -363,8 +363,6 @@
         "field-contact-email": "Kontakt-E-Mail",
         "field-languages": "Sprachen, eine pro Zeile",
         "field-languages-view-mode": "Sprachen",
-        "field-link-url": "Website",
-        "field-link-url-placeholder": "https://...",
         "field-previous-experience": "Vorerfahrung",
         "field-profile-summary": "Profilzusammenfassung (de)",
         "field-profile-summary-en": "Profilzusammenfassung (en)",
@@ -387,7 +385,8 @@
         "interest-title": "Interesse bekunden",
         "required-field-note": "* kennzeichnet ein Pflichtfeld",
         "save-profile": "Speichern",
-        "validation-required": "Bitte füllen Sie alle Pflichtfelder aus."
+        "validation-required": "Bitte füllen Sie alle Pflichtfelder aus.",
+        "validation-url": ""
     },
     "view-job-offers": {
         "application-deadline": "Bewerbungsfrist",

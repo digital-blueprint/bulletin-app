@@ -363,8 +363,6 @@
         "field-contact-email": "Contact email",
         "field-languages": "Languages, one per line",
         "field-languages-view-mode": "Languages",
-        "field-link-url": "Website",
-        "field-link-url-placeholder": "https://...",
         "field-previous-experience": "Previous experience",
         "field-profile-summary": "Profile summary (de)",
         "field-profile-summary-en": "Profile summary (en)",
@@ -387,7 +385,8 @@
         "interest-title": "Signal company interest",
         "required-field-note": "* marks a required field",
         "save-profile": "Save",
-        "validation-required": "Please fill in all required fields."
+        "validation-required": "Please fill in all required fields.",
+        "validation-url": "student-profile-form.validation-url"
     },
     "view-job-offers": {
         "application-deadline": "Application deadline",
