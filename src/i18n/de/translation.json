@@ -363,13 +363,14 @@
         "field-availability": "Verfügbar ab",
         "field-contact-email": "Kontakt-E-Mail",
         "field-languages": "Sprachen, eine pro Zeile",
-        "field-link-url": "Profil-Link",
-        "field-link-url-placeholder": "https://...",
         "field-previous-experience": "Vorerfahrung",
         "field-profile-summary": "Profilzusammenfassung (de)",
         "field-profile-summary-en": "Profilzusammenfassung (en)",
         "field-skills": "Kompetenzen, eine pro Zeile",
         "field-study-program": "Studium",
+        "field-website": "Website",
+        "field-website-identity-warning": "Wenn Sie einen Link zu Ihrer Website hinzufügen, beachten Sie bitte, dass dadurch Ihre Identität für Firmen oder Organisationen sichtbar wird, die Ihr Profil sehen.",
+        "field-website-placeholder": "https://...",
         "form-type-name": "Studierendenprofil",
         "interest-already-submitted": "Ihre Firma hat bereits Interesse an diesem Studierendenprofil übermittelt.",
         "interest-company": "Firma",
@@ -383,7 +384,8 @@
         "interest-title": "Firmeninteresse signalisieren",
         "required-field-note": "Bitte füllen Sie alle Pflichtfelder aus.",
         "save-profile": "Profil speichern",
-        "validation-required": "Bitte füllen Sie alle Pflichtfelder aus."
+        "validation-required": "Bitte füllen Sie alle Pflichtfelder aus.",
+        "validation-url": "Bitte geben Sie eine gültige Website-URL ein."
     },
     "view-job-offers": {
         "application-deadline": "Bewerbungsfrist",

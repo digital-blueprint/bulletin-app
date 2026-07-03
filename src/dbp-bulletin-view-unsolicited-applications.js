@@ -393,15 +393,15 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
                         t('student-profile-form.field-availability'),
                         data.availability,
                     )}
-                    ${data.linkUrl
+                    ${data.website || data.linkUrl
                         ? this._renderMetaItem(
-                              t('student-profile-form.field-link-url'),
+                              t('student-profile-form.field-website'),
                               html`
                                   <a
-                                      href="${data.linkUrl}"
+                                      href="${data.website || data.linkUrl}"
                                       target="_blank"
                                       rel="noopener noreferrer">
-                                      ${data.linkUrl}
+                                      ${data.website || data.linkUrl}
                                   </a>
                               `,
                           )

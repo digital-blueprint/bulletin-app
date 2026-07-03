@@ -363,13 +363,14 @@
         "field-availability": "Available from",
         "field-contact-email": "Contact email",
         "field-languages": "Languages, one per line",
-        "field-link-url": "Profile link",
-        "field-link-url-placeholder": "https://...",
         "field-previous-experience": "Previous experience",
         "field-profile-summary": "Profile summary (de)",
         "field-profile-summary-en": "Profile summary (en)",
         "field-skills": "Skills, one per line",
         "field-study-program": "Study program",
+        "field-website": "Website",
+        "field-website-identity-warning": "If you add a link to your website, please keep in mind that this will reveal your identity to companies or organizations that see your profile.",
+        "field-website-placeholder": "https://...",
         "form-type-name": "Student profile",
         "interest-already-submitted": "Your company has already submitted interest in this student profile.",
         "interest-company": "Company",
@@ -383,7 +384,8 @@
         "interest-title": "Signal company interest",
         "required-field-note": "Please fill in all required fields.",
         "save-profile": "Save profile",
-        "validation-required": "Please fill in all required fields."
+        "validation-required": "Please fill in all required fields.",
+        "validation-url": "Please enter a valid website URL."
     },
     "view-job-offers": {
         "application-deadline": "Application deadline",

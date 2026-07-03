@@ -31,6 +31,20 @@ const parseMultilineList = (value) =>
 
 const normalizeMultilineValue = (value) => (Array.isArray(value) ? value.join('\n') : value || '');
 
+const isValidWebsiteUrl = (value) => {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
+        return true;
+    }
+
+    try {
+        const url = new URL(trimmedValue);
+        return ['http:', 'https:'].includes(url.protocol);
+    } catch {
+        return false;
+    }
+};
+
 const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.create-error-title');
     t('student-profile-form.create-success');
@@ -38,13 +52,14 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-availability');
     t('student-profile-form.field-contact-email');
     t('student-profile-form.field-languages');
-    t('student-profile-form.field-link-url');
-    t('student-profile-form.field-link-url-placeholder');
     t('student-profile-form.field-previous-experience');
     t('student-profile-form.field-profile-summary');
     t('student-profile-form.field-profile-summary-en');
     t('student-profile-form.field-skills');
     t('student-profile-form.field-study-program');
+    t('student-profile-form.field-website');
+    t('student-profile-form.field-website-identity-warning');
+    t('student-profile-form.field-website-placeholder');
     t('student-profile-form.form-type-name');
     t('student-profile-form.interest-already-submitted');
     t('student-profile-form.interest-company');
@@ -56,6 +71,7 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.interest-title');
     t('student-profile-form.required-field-note');
     t('student-profile-form.validation-required');
+    t('student-profile-form.validation-url');
 };
 
 // The generic Formalize helpers do not expose maxNumSubmissionsPerCreator yet,
@@ -150,7 +166,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._availability = '';
         this._contactEmail = '';
         this._studentDataPrefillUserId = '';
-        this._linkUrl = '';
+        this._website = '';
         this._isSubmitting = false;
     }
 
@@ -170,7 +186,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _languagesText: {state: true},
             _availability: {state: true},
             _contactEmail: {state: true},
-            _linkUrl: {state: true},
+            _website: {state: true},
             _isSubmitting: {state: true},
         };
     }
@@ -195,7 +211,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._languagesText = normalizeMultilineValue(data.languages);
                 this._availability = data.availability || '';
                 this._contactEmail = data.contactEmail || '';
-                this._linkUrl = data.linkUrl || '';
+                this._website = data.website || data.linkUrl || '';
             }
         });
 
@@ -287,7 +303,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
     }
 
     get _isFormValid() {
-        return this._summary.trim() !== '' && this._contactEmail.trim() !== '';
+        return (
+            this._summary.trim() !== '' &&
+            this._contactEmail.trim() !== '' &&
+            isValidWebsiteUrl(this._website)
+        );
     }
 
     async submit() {
@@ -308,7 +328,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         if (!this._isFormValid) {
             sendNotification({
                 summary: t('student-profile-form.create-error-title'),
-                body: t('student-profile-form.validation-required'),
+                body:
+                    this._summary.trim() && this._contactEmail.trim()
+                        ? t('student-profile-form.validation-url')
+                        : t('student-profile-form.validation-required'),
                 type: 'warning',
                 timeout: 0,
                 targetNotificationId: 'student-profile-form-notification',
@@ -342,7 +365,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             languages: parseMultilineList(this._languagesText),
             availability: this._availability.trim(),
             contactEmail: this._contactEmail.trim(),
-            linkUrl: this._linkUrl.trim(),
+            website: this._website.trim(),
             studentCreatorId: this.auth?.['user-id'] || '',
             studentPersonIdentifier: this.auth?.person_id || '',
         };
@@ -418,6 +441,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 rows="${options.rows || ''}"
                 maxlength="${options.maxlength || ''}"
                 placeholder="${options.placeholderKey ? t(options.placeholderKey) : ''}"
+                type="${options.type || 'text'}"
                 ?required="${options.required}"
                 @change="${(event) => onChange(event.detail.value)}"></dbp-string-element>
         `;
@@ -508,13 +532,21 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     this._availability,
                     (value) => (this._availability = value),
                 )}
-                ${this.renderTextField(
-                    'linkUrl',
-                    'student-profile-form.field-link-url',
-                    this._linkUrl,
-                    (value) => (this._linkUrl = value),
-                    {placeholderKey: 'student-profile-form.field-link-url-placeholder'},
-                )}
+                <div>
+                    ${this.renderTextField(
+                        'website',
+                        'student-profile-form.field-website',
+                        this._website,
+                        (value) => (this._website = value),
+                        {
+                            placeholderKey: 'student-profile-form.field-website-placeholder',
+                            type: 'url',
+                        },
+                    )}
+                    <p class="profile-website-identity-warning">
+                        ${t('student-profile-form.field-website-identity-warning')}
+                    </p>
+                </div>
             </div>
 
             <div class="form-footer">
@@ -560,6 +592,12 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     border-radius: var(--dbp-border-radius);
                     margin: 0 0 1rem 0;
                     padding: 0.75rem 1rem;
+                }
+
+                .profile-website-identity-warning {
+                    color: var(--dbp-muted);
+                    font-size: 0.9rem;
+                    margin: 0.25rem 0 1rem 0;
                 }
 
                 .form-footer {
