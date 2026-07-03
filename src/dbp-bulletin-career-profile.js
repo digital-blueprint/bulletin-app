@@ -11,7 +11,7 @@ import JobProfileModule, {
     JobProfileInterestFormElement,
 } from './modules/jobProfileForm.js';
 
-class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
+class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
             'dbp-button': Button,
@@ -268,8 +268,8 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
 
         if (!profile && this._getOwnProfiles().length > 0) {
             sendNotification({
-                summary: this._i18n.t('manage-your-profile.one-profile-title'),
-                body: this._i18n.t('manage-your-profile.one-profile-body'),
+                summary: this._i18n.t('career-profile.one-profile-title'),
+                body: this._i18n.t('career-profile.one-profile-body'),
                 type: 'warning',
                 timeout: 5,
             });
@@ -319,13 +319,13 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                 throw new Error(
                     errorBody.description ||
                         errorBody['hydra:description'] ||
-                        this._i18n.t('manage-your-profile.delete-error'),
+                        this._i18n.t('career-profile.delete-error'),
                 );
             }
 
             sendNotification({
-                summary: this._i18n.t('manage-your-profile.delete-success-title'),
-                body: this._i18n.t('manage-your-profile.delete-success-body'),
+                summary: this._i18n.t('career-profile.delete-success-title'),
+                body: this._i18n.t('career-profile.delete-success-body'),
                 type: 'success',
                 timeout: 5,
             });
@@ -339,8 +339,8 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
         } catch (error) {
             console.error('Error deleting student profile:', error);
             sendNotification({
-                summary: this._i18n.t('manage-your-profile.delete-error-title'),
-                body: error.message || this._i18n.t('manage-your-profile.delete-error'),
+                summary: this._i18n.t('career-profile.delete-error-title'),
+                body: error.message || this._i18n.t('career-profile.delete-error'),
                 type: 'danger',
                 timeout: 0,
             });
@@ -377,7 +377,7 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
         return html`
             <article class="profile-card">
                 <div>
-                    <h3>${this._i18n.t('manage-your-profile.own-profile-title')}</h3>
+                    <h3>${this._i18n.t('career-profile.own-profile-title')}</h3>
                     <p>${data.studyProgram || ''}</p>
                 </div>
                 <div class="profile-card-actions">
@@ -386,7 +386,7 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                         type="button"
                         @click="${() => this._openProfile(profile)}">
                         <dbp-icon name="magnifier" aria-hidden="true"></dbp-icon>
-                        ${this._i18n.t('manage-your-profile.view-profile')}
+                        ${this._i18n.t('career-profile.view-profile')}
                     </button>
                     ${isOwnProfile
                         ? html`
@@ -395,21 +395,21 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                                   type="button"
                                   @click="${() => this._openEditDialog(profile)}">
                                   <dbp-icon name="pencil" aria-hidden="true"></dbp-icon>
-                                  ${this._i18n.t('manage-your-profile.edit-profile')}
+                                  ${this._i18n.t('career-profile.edit-profile')}
                               </button>
                               <button
                                   class="button is-secondary"
                                   type="button"
                                   @click="${() => this._openDeleteDialog(profile)}">
                                   <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
-                                  ${this._i18n.t('manage-your-profile.delete-profile')}
+                                  ${this._i18n.t('career-profile.delete-profile')}
                               </button>
                               <button
                                   class="button is-primary"
                                   type="button"
                                   @click="${() => this._openSubmissions(profile)}">
                                   <dbp-icon name="list" aria-hidden="true"></dbp-icon>
-                                  ${this._i18n.t('manage-your-profile.view-submissions')}
+                                  ${this._i18n.t('career-profile.view-submissions')}
                               </button>
                           `
                         : ''}
@@ -425,8 +425,8 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
         return html`
             <section class="activity-header">
                 <div>
-                    <h2>${t('manage-your-profile.title')}</h2>
-                    <p>${t('manage-your-profile.description')}</p>
+                    <h2>${t('career-profile.title')}</h2>
+                    <p>${t('career-profile.description')}</p>
                 </div>
                 <button
                     class="button is-primary"
@@ -434,18 +434,18 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                     ?disabled="${ownProfiles.length > 0}"
                     @click="${() => this._openEditDialog()}">
                     <dbp-icon name="plus" aria-hidden="true"></dbp-icon>
-                    ${t('manage-your-profile.create-profile')}
+                    ${t('career-profile.create-profile')}
                 </button>
             </section>
 
             ${ownProfiles.length > 0
                 ? html`
-                      <p class="hint">${t('manage-your-profile.one-profile-hint')}</p>
+                      <p class="hint">${t('career-profile.one-profile-hint')}</p>
                   `
                 : ''}
             ${this._loadError
                 ? html`
-                      <p class="notification is-danger">${t('manage-your-profile.load-error')}</p>
+                      <p class="notification is-danger">${t('career-profile.load-error')}</p>
                   `
                 : ''}
             ${this._loadingProfiles
@@ -457,7 +457,7 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
             <div class="profile-list">
                 ${ownProfiles.length === 0 && !this._loadingProfiles
                     ? html`
-                          <p>${t('manage-your-profile.no-profiles')}</p>
+                          <p>${t('career-profile.no-profiles')}</p>
                       `
                     : ownProfiles.map((profile) => this._renderProfileCard(profile))}
             </div>
@@ -471,17 +471,15 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
 
         return html`
             <span class="back-navigation">
-                <a
-                    @click="${this._backToOverview}"
-                    title="${t('manage-your-profile.back-to-profiles')}">
+                <a @click="${this._backToOverview}" title="${t('career-profile.back-to-profiles')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
-                    ${t('manage-your-profile.back-to-profiles')}
+                    ${t('career-profile.back-to-profiles')}
                 </a>
             </span>
 
             <article class="profile-detail">
                 <header>
-                    <h2>${t('manage-your-profile.own-profile-title')}</h2>
+                    <h2>${t('career-profile.own-profile-title')}</h2>
                 </header>
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
@@ -543,19 +541,19 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                               class="button is-secondary"
                               type="button"
                               @click="${() => this._openEditDialog(profile)}">
-                              ${t('manage-your-profile.edit-profile')}
+                              ${t('career-profile.edit-profile')}
                           </button>
                           <button
                               class="button is-secondary"
                               type="button"
                               @click="${() => this._openDeleteDialog(profile)}">
-                              ${t('manage-your-profile.delete-profile')}
+                              ${t('career-profile.delete-profile')}
                           </button>
                           <button
                               class="button is-primary"
                               type="button"
                               @click="${() => this._openSubmissions(profile)}">
-                              ${t('manage-your-profile.view-submissions')}
+                              ${t('career-profile.view-submissions')}
                           </button>
                       </div>
                   `
@@ -590,14 +588,14 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
             <span class="back-navigation">
                 <a
                     @click="${() => this._openProfile(profile)}"
-                    title="${t('manage-your-profile.back-to-profile')}">
+                    title="${t('career-profile.back-to-profile')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
-                    ${t('manage-your-profile.back-to-profile')}
+                    ${t('career-profile.back-to-profile')}
                 </a>
             </span>
 
             <section class="submissions-view">
-                <h2>${t('manage-your-profile.submissions-title')}</h2>
+                <h2>${t('career-profile.submissions-title')}</h2>
                 <p>${this._localized(profile, 'headline', 'headlineEn') || profile.formName}</p>
 
                 ${this._loadingSubmissions
@@ -608,13 +606,13 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                 ${this._submissionsLoadError
                     ? html`
                           <p class="notification is-danger">
-                              ${t('manage-your-profile.submissions-load-error')}
+                              ${t('career-profile.submissions-load-error')}
                           </p>
                       `
                     : ''}
                 ${!this._loadingSubmissions && this._submissions.length === 0
                     ? html`
-                          <p>${t('manage-your-profile.no-submissions')}</p>
+                          <p>${t('career-profile.no-submissions')}</p>
                       `
                     : ''}
 
@@ -631,7 +629,7 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
 
         return html`
             <article class="submission-card">
-                <h3>${data.companyName || t('manage-your-profile.unknown-company')}</h3>
+                <h3>${data.companyName || t('career-profile.unknown-company')}</h3>
                 <dl class="profile-meta">
                     ${this._renderMetaItem(
                         t('student-profile-form.interest-contact-name'),
@@ -657,8 +655,8 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
     _renderEditModal() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const title = this._editDialogProfile
-            ? t('manage-your-profile.edit-profile')
-            : t('manage-your-profile.create-profile');
+            ? t('career-profile.edit-profile')
+            : t('career-profile.create-profile');
 
         return html`
             <dbp-modal
@@ -698,17 +696,17 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                 modal-id="student-profile-delete-modal"
                 subscribe="lang">
                 <div slot="title">
-                    <h2 class="modal-title">${t('manage-your-profile.delete-dialog-title')}</h2>
+                    <h2 class="modal-title">${t('career-profile.delete-dialog-title')}</h2>
                 </div>
                 <div slot="content" class="delete-dialog-content">
-                    <p>${t('manage-your-profile.delete-dialog-message', {name: profileName})}</p>
+                    <p>${t('career-profile.delete-dialog-message', {name: profileName})}</p>
                     <div class="delete-dialog-actions">
                         <button
                             class="button is-secondary"
                             type="button"
                             ?disabled="${this._isDeletingProfile}"
                             @click="${() => this._('#student-profile-delete-modal')?.close()}">
-                            ${t('manage-your-profile.delete-dialog-cancel')}
+                            ${t('career-profile.delete-dialog-cancel')}
                         </button>
                         <button
                             class="button is-primary"
@@ -722,7 +720,7 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                                 : html`
                                       <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
                                   `}
-                            ${t('manage-your-profile.delete-dialog-confirm')}
+                            ${t('career-profile.delete-dialog-confirm')}
                         </button>
                     </div>
                 </div>
@@ -912,4 +910,4 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
     }
 }
 
-commonUtils.defineCustomElement('dbp-bulletin-manage-your-profile', ManageYourProfileActivity);
+commonUtils.defineCustomElement('dbp-bulletin-career-profile', CareerProfileActivity);

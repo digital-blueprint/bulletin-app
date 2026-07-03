@@ -1,14 +1,14 @@
 {
-    "element": "dbp-bulletin-manage-your-profile",
-    "module_src": "dbp-bulletin-manage-your-profile.js",
-    "routing_name": "manage-your-profile",
+    "element": "dbp-bulletin-career-profile",
+    "module_src": "dbp-bulletin-career-profile.js",
+    "routing_name": "career-profile",
     "name": {
-        "de": "Eigenes Profil verwalten",
-        "en": "Manage your profile"
+        "de": "Eigenes Karriereprofil verwalten",
+        "en": "Manage your career profile"
     },
     "short_name": {
-        "de": "Eigenes Profil verwalten",
-        "en": "Manage your profile"
+        "de": "Eigenes Karriereprofil verwalten",
+        "en": "Manage your career profile"
     },
     "description": {
         "de": "Ermöglicht Studierenden das Erstellen einer Initiativbewerbung in der Form eines Karriereprofils",
