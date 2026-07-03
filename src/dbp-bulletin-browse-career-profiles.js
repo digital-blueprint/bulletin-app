@@ -7,7 +7,7 @@ import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import JobProfileModule, {JobProfileInterestFormElement} from './modules/jobProfileForm.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
-class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
+class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
             'dbp-button': Button,
@@ -109,8 +109,8 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
             if (!response.ok) {
                 this._loadError = true;
                 sendNotification({
-                    summary: this._i18n.t('view-unsolicited-applications.load-error-title'),
-                    body: this._i18n.t('view-unsolicited-applications.load-error'),
+                    summary: this._i18n.t('browse-career-profiles.load-error-title'),
+                    body: this._i18n.t('browse-career-profiles.load-error'),
                     type: 'danger',
                     timeout: 0,
                 });
@@ -125,8 +125,8 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
             console.error('Error loading student profiles for company browsing:', error);
             this._loadError = true;
             sendNotification({
-                summary: this._i18n.t('view-unsolicited-applications.load-error-title'),
-                body: this._i18n.t('view-unsolicited-applications.load-error'),
+                summary: this._i18n.t('browse-career-profiles.load-error-title'),
+                body: this._i18n.t('browse-career-profiles.load-error'),
                 type: 'danger',
                 timeout: 0,
             });
@@ -182,7 +182,7 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
 
     _getProfileAlias(profile) {
         const index = this._profiles.findIndex((item) => item.identifier === profile.identifier);
-        return this._i18n.t('view-unsolicited-applications.applicant-alias', {number: index + 1});
+        return this._i18n.t('browse-career-profiles.applicant-alias', {number: index + 1});
     }
 
     _renderList(items) {
@@ -238,7 +238,7 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
         actions.append(
             this._createTableActionButton(
                 'keyword-research',
-                t('view-unsolicited-applications.view-profile'),
+                t('browse-career-profiles.view-profile'),
                 () => this._openProfile(profile),
             ),
         );
@@ -258,7 +258,7 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
             data: this._getTableData(),
             layout: 'fitColumns',
             rowHeight: 64,
-            placeholder: t('view-unsolicited-applications.no-profiles'),
+            placeholder: t('browse-career-profiles.no-profiles'),
             columnDefaults: {
                 vertAlign: 'middle',
                 hozAlign: 'left',
@@ -266,25 +266,25 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
             },
             columns: [
                 {
-                    title: t('view-unsolicited-applications.column-name'),
+                    title: t('browse-career-profiles.column-name'),
                     field: 'alias',
                     sorter: 'string',
                     minWidth: 180,
                 },
                 {
-                    title: t('view-unsolicited-applications.column-study-program'),
+                    title: t('browse-career-profiles.column-study-program'),
                     field: 'studyProgram',
                     sorter: 'string',
                     minWidth: 220,
                 },
                 {
-                    title: t('view-unsolicited-applications.column-previous-experience'),
+                    title: t('browse-career-profiles.column-previous-experience'),
                     field: 'previousExperience',
                     sorter: 'string',
                     minWidth: 240,
                 },
                 {
-                    title: t('view-unsolicited-applications.column-skills'),
+                    title: t('browse-career-profiles.column-skills'),
                     field: 'skills',
                     sorter: 'string',
                     minWidth: 220,
@@ -343,8 +343,8 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
         return html`
             <section class="activity-header">
                 <div>
-                    <h2>${t('view-unsolicited-applications.title')}</h2>
-                    <p>${t('view-unsolicited-applications.description')}</p>
+                    <h2>${t('browse-career-profiles.title')}</h2>
+                    <p>${t('browse-career-profiles.description')}</p>
                 </div>
                 ${this._loadingProfiles
                     ? html`
@@ -371,9 +371,9 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
             <span class="back-navigation">
                 <a
                     @click="${this._backToOverview}"
-                    title="${t('view-unsolicited-applications.back-to-profiles')}">
+                    title="${t('browse-career-profiles.back-to-profiles')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
-                    ${t('view-unsolicited-applications.back-to-profiles')}
+                    ${t('browse-career-profiles.back-to-profiles')}
                 </a>
             </span>
 
@@ -561,6 +561,6 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
 }
 
 commonUtils.defineCustomElement(
-    'dbp-bulletin-view-unsolicited-applications',
-    ViewUnsolicitedApplicationsActivity,
+    'dbp-bulletin-browse-career-profiles',
+    BrowseCareerProfilesActivity,
 );

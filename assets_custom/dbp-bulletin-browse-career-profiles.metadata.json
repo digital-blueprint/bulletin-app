@@ -1,0 +1,18 @@
+{
+    "element": "dbp-bulletin-browse-career-profiles",
+    "module_src": "dbp-bulletin-browse-career-profiles.js",
+    "routing_name": "browse-career-profiles",
+    "name": {
+        "de": "Karriereprofile durchsuchen",
+        "en": "View career profiles"
+    },
+    "short_name": {
+        "de": "Karriereprofile durchsuchen",
+        "en": "View career profiles"
+    },
+    "description": {
+        "de": "Ermöglicht Firmen das Durchsuchen von Karriereprofilen und das Signalisieren von Interesse",
+        "en": "Allows companies to view career profiles and signal interest"
+    },
+    "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url"
+}

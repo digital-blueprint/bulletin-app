@@ -123,7 +123,7 @@ let input = [
     'src/modules/jobOfferForm.js',
     'src/modules/jobProfileForm.js',
     'src/dbp-bulletin-career-profile.js',
-    'src/dbp-bulletin-view-unsolicited-applications.js',
+    'src/dbp-bulletin-browse-career-profiles.js',
     'src/modules/companyForm.js',
 ];
 

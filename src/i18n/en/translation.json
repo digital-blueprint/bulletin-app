@@ -1,4 +1,18 @@
 {
+    "browse-career-profiles": {
+        "applicant-alias": "Candidate {{number}}",
+        "back-to-profiles": "Back to career profiles",
+        "column-name": "Candidate",
+        "column-previous-experience": "Previous experience",
+        "column-skills": "Skills",
+        "column-study-program": "Study program",
+        "description": "Browse the career profiles of students who are looking for a job. The profiles are anonymised, but in case of interest, you can contact the students via our form.",
+        "load-error": "The career profiles could not be loaded.",
+        "load-error-title": "Loading failed",
+        "no-profiles": "No career profiles are available yet.",
+        "title": "View career profiles",
+        "view-profile": "View profile"
+    },
     "career-profile": {
         "back-to-profile": "Back to profile",
         "back-to-profiles": "Back to student profiles",
@@ -416,19 +430,5 @@
         "weekly-hours-min": "Min",
         "weekly-hours-range": "Hours per week",
         "work-location": "Place of employment"
-    },
-    "view-unsolicited-applications": {
-        "applicant-alias": "Candidate {{number}}",
-        "back-to-profiles": "Back to unsolicited applications",
-        "column-name": "Candidate",
-        "column-previous-experience": "Previous experience",
-        "column-skills": "Skills",
-        "column-study-program": "Study program",
-        "description": "Browse the career profiles of students who are looking for a job. The profiles are anonymised, but in case of interest, you can contact the students via our form.",
-        "load-error": "The unsolicited applications could not be loaded.",
-        "load-error-title": "Loading failed",
-        "no-profiles": "No unsolicited applications are available yet.",
-        "title": "View unsolicited applications",
-        "view-profile": "View profile"
     }
 }

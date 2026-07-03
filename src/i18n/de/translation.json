@@ -1,4 +1,18 @@
 {
+    "browse-career-profiles": {
+        "applicant-alias": "Kandidat*in {{number}}",
+        "back-to-profiles": "Zurück zu den Karriereprofilen",
+        "column-name": "Kandidat*in",
+        "column-previous-experience": "Vorerfahrung",
+        "column-skills": "Kompetenzen",
+        "column-study-program": "Studium",
+        "description": "Durchsuchen Sie Karriereprofile der Studierenden, die nach einer Arbeit suchen. Die Profile sind anonymisiert, jedoch können Sie die Studierenden bei Interesse über unser Formular kontaktieren.",
+        "load-error": "Die Karriereprofile konnten nicht geladen werden.",
+        "load-error-title": "Laden fehlgeschlagen",
+        "no-profiles": "Es sind noch keine Karriereprofile verfügbar.",
+        "title": "Karriereprofile durchsuchen",
+        "view-profile": "Profil anzeigen"
+    },
     "career-profile": {
         "back-to-profile": "Zurück zum Profil",
         "back-to-profiles": "Zurück zu den Studierendenprofilen",
@@ -416,19 +430,5 @@
         "weekly-hours-min": "Min",
         "weekly-hours-range": "Wochenstunden",
         "work-location": "Dienstort"
-    },
-    "view-unsolicited-applications": {
-        "applicant-alias": "Kandidat*in {{number}}",
-        "back-to-profiles": "Zurück zu den Initiativbewerbungen",
-        "column-name": "Kandidat*in",
-        "column-previous-experience": "Vorerfahrung",
-        "column-skills": "Kompetenzen",
-        "column-study-program": "Studium",
-        "description": "Durchsuchen Sie Karriereprofile der Studierenden, die nach einer Arbeit suchen. Die Profile sind anonymisiert, jedoch können Sie die Studierenden bei Interesse über unser Formular kontaktieren.",
-        "load-error": "Die Initiativbewerbungen konnten nicht geladen werden.",
-        "load-error-title": "Laden fehlgeschlagen",
-        "no-profiles": "Es sind noch keine Initiativbewerbungen verfügbar.",
-        "title": "Initiativbewerbungen anzeigen",
-        "view-profile": "Profil anzeigen"
     }
 }
