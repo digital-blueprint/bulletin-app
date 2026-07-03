@@ -11,8 +11,8 @@
         "en": "View career profiles"
     },
     "description": {
-        "de": "Ermöglicht Firmen das Durchsuchen von Karriereprofilen und das Signalisieren von Interesse",
-        "en": "Allows companies to view career profiles and signal interest"
+        "de": "Ermöglicht es, Karriereprofile der Studierenden für potentielle Zusammenarbeit zu durchsuchen",
+        "en": "Enables you to explore student career profiles for potential job candidates"
     },
     "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url"
 }

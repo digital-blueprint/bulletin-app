@@ -11,8 +11,8 @@
         "en": "Manage your career profile"
     },
     "description": {
-        "de": "Ermöglicht Studierenden das Erstellen eines Profils und das Anzeigen von Firmeninteressen.",
-        "en": "Allows students to create a profile and view company interest submissions."
+        "de": "Ermöglicht Studierenden das Erstellen einer Initiativbewerbung in der Form eines Karriereprofils",
+        "en": "Enables students to create unsolicited applications as career profiles"
     },
     "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url"
 }
