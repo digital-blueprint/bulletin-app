@@ -4,7 +4,11 @@ import {Button, Icon, IconButton, MiniSpinner, sendNotification} from '@dbp-tool
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
-import JobProfileModule, {JobProfileInterestFormElement} from './modules/jobProfileForm.js';
+import JobProfileModule, {
+    formatStudentStudies,
+    JobProfileInterestFormElement,
+    normalizeStudentStudies,
+} from './modules/jobProfileForm.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
 class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
@@ -208,13 +212,36 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         `;
     }
 
+    _renderStudies(profile) {
+        const studies = normalizeStudentStudies(profile?.additionalData ?? {});
+        if (studies.length === 0) {
+            return '';
+        }
+
+        return this._renderList(studies.map((study) => study.name));
+    }
+
+    _renderStudiesSection(profile) {
+        const studies = normalizeStudentStudies(profile?.additionalData ?? {});
+        if (studies.length === 0) {
+            return '';
+        }
+
+        return html`
+            <section class="profile-studies">
+                <h3>${this._i18n.t('student-profile-form.field-study-program')}</h3>
+                ${this._renderStudies(profile)}
+            </section>
+        `;
+    }
+
     _getTableData() {
         return this._profiles.map((profile) => {
             const data = profile.additionalData ?? {};
             const skills = this._localizedList(profile, 'skills', 'skillsEn');
             return {
                 alias: this._getProfileAlias(profile),
-                studyProgram: data.studyProgram || '',
+                studyProgram: formatStudentStudies(data),
                 previousExperience: this._localized(
                     profile,
                     'previousExperience',
@@ -403,11 +430,9 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
+                ${this._renderStudiesSection(profile)}
+
                 <dl class="profile-meta">
-                    ${this._renderMetaItem(
-                        t('student-profile-form.field-study-program'),
-                        data.studyProgram,
-                    )}
                     ${this._renderMetaItem(
                         t('student-profile-form.field-availability'),
                         data.availability,

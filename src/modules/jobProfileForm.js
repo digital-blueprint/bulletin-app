@@ -31,6 +31,47 @@ const parseMultilineList = (value) =>
 
 const normalizeMultilineValue = (value) => (Array.isArray(value) ? value.join('\n') : value || '');
 
+export const normalizeStudentStudies = (localData) => {
+    const value =
+        localData.studies ??
+        localData.studyProgram ??
+        localData.studyPrograms ??
+        localData.curriculum ??
+        localData.curricula ??
+        localData.degreeProgram ??
+        localData.degreePrograms ??
+        '';
+
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => {
+                if (typeof item === 'object' && item !== null) {
+                    return {
+                        ...item,
+                        name: item.name ?? item.title ?? item.identifier ?? '',
+                    };
+                }
+
+                return {name: String(item ?? '')};
+            })
+            .filter((item) => item.name);
+    }
+
+    if (typeof value === 'object' && value !== null) {
+        const name = value.name ?? value.title ?? value.identifier ?? '';
+        return name ? [{...value, name}] : [];
+    }
+
+    const name = String(value ?? '');
+    return name ? [{name}] : [];
+};
+
+export const formatStudentStudies = (localData) => {
+    return normalizeStudentStudies(localData)
+        .map((study) => study.name)
+        .join(', ');
+};
+
 const isValidWebsiteUrl = (value) => {
     const trimmedValue = value.trim();
     if (!trimmedValue) {
@@ -160,9 +201,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this.auth = {};
         this.entryPointUrl = '';
         this.existingForm = null;
+        this.currentStudentStudies = [];
         this._summary = '';
         this._summaryEn = '';
         this._studyProgram = '';
+        this._studies = [];
         this._previousExperience = '';
         this._previousExperienceEn = '';
         this._skillsText = '';
@@ -173,6 +216,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._contactEmail = '';
         this._studentDataPrefillUserId = '';
         this._website = '';
+        this._loadingStudentData = false;
         this._isSubmitting = false;
     }
 
@@ -184,9 +228,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             auth: {type: Object},
             entryPointUrl: {type: String, attribute: 'entry-point-url'},
             existingForm: {type: Object, attribute: false},
+            currentStudentStudies: {type: Array, attribute: false},
             _summary: {state: true},
             _summaryEn: {state: true},
             _studyProgram: {state: true},
+            _studies: {state: true},
             _previousExperience: {state: true},
             _previousExperienceEn: {state: true},
             _skillsText: {state: true},
@@ -196,6 +242,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _availability: {state: true},
             _contactEmail: {state: true},
             _website: {state: true},
+            _loadingStudentData: {state: true},
             _isSubmitting: {state: true},
         };
     }
@@ -214,7 +261,9 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 const data = this.existingForm.additionalData || {};
                 this._summary = data.summary || '';
                 this._summaryEn = data.summaryEn || '';
-                this._studyProgram = data.studyProgram || '';
+                this._studies = normalizeStudentStudies(data);
+                this._studyProgram =
+                    data.studyProgram || formatStudentStudies({studies: this._studies});
                 this._previousExperience = data.previousExperience || '';
                 this._previousExperienceEn = data.previousExperienceEn || '';
                 this._skillsText = normalizeMultilineValue(data.skills);
@@ -225,13 +274,22 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._contactEmail = data.contactEmail || '';
                 this._website = data.website || data.linkUrl || '';
             }
+
+            if (
+                (propName === 'currentStudentStudies' || propName === 'existingForm') &&
+                Array.isArray(this.currentStudentStudies) &&
+                this.currentStudentStudies.length > 0 &&
+                !Array.isArray(this.existingForm?.additionalData?.studies)
+            ) {
+                this._studies = normalizeStudentStudies({studies: this.currentStudentStudies});
+                this._studyProgram = formatStudentStudies({studies: this._studies});
+            }
         });
 
         if (
-            !this.existingForm &&
-            (changedProperties.has('auth') ||
-                changedProperties.has('entryPointUrl') ||
-                changedProperties.has('existingForm'))
+            changedProperties.has('auth') ||
+            changedProperties.has('entryPointUrl') ||
+            changedProperties.has('existingForm')
         ) {
             this._prefillStudentData();
         }
@@ -241,29 +299,36 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
 
     async _prefillStudentData() {
         const userId = this.auth?.['user-id'];
+        const hasSavedStudies = Array.isArray(this.existingForm?.additionalData?.studies);
+        const hasCompleteStudentData = this._contactEmail && this._studies.length > 0;
         if (
             !userId ||
+            !this.auth?.token ||
             !this.entryPointUrl ||
             this._studentDataPrefillUserId === userId ||
-            (this._contactEmail && this._studyProgram)
+            (hasCompleteStudentData && (!this.existingForm || hasSavedStudies))
         ) {
             return;
         }
 
-        this._studentDataPrefillUserId = userId;
+        this._loadingStudentData = true;
 
         try {
-            const localData = await this._fetchPersonLocalData(userId, ['email']);
-
-            if (this.existingForm) {
-                return;
-            }
+            const localData = await this._fetchPersonLocalData(userId, ['email', 'studies']);
 
             // Email is kept in additionalData for contacting the student, but never shown to companies.
+            const studies = normalizeStudentStudies(localData);
+
             this._contactEmail = this._contactEmail || localData.email || '';
-            this._studyProgram = this._studyProgram || this._formatStudyProgram(localData);
+            this._studies = studies.length ? studies : this._studies;
+            this._studyProgram = this._studies.length
+                ? formatStudentStudies({studies: this._studies})
+                : this._studyProgram || formatStudentStudies(localData);
+            this._studentDataPrefillUserId = userId;
         } catch (error) {
             console.error('Error pre-filling student profile data:', error);
+        } finally {
+            this._loadingStudentData = false;
         }
     }
 
@@ -282,36 +347,18 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         );
 
         if (!response.ok) {
+            if (localDataAttributes.includes('studies')) {
+                return this._fetchPersonLocalData(
+                    userId,
+                    localDataAttributes.filter((attribute) => attribute !== 'studies'),
+                );
+            }
+
             throw new Error(response.statusText || response.status);
         }
 
         const person = await response.json();
         return person?.localData ?? {};
-    }
-
-    _formatStudyProgram(localData) {
-        const value =
-            localData.studyProgram ??
-            localData.studyPrograms ??
-            localData.studies ??
-            localData.curriculum ??
-            localData.curricula ??
-            localData.degreeProgram ??
-            localData.degreePrograms ??
-            '';
-
-        if (Array.isArray(value)) {
-            return value
-                .map((item) => item?.name ?? item?.title ?? item?.identifier ?? item)
-                .filter(Boolean)
-                .join(', ');
-        }
-
-        if (typeof value === 'object' && value !== null) {
-            return value.name ?? value.title ?? value.identifier ?? '';
-        }
-
-        return String(value ?? '');
     }
 
     get _isFormValid() {
@@ -322,9 +369,25 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         );
     }
 
+    _getDisplayStudies() {
+        if (this._studies.length > 0) {
+            return this._studies;
+        }
+
+        if (Array.isArray(this.currentStudentStudies) && this.currentStudentStudies.length > 0) {
+            return normalizeStudentStudies({studies: this.currentStudentStudies});
+        }
+
+        return [];
+    }
+
     async submit() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const isEditMode = Boolean(this.existingForm?.formId);
+        const studies = this._getDisplayStudies();
+        const studyProgram = studies.length
+            ? formatStudentStudies({studies})
+            : this._studyProgram.trim();
 
         if (!this._contactEmail.trim()) {
             sendNotification({
@@ -371,7 +434,8 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         const additionalData = {
             summary: this._summary.trim(),
             summaryEn: this._summaryEn.trim(),
-            studyProgram: this._studyProgram.trim(),
+            studyProgram,
+            studies,
             previousExperience: this._previousExperience.trim(),
             previousExperienceEn: this._previousExperienceEn.trim(),
             skills: parseMultilineList(this._skillsText),
@@ -477,6 +541,8 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
 
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
+        const studies = this._getDisplayStudies();
+        const studyProgram = studies.length ? formatStudentStudies({studies}) : this._studyProgram;
         keepStudentProfileTranslations(t);
 
         return html`
@@ -499,20 +565,37 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 )}
             </div>
 
-            ${this._studyProgram
-                ? html`
-                      <p class="profile-prefill-info">
-                          <strong>${t('student-profile-form.field-study-program')}:</strong>
-                          ${this._studyProgram}
-                      </p>
-                  `
-                : ''}
             ${this._contactEmail
                 ? html`
-                      <p class="profile-prefill-info">
+                      <div class="profile-prefill-info">
                           <strong>${t('student-profile-form.field-contact-email')}:</strong>
                           ${this._contactEmail}
-                      </p>
+                      </div>
+                  `
+                : ''}
+            ${this._loadingStudentData || studyProgram || studies.length
+                ? html`
+                      <div class="profile-prefill-info">
+                          <strong>${t('student-profile-form.field-study-program')}:</strong>
+                          ${studies.length
+                              ? html`
+                                    <ul>
+                                        ${studies.map(
+                                            (study) => html`
+                                                <li>${study.name}</li>
+                                            `,
+                                        )}
+                                    </ul>
+                                `
+                              : this._loadingStudentData
+                                ? html`
+                                      <dbp-mini-spinner
+                                          text="${t('loading-message')}"></dbp-mini-spinner>
+                                  `
+                                : html`
+                                      ${studyProgram}
+                                  `}
+                      </div>
                   `
                 : ''}
 
@@ -634,6 +717,19 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     border-radius: var(--dbp-border-radius);
                     margin: 0 0 1rem 0;
                     padding: 0.75rem 1rem;
+                }
+
+                .profile-prefill-info h3 {
+                    font-size: 1rem;
+                    margin: 0 0 0.5rem;
+                }
+
+                .profile-prefill-info ul {
+                    margin: 0.5rem 0 0 1.25rem;
+                }
+
+                .profile-prefill-info p {
+                    margin: 0.5rem 0 0;
                 }
 
                 .profile-website-identity-warning {

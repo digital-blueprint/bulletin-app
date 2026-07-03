@@ -9,6 +9,7 @@ import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import JobProfileModule, {
     JobProfileEditFormElement,
     JobProfileInterestFormElement,
+    normalizeStudentStudies,
 } from './modules/jobProfileForm.js';
 
 class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
@@ -37,6 +38,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._deleteDialogProfile = null;
         this._isDeletingProfile = false;
         this._profilesLoaded = false;
+        this._currentStudentStudies = [];
+        this._currentStudentStudiesUserId = '';
+        this._loadingCurrentStudentStudies = false;
     }
 
     static get properties() {
@@ -52,11 +56,14 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             _editDialogProfile: {state: true},
             _deleteDialogProfile: {state: true},
             _isDeletingProfile: {state: true},
+            _currentStudentStudies: {state: true},
+            _loadingCurrentStudentStudies: {state: true},
         };
     }
 
     initialize() {
         this._fetchProfiles();
+        this._fetchCurrentStudentStudies();
     }
 
     update(changedProperties) {
@@ -76,11 +83,58 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 this._fetchProfiles();
             }
         }
+
+        if (changedProperties.has('auth') || changedProperties.has('entryPointUrl')) {
+            this._fetchCurrentStudentStudies();
+        }
     }
 
     loginCallback() {
         if (!this._profilesLoaded && this.auth?.token) {
             this._fetchProfiles();
+        }
+
+        this._fetchCurrentStudentStudies();
+    }
+
+    async _fetchCurrentStudentStudies() {
+        const userId = this.auth?.['user-id'];
+        if (
+            !userId ||
+            !this.auth?.token ||
+            !this.entryPointUrl ||
+            this._loadingCurrentStudentStudies ||
+            this._currentStudentStudiesUserId === userId
+        ) {
+            return;
+        }
+
+        this._loadingCurrentStudentStudies = true;
+
+        try {
+            const response = await fetch(
+                `${this.entryPointUrl}/base/people/${encodeURIComponent(
+                    userId,
+                )}?includeLocal=${encodeURIComponent('studies')}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/ld+json',
+                        Authorization: `Bearer ${this.auth.token}`,
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const person = await response.json();
+            this._currentStudentStudies = normalizeStudentStudies(person?.localData ?? {});
+            this._currentStudentStudiesUserId = userId;
+        } catch (error) {
+            console.error('Error loading student studies:', error);
+        } finally {
+            this._loadingCurrentStudentStudies = false;
         }
     }
 
@@ -261,7 +315,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.sendSetPropertyEvent('routing-url', '/', true);
     }
 
-    _openEditDialog(profile = null) {
+    async _openEditDialog(profile = null) {
         if (profile && !this._isOwnProfile(profile)) {
             return;
         }
@@ -276,6 +330,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             return;
         }
 
+        await this._fetchCurrentStudentStudies();
         this._editDialogProfile = profile;
         this.updateComplete.then(() => this._('#student-profile-edit-modal')?.open());
     }
@@ -377,15 +432,55 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
+    _getProfileStudies(profile) {
+        const data = profile?.additionalData ?? {};
+        const savedStudies = Array.isArray(data.studies) ? normalizeStudentStudies(data) : [];
+        if (savedStudies.length > 0) {
+            return savedStudies;
+        }
+
+        if (this._isOwnProfile(profile) && this._currentStudentStudies.length > 0) {
+            return this._currentStudentStudies;
+        }
+
+        return normalizeStudentStudies(data);
+    }
+
+    _renderStudies(profile) {
+        const studies = this._getProfileStudies(profile);
+        if (studies.length === 0) {
+            return '';
+        }
+
+        return this._renderList(studies.map((study) => study.name));
+    }
+
+    _renderStudiesSection(profile) {
+        const studies = this._getProfileStudies(profile);
+        if (studies.length === 0 && !this._loadingCurrentStudentStudies) {
+            return '';
+        }
+
+        return html`
+            <section class="profile-studies">
+                <h3>${this._i18n.t('student-profile-form.field-study-program')}</h3>
+                ${studies.length
+                    ? this._renderStudies(profile)
+                    : html`
+                          <dbp-mini-spinner
+                              text="${this._i18n.t('loading-message')}"></dbp-mini-spinner>
+                      `}
+            </section>
+        `;
+    }
+
     _renderProfileCard(profile) {
-        const data = profile.additionalData ?? {};
         const isOwnProfile = this._isOwnProfile(profile);
 
         return html`
             <article class="profile-card">
                 <div>
                     <h3>${this._i18n.t('career-profile.own-profile-title')}</h3>
-                    <p>${data.studyProgram || ''}</p>
                 </div>
                 <div class="profile-card-actions">
                     <button
@@ -498,11 +593,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
+                ${this._renderStudiesSection(profile)}
+
                 <dl class="profile-meta">
-                    ${this._renderMetaItem(
-                        t('student-profile-form.field-study-program'),
-                        data.studyProgram,
-                    )}
                     ${this._renderMetaItem(
                         t('student-profile-form.field-availability'),
                         data.availability,
@@ -690,6 +783,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         .auth="${this.auth}"
                         entry-point-url="${this.entryPointUrl}"
                         .existingForm="${this._editDialogProfile}"
+                        .currentStudentStudies="${this._currentStudentStudies}"
                         @dbp-edit-form-saved="${this
                             ._handleProfileSaved}"></dbp-job-profile-edit-form>
                 </div>

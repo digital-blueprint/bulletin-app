@@ -7,6 +7,7 @@ import {
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
 } from '../src/modules/jobOfferForm.js';
+import {formatStudentStudies as formatCareerProfileStudies} from '../src/modules/jobProfileForm.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
@@ -164,5 +165,19 @@ suite('jobOfferForm auth refresh handling', () => {
         assert.equal(checkCalls, 2);
 
         element.remove();
+    });
+});
+
+suite('career profile student studies', () => {
+    test('should format multiple fetched studies for the saved profile', () => {
+        assert.equal(
+            formatCareerProfileStudies({
+                studies: [
+                    {key: 'unused', name: '066 921 Computer Science (Bachelorstudium)'},
+                    {name: '066 937 Software Engineering and Management (Masterstudium)'},
+                ],
+            }),
+            '066 921 Computer Science (Bachelorstudium), 066 937 Software Engineering and Management (Masterstudium)',
+        );
     });
 });
