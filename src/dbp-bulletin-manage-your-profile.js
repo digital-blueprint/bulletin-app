@@ -385,6 +385,7 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                         class="button is-secondary"
                         type="button"
                         @click="${() => this._openProfile(profile)}">
+                        <dbp-icon name="magnifier" aria-hidden="true"></dbp-icon>
                         ${this._i18n.t('manage-your-profile.view-profile')}
                     </button>
                     ${isOwnProfile
@@ -393,18 +394,21 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
                                   class="button is-secondary"
                                   type="button"
                                   @click="${() => this._openEditDialog(profile)}">
+                                  <dbp-icon name="pencil" aria-hidden="true"></dbp-icon>
                                   ${this._i18n.t('manage-your-profile.edit-profile')}
                               </button>
                               <button
                                   class="button is-secondary"
                                   type="button"
                                   @click="${() => this._openDeleteDialog(profile)}">
+                                  <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
                                   ${this._i18n.t('manage-your-profile.delete-profile')}
                               </button>
                               <button
                                   class="button is-primary"
                                   type="button"
                                   @click="${() => this._openSubmissions(profile)}">
+                                  <dbp-icon name="list" aria-hidden="true"></dbp-icon>
                                   ${this._i18n.t('manage-your-profile.view-submissions')}
                               </button>
                           `
@@ -660,8 +664,10 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
             <dbp-modal
                 id="student-profile-edit-modal"
                 modal-id="student-profile-edit-modal"
-                title="${title}"
                 subscribe="lang">
+                <div slot="title">
+                    <h2 class="modal-title">${title}</h2>
+                </div>
                 <div slot="content">
                     <dbp-notification
                         id="student-profile-form-notification"
@@ -690,8 +696,10 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
             <dbp-modal
                 id="student-profile-delete-modal"
                 modal-id="student-profile-delete-modal"
-                title="${t('manage-your-profile.delete-dialog-title')}"
                 subscribe="lang">
+                <div slot="title">
+                    <h2 class="modal-title">${t('manage-your-profile.delete-dialog-title')}</h2>
+                </div>
                 <div slot="content" class="delete-dialog-content">
                     <p>${t('manage-your-profile.delete-dialog-message', {name: profileName})}</p>
                     <div class="delete-dialog-actions">
@@ -780,6 +788,11 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
 
             .activity-header {
                 margin-bottom: 1.5rem;
+            }
+
+            .modal-title {
+                font-weight: 300;
+                margin: 0;
             }
 
             .activity-header h2,
@@ -877,8 +890,6 @@ class ManageYourProfileActivity extends ScopedElementsMixin(DBPBulletinLitElemen
             }
 
             .button {
-                display: inline-flex;
-                align-items: center;
                 gap: 0.35rem;
             }
 

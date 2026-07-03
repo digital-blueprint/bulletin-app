@@ -419,7 +419,7 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
                 ${data.skills?.length
                     ? html`
                           <section>
-                              <h3>${t('student-profile-form.field-skills')}</h3>
+                              <h3>${t('student-profile-form.field-skills-view-mode')}</h3>
                               ${this._renderList(data.skills)}
                           </section>
                       `
@@ -427,7 +427,7 @@ class ViewUnsolicitedApplicationsActivity extends ScopedElementsMixin(DBPBulleti
                 ${data.languages?.length
                     ? html`
                           <section>
-                              <h3>${t('student-profile-form.field-languages')}</h3>
+                              <h3>${t('student-profile-form.field-languages-view-mode')}</h3>
                               ${this._renderList(data.languages)}
                           </section>
                       `

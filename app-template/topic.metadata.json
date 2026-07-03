@@ -1,11 +1,11 @@
 {
     "name": {
-        "de": "Bulletin",
-        "en": "Job portal"
+        "de": "Schwarzes Brett",
+        "en": "Bulletin board"
     },
     "short_name": {
-        "de": "Bulletin",
-        "en": "Job portal"
+        "de": "Schwarzes Brett",
+        "en": "Bulletin board"
     },
     "description": {
         "de": "Verwalten und betrachten Sie Stellenangebote.",

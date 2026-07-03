@@ -11,8 +11,8 @@
         "en": "View unsolicited applications"
     },
     "description": {
-        "de": "Ermöglicht Firmen das Anzeigen von Initiativbewerbungen und das Signalisieren von Interesse.",
-        "en": "Allows companies to view unsolicited applications and signal interest."
+        "de": "Ermöglicht Firmen das Anzeigen von Initiativbewerbungen und das Signalisieren von Interesse",
+        "en": "Allows companies to view unsolicited applications and signal interest"
     },
     "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url"
 }

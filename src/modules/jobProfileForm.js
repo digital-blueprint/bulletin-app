@@ -560,7 +560,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                               <dbp-mini-spinner></dbp-mini-spinner>
                           `
                         : html`
-                              <dbp-icon name="checkmark" aria-hidden="true"></dbp-icon>
+                              <dbp-icon name="save" aria-hidden="true"></dbp-icon>
                           `}
                     ${t('student-profile-form.save-profile')}
                 </button>
