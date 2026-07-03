@@ -354,6 +354,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         return this.lang === 'en' && data[englishKey] ? data[englishKey] : data[primaryKey] || '';
     }
 
+    _localizedList(profile, primaryKey, englishKey) {
+        const data = profile?.additionalData ?? {};
+        return this.lang === 'en' && Array.isArray(data[englishKey]) && data[englishKey].length > 0
+            ? data[englishKey]
+            : data[primaryKey] || [];
+    }
+
     _renderList(items) {
         if (!Array.isArray(items) || items.length === 0) {
             return '';
@@ -468,6 +475,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const data = profile.additionalData ?? {};
         const isOwnProfile = this._isOwnProfile(profile);
+        const previousExperience = this._localized(
+            profile,
+            'previousExperience',
+            'previousExperienceEn',
+        );
+        const skills = this._localizedList(profile, 'skills', 'skillsEn');
+        const languages = this._localizedList(profile, 'languages', 'languagesEn');
 
         return html`
             <span class="back-navigation">
@@ -508,27 +522,27 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         : ''}
                 </dl>
 
-                ${data.previousExperience
+                ${previousExperience
                     ? html`
                           <section>
                               <h3>${t('student-profile-form.field-previous-experience')}</h3>
-                              <p>${data.previousExperience}</p>
+                              <p>${previousExperience}</p>
                           </section>
                       `
                     : ''}
-                ${data.skills?.length
+                ${skills.length
                     ? html`
                           <section>
                               <h3>${t('student-profile-form.field-skills')}</h3>
-                              ${this._renderList(data.skills)}
+                              ${this._renderList(skills)}
                           </section>
                       `
                     : ''}
-                ${data.languages?.length
+                ${languages.length
                     ? html`
                           <section>
                               <h3>${t('student-profile-form.field-languages')}</h3>
-                              ${this._renderList(data.languages)}
+                              ${this._renderList(languages)}
                           </section>
                       `
                     : ''}

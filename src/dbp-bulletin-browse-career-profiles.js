@@ -180,6 +180,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         return this.lang === 'en' && data[englishKey] ? data[englishKey] : data[primaryKey] || '';
     }
 
+    _localizedList(profile, primaryKey, englishKey) {
+        const data = profile?.additionalData ?? {};
+        return this.lang === 'en' && Array.isArray(data[englishKey]) && data[englishKey].length > 0
+            ? data[englishKey]
+            : data[primaryKey] || [];
+    }
+
     _getProfileAlias(profile) {
         const index = this._profiles.findIndex((item) => item.identifier === profile.identifier);
         return this._i18n.t('browse-career-profiles.applicant-alias', {number: index + 1});
@@ -204,11 +211,16 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     _getTableData() {
         return this._profiles.map((profile) => {
             const data = profile.additionalData ?? {};
+            const skills = this._localizedList(profile, 'skills', 'skillsEn');
             return {
                 alias: this._getProfileAlias(profile),
                 studyProgram: data.studyProgram || '',
-                previousExperience: data.previousExperience || '',
-                skills: Array.isArray(data.skills) ? data.skills.join(', ') : '',
+                previousExperience: this._localized(
+                    profile,
+                    'previousExperience',
+                    'previousExperienceEn',
+                ),
+                skills: skills.join(', '),
                 profile,
             };
         });
@@ -366,6 +378,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     _renderProfileDetail(profile) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const data = profile.additionalData ?? {};
+        const previousExperience = this._localized(
+            profile,
+            'previousExperience',
+            'previousExperienceEn',
+        );
+        const skills = this._localizedList(profile, 'skills', 'skillsEn');
+        const languages = this._localizedList(profile, 'languages', 'languagesEn');
 
         return html`
             <span class="back-navigation">
@@ -408,27 +427,27 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         : ''}
                 </dl>
 
-                ${data.previousExperience
+                ${previousExperience
                     ? html`
                           <section>
                               <h3>${t('student-profile-form.field-previous-experience')}</h3>
-                              <p>${data.previousExperience}</p>
+                              <p>${previousExperience}</p>
                           </section>
                       `
                     : ''}
-                ${data.skills?.length
+                ${skills.length
                     ? html`
                           <section>
                               <h3>${t('student-profile-form.field-skills-view-mode')}</h3>
-                              ${this._renderList(data.skills)}
+                              ${this._renderList(skills)}
                           </section>
                       `
                     : ''}
-                ${data.languages?.length
+                ${languages.length
                     ? html`
                           <section>
                               <h3>${t('student-profile-form.field-languages-view-mode')}</h3>
-                              ${this._renderList(data.languages)}
+                              ${this._renderList(languages)}
                           </section>
                       `
                     : ''}

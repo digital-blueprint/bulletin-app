@@ -52,10 +52,13 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-availability');
     t('student-profile-form.field-contact-email');
     t('student-profile-form.field-languages');
+    t('student-profile-form.field-languages-en');
     t('student-profile-form.field-previous-experience');
+    t('student-profile-form.field-previous-experience-en');
     t('student-profile-form.field-profile-summary');
     t('student-profile-form.field-profile-summary-en');
     t('student-profile-form.field-skills');
+    t('student-profile-form.field-skills-en');
     t('student-profile-form.field-study-program');
     t('student-profile-form.field-website');
     t('student-profile-form.field-website-identity-warning');
@@ -161,8 +164,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._summaryEn = '';
         this._studyProgram = '';
         this._previousExperience = '';
+        this._previousExperienceEn = '';
         this._skillsText = '';
+        this._skillsTextEn = '';
         this._languagesText = '';
+        this._languagesTextEn = '';
         this._availability = '';
         this._contactEmail = '';
         this._studentDataPrefillUserId = '';
@@ -182,8 +188,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _summaryEn: {state: true},
             _studyProgram: {state: true},
             _previousExperience: {state: true},
+            _previousExperienceEn: {state: true},
             _skillsText: {state: true},
+            _skillsTextEn: {state: true},
             _languagesText: {state: true},
+            _languagesTextEn: {state: true},
             _availability: {state: true},
             _contactEmail: {state: true},
             _website: {state: true},
@@ -207,8 +216,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._summaryEn = data.summaryEn || '';
                 this._studyProgram = data.studyProgram || '';
                 this._previousExperience = data.previousExperience || '';
+                this._previousExperienceEn = data.previousExperienceEn || '';
                 this._skillsText = normalizeMultilineValue(data.skills);
+                this._skillsTextEn = normalizeMultilineValue(data.skillsEn);
                 this._languagesText = normalizeMultilineValue(data.languages);
+                this._languagesTextEn = normalizeMultilineValue(data.languagesEn);
                 this._availability = data.availability || '';
                 this._contactEmail = data.contactEmail || '';
                 this._website = data.website || data.linkUrl || '';
@@ -361,8 +373,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             summaryEn: this._summaryEn.trim(),
             studyProgram: this._studyProgram.trim(),
             previousExperience: this._previousExperience.trim(),
+            previousExperienceEn: this._previousExperienceEn.trim(),
             skills: parseMultilineList(this._skillsText),
+            skillsEn: parseMultilineList(this._skillsTextEn),
             languages: parseMultilineList(this._languagesText),
+            languagesEn: parseMultilineList(this._languagesTextEn),
             availability: this._availability.trim(),
             contactEmail: this._contactEmail.trim(),
             website: this._website.trim(),
@@ -510,6 +525,16 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     {rows: 4},
                 )}
                 ${this.renderTextField(
+                    'previousExperienceEn',
+                    'student-profile-form.field-previous-experience-en',
+                    this._previousExperienceEn,
+                    (value) => (this._previousExperienceEn = value),
+                    {rows: 4},
+                )}
+            </div>
+
+            <div class="translation-row">
+                ${this.renderTextField(
                     'skills',
                     'student-profile-form.field-skills',
                     this._skillsText,
@@ -517,10 +542,27 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     {rows: 4},
                 )}
                 ${this.renderTextField(
+                    'skillsEn',
+                    'student-profile-form.field-skills-en',
+                    this._skillsTextEn,
+                    (value) => (this._skillsTextEn = value),
+                    {rows: 4},
+                )}
+            </div>
+
+            <div class="translation-row">
+                ${this.renderTextField(
                     'languages',
                     'student-profile-form.field-languages',
                     this._languagesText,
                     (value) => (this._languagesText = value),
+                    {rows: 4},
+                )}
+                ${this.renderTextField(
+                    'languagesEn',
+                    'student-profile-form.field-languages-en',
+                    this._languagesTextEn,
+                    (value) => (this._languagesTextEn = value),
                     {rows: 4},
                 )}
             </div>
