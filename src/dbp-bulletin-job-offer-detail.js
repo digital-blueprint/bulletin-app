@@ -207,7 +207,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <section class="company-info-block">
-                <h4>${title}</h4>
+                <h4 class="company-info-title">${title}</h4>
                 <p>
                     ${lines.map((line, index) =>
                         index === 0

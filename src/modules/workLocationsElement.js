@@ -338,7 +338,7 @@ export class WorkLocationSelectElement extends DBPLitElement {
         return html`
             <link rel="stylesheet" href="${select2CSS}" />
             <div class="select">
-                <div class="field">
+                <div>
                     <div class="select2-control control">
                         <select
                             id="${this._selectId}"
@@ -407,6 +407,8 @@ export class WorkLocationSelectElement extends DBPLitElement {
                 right: 1.35rem;
                 top: 0;
                 z-index: 1;
+                font-size: 1.3em;
+                font-weight: 300;
             }
 
             .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -644,7 +646,9 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         return html`
             <link rel="stylesheet" href="${select2CSS}" />
             <section class="work-locations">
-                <h4 class="field-label">${t('manage-job-offers.field-work-locations')}</h4>
+                <h4 class="field-label company-info-title">
+                    ${t('manage-job-offers.field-work-locations')}
+                </h4>
 
                 <div class="selector-stack">
                     <label class="selector-label">
@@ -718,10 +722,11 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                         : ''}
 
                     <button
-                        class="button is-secondary add-location-button"
+                        class="button is-primary add-location-button"
                         type="button"
                         ?disabled="${this.disabled || !this._country}"
                         @click="${this._addLocation}">
+                        <dbp-icon name="plus" aria-hidden="true"></dbp-icon>
                         ${t('manage-job-offers.work-location-add')}
                     </button>
                 </div>
@@ -775,25 +780,30 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             }
 
             .field-label {
-                font-size: 1rem;
-                font-weight: 600;
-                margin: 0 0 0.5rem;
+                font-size: 18px;
+                font-weight: 400;
+                margin: 10px 0;
             }
 
             .selector-stack {
-                display: grid;
-                gap: 0.75rem;
+                display: flex;
+                gap: 10px;
+                align-items: flex-end;
+            }
+
+            .selector-stack button {
+                margin-left: auto;
             }
 
             .selector-label {
                 display: grid;
-                gap: 0.35rem;
-                font-weight: 600;
+                flex: 1;
             }
 
+            .selector-label,
             .selector-label dbp-country-select,
             .selector-label select {
-                font-weight: 400;
+                font-weight: 300;
             }
 
             .select2-control.control {
@@ -801,7 +811,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             }
 
             .selector-label .select2-container {
-                font-weight: 400;
+                font-weight: 300;
                 width: 100% !important;
             }
 
@@ -816,6 +826,8 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 top: 50%;
                 transform: translateY(-50%);
                 z-index: 1;
+                font-size: 1.3em;
+                font-weight: 300;
             }
 
             .selector-label
@@ -832,21 +844,23 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
 
             .add-location-button {
                 justify-self: start;
+                height: max-content;
             }
 
             .selected-locations {
                 margin-top: 1rem;
+                background-color: var(--dbp-selected);
+                padding: 5px 10px;
             }
 
             .selected-locations h5 {
-                font-size: 0.95rem;
-                margin: 0 0 0.5rem;
+                font-size: 1rem;
+                font-weight: 400;
             }
 
             .selected-location-list {
                 display: grid;
                 gap: 0.5rem;
-                list-style: none;
                 margin: 0;
                 padding: 0;
             }
