@@ -545,6 +545,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 margin: 0 0 0.5rem 0;
             }
 
+            .activity-header p,
             .summary {
                 line-height: 1.55;
             }

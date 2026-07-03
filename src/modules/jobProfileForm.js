@@ -1,12 +1,7 @@
 import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-object.js';
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
 import {css, html} from 'lit';
-import {createRef, ref} from 'lit/directives/ref.js';
-import {
-    DbpDateElement,
-    DbpStringElement,
-    DbpSubmissionSelectElement,
-} from '@dbp-toolkit/form-elements';
+import {DbpDateElement, DbpStringElement} from '@dbp-toolkit/form-elements';
 import {
     Button,
     Icon,
@@ -109,6 +104,7 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.interest-company');
     t('student-profile-form.interest-contact-email');
     t('student-profile-form.interest-contact-name');
+    t('student-profile-form.interest-description');
     t('student-profile-form.interest-message');
     t('student-profile-form.interest-submit');
     t('student-profile-form.interest-success');
@@ -422,7 +418,6 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             type: 'object',
             additionalProperties: false,
             properties: {
-                companySubmissionId: {type: 'string'},
                 companyName: {type: 'string', minLength: 1},
                 contactName: {type: 'string', minLength: 1},
                 contactEmail: {type: 'string', minLength: 1, format: 'email'},
@@ -764,7 +759,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
     static get scopedElements() {
         return {
             'dbp-string-element': DbpStringElement,
-            'dbp-submission-select-element': DbpSubmissionSelectElement,
             'dbp-button': Button,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
@@ -776,7 +770,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
         this._i18n = createInstance();
         this.lang = this._i18n.language;
         this.profile = null;
-        this._companySubmissionId = '';
         this._companyName = '';
         this._contactName = '';
         this._contactEmail = '';
@@ -784,14 +777,12 @@ export class JobProfileInterestFormElement extends BaseFormElement {
         this._isSubmitting = false;
         this._hasSubmittedInterest = false;
         this._checkingSubmittedInterest = false;
-        this._companyRef = createRef();
     }
 
     static get properties() {
         return {
             ...super.properties,
             profile: {type: Object},
-            _companySubmissionId: {state: true},
             _companyName: {state: true},
             _contactName: {state: true},
             _contactEmail: {state: true},
@@ -807,12 +798,7 @@ export class JobProfileInterestFormElement extends BaseFormElement {
 
         const formIdentifierChanged = changedProperties.has('formIdentifier');
         const authChanged = changedProperties.has('auth');
-        const companyChanged = changedProperties.has('_companySubmissionId');
-        if (
-            (formIdentifierChanged || authChanged || companyChanged) &&
-            this.formIdentifier &&
-            this.auth?.token
-        ) {
+        if ((formIdentifierChanged || authChanged) && this.formIdentifier && this.auth?.token) {
             this._checkAlreadySubmittedInterest();
         }
     }
@@ -820,7 +806,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
     async _checkAlreadySubmittedInterest() {
         const userId = this.auth?.['user-id'];
         const formIdentifier = this.formIdentifier;
-        const companySubmissionId = this._companySubmissionId;
 
         if (!formIdentifier || !this.entryPointUrl || !this.auth?.token) {
             return;
@@ -831,14 +816,12 @@ export class JobProfileInterestFormElement extends BaseFormElement {
         try {
             const query = new URLSearchParams({
                 formIdentifier,
-                perPage: companySubmissionId ? '9999' : '1',
+                perPage: '1',
             });
-            if (!companySubmissionId && userId) {
+            if (userId) {
                 query.set('creatorIdEquals', userId);
             }
 
-            // Once a company is selected, compare against companySubmissionId so multiple users
-            // from the same company cannot signal interest for the same profile twice.
             const response = await fetch(`${this.entryPointUrl}/formalize/submissions?${query}`, {
                 headers: {Authorization: `Bearer ${this.auth.token}`},
             });
@@ -846,58 +829,24 @@ export class JobProfileInterestFormElement extends BaseFormElement {
             if (response.ok) {
                 const data = await response.json();
                 const submissions = data['hydra:member'] ?? [];
-                const hasSubmittedInterest = companySubmissionId
-                    ? submissions.some((submission) => {
-                          try {
-                              const submissionData = JSON.parse(submission.dataFeedElement || '{}');
-                              return submissionData.companySubmissionId === companySubmissionId;
-                          } catch {
-                              return false;
-                          }
-                      })
-                    : submissions.length > 0;
+                const hasSubmittedInterest = submissions.length > 0;
 
-                if (
-                    this.formIdentifier === formIdentifier &&
-                    this._companySubmissionId === companySubmissionId
-                ) {
+                if (this.formIdentifier === formIdentifier) {
                     this._hasSubmittedInterest = hasSubmittedInterest;
                 }
             }
         } catch (error) {
             console.error('Error checking student profile interest submission:', error);
         } finally {
-            if (
-                this.formIdentifier === formIdentifier &&
-                this._companySubmissionId === companySubmissionId
-            ) {
+            if (this.formIdentifier === formIdentifier) {
                 this._checkingSubmittedInterest = false;
             }
         }
     }
 
-    _resolveCompanyName(selectElement, submissionId) {
-        if (!submissionId) {
-            return '';
-        }
-
-        const submissions = selectElement?.submissions;
-        if (Array.isArray(submissions) && typeof selectElement.getSubmissionLabel === 'function') {
-            const match = submissions.find(
-                (submission) => selectElement.getSubmissionValue(submission) === submissionId,
-            );
-            if (match) {
-                return selectElement.getSubmissionLabel(match);
-            }
-        }
-
-        return '';
-    }
-
     get _isFormValid() {
         return (
             this._companyName.trim() !== '' &&
-            this._companySubmissionId.trim() !== '' &&
             this._contactName.trim() !== '' &&
             this._contactEmail.trim() !== ''
         );
@@ -931,7 +880,6 @@ export class JobProfileInterestFormElement extends BaseFormElement {
         postFormData.append(
             'dataFeedElement',
             JSON.stringify({
-                companySubmissionId: this._companySubmissionId,
                 companyName: this._companyName.trim(),
                 contactName: this._contactName.trim(),
                 contactEmail: this._contactEmail.trim(),
@@ -1005,25 +953,9 @@ export class JobProfileInterestFormElement extends BaseFormElement {
         return html`
             <form class="interest-form" @submit="${this.submitInterest}" novalidate>
                 <h3>${t('student-profile-form.interest-title')}</h3>
-
-                <dbp-submission-select-element
-                    ${ref(this._companyRef)}
-                    name="companySubmissionId"
-                    lang="${this.lang}"
-                    entry-point-url="${this.entryPointUrl}"
-                    .auth="${this.auth}"
-                    frontend-key="bulletin-company"
-                    submission-element-name="name"
-                    label="${t('student-profile-form.interest-company')}"
-                    .value="${this._companySubmissionId}"
-                    required
-                    @change="${(event) => {
-                        this._companySubmissionId = event.detail.value;
-                        this._companyName = this._resolveCompanyName(
-                            this._companyRef.value,
-                            this._companySubmissionId,
-                        );
-                    }}"></dbp-submission-select-element>
+                <p class="interest-description">
+                    ${t('student-profile-form.interest-description')}
+                </p>
 
                 <dbp-string-element
                     name="companyName"
@@ -1094,7 +1026,12 @@ export class JobProfileInterestFormElement extends BaseFormElement {
                 }
 
                 .interest-form h3 {
-                    margin-top: 0;
+                    margin: 0 0 0.5rem 0;
+                }
+
+                .interest-description {
+                    line-height: 1.55;
+                    margin: 0 0 1rem 0;
                 }
 
                 .two-column-row {

@@ -1,7 +1,7 @@
 {
     "browse-career-profiles": {
         "applicant-alias": "Candidate {{number}}",
-        "back-to-profiles": "Back to career profiles",
+        "back-to-profiles": "Back to View career profiles",
         "column-name": "Candidate",
         "column-previous-experience": "Previous experience",
         "column-skills": "Skills",
@@ -393,9 +393,10 @@
         "field-website-placeholder": "https://...",
         "form-type-name": "Student profile",
         "interest-already-submitted": "Your company has already submitted interest in this student profile.",
-        "interest-company": "Company",
+        "interest-company": "Company or organization",
         "interest-contact-email": "Contact email",
         "interest-contact-name": "Contact person",
+        "interest-description": "If this profile matches a job position that you offer, you can contact the student using this form. They will receive an e-mail with your stated information and contact you if they are interested.",
         "interest-error": "The company interest could not be submitted.",
         "interest-message": "Message to the student",
         "interest-submit": "Send",
