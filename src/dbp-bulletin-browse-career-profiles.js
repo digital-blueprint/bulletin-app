@@ -8,7 +8,7 @@ import JobProfileModule, {
     formatStudentStudies,
     JobProfileInterestFormElement,
     normalizeStudentStudies,
-} from './modules/jobProfileForm.js';
+} from './modules/studentProfileForm.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
 class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {

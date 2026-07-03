@@ -7,7 +7,7 @@ import {
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
 } from '../src/modules/jobOfferForm.js';
-import {formatStudentStudies as formatCareerProfileStudies} from '../src/modules/jobProfileForm.js';
+import {formatStudentStudies as formatCareerProfileStudies} from '../src/modules/studentProfileForm.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;

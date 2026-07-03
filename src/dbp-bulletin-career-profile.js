@@ -10,7 +10,7 @@ import JobProfileModule, {
     JobProfileEditFormElement,
     JobProfileInterestFormElement,
     normalizeStudentStudies,
-} from './modules/jobProfileForm.js';
+} from './modules/studentProfileForm.js';
 
 class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
