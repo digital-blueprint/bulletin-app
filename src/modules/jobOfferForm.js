@@ -1049,7 +1049,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             <div class="mandatory">
                 <div>
                     <h3 class="legend-title">
-                        <span class="required-star">*</span>
                         ${t('manage-job-offers.mandatory-data')}
                     </h3>
                     <hr />
@@ -1209,7 +1208,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
                 </div>
             </div>
-            <div id="optional-data-wrapper">
+            <div id="optional-data-wrapper" class="optional-data-wrapper">
                 <button
                     id="optional-button"
                     class="optional-button"
@@ -1530,7 +1529,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 margin-bottom: 0;
             }
 
-            .mandatory {
+            .mandatory,
+            .optional-data-wrapper {
                 padding-right: 0.5rem;
             }
 
