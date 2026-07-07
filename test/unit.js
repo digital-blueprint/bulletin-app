@@ -8,6 +8,7 @@ import {
     normalizeAreaOfInterestValues,
 } from '../src/modules/jobOfferForm.js';
 import {formatStudentStudies as formatCareerProfileStudies} from '../src/modules/studentProfileForm.js';
+import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
@@ -163,6 +164,62 @@ suite('jobOfferForm auth refresh handling', () => {
         await element.updateComplete;
 
         assert.equal(checkCalls, 2);
+
+        element.remove();
+    });
+});
+
+suite('work locations country selection', () => {
+    test('should hide region selection when country is cleared', async () => {
+        const tagName = 'test-work-locations-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, WorkLocationsElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isNotNull(element.shadowRoot.querySelector('[name="work-location-region"]'));
+
+        element._region = 'styria';
+        element._city = 'graz';
+        element._onCountryChange({detail: {value: ''}});
+        await element.updateComplete;
+
+        assert.equal(element._country, '');
+        assert.equal(element._region, '');
+        assert.equal(element._city, '');
+        assert.isNull(element.shadowRoot.querySelector('[name="work-location-region"]'));
+
+        element.remove();
+    });
+
+    test('should hide region selection for a non-Austria country', async () => {
+        const tagName = 'test-work-locations-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, WorkLocationsElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        element._region = 'styria';
+        element._city = 'graz';
+        element._onCountryChange({detail: {value: 'DE'}});
+        await element.updateComplete;
+
+        assert.equal(element._country, 'DE');
+        assert.equal(element._region, '');
+        assert.equal(element._city, '');
+        assert.isNull(element.shadowRoot.querySelector('[name="work-location-region"]'));
+
+        element._addLocation();
+        const [added] = element.value;
+        assert.equal(added.country, 'DE');
+        assert.equal(added.region, '');
+        assert.equal(added.city, '');
 
         element.remove();
     });

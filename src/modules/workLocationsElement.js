@@ -426,7 +426,7 @@ export class WorkLocationSelectElement extends DBPLitElement {
     }
 }
 
-class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
+export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
     static get scopedElements() {
         return {
             'dbp-country-select': CountrySelect,
@@ -603,7 +603,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     _onCountryChange(event) {
-        this._country = event.detail.value || AUSTRIA_COUNTRY_CODE;
+        this._country = event.detail.value || '';
         if (this._country !== AUSTRIA_COUNTRY_CODE) {
             this._region = '';
             this._city = '';
@@ -665,8 +665,8 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                             lang="${this.lang}"
                             .value="${this._country}"
                             ?disabled="${this.disabled}"
-                            @change="${(event) => this._onCountryChange(event)}
-                                "></dbp-country-select>
+                            @change="${(event) =>
+                                this._onCountryChange(event)}"></dbp-country-select>
                     </label>
 
                     ${this._country === AUSTRIA_COUNTRY_CODE
