@@ -174,12 +174,23 @@
         "section-partnership": "Partnerschaft",
         "section-relations": "Verknüpfungen"
     },
+    "create-form": {
+        "error-create-failed": "Stellenangebot konnte nicht veröffentlicht werden. Antwortstatus: {{status}}",
+        "success-created": "Stellenangebot erfolgreich veröffentlicht"
+    },
     "create-job-offer": {
         "error-title": "Fehler",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus."
     },
+    "edit-form": {
+        "error-update-failed": "Stellenangebot konnte nicht aktualisiert werden. Antwortstatus: {{status}}",
+        "success-updated": "Stellenangebot erfolgreich aktualisiert"
+    },
     "error-login-link": "Einloggen",
     "error-login-message": "Sie müssen eingeloggt sein, um diese Seite zu verwenden. ",
+    "errors": {
+        "error-title": "Fehler"
+    },
     "job-offer-detail": {
         "already-applied": "Sie haben sich bereits für diese Stelle beworben. Ihre Bewerbung wurde erfolgreich übermittelt.",
         "application-title": "Bewerbung",
@@ -407,6 +418,9 @@
         "save-profile": "Speichern",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus.",
         "validation-url": ""
+    },
+    "success": {
+        "success-title": "Erfolgreich"
     },
     "view-job-offers": {
         "application-deadline": "Bewerbungsfrist",

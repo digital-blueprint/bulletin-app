@@ -174,12 +174,23 @@
         "section-partnership": "Partnership",
         "section-relations": "Relations"
     },
+    "create-form": {
+        "error-create-failed": "Failed to publish job offer. Response status: {{status}}",
+        "success-created": "Job offer published successfully"
+    },
     "create-job-offer": {
         "error-title": "Error",
         "validation-required": "Please fill in all required fields."
     },
+    "edit-form": {
+        "error-update-failed": "Failed to update job offer. Response status: {{status}}",
+        "success-updated": "Job offer updated successfully"
+    },
     "error-login-link": "Log in",
     "error-login-message": "You need to be logged in to use this page. ",
+    "errors": {
+        "error-title": "Error"
+    },
     "job-offer-detail": {
         "already-applied": "You have already applied for this position. Your application has been submitted successfully.",
         "application-title": "Application",
@@ -407,6 +418,9 @@
         "save-profile": "Save",
         "validation-required": "Please fill in all required fields.",
         "validation-url": "student-profile-form.validation-url"
+    },
+    "success": {
+        "success-title": "Success"
     },
     "view-job-offers": {
         "application-deadline": "Application deadline",

@@ -17,10 +17,12 @@
             "create": "Publish",
             "dialog-title": "Create new job offer",
             "field-form-type-placeholder": "Select option",
-            "section-general": ""
+            "section-general": "",
+            "success-created": "Job offer published successfully"
         },
         "edit-form": {
-            "dialog-title": "Edit job offer"
+            "dialog-title": "Edit job offer",
+            "success-updated": "Job offer updated successfully"
         }
     },
     "dbp-formalize-manage-form-submissions-page": {

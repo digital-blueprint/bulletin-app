@@ -44,6 +44,15 @@ const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
 
 const keepJobOfferAttachmentTranslations = (t) => {
+    t(
+        'create-form.error-create-failed',
+        'Failed to publish job offer. Response status: {{status}}',
+    );
+    t('create-form.success-created', 'Job offer published successfully');
+    t('edit-form.error-update-failed', 'Failed to update job offer. Response status: {{status}}');
+    t('edit-form.success-updated', 'Job offer updated successfully');
+    t('errors.error-title', 'Error');
+    t('success.success-title', 'Success');
     t('job-offer-detail.attachments-help', {
         count: JOB_APPLICATION_ATTACHMENT_LIMIT,
         size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,

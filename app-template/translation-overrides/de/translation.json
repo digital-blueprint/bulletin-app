@@ -17,10 +17,12 @@
             "create": "Veröffentlichen",
             "dialog-title": "Neues Stellenangebot erstellen",
             "field-form-type-placeholder": "Option auswählen",
-            "section-general": ""
+            "section-general": "",
+            "success-created": "Stellenangebot erfolgreich veröffentlicht"
         },
         "edit-form": {
-            "dialog-title": "Stellenangebot bearbeiten"
+            "dialog-title": "Stellenangebot bearbeiten",
+            "success-updated": "Stellenangebot erfolgreich aktualisiert"
         }
     },
     "dbp-formalize-manage-form-submissions-page": {
