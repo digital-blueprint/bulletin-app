@@ -403,12 +403,14 @@ export class WorkLocationSelectElement extends DBPLitElement {
                 line-height: 1;
                 margin-right: 0;
                 padding-right: 0;
-                position: absolute;
-                right: 1.35rem;
-                top: 0;
-                z-index: 1;
                 font-size: 1.3em;
                 font-weight: 300;
+                position: absolute;
+                right: 1.75rem;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 1;
+                margin-top: -3px;
             }
 
             .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -440,6 +442,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         this.langDir = '';
         this.value = [];
         this.disabled = false;
+        this.disabledButton = false;
         this._country = AUSTRIA_COUNTRY_CODE;
         this._region = '';
         this._city = '';
@@ -456,6 +459,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             langDir: {type: String, attribute: 'lang-dir'},
             value: {type: Array},
             disabled: {type: Boolean, reflect: true},
+            disabledButton: {type: Boolean},
             _country: {state: true},
             _region: {state: true},
             _city: {state: true},
@@ -556,6 +560,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                     if (this._region !== previousRegion) {
                         this._city = '';
                     }
+                    this.disabledButton = false;
                 },
             );
         } else {
@@ -570,6 +575,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 this._i18n.t('manage-job-offers.work-location-city-placeholder'),
                 (value) => {
                     this._city = value;
+                    this.disabledButton = false;
                 },
             );
         } else {
@@ -598,15 +604,14 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
 
     _onCountryChange(event) {
         this._country = event.detail.value || AUSTRIA_COUNTRY_CODE;
-
         if (this._country !== AUSTRIA_COUNTRY_CODE) {
             this._region = '';
             this._city = '';
         }
     }
-
     _addLocation() {
         if (!this._country) {
+            this.disabledButton = true;
             return;
         }
 
@@ -635,7 +640,10 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             }),
         );
     }
-
+    _resetSelection() {
+        this._city = '';
+        this._region = '';
+    }
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const regionItems = this._getRegionItems(t);
@@ -657,7 +665,8 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                             lang="${this.lang}"
                             .value="${this._country}"
                             ?disabled="${this.disabled}"
-                            @change="${this._onCountryChange}"></dbp-country-select>
+                            @change="${(event) => this._onCountryChange(event)}
+                                "></dbp-country-select>
                     </label>
 
                     ${this._country === AUSTRIA_COUNTRY_CODE
@@ -722,10 +731,16 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                         : ''}
 
                     <button
-                        class="button is-primary add-location-button"
+                        class="button is-primary add-location-button ${this.disabledButton
+                            ? 'disabled'
+                            : ''}"
                         type="button"
-                        ?disabled="${this.disabled || !this._country}"
-                        @click="${this._addLocation}">
+                        ?disabled="${this.disabledButton || !this._country}"
+                        @click="${() => {
+                            this._addLocation();
+                            this._resetSelection();
+                            this.disabledButton = true;
+                        }}">
                         <dbp-icon name="plus" aria-hidden="true"></dbp-icon>
                         ${t('manage-job-offers.work-location-add')}
                     </button>
@@ -798,6 +813,7 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             .selector-label {
                 display: grid;
                 flex: 1;
+                max-width: 50%;
             }
 
             .selector-label,
@@ -820,21 +836,14 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             }
 
             .selector-label .select2-container--default .select2-selection__clear {
-                margin-right: 0;
-                position: absolute;
-                right: 1.75rem;
-                top: 50%;
-                transform: translateY(-50%);
-                z-index: 1;
-                font-size: 1.3em;
-                font-weight: 300;
+                margin-top: -3px;
             }
 
             .selector-label
                 .select2-container--default
                 .select2-selection--single
                 .select2-selection__rendered {
-                padding-right: 3rem;
+                padding-right: 1rem;
             }
 
             #work-location-region-dropdown,
@@ -846,7 +855,9 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 justify-self: start;
                 height: max-content;
             }
-
+            .disabled {
+                opacity: 0.5;
+            }
             .selected-locations {
                 margin-top: 1rem;
                 background-color: var(--dbp-selected);
@@ -860,7 +871,6 @@ class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
 
             .selected-location-list {
                 display: grid;
-                gap: 0.5rem;
                 margin: 0;
                 padding: 0;
             }
