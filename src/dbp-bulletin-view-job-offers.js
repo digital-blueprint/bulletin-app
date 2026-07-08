@@ -15,6 +15,7 @@ import JobOfferModule, {
 import {
     WorkLocationSelectElement,
     getLocationKey,
+    getLocationHierarchy,
     normalizeWorkLocations,
 } from './modules/workLocationsElement.js';
 
@@ -429,8 +430,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 const matchesWorkLocation =
                     !includeWorkLocation ||
                     !this.filterWorkLocation ||
-                    normalizeWorkLocations(job.workLocations).some(
-                        (location) => getLocationKey(location) === this.filterWorkLocation,
+                    normalizeWorkLocations(job.workLocations).some((location) =>
+                        getLocationHierarchy(location).some(
+                            (ancestor) => getLocationKey(ancestor) === this.filterWorkLocation,
+                        ),
                     );
 
                 // Parse the weekly hours value for numeric range filtering
@@ -455,7 +458,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     getAvailableWorkLocations() {
         const jobs = this.getFilteredJobs({includeWorkLocation: false});
-        return normalizeWorkLocations(jobs.flatMap((job) => job.workLocations ?? []));
+        // Expand each job location into its hierarchy so broader locations
+        // (region, country) are also selectable. A job in Graz therefore also
+        // makes Styria and Austria available as filter options.
+        return normalizeWorkLocations(
+            jobs.flatMap((job) =>
+                normalizeWorkLocations(job.workLocations ?? []).flatMap((location) =>
+                    getLocationHierarchy(location),
+                ),
+            ),
+        );
     }
 
     getAvailableAreasOfInterest() {
@@ -831,8 +843,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 placeholder="${t('view-job-offers.select-placeholder')}"
                                 .locations="${availableWorkLocations}"
                                 .value="${this.filterWorkLocation}"
-                                @change="${this
-                                    .onWorkLocationChange}"></dbp-work-location-select-element>
+                                @change="${
+                                    this.onWorkLocationChange
+                                }"></dbp-work-location-select-element>
                         </div>
                     </div>
 
@@ -892,157 +905,160 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 </div>
 
                 <!-- Job cards grid -->
-                ${filtered.length === 0
-                    ? html`
-                          <p class="no-results">${t('view-job-offers.no-results')}</p>
-                      `
-                    : html`
-                          <div class="job-grid">
-                              ${repeat(
-                                  pageJobs,
-                                  (job) => job.identifier,
-                                  (job) => html`
-                                      <div class="job-card">
-                                          <div class="job-card-body">
-                                              <div class="job-card-header">
-                                                  <h3 class="job-title">${job.title}</h3>
-                                                  ${this.getInternalFavicon(job)}
+                ${
+                    filtered.length === 0
+                        ? html`
+                              <p class="no-results">${t('view-job-offers.no-results')}</p>
+                          `
+                        : html`
+                              <div class="job-grid">
+                                  ${repeat(
+                                      pageJobs,
+                                      (job) => job.identifier,
+                                      (job) => html`
+                                          <div class="job-card">
+                                              <div class="job-card-body">
+                                                  <div class="job-card-header">
+                                                      <h3 class="job-title">${job.title}</h3>
+                                                      ${this.getInternalFavicon(job)}
+                                                  </div>
+                                                  <dl class="job-meta-list">
+                                                      <span class="job-meta-type">
+                                                          ${this.getOrganizationLabel(job)}
+                                                      </span>
+                                                      ${this._renderJobMetaItem(
+                                                          t('view-job-offers.published-at'),
+                                                          this.formatDate(job.publishedAt),
+                                                      )}
+                                                      ${this._renderJobMetaItem(
+                                                          t('view-job-offers.organizational-unit'),
+                                                          this._localized(
+                                                              job.organizationalUnit,
+                                                              job.organizationalUnitEn ?? '',
+                                                          ),
+                                                      )}
+                                                      ${this._renderJobMetaItem(
+                                                          t('view-job-offers.weekly-hours'),
+                                                          this._localized(
+                                                              job.weeklyHours,
+                                                              job.weeklyHoursEn ?? '',
+                                                          ),
+                                                      )}
+                                                      ${this._renderJobMetaItem(
+                                                          //   t('view-job-offers.application-deadline'),
+                                                          this
+                                                              .formatDate
+                                                              // job.applicationDeadline || job.deadline,
+                                                              (),
+                                                      )}
+                                                  </dl>
                                               </div>
-                                              <dl class="job-meta-list">
-                                                  <span class="job-meta-type">
-                                                      ${this.getOrganizationLabel(job)}
-                                                  </span>
-                                                  ${this._renderJobMetaItem(
-                                                      t('view-job-offers.published-at'),
-                                                      this.formatDate(job.publishedAt),
-                                                  )}
-                                                  ${this._renderJobMetaItem(
-                                                      t('view-job-offers.organizational-unit'),
-                                                      this._localized(
-                                                          job.organizationalUnit,
-                                                          job.organizationalUnitEn ?? '',
-                                                      ),
-                                                  )}
-                                                  ${this._renderJobMetaItem(
-                                                      t('view-job-offers.weekly-hours'),
-                                                      this._localized(
-                                                          job.weeklyHours,
-                                                          job.weeklyHoursEn ?? '',
-                                                      ),
-                                                  )}
-                                                  ${this._renderJobMetaItem(
-                                                      //   t('view-job-offers.application-deadline'),
-                                                      this
-                                                          .formatDate
-                                                          // job.applicationDeadline || job.deadline,
-                                                          (),
-                                                  )}
-                                              </dl>
+                                              <div>${this._renderAreaOfInterestTags(job, t)}</div>
+                                              <div class="job-card-footer">
+                                                  <button
+                                                      class="button is-secondary"
+                                                      @click="${() => this.openJob(job)}"
+                                                      aria-label="${t(
+                                                          'view-job-offers.view-details',
+                                                      )} – ${job.title}">
+                                                      <dbp-icon
+                                                          class="btn-icon"
+                                                          name="keyword-research"
+                                                          aria-hidden="true"></dbp-icon>
+                                                      ${t('view-job-offers.view-details')}
+                                                  </button>
+                                              </div>
                                           </div>
-                                          <div>${this._renderAreaOfInterestTags(job, t)}</div>
-                                          <div class="job-card-footer">
-                                              <button
-                                                  class="button is-secondary"
-                                                  @click="${() => this.openJob(job)}"
-                                                  aria-label="${t(
-                                                      'view-job-offers.view-details',
-                                                  )} – ${job.title}">
-                                                  <dbp-icon
-                                                      class="btn-icon"
-                                                      name="keyword-research"
-                                                      aria-hidden="true"></dbp-icon>
-                                                  ${t('view-job-offers.view-details')}
-                                              </button>
-                                          </div>
-                                      </div>
-                                  `,
-                              )}
-                          </div>
-                      `}
+                                      `,
+                                  )}
+                              </div>
+                          `
+                }
 
                 <!-- Pagination bar -->
-                ${filtered.length > 0
-                    ? html`
-                          <div class="pagination-bar">
-                              <div class="page-size-wrapper">
-                                  <label class="label pagination-label" for="page-size">
-                                      ${t('view-job-offers.page-size')}
-                                  </label>
-                                  <div class="page-size-select-wrapper">
-                                      <select
-                                          id="page-size"
-                                          class="pagination-page-size"
-                                          @change="${this.onPageSizeChange}">
-                                          ${PAGE_SIZE_OPTIONS.map(
-                                              (n) => html`
-                                                  <option
-                                                      value="${n}"
-                                                      ?selected="${this.pageSize === n}">
-                                                      ${n}
-                                                  </option>
+                ${
+                    filtered.length > 0
+                        ? html`
+                              <div class="pagination-bar">
+                                  <div class="page-size-wrapper">
+                                      <label class="label pagination-label" for="page-size">
+                                          ${t('view-job-offers.page-size')}
+                                      </label>
+                                      <div class="page-size-select-wrapper">
+                                          <select
+                                              id="page-size"
+                                              class="pagination-page-size"
+                                              @change="${this.onPageSizeChange}">
+                                              ${PAGE_SIZE_OPTIONS.map(
+                                                  (n) => html`
+                                                      <option
+                                                          value="${n}"
+                                                          ?selected="${this.pageSize === n}">
+                                                          ${n}
+                                                      </option>
+                                                  `,
+                                              )}
+                                          </select>
+                                      </div>
+                                  </div>
+
+                                  <div class="pagination-buttons">
+                                      <div class="pagination-nav-group">
+                                          <button
+                                              type="button"
+                                              class="button pagination-button"
+                                              ?disabled="${page <= 1}"
+                                              aria-label="${t('view-job-offers.pagination-first')}"
+                                              @click="${() => this.goToPage(1)}">
+                                              &lt;&lt;
+                                          </button>
+                                          <button
+                                              type="button"
+                                              class="button pagination-button pagination-button-compact"
+                                              ?disabled="${page <= 1}"
+                                              aria-label="${t('view-job-offers.pagination-prev')}"
+                                              @click="${() => this.goToPage(page - 1)}">
+                                              &lt;
+                                          </button>
+                                      </div>
+                                      <div class="pagination-pages-group">
+                                          ${pageNumbers.map(
+                                              (p) => html`
+                                                  <button
+                                                      type="button"
+                                                      class="button pagination-button pagination-page ${
+                                                          p === page ? 'is-active' : ''
+                                                      }"
+                                                      @click="${() => this.goToPage(p)}"
+                                                      aria-current="${p === page ? 'page' : nothing}">
+                                                      ${p}
+                                                  </button>
                                               `,
                                           )}
-                                      </select>
+                                      </div>
+                                      <div class="pagination-nav-group">
+                                          <button
+                                              type="button"
+                                              class="button pagination-button pagination-button-compact"
+                                              ?disabled="${page >= totalPages}"
+                                              aria-label="${t('view-job-offers.pagination-next')}"
+                                              @click="${() => this.goToPage(page + 1)}">
+                                              &gt;
+                                          </button>
+                                          <button
+                                              type="button"
+                                              class="button pagination-button"
+                                              ?disabled="${page >= totalPages}"
+                                              aria-label="${t('view-job-offers.pagination-last')}"
+                                              @click="${() => this.goToPage(totalPages)}">
+                                              &gt;&gt;
+                                          </button>
+                                      </div>
                                   </div>
                               </div>
-
-                              <div class="pagination-buttons">
-                                  <div class="pagination-nav-group">
-                                      <button
-                                          type="button"
-                                          class="button pagination-button"
-                                          ?disabled="${page <= 1}"
-                                          aria-label="${t('view-job-offers.pagination-first')}"
-                                          @click="${() => this.goToPage(1)}">
-                                          &lt;&lt;
-                                      </button>
-                                      <button
-                                          type="button"
-                                          class="button pagination-button pagination-button-compact"
-                                          ?disabled="${page <= 1}"
-                                          aria-label="${t('view-job-offers.pagination-prev')}"
-                                          @click="${() => this.goToPage(page - 1)}">
-                                          &lt;
-                                      </button>
-                                  </div>
-                                  <div class="pagination-pages-group">
-                                      ${pageNumbers.map(
-                                          (p) => html`
-                                              <button
-                                                  type="button"
-                                                  class="button pagination-button pagination-page ${p ===
-                                                  page
-                                                      ? 'is-active'
-                                                      : ''}"
-                                                  @click="${() => this.goToPage(p)}"
-                                                  aria-current="${p === page ? 'page' : nothing}">
-                                                  ${p}
-                                              </button>
-                                          `,
-                                      )}
-                                  </div>
-                                  <div class="pagination-nav-group">
-                                      <button
-                                          type="button"
-                                          class="button pagination-button pagination-button-compact"
-                                          ?disabled="${page >= totalPages}"
-                                          aria-label="${t('view-job-offers.pagination-next')}"
-                                          @click="${() => this.goToPage(page + 1)}">
-                                          &gt;
-                                      </button>
-                                      <button
-                                          type="button"
-                                          class="button pagination-button"
-                                          ?disabled="${page >= totalPages}"
-                                          aria-label="${t('view-job-offers.pagination-last')}"
-                                          @click="${() => this.goToPage(totalPages)}">
-                                          &gt;&gt;
-                                      </button>
-                                  </div>
-                              </div>
-                          </div>
-                      `
-                    : ''}
+                          `
+                        : ''
+                }
 
                 <!-- Job detail dialog — always in the DOM; job property drives its content -->
                 <dbp-bulletin-job-offer-detail
