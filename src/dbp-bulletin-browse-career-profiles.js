@@ -385,11 +385,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     <h2>${t('browse-career-profiles.title')}</h2>
                     <p>${t('browse-career-profiles.description')}</p>
                 </div>
-                ${this._loadingProfiles
-                    ? html`
-                          <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
-                      `
-                    : ''}
+                ${
+                    this._loadingProfiles
+                        ? html`
+                              <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
+                          `
+                        : ''
+                }
             </section>
 
             <dbp-tabulator-table
@@ -437,45 +439,53 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         t('student-profile-form.field-availability'),
                         data.availability,
                     )}
-                    ${data.website || data.linkUrl
-                        ? this._renderMetaItem(
-                              t('student-profile-form.field-website'),
-                              html`
-                                  <a
-                                      href="${data.website || data.linkUrl}"
-                                      target="_blank"
-                                      rel="noopener noreferrer">
-                                      ${data.website || data.linkUrl}
-                                  </a>
-                              `,
-                          )
-                        : ''}
+                    ${
+                        data.website || data.linkUrl
+                            ? this._renderMetaItem(
+                                  t('student-profile-form.field-website'),
+                                  html`
+                                      <a
+                                          href="${data.website || data.linkUrl}"
+                                          target="_blank"
+                                          rel="noopener noreferrer">
+                                          ${data.website || data.linkUrl}
+                                      </a>
+                                  `,
+                              )
+                            : ''
+                    }
                 </dl>
 
-                ${previousExperience
-                    ? html`
-                          <section>
-                              <h3>${t('student-profile-form.field-previous-experience')}</h3>
-                              <p>${previousExperience}</p>
-                          </section>
-                      `
-                    : ''}
-                ${skills.length
-                    ? html`
-                          <section>
-                              <h3>${t('student-profile-form.field-skills-view-mode')}</h3>
-                              ${this._renderList(skills)}
-                          </section>
-                      `
-                    : ''}
-                ${languages.length
-                    ? html`
-                          <section>
-                              <h3>${t('student-profile-form.field-languages-view-mode')}</h3>
-                              ${this._renderList(languages)}
-                          </section>
-                      `
-                    : ''}
+                ${
+                    previousExperience
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-previous-experience')}</h3>
+                                  <p>${previousExperience}</p>
+                              </section>
+                          `
+                        : ''
+                }
+                ${
+                    skills.length
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-skills-view-mode')}</h3>
+                                  ${this._renderList(skills)}
+                              </section>
+                          `
+                        : ''
+                }
+                ${
+                    languages.length
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-languages-view-mode')}</h3>
+                                  ${this._renderList(languages)}
+                              </section>
+                          `
+                        : ''
+                }
             </article>
 
             <dbp-job-profile-interest-form
@@ -502,9 +512,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
 
         return html`
-            ${this._selectedProfile
-                ? this._renderProfileDetail(this._selectedProfile)
-                : this._renderOverview()}
+            ${
+                this._selectedProfile
+                    ? this._renderProfileDetail(this._selectedProfile)
+                    : this._renderOverview()
+            }
         `;
     }
 
