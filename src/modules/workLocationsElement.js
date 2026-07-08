@@ -608,6 +608,10 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             this._region = '';
             this._city = '';
         }
+
+        if (this._country !== '') {
+            this.disabledButton = false;
+        }
     }
     _addLocation() {
         if (!this._country) {
