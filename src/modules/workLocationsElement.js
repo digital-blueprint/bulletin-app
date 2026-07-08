@@ -702,75 +702,71 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                                 this._onCountryChange(event)}"></dbp-country-select>
                     </label>
 
-                    ${
-                        this._country === AUSTRIA_COUNTRY_CODE
-                            ? html`
-                                  <label class="selector-label">
-                                      <span>${t('manage-job-offers.work-location-region')}</span>
-                                      <div class="select">
-                                          <div class="field">
-                                              <div class="select2-control control">
-                                                  <select
-                                                      id="${this._regionSelectId}"
-                                                      name="work-location-region"
-                                                      class="select"
-                                                      ?disabled="${this.disabled}">
-                                                      <option></option>
-                                                      ${Object.entries(regionItems).map(
-                                                          ([value, label]) => html`
-                                                              <option
-                                                                  value="${value}"
-                                                                  ?selected="${value === this._region}">
-                                                                  ${label}
-                                                              </option>
-                                                          `,
-                                                      )}
-                                                  </select>
-                                              </div>
+                    ${this._country === AUSTRIA_COUNTRY_CODE
+                        ? html`
+                              <label class="selector-label">
+                                  <span>${t('manage-job-offers.work-location-region')}</span>
+                                  <div class="select">
+                                      <div class="field">
+                                          <div class="select2-control control">
+                                              <select
+                                                  id="${this._regionSelectId}"
+                                                  name="work-location-region"
+                                                  class="select"
+                                                  ?disabled="${this.disabled}">
+                                                  <option></option>
+                                                  ${Object.entries(regionItems).map(
+                                                      ([value, label]) => html`
+                                                          <option
+                                                              value="${value}"
+                                                              ?selected="${value === this._region}">
+                                                              ${label}
+                                                          </option>
+                                                      `,
+                                                  )}
+                                              </select>
                                           </div>
-                                          <div id="work-location-region-dropdown"></div>
                                       </div>
-                                  </label>
-                              `
-                            : ''
-                    }
-                    ${
-                        this._country === AUSTRIA_COUNTRY_CODE && this._region
-                            ? html`
-                                  <label class="selector-label">
-                                      <span>${t('manage-job-offers.work-location-city')}</span>
-                                      <div class="select">
-                                          <div class="field">
-                                              <div class="select2-control control">
-                                                  <select
-                                                      id="${this._citySelectId}"
-                                                      name="work-location-city"
-                                                      class="select"
-                                                      ?disabled="${this.disabled}">
-                                                      <option></option>
-                                                      ${Object.entries(cityItems).map(
-                                                          ([value, label]) => html`
-                                                              <option
-                                                                  value="${value}"
-                                                                  ?selected="${value === this._city}">
-                                                                  ${label}
-                                                              </option>
-                                                          `,
-                                                      )}
-                                                  </select>
-                                              </div>
+                                      <div id="work-location-region-dropdown"></div>
+                                  </div>
+                              </label>
+                          `
+                        : ''}
+                    ${this._country === AUSTRIA_COUNTRY_CODE && this._region
+                        ? html`
+                              <label class="selector-label">
+                                  <span>${t('manage-job-offers.work-location-city')}</span>
+                                  <div class="select">
+                                      <div class="field">
+                                          <div class="select2-control control">
+                                              <select
+                                                  id="${this._citySelectId}"
+                                                  name="work-location-city"
+                                                  class="select"
+                                                  ?disabled="${this.disabled}">
+                                                  <option></option>
+                                                  ${Object.entries(cityItems).map(
+                                                      ([value, label]) => html`
+                                                          <option
+                                                              value="${value}"
+                                                              ?selected="${value === this._city}">
+                                                              ${label}
+                                                          </option>
+                                                      `,
+                                                  )}
+                                              </select>
                                           </div>
-                                          <div id="work-location-city-dropdown"></div>
                                       </div>
-                                  </label>
-                              `
-                            : ''
-                    }
+                                      <div id="work-location-city-dropdown"></div>
+                                  </div>
+                              </label>
+                          `
+                        : ''}
 
                     <button
-                        class="button is-primary add-location-button ${
-                            this.disabledButton ? 'disabled' : ''
-                        }"
+                        class="button is-primary add-location-button ${this.disabledButton
+                            ? 'disabled'
+                            : ''}"
                         type="button"
                         ?disabled="${this.disabledButton || !this._country}"
                         @click="${() => {
@@ -785,38 +781,36 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
 
                 <div class="selected-locations">
                     <h5>${t('manage-job-offers.work-location-selected')}</h5>
-                    ${
-                        selectedLocations.length > 0
-                            ? html`
-                                  <ul class="selected-location-list">
-                                      ${selectedLocations.map(
-                                          (location, index) => html`
-                                              <li>
-                                                  <span>
-                                                      ${getWorkLocationLabel(location, t, this.lang)}
-                                                  </span>
-                                                  <dbp-icon-button
-                                                      class="delete-location-button"
-                                                      icon-name="trash"
-                                                      ?disabled="${this.disabled}"
-                                                      aria-label="${t(
-                                                          'manage-job-offers.work-location-remove',
-                                                      )}"
-                                                      @click="${() =>
-                                                          this._removeLocation(
-                                                              index,
-                                                          )}"></dbp-icon-button>
-                                              </li>
-                                          `,
-                                      )}
-                                  </ul>
-                              `
-                            : html`
-                                  <p class="empty-selection">
-                                      ${t('manage-job-offers.work-location-empty')}
-                                  </p>
-                              `
-                    }
+                    ${selectedLocations.length > 0
+                        ? html`
+                              <ul class="selected-location-list">
+                                  ${selectedLocations.map(
+                                      (location, index) => html`
+                                          <li>
+                                              <span>
+                                                  ${getWorkLocationLabel(location, t, this.lang)}
+                                              </span>
+                                              <dbp-icon-button
+                                                  class="delete-location-button"
+                                                  icon-name="trash"
+                                                  ?disabled="${this.disabled}"
+                                                  aria-label="${t(
+                                                      'manage-job-offers.work-location-remove',
+                                                  )}"
+                                                  @click="${() =>
+                                                      this._removeLocation(
+                                                          index,
+                                                      )}"></dbp-icon-button>
+                                          </li>
+                                      `,
+                                  )}
+                              </ul>
+                          `
+                        : html`
+                              <p class="empty-selection">
+                                  ${t('manage-job-offers.work-location-empty')}
+                              </p>
+                          `}
                 </div>
             </section>
         `;
