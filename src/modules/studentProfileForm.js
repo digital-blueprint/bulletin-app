@@ -517,7 +517,15 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 placeholder="${options.placeholderKey ? t(options.placeholderKey) : ''}"
                 type="${options.type || 'text'}"
                 ?required="${options.required}"
-                @change="${(event) => onChange(event.detail.value)}"></dbp-string-element>
+                @change="${(event) => onChange(event.detail.value)}">
+                <!-- Render the description between the label and the input via the description slot,
+                     so the reading order for screen readers is: field name, description, input. -->
+                ${options.descriptionKey
+                    ? html`
+                          <div slot="description">${t(options.descriptionKey)}</div>
+                      `
+                    : ''}
+            </dbp-string-element>
         `;
     }
 
@@ -652,21 +660,17 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     this._availability,
                     (value) => (this._availability = value),
                 )}
-                <div>
-                    ${this.renderTextField(
-                        'website',
-                        'student-profile-form.field-website',
-                        this._website,
-                        (value) => (this._website = value),
-                        {
-                            placeholderKey: 'student-profile-form.field-website-placeholder',
-                            type: 'url',
-                        },
-                    )}
-                    <p class="profile-website-identity-warning">
-                        ${t('student-profile-form.field-website-identity-warning')}
-                    </p>
-                </div>
+                ${this.renderTextField(
+                    'website',
+                    'student-profile-form.field-website',
+                    this._website,
+                    (value) => (this._website = value),
+                    {
+                        placeholderKey: 'student-profile-form.field-website-placeholder',
+                        descriptionKey: 'student-profile-form.field-website-identity-warning',
+                        type: 'url',
+                    },
+                )}
             </div>
 
             <div class="form-footer">
@@ -725,12 +729,6 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
 
                 .profile-prefill-info p {
                     margin: 0.5rem 0 0;
-                }
-
-                .profile-website-identity-warning {
-                    color: var(--dbp-muted);
-                    font-size: 0.9rem;
-                    margin: 0.25rem 0 1rem 0;
                 }
 
                 .form-footer {
