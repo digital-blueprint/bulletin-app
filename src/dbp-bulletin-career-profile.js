@@ -464,12 +464,14 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <section class="profile-studies">
                 <h3>${this._i18n.t('student-profile-form.field-study-program')}</h3>
-                ${studies.length
-                    ? this._renderStudies(profile)
-                    : html`
-                          <dbp-mini-spinner
-                              text="${this._i18n.t('loading-message')}"></dbp-mini-spinner>
-                      `}
+                ${
+                    studies.length
+                        ? this._renderStudies(profile)
+                        : html`
+                              <dbp-mini-spinner
+                                  text="${this._i18n.t('loading-message')}"></dbp-mini-spinner>
+                          `
+                }
             </section>
         `;
     }
@@ -490,31 +492,33 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         <dbp-icon name="magnifier" aria-hidden="true"></dbp-icon>
                         ${this._i18n.t('career-profile.view-profile')}
                     </button>
-                    ${isOwnProfile
-                        ? html`
-                              <button
-                                  class="button is-secondary"
-                                  type="button"
-                                  @click="${() => this._openEditDialog(profile)}">
-                                  <dbp-icon name="pencil" aria-hidden="true"></dbp-icon>
-                                  ${this._i18n.t('career-profile.edit-profile')}
-                              </button>
-                              <button
-                                  class="button is-secondary"
-                                  type="button"
-                                  @click="${() => this._openDeleteDialog(profile)}">
-                                  <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
-                                  ${this._i18n.t('career-profile.delete-profile')}
-                              </button>
-                              <button
-                                  class="button is-primary"
-                                  type="button"
-                                  @click="${() => this._openSubmissions(profile)}">
-                                  <dbp-icon name="list" aria-hidden="true"></dbp-icon>
-                                  ${this._i18n.t('career-profile.view-submissions')}
-                              </button>
-                          `
-                        : ''}
+                    ${
+                        isOwnProfile
+                            ? html`
+                                  <button
+                                      class="button is-secondary"
+                                      type="button"
+                                      @click="${() => this._openEditDialog(profile)}">
+                                      <dbp-icon name="pencil" aria-hidden="true"></dbp-icon>
+                                      ${this._i18n.t('career-profile.edit-profile')}
+                                  </button>
+                                  <button
+                                      class="button is-secondary"
+                                      type="button"
+                                      @click="${() => this._openDeleteDialog(profile)}">
+                                      <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
+                                      ${this._i18n.t('career-profile.delete-profile')}
+                                  </button>
+                                  <button
+                                      class="button is-primary"
+                                      type="button"
+                                      @click="${() => this._openSubmissions(profile)}">
+                                      <dbp-icon name="list" aria-hidden="true"></dbp-icon>
+                                      ${this._i18n.t('career-profile.view-submissions')}
+                                  </button>
+                              `
+                            : ''
+                    }
                 </div>
             </article>
         `;
@@ -540,28 +544,36 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 </button>
             </section>
 
-            ${ownProfiles.length > 0
-                ? html`
-                      <p class="hint">${t('career-profile.one-profile-hint')}</p>
-                  `
-                : ''}
-            ${this._loadError
-                ? html`
-                      <p class="notification is-danger">${t('career-profile.load-error')}</p>
-                  `
-                : ''}
-            ${this._loadingProfiles
-                ? html`
-                      <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
-                  `
-                : ''}
+            ${
+                ownProfiles.length > 0
+                    ? html`
+                          <p class="hint">${t('career-profile.one-profile-hint')}</p>
+                      `
+                    : ''
+            }
+            ${
+                this._loadError
+                    ? html`
+                          <p class="notification is-danger">${t('career-profile.load-error')}</p>
+                      `
+                    : ''
+            }
+            ${
+                this._loadingProfiles
+                    ? html`
+                          <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
+                      `
+                    : ''
+            }
 
             <div class="profile-list">
-                ${ownProfiles.length === 0 && !this._loadingProfiles
-                    ? html`
-                          <p>${t('career-profile.no-profiles')}</p>
-                      `
-                    : ownProfiles.map((profile) => this._renderProfileCard(profile))}
+                ${
+                    ownProfiles.length === 0 && !this._loadingProfiles
+                        ? html`
+                              <p>${t('career-profile.no-profiles')}</p>
+                          `
+                        : ownProfiles.map((profile) => this._renderProfileCard(profile))
+                }
             </div>
         `;
     }
@@ -600,78 +612,88 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         t('student-profile-form.field-availability'),
                         data.availability,
                     )}
-                    ${data.website || data.linkUrl
-                        ? this._renderMetaItem(
-                              t('student-profile-form.field-website'),
-                              html`
-                                  <a
-                                      href="${data.website || data.linkUrl}"
-                                      target="_blank"
-                                      rel="noopener noreferrer">
-                                      ${data.website || data.linkUrl}
-                                  </a>
-                              `,
-                          )
-                        : ''}
+                    ${
+                        data.website || data.linkUrl
+                            ? this._renderMetaItem(
+                                  t('student-profile-form.field-website'),
+                                  html`
+                                      <a
+                                          href="${data.website || data.linkUrl}"
+                                          target="_blank"
+                                          rel="noopener noreferrer">
+                                          ${data.website || data.linkUrl}
+                                      </a>
+                                  `,
+                              )
+                            : ''
+                    }
                 </dl>
 
-                ${previousExperience
-                    ? html`
-                          <section>
-                              <h3>${t('student-profile-form.field-previous-experience')}</h3>
-                              <p>${previousExperience}</p>
-                          </section>
-                      `
-                    : ''}
-                ${skills.length
-                    ? html`
-                          <section>
-                              <h3>${t('student-profile-form.field-skills')}</h3>
-                              ${this._renderList(skills)}
-                          </section>
-                      `
-                    : ''}
-                ${languages.length
-                    ? html`
-                          <section>
-                              <h3>${t('student-profile-form.field-languages')}</h3>
-                              ${this._renderList(languages)}
-                          </section>
-                      `
-                    : ''}
+                ${
+                    previousExperience
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-previous-experience')}</h3>
+                                  <p>${previousExperience}</p>
+                              </section>
+                          `
+                        : ''
+                }
+                ${
+                    skills.length
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-skills')}</h3>
+                                  ${this._renderList(skills)}
+                              </section>
+                          `
+                        : ''
+                }
+                ${
+                    languages.length
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-languages')}</h3>
+                                  ${this._renderList(languages)}
+                              </section>
+                          `
+                        : ''
+                }
             </article>
 
-            ${isOwnProfile
-                ? html`
-                      <div class="owner-actions">
-                          <button
-                              class="button is-secondary"
-                              type="button"
-                              @click="${() => this._openEditDialog(profile)}">
-                              ${t('career-profile.edit-profile')}
-                          </button>
-                          <button
-                              class="button is-secondary"
-                              type="button"
-                              @click="${() => this._openDeleteDialog(profile)}">
-                              ${t('career-profile.delete-profile')}
-                          </button>
-                          <button
-                              class="button is-primary"
-                              type="button"
-                              @click="${() => this._openSubmissions(profile)}">
-                              ${t('career-profile.view-submissions')}
-                          </button>
-                      </div>
-                  `
-                : html`
-                      <dbp-job-profile-interest-form
-                          lang="${this.lang}"
-                          .auth="${this.auth}"
-                          entry-point-url="${this.entryPointUrl}"
-                          form-identifier="${profile.identifier}"
-                          .profile="${profile}"></dbp-job-profile-interest-form>
-                  `}
+            ${
+                isOwnProfile
+                    ? html`
+                          <div class="owner-actions">
+                              <button
+                                  class="button is-secondary"
+                                  type="button"
+                                  @click="${() => this._openEditDialog(profile)}">
+                                  ${t('career-profile.edit-profile')}
+                              </button>
+                              <button
+                                  class="button is-secondary"
+                                  type="button"
+                                  @click="${() => this._openDeleteDialog(profile)}">
+                                  ${t('career-profile.delete-profile')}
+                              </button>
+                              <button
+                                  class="button is-primary"
+                                  type="button"
+                                  @click="${() => this._openSubmissions(profile)}">
+                                  ${t('career-profile.view-submissions')}
+                              </button>
+                          </div>
+                      `
+                    : html`
+                          <dbp-job-profile-interest-form
+                              lang="${this.lang}"
+                              .auth="${this.auth}"
+                              entry-point-url="${this.entryPointUrl}"
+                              form-identifier="${profile.identifier}"
+                              .profile="${profile}"></dbp-job-profile-interest-form>
+                      `
+            }
         `;
     }
 
@@ -705,23 +727,29 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 <h2>${t('career-profile.submissions-title')}</h2>
                 <p>${this._localized(profile, 'headline', 'headlineEn') || profile.formName}</p>
 
-                ${this._loadingSubmissions
-                    ? html`
-                          <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
-                      `
-                    : ''}
-                ${this._submissionsLoadError
-                    ? html`
-                          <p class="notification is-danger">
-                              ${t('career-profile.submissions-load-error')}
-                          </p>
-                      `
-                    : ''}
-                ${!this._loadingSubmissions && this._submissions.length === 0
-                    ? html`
-                          <p>${t('career-profile.no-submissions')}</p>
-                      `
-                    : ''}
+                ${
+                    this._loadingSubmissions
+                        ? html`
+                              <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
+                          `
+                        : ''
+                }
+                ${
+                    this._submissionsLoadError
+                        ? html`
+                              <p class="notification is-danger">
+                                  ${t('career-profile.submissions-load-error')}
+                              </p>
+                          `
+                        : ''
+                }
+                ${
+                    !this._loadingSubmissions && this._submissions.length === 0
+                        ? html`
+                              <p>${t('career-profile.no-submissions')}</p>
+                          `
+                        : ''
+                }
 
                 <div class="submission-list">
                     ${this._submissions.map((submission) => this._renderSubmission(submission))}
@@ -747,14 +775,16 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         data.contactEmail,
                     )}
                 </dl>
-                ${data.message
-                    ? html`
-                          <section>
-                              <h4>${t('student-profile-form.interest-message')}</h4>
-                              <p>${data.message}</p>
-                          </section>
-                      `
-                    : ''}
+                ${
+                    data.message
+                        ? html`
+                              <section>
+                                  <h4>${t('student-profile-form.interest-message')}</h4>
+                                  <p>${data.message}</p>
+                              </section>
+                          `
+                        : ''
+                }
             </article>
         `;
     }
@@ -784,8 +814,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         entry-point-url="${this.entryPointUrl}"
                         .existingForm="${this._editDialogProfile}"
                         .currentStudentStudies="${this._currentStudentStudies}"
-                        @dbp-edit-form-saved="${this
-                            ._handleProfileSaved}"></dbp-job-profile-edit-form>
+                        @dbp-edit-form-saved="${
+                            this._handleProfileSaved
+                        }"></dbp-job-profile-edit-form>
                 </div>
             </dbp-modal>
         `;
@@ -821,13 +852,15 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             type="button"
                             ?disabled="${this._isDeletingProfile}"
                             @click="${() => this._deleteProfile()}">
-                            ${this._isDeletingProfile
-                                ? html`
-                                      <dbp-mini-spinner></dbp-mini-spinner>
-                                  `
-                                : html`
-                                      <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
-                                  `}
+                            ${
+                                this._isDeletingProfile
+                                    ? html`
+                                          <dbp-mini-spinner></dbp-mini-spinner>
+                                      `
+                                    : html`
+                                          <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
+                                      `
+                            }
                             ${t('career-profile.delete-dialog-confirm')}
                         </button>
                     </div>
@@ -855,11 +888,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             pathSegments[0] === 'profile' && pathSegments[2] === 'submissions';
 
         return html`
-            ${this._selectedProfile
-                ? isSubmissionsRoute
-                    ? this._renderSubmissions(this._selectedProfile)
-                    : this._renderProfileDetail(this._selectedProfile)
-                : this._renderOverview()}
+            ${
+                this._selectedProfile
+                    ? isSubmissionsRoute
+                        ? this._renderSubmissions(this._selectedProfile)
+                        : this._renderProfileDetail(this._selectedProfile)
+                    : this._renderOverview()
+            }
             ${this._renderEditModal()} ${this._renderDeleteModal()}
         `;
     }

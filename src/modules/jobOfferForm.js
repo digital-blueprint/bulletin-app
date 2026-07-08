@@ -1088,9 +1088,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                       resource-path="/base/organizations?perPage=99999"
                                       entry-point-url="${this.entryPointUrl}"
                                       .auth="${this.auth}"
-                                      .value="${this._organizationId
-                                          ? `/base/organizations/${this._organizationId}`
-                                          : null}"
+                                      .value="${
+                                          this._organizationId
+                                              ? `/base/organizations/${this._organizationId}`
+                                              : null
+                                      }"
                                       @change="${(e) => {
                                           // Store both the OE identifier and its display name.
                                           const obj = e.detail?.object;
@@ -2142,11 +2144,13 @@ export class JobOfferFormElement extends BaseFormElement {
 
         return html`
             <section class="job-overview" aria-label="${localizedTitle}">
-                ${localizedTitle
-                    ? html`
-                          <h4 class="job-overview-title">${localizedTitle}</h4>
-                      `
-                    : ''}
+                ${
+                    localizedTitle
+                        ? html`
+                              <h4 class="job-overview-title">${localizedTitle}</h4>
+                          `
+                        : ''
+                }
 
                 <dl class="job-overview-meta-list">
                     ${this._renderJobMetaItem(
@@ -2199,22 +2203,24 @@ export class JobOfferFormElement extends BaseFormElement {
                     )}
                 </dl>
 
-                ${areaOfInterestLabels.length > 0
-                    ? html`
-                          <section class="job-overview-section">
-                              <h5 class="job-overview-section-title">
-                                  ${t('manage-job-offers.field-area-of-interest')}
-                              </h5>
-                              <div class="job-overview-tags">
-                                  ${areaOfInterestLabels.map(
-                                      (label) => html`
-                                          <span class="job-overview-tag">${label}</span>
-                                      `,
-                                  )}
-                              </div>
-                          </section>
-                      `
-                    : ''}
+                ${
+                    areaOfInterestLabels.length > 0
+                        ? html`
+                              <section class="job-overview-section">
+                                  <h5 class="job-overview-section-title">
+                                      ${t('manage-job-offers.field-area-of-interest')}
+                                  </h5>
+                                  <div class="job-overview-tags">
+                                      ${areaOfInterestLabels.map(
+                                          (label) => html`
+                                              <span class="job-overview-tag">${label}</span>
+                                          `,
+                                      )}
+                                  </div>
+                              </section>
+                          `
+                        : ''
+                }
                 ${this._renderJobListSection(t('job-offer-detail.requirements'), requirements)}
                 ${this._renderJobListSection(
                     t('manage-job-offers.field-responsibilities'),
@@ -2242,25 +2248,27 @@ export class JobOfferFormElement extends BaseFormElement {
                     ${t('job-offer-detail.external-application-text')}
                 </p>
 
-                ${externalJobUrl
-                    ? html`
-                          <a
-                              class="button is-primary external-application-link"
-                              href="${externalJobUrl}"
-                              target="_blank"
-                              rel="noopener noreferrer">
-                              <dbp-icon
-                                  class="btn-icon"
-                                  name="send-diagonal"
-                                  aria-hidden="true"></dbp-icon>
-                              ${t('job-offer-detail.apply-external')}
-                          </a>
-                      `
-                    : html`
-                          <p class="external-application-missing">
-                              ${t('job-offer-detail.external-application-missing')}
-                          </p>
-                      `}
+                ${
+                    externalJobUrl
+                        ? html`
+                              <a
+                                  class="button is-primary external-application-link"
+                                  href="${externalJobUrl}"
+                                  target="_blank"
+                                  rel="noopener noreferrer">
+                                  <dbp-icon
+                                      class="btn-icon"
+                                      name="send-diagonal"
+                                      aria-hidden="true"></dbp-icon>
+                                  ${t('job-offer-detail.apply-external')}
+                              </a>
+                          `
+                        : html`
+                              <p class="external-application-missing">
+                                  ${t('job-offer-detail.external-application-missing')}
+                              </p>
+                          `
+                }
             </div>
         `;
     }
@@ -2447,39 +2455,43 @@ export class JobOfferFormElement extends BaseFormElement {
                     .customValidator="${this._messageValidator}"
                     rows="4"></dbp-form-string-element>
 
-                ${supportsApplicationAttachments
-                    ? html`
-                          <div class="file-upload-container">
-                              <div class="file-upload-title-container">
-                                  <h5 class="attachments-title">
-                                      ${t('job-offer-detail.attachments')}
-                                  </h5>
-                                  <span class="file-upload-limit-warning">
-                                      ${t('job-offer-detail.attachments-help', {
+                ${
+                    supportsApplicationAttachments
+                        ? html`
+                              <div class="file-upload-container">
+                                  <div class="file-upload-title-container">
+                                      <h5 class="attachments-title">
+                                          ${t('job-offer-detail.attachments')}
+                                      </h5>
+                                      <span class="file-upload-limit-warning">
+                                          ${t('job-offer-detail.attachments-help', {
+                                              count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                              size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                                          })}
+                                      </span>
+                                  </div>
+
+                                  <div class="uploaded-files">
+                                      ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
+                                  </div>
+
+                                  <button
+                                      class="button is-secondary upload-button upload-button--attachment"
+                                      type="button"
+                                      ?disabled="${
+                                          this._isSubmitting ||
+                                          attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT
+                                      }"
+                                      @click="${this._openAttachmentPicker}">
+                                      <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
+                                      ${t('render-form.download-widget.upload-file-button-label', {
                                           count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                          size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
                                       })}
-                                  </span>
+                                  </button>
                               </div>
-
-                              <div class="uploaded-files">
-                                  ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
-                              </div>
-
-                              <button
-                                  class="button is-secondary upload-button upload-button--attachment"
-                                  type="button"
-                                  ?disabled="${this._isSubmitting ||
-                                  attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT}"
-                                  @click="${this._openAttachmentPicker}">
-                                  <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
-                                  ${t('render-form.download-widget.upload-file-button-label', {
-                                      count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                  })}
-                              </button>
-                          </div>
-                      `
-                    : ''}
+                          `
+                        : ''
+                }
 
                 <div class="form-footer">
                     <button

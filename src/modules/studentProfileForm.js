@@ -520,11 +520,13 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 @change="${(event) => onChange(event.detail.value)}">
                 <!-- Render the description between the label and the input via the description slot,
                      so the reading order for screen readers is: field name, description, input. -->
-                ${options.descriptionKey
-                    ? html`
-                          <div slot="description">${t(options.descriptionKey)}</div>
-                      `
-                    : ''}
+                ${
+                    options.descriptionKey
+                        ? html`
+                              <div slot="description">${t(options.descriptionKey)}</div>
+                          `
+                        : ''
+                }
             </dbp-string-element>
         `;
     }
@@ -568,39 +570,45 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 )}
             </div>
 
-            ${this._contactEmail
-                ? html`
-                      <div class="profile-prefill-info">
-                          <strong>${t('student-profile-form.field-contact-email')}:</strong>
-                          ${this._contactEmail}
-                      </div>
-                  `
-                : ''}
-            ${this._loadingStudentData || studyProgram || studies.length
-                ? html`
-                      <div class="profile-prefill-info">
-                          <strong>${t('student-profile-form.field-study-program')}:</strong>
-                          ${studies.length
-                              ? html`
-                                    <ul>
-                                        ${studies.map(
-                                            (study) => html`
-                                                <li>${study.name}</li>
-                                            `,
-                                        )}
-                                    </ul>
-                                `
-                              : this._loadingStudentData
-                                ? html`
-                                      <dbp-mini-spinner
-                                          text="${t('loading-message')}"></dbp-mini-spinner>
-                                  `
-                                : html`
-                                      ${studyProgram}
-                                  `}
-                      </div>
-                  `
-                : ''}
+            ${
+                this._contactEmail
+                    ? html`
+                          <div class="profile-prefill-info">
+                              <strong>${t('student-profile-form.field-contact-email')}:</strong>
+                              ${this._contactEmail}
+                          </div>
+                      `
+                    : ''
+            }
+            ${
+                this._loadingStudentData || studyProgram || studies.length
+                    ? html`
+                          <div class="profile-prefill-info">
+                              <strong>${t('student-profile-form.field-study-program')}:</strong>
+                              ${
+                                  studies.length
+                                      ? html`
+                                            <ul>
+                                                ${studies.map(
+                                                    (study) => html`
+                                                        <li>${study.name}</li>
+                                                    `,
+                                                )}
+                                            </ul>
+                                        `
+                                      : this._loadingStudentData
+                                        ? html`
+                                              <dbp-mini-spinner
+                                                  text="${t('loading-message')}"></dbp-mini-spinner>
+                                          `
+                                        : html`
+                                              ${studyProgram}
+                                          `
+                              }
+                          </div>
+                      `
+                    : ''
+            }
 
             <div class="translation-row">
                 ${this.renderTextField(
@@ -679,13 +687,15 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     type="button"
                     ?disabled="${this._isSubmitting}"
                     @click="${() => this.submit()}">
-                    ${this._isSubmitting
-                        ? html`
-                              <dbp-mini-spinner></dbp-mini-spinner>
-                          `
-                        : html`
-                              <dbp-icon name="save" aria-hidden="true"></dbp-icon>
-                          `}
+                    ${
+                        this._isSubmitting
+                            ? html`
+                                  <dbp-mini-spinner></dbp-mini-spinner>
+                              `
+                            : html`
+                                  <dbp-icon name="save" aria-hidden="true"></dbp-icon>
+                              `
+                    }
                     ${t('student-profile-form.save-profile')}
                 </button>
             </div>
@@ -997,13 +1007,15 @@ export class JobProfileInterestFormElement extends BaseFormElement {
                         class="button is-primary"
                         type="submit"
                         ?disabled="${this._isSubmitting}">
-                        ${this._isSubmitting
-                            ? html`
-                                  <dbp-mini-spinner></dbp-mini-spinner>
-                              `
-                            : html`
-                                  <dbp-icon name="send-diagonal" aria-hidden="true"></dbp-icon>
-                              `}
+                        ${
+                            this._isSubmitting
+                                ? html`
+                                      <dbp-mini-spinner></dbp-mini-spinner>
+                                  `
+                                : html`
+                                      <dbp-icon name="send-diagonal" aria-hidden="true"></dbp-icon>
+                                  `
+                        }
                         ${t('student-profile-form.interest-submit')}
                     </button>
                 </div>
