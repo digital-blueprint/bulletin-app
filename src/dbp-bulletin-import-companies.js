@@ -75,6 +75,8 @@ const keepImportCompaniesTranslations = (t) => {
     t('import-companies.errors-title');
     t('import-companies.imported-empty');
     t('import-companies.imported-title');
+    t('import-companies.overwritten-empty');
+    t('import-companies.overwritten-title');
     t('import-companies.skipped-deactivated-empty');
     t('import-companies.skipped-deactivated-title');
     t('import-companies.skipped-empty');
@@ -100,6 +102,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         this.nextcloudFileUrl = '';
         this._isImporting = false;
         this._includeDeactivatedCompanies = false;
+        this._overwriteExistingCompanies = false;
         this._importLimit = 'all';
         this._report = null;
         this._selectedFileName = '';
@@ -114,6 +117,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             nextcloudFileUrl: {type: String, attribute: 'nextcloud-file-url'},
             _isImporting: {state: true},
             _includeDeactivatedCompanies: {state: true},
+            _overwriteExistingCompanies: {state: true},
             _importLimit: {state: true},
             _report: {state: true},
             _selectedFileName: {state: true},
@@ -144,6 +148,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                 summary: this._i18n.t('import-companies.import-finished-title'),
                 body: this._i18n.t('import-companies.import-finished-body', {
                     imported: report.imported.length,
+                    overwritten: report.overwritten.length,
                     skipped: report.skipped.length,
                     skippedDeactivated: report.skippedDeactivated.length,
                     skippedLimit: report.skippedLimit.length,
@@ -156,6 +161,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             console.error('Company import failed:', error);
             this._report = {
                 imported: [],
+                overwritten: [],
                 skipped: [],
                 skippedDeactivated: [],
                 skippedLimit: [],
@@ -278,12 +284,13 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         }
 
         const formIdentifier = await this._fetchCompanyFormIdentifier();
-        const existingNames = await this._fetchExistingCompanyNames(formIdentifier);
+        const existingCompanies = await this._fetchExistingCompanies(formIdentifier);
         const headers = rows[0].map((header) => CSV_HEADER_MAP[normalizeKey(header)] ?? null);
         const maxImports =
             this._importLimit === 'all' ? Number.POSITIVE_INFINITY : Number(this._importLimit);
         const report = {
             imported: [],
+            overwritten: [],
             skipped: [],
             skippedDeactivated: [],
             skippedLimit: [],
@@ -295,6 +302,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             const company = this._mapRowToCompany(headers, row);
             const name = normalizeText(company.name);
             const duplicateName = normalizeDuplicateName(name);
+            const existingCompany = existingCompanies.get(duplicateName);
             const isActive = company.status === '1';
 
             if (!name) {
@@ -311,20 +319,30 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                 return;
             }
 
-            if (existingNames.has(duplicateName)) {
+            if (existingCompany && !this._overwriteExistingCompanies) {
                 report.skipped.push({rowNumber, name});
                 return;
             }
 
-            if (report.imported.length >= maxImports) {
+            if (report.imported.length + report.overwritten.length >= maxImports) {
                 report.skippedLimit.push({rowNumber, name});
                 return;
             }
 
             try {
-                await this._createCompanySubmission(formIdentifier, company);
-                existingNames.add(duplicateName);
-                report.imported.push({rowNumber, name});
+                if (existingCompany) {
+                    await this._updateCompanySubmission(existingCompany.identifier, company);
+                    report.overwritten.push({rowNumber, name});
+                } else {
+                    const createdSubmission = await this._createCompanySubmission(
+                        formIdentifier,
+                        company,
+                    );
+                    existingCompanies.set(duplicateName, {
+                        identifier: createdSubmission?.identifier,
+                    });
+                    report.imported.push({rowNumber, name});
+                }
             } catch (error) {
                 report.errors.push({rowNumber, name, message: error.message});
             }
@@ -361,7 +379,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         return form.identifier;
     }
 
-    async _fetchExistingCompanyNames(formIdentifier) {
+    async _fetchExistingCompanies(formIdentifier) {
         const response = await fetch(
             `${this.entryPointUrl}/formalize/submissions?formIdentifier=${encodeURIComponent(
                 formIdentifier,
@@ -381,21 +399,21 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         }
 
         const data = await response.json();
-        return new Set(
-            (data['hydra:member'] ?? [])
-                .map((submission) => {
-                    try {
-                        const submissionData = JSON.parse(submission.dataFeedElement ?? '{}');
-                        return normalizeDuplicateName(
-                            submissionData.name ?? submissionData.companyName,
-                        );
-                    } catch (error) {
-                        console.error('Could not parse company submission:', error);
-                        return '';
-                    }
-                })
-                .filter(Boolean),
-        );
+        const companies = new Map();
+        for (const submission of data['hydra:member'] ?? []) {
+            try {
+                const submissionData = JSON.parse(submission.dataFeedElement ?? '{}');
+                const duplicateName = normalizeDuplicateName(
+                    submissionData.name ?? submissionData.companyName,
+                );
+                if (duplicateName && submission.identifier) {
+                    companies.set(duplicateName, {identifier: submission.identifier});
+                }
+            } catch (error) {
+                console.error('Could not parse company submission:', error);
+            }
+        }
+        return companies;
     }
 
     _mapRowToCompany(headers, row) {
@@ -444,6 +462,39 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                 errorBody.description ||
                     errorBody['hydra:description'] ||
                     this._i18n.t('import-companies.error-create-company', {
+                        status: response.status,
+                    }),
+            );
+        }
+
+        return response.json().catch(() => ({}));
+    }
+
+    async _updateCompanySubmission(submissionIdentifier, company) {
+        if (!submissionIdentifier) {
+            throw new Error(this._i18n.t('import-companies.error-missing-submission-id'));
+        }
+
+        const patchFormData = new FormData();
+        patchFormData.append('dataFeedElement', JSON.stringify(company));
+
+        const response = await fetch(
+            `${this.entryPointUrl}/formalize/submissions/${submissionIdentifier}`,
+            {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${this.auth.token}`,
+                },
+                body: patchFormData,
+            },
+        );
+
+        if (!response.ok) {
+            const errorBody = await response.json().catch(() => ({}));
+            throw new Error(
+                errorBody.description ||
+                    errorBody['hydra:description'] ||
+                    this._i18n.t('import-companies.error-update-company', {
                         status: response.status,
                     }),
             );
@@ -525,6 +576,23 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                             this._includeDeactivatedCompanies = event.target.checked;
                         }}" />
                 </div>
+                <div class="checkbox-option">
+                    <label for="overwrite-existing-companies">
+                        ${t('import-companies.overwrite-existing-label')}
+                    </label>
+                    <p id="overwrite-existing-companies-description">
+                        ${t('import-companies.overwrite-existing-description')}
+                    </p>
+                    <input
+                        id="overwrite-existing-companies"
+                        type="checkbox"
+                        aria-describedby="overwrite-existing-companies-description"
+                        .checked="${this._overwriteExistingCompanies}"
+                        ?disabled="${this._isImporting}"
+                        @change="${(event) => {
+                            this._overwriteExistingCompanies = event.target.checked;
+                        }}" />
+                </div>
                 <div class="select-option">
                     <label for="company-import-limit">
                         ${t('import-companies.import-limit-label')}
@@ -592,6 +660,10 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                       <span>${t('import-companies.summary-imported')}</span>
                                   </div>
                                   <div>
+                                      <strong>${this._report.overwritten.length}</strong>
+                                      <span>${t('import-companies.summary-overwritten')}</span>
+                                  </div>
+                                  <div>
                                       <strong>${this._report.skipped.length}</strong>
                                       <span>${t('import-companies.summary-skipped')}</span>
                                   </div>
@@ -614,6 +686,16 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                   'import-companies.imported-title',
                                   this._report.imported,
                                   'import-companies.imported-empty',
+                                  (item) =>
+                                      t('import-companies.report-row', {
+                                          row: item.rowNumber,
+                                          name: item.name,
+                                      }),
+                              )}
+                              ${this._renderReportList(
+                                  'import-companies.overwritten-title',
+                                  this._report.overwritten,
+                                  'import-companies.overwritten-empty',
                                   (item) =>
                                       t('import-companies.report-row', {
                                           row: item.rowNumber,
@@ -747,7 +829,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
 
                 .summary-grid {
                     display: grid;
-                    grid-template-columns: repeat(5, minmax(0, 1fr));
+                    grid-template-columns: repeat(6, minmax(0, 1fr));
                     gap: 1rem;
                     margin: 1.5rem 0;
                 }
