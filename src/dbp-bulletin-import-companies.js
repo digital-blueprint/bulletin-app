@@ -10,34 +10,152 @@ import CompanyModule from './modules/companyForm.js';
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const SUBMISSION_STATE_SUBMITTED = 4;
 const IMPORT_LIMIT_OPTIONS = ['10', '20', '50', '100', '200', '500', '1000', 'all'];
+// Target field names are taken from CompanyFormElement.render() in src/modules/companyForm.js.
 const CSV_HEADER_MAP = {
-    name: 'name',
-    'quellen id': 'quellen_id',
-    teaser: 'teaser',
+    abteilung: 'abteilung',
+    'abteilung/institut': 'abteilung',
+    address: 'adresse',
+    'anzeige partnerunternehmen': 'partnerunternehmen',
+    adresse: 'adresse',
+    billing: 'kontaktperson_anmerkung',
     beschreibung: 'beschreibung',
-    produkte: 'produkte',
-    standorte: 'standorte',
-    'mitarbeiter national': 'mitarbeiter_national',
-    'mitarbeiter gesamt': 'mitarbeiter_gesamt',
+    city: 'ort',
+    company: 'name',
+    'company name': 'name',
+    'company profile contact': 'kontakt_firmenprofil',
+    contact: 'kontakt_firmenprofil',
+    'contact person': 'kontaktperson',
+    country: 'staat',
+    department: 'abteilung',
+    'department/institute': 'abteilung',
+    description: 'beschreibung',
+    email: 'email',
+    'e-mail': 'email',
+    'employees national': 'mitarbeiter_national',
+    'employees total': 'mitarbeiter_gesamt',
+    fakturierung: 'kontaktperson_anmerkung',
     'f&e beschaftigte': 'fe_beschaeftigte',
-    'f&e beschäftigte': 'fe_beschaeftigte',
+    'f&e-beschaftigte': 'fe_beschaeftigte',
+    fe_beschaeftigte: 'fe_beschaeftigte',
+    'fe beschaeftigte': 'fe_beschaeftigte',
+    'field of studies': 'relation_partner_fachrichtungen',
+    'fields of study': 'relation_partner_fachrichtungen',
+    foerderer_auslandsstip: 'foerderer_auslandsstip',
+    foerderer_auslandsstip_year: 'foerderer_auslandsstip_year',
+    foerderer_tugrazstip: 'foerderer_tugrazstip',
+    foerderer_tugrazstip_year: 'foerderer_tugrazstip_year',
+    'forschung und entwicklung beschaeftigte': 'fe_beschaeftigte',
+    'forschung und entwicklung beschäftigte': 'fe_beschaeftigte',
+    'foerderer auslandsstipendium': 'foerderer_auslandsstip',
+    'foerderer auslandsstipendium jahr': 'foerderer_auslandsstip_year',
+    'foerderer tu graz 100 stipendium': 'foerderer_tugrazstip',
+    'foerderer tu graz 100 stipendium jahr': 'foerderer_tugrazstip_year',
+    'forderer auslandsstipendium': 'foerderer_auslandsstip',
+    'forderer auslandsstipendium jahr': 'foerderer_auslandsstip_year',
+    'forderer tu graz 100 stipendium': 'foerderer_tugrazstip',
+    'forderer tu graz 100 stipendium jahr': 'foerderer_tugrazstip_year',
+    hs_link: 'hs_link',
+    hs_link_anzeigen: 'hs_link_anzeigen',
+    hs_link_name: 'hs_link_name',
+    industries: 'relation_partner_branchen',
+    'infrastructure label': 'hs_link_name',
+    'infrastructure link': 'hs_link',
+    'infrastruktur bezeichnung': 'hs_link_name',
+    'infrastruktur-link anzeigen': 'hs_link_anzeigen',
+    'infrastruktur link': 'hs_link',
+    institutsnennung: 'institutsnennung',
+    'institute mention': 'institutsnennung',
+    invoicing: 'kontaktperson_anmerkung',
     kontakt: 'kontakt_firmenprofil',
+    'kontakt firmenprofil': 'kontakt_firmenprofil',
+    kontakt_firmenprofil: 'kontakt_firmenprofil',
+    kontaktperson: 'kontaktperson',
+    kontaktperson_anmerkung: 'kontaktperson_anmerkung',
+    'linked fields of study': 'relation_partner_fachrichtungen',
+    'linked industries': 'relation_partner_branchen',
+    locations: 'standorte',
+    'mitarbeiter gesamt': 'mitarbeiter_gesamt',
+    'mitarbeiter national': 'mitarbeiter_national',
+    mitarbeiter_gesamt: 'mitarbeiter_gesamt',
+    mitarbeiter_national: 'mitarbeiter_national',
+    'mini teaser': 'mini_teaser',
+    mini_teaser: 'mini_teaser',
+    name: 'name',
+    ort: 'ort',
+    partner_bis: 'partner_bis',
+    partner_von: 'partner_von',
     'partner von': 'partner_von',
     'partner bis': 'partner_bis',
-    url: 'url',
-    typ: 'typ',
-    adresse: 'adresse',
+    'partner company category': 'partnerunternehmen_typ',
+    'partnerunternehmen kategorie': 'partnerunternehmen_typ',
+    'partner from': 'partner_von',
+    'partner type': 'typ',
+    'partner type text': 'partnertyp_text',
+    'partner until': 'partner_bis',
+    partnerunternehmen: 'partnerunternehmen',
+    partnerunternehmen_typ: 'partnerunternehmen_typ',
+    partnertyp_text: 'partnertyp_text',
+    partnertyp: 'typ',
+    'partnertyp text': 'partnertyp_text',
+    phone: 'telefonnummer',
+    'phone number': 'telefonnummer',
     plz: 'plz',
-    ort: 'ort',
-    kontaktperson: 'kontaktperson',
-    fakturierung: 'kontaktperson_anmerkung',
-    telefonnummer: 'telefonnummer',
-    email: 'email',
-    stammkunde: 'stammkunde',
-    abteilung: 'abteilung',
+    postalcode: 'plz',
+    'postal code': 'plz',
+    produkte: 'produkte',
+    products: 'produkte',
+    profil_link_anzeigen: 'profil_link_anzeigen',
+    quellen_id: 'quellen_id',
+    'quellen id': 'quellen_id',
+    'rd employees': 'fe_beschaeftigte',
+    relation_partner_branchen: 'relation_partner_branchen',
+    relation_partner_fachrichtungen: 'relation_partner_fachrichtungen',
+    'regular customer': 'stammkunde',
+    'show infrastructure link': 'hs_link_anzeigen',
+    'show partner company': 'partnerunternehmen',
+    'show profile link': 'profil_link_anzeigen',
+    sortierung: 'sort_order',
+    sort_order: 'sort_order',
+    'sort order': 'sort_order',
+    'source id': 'quellen_id',
     staat: 'staat',
+    stammkunde: 'stammkunde',
+    standorte: 'standorte',
+    telefonnummer: 'telefonnummer',
+    teaser: 'teaser',
+    typ: 'typ',
+    url: 'url',
+    website: 'url',
     status: 'status',
+    'student fields': 'relation_partner_fachrichtungen',
+    supporter_international_scholarship: 'foerderer_auslandsstip',
+    'supporter international scholarship': 'foerderer_auslandsstip',
+    'supporter international scholarship year': 'foerderer_auslandsstip_year',
+    supporter_tu_graz_scholarship: 'foerderer_tugrazstip',
+    'supporter tu graz scholarship': 'foerderer_tugrazstip',
+    'supporter tu graz scholarship year': 'foerderer_tugrazstip_year',
+    'profil-link anzeigen': 'profil_link_anzeigen',
+    'verknuepfte branchen': 'relation_partner_branchen',
+    'verknuepfte fachrichtungen': 'relation_partner_fachrichtungen',
+    'verknupfte branchen': 'relation_partner_branchen',
+    'verknupfte fachrichtungen': 'relation_partner_fachrichtungen',
+    'verknüpfte branchen': 'relation_partner_branchen',
+    'verknüpfte fachrichtungen': 'relation_partner_fachrichtungen',
 };
+const BOOLEAN_FIELDS = new Set([
+    'stammkunde',
+    'partnerunternehmen',
+    'foerderer_auslandsstip',
+    'foerderer_tugrazstip',
+    'hs_link_anzeigen',
+    'profil_link_anzeigen',
+]);
+const NUMBER_FIELDS = new Set([
+    'sort_order',
+    'foerderer_auslandsstip_year',
+    'foerderer_tugrazstip_year',
+]);
+const ARRAY_FIELDS = new Set(['relation_partner_branchen', 'relation_partner_fachrichtungen']);
 const COUNTRY_MAP = {
     österreich: '1',
     oesterreich: '1',
@@ -69,6 +187,29 @@ const normalizeKey = (value) =>
         .replace(/[\u0300-\u036f]/g, '');
 
 const normalizeDuplicateName = (value) => normalizeKey(value).replace(/[.,;:/\\|_()[\]{}-]+/g, '');
+
+const normalizeBooleanValue = (value) => {
+    const normalizedValue = normalizeKey(value);
+    if (['1', 'true', 'yes', 'ja', 'y', 'j'].includes(normalizedValue)) {
+        return true;
+    }
+    if (['0', 'false', 'no', 'nein', 'n'].includes(normalizedValue)) {
+        return false;
+    }
+    return Boolean(value);
+};
+
+const normalizeNumberValue = (value) => {
+    const normalizedValue = normalizeText(value).replace(',', '.');
+    const number = Number(normalizedValue);
+    return Number.isNaN(number) ? value : number;
+};
+
+const normalizeArrayValue = (value) =>
+    normalizeText(value)
+        .split(/[,;|]/)
+        .map((item) => item.trim())
+        .filter(Boolean);
 
 const keepImportCompaniesTranslations = (t) => {
     t('import-companies.errors-empty');
@@ -424,14 +565,19 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             }
             const value = normalizeText(row[index]);
             if (value !== '') {
-                company[fieldName] = value;
+                if (BOOLEAN_FIELDS.has(fieldName)) {
+                    company[fieldName] = normalizeBooleanValue(value);
+                } else if (NUMBER_FIELDS.has(fieldName)) {
+                    company[fieldName] = normalizeNumberValue(value);
+                } else if (ARRAY_FIELDS.has(fieldName)) {
+                    company[fieldName] = normalizeArrayValue(value);
+                } else {
+                    company[fieldName] = value;
+                }
             }
         });
 
         company.name = normalizeText(company.name);
-        if (company.stammkunde !== undefined) {
-            company.stammkunde = company.stammkunde === '1' || company.stammkunde === 'true';
-        }
         if (company.staat !== undefined) {
             company.staat = COUNTRY_MAP[normalizeKey(company.staat)] ?? 'other';
         }
