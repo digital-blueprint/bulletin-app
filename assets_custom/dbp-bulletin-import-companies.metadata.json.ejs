@@ -1,0 +1,19 @@
+{
+    "element": "dbp-bulletin-import-companies",
+    "module_src": "dbp-bulletin-import-companies.js",
+    "routing_name": "import-companies"<% if (!isLocalCustom) { %>,
+    "required_roles": ["developer"]<% } %>,
+    "name": {
+        "de": "Firmen importieren",
+        "en": "Import companies"
+    },
+    "short_name": {
+        "de": "Firmen importieren",
+        "en": "Import companies"
+    },
+    "description": {
+        "de": "Importiert Firmen aus einer CSV-Datei.",
+        "en": "Imports companies from a CSV file."
+    },
+    "subscribe": "lang,entry-point-url,auth,base-path,nextcloud-auth-url,nextcloud-web-dav-url,nextcloud-name,nextcloud-file-url"
+}

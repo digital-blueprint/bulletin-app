@@ -124,6 +124,7 @@ let input = [
     'src/modules/studentProfileForm.js',
     'src/dbp-bulletin-career-profile.js',
     'src/dbp-bulletin-browse-career-profiles.js',
+    'src/dbp-bulletin-import-companies.js',
     'src/modules/companyForm.js',
 ];
 
@@ -176,6 +177,7 @@ export default (async () => {
                         matomoUrl: config.matomoUrl,
                         matomoSiteId: config.matomoSiteId,
                         buildInfo: getBuildInfo(appEnv),
+                        isLocalCustom: appEnv === 'localCustom',
                         universityShortName: config.universityShortName,
                         universityFullName: config.universityFullName,
                         nextcloudWebAppPasswordURL: config.nextcloudWebAppPasswordURL,
@@ -207,6 +209,7 @@ export default (async () => {
                         matomoUrl: config.matomoUrl,
                         matomoSiteId: config.matomoSiteId,
                         buildInfo: getBuildInfo(appEnv),
+                        isLocalCustom: false,
                         universityShortName: config.universityShortName,
                         universityFullName: config.universityFullName,
                         nextcloudWebAppPasswordURL: config.nextcloudWebAppPasswordURL,
