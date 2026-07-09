@@ -2,7 +2,7 @@
     "element": "dbp-bulletin-import-companies",
     "module_src": "dbp-bulletin-import-companies.js",
     "routing_name": "import-companies",
-    "required_roles": ["developer"],
+    "required_roles": ["ROLE_BULLETIN_ADMIN"],
     "name": {
         "de": "Firmen importieren",
         "en": "Import companies"

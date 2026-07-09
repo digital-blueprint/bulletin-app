@@ -7,7 +7,7 @@ import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CompanyModule from './modules/companyForm.js';
 
-const DEVELOPER_ROLE = 'developer';
+const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const SUBMISSION_STATE_SUBMITTED = 4;
 const IMPORT_LIMIT_OPTIONS = ['10', '20', '50', '100', '200', '500', '1000', 'all'];
 const CSV_HEADER_MAP = {
@@ -121,11 +121,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
     }
 
     get _isDeveloper() {
-        return (this.auth?._roles ?? []).includes(DEVELOPER_ROLE) || this._isLocalDevelopmentHost();
-    }
-
-    _isLocalDevelopmentHost() {
-        return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+        return (this.auth?._roles ?? []).includes(BULLETIN_ADMIN_ROLE);
     }
 
     async _handleFileSelected(event) {
