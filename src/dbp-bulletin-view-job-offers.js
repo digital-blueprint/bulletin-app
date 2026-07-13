@@ -944,16 +944,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                               job.weeklyHoursEn ?? '',
                                                           ),
                                                       )}
-                                                      ${this._renderJobMetaItem(
-                                                          //   t('view-job-offers.application-deadline'),
-                                                          this
-                                                              .formatDate
-                                                              // job.applicationDeadline || job.deadline,
-                                                              (),
-                                                      )}
                                                   </dl>
+                                                  ${this._renderAreaOfInterestTags(job, t)}
                                               </div>
-                                              <div>${this._renderAreaOfInterestTags(job, t)}</div>
+
                                               <div class="job-card-footer">
                                                   <button
                                                       class="button is-secondary"
@@ -1340,7 +1334,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 0.4rem;
-                margin-bottom: 0.5rem;
+                margin: 0.3rem 0px;
             }
 
             .job-tag {
