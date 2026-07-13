@@ -2103,76 +2103,17 @@ export class JobOfferFormElement extends BaseFormElement {
         if (!this.job) {
             return '';
         }
-
-        const t = (key, opts) => this._i18n.t(key, opts);
-        const job = this.job;
-        const localizedTitle = this._localized(job.title ?? '', job.titleEn ?? '');
-        /*  const localizedOrganization = this._localized(
-              job.organization ?? '',
-              job.organizationEn ?? '',
-          );
-           const isExternalJob = job.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
-           const organizationLabel = isExternalJob
-               ? t('manage-job-offers.field-company')
-               : t('manage-job-offers.field-organization');
-           const organizationValue = isExternalJob ? (job.companyName ?? '') : localizedOrganization;
-           const localizedWeeklyHours = this._localized(
-               job.weeklyHours ?? '',
-               job.weeklyHoursEn ?? '',
-           );
-           const localizedSalary = this._localized(job.salary ?? '', job.salaryEn ?? '');
-           const localizedContractDuration = this._localized(
-               job.contractDuration ?? '',
-               job.contractDurationEn ?? '',
-           );
-           const localizedLinkName = this._localized(job.linkName ?? '', job.linkNameEn ?? '');
-           const localizedLinkUrl = this._localized(job.linkUrl ?? '', job.linkUrlEn ?? ''); */
-        const requirements = this._localizedList(job.requirements, job.requirementsEn);
-        const responsibilities = this._localizedList(job.responsibilities, job.responsibilitiesEn);
-        const requiredQualification = this._localizedList(
-            job.requiredQualification,
-            job.requiredQualificationEn,
-        );
-        const weOffer = this._localizedList(job.weOffer, job.weOfferEn);
-        /*  const areaOfInterestLabels = getAreaOfInterestLabels(
-            job.areasOfInterest ?? job.areaOfInterest,
-            t,
-        );
-        const jobCategoryLabel = job.jobCategory ? getJobCategoryLabel(job.jobCategory, t) : '';
-        const workLocationLabels = getWorkLocationLabels(job.workLocations, t, this.lang);*/
-
-        return html`
-            <section class="job-overview" aria-label="${localizedTitle}">
-                ${
-                    localizedTitle
-                        ? html`
-                              <h4 class="job-overview-title">${localizedTitle}</h4>
-                          `
-                        : ''
-                }
-                ${this._renderJobListSection(t('job-offer-detail.requirements'), requirements)}
-                ${this._renderJobListSection(
-                    t('manage-job-offers.field-responsibilities'),
-                    responsibilities,
-                )}
-                ${this._renderJobListSection(
-                    t('manage-job-offers.field-required-qualification'),
-                    requiredQualification,
-                )}
-                ${this._renderJobListSection(t('manage-job-offers.field-we-offer'), weOffer)}
-            </section>
-        `;
     }
 
-    _renderExternalApplication(jobOverview) {
+    _renderExternalApplication() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const externalJobUrl = this._getExternalJobUrl();
 
         return html`
-            <div class="apply-form">
-                ${jobOverview}
-
-                <h4 class="apply-heading">${t('job-offer-detail.external-application-title')}</h4>
+            <fieldset class="apply-form">
+                <legend class="apply-heading">
+                    ${t('job-offer-detail.external-application-title')}
+                </legend>
                 <p class="external-application-text">
                     ${t('job-offer-detail.external-application-text')}
                 </p>
@@ -2198,7 +2139,7 @@ export class JobOfferFormElement extends BaseFormElement {
                               </p>
                           `
                 }
-            </div>
+            </fieldset>
         `;
     }
 
@@ -2485,12 +2426,6 @@ export class JobOfferFormElement extends BaseFormElement {
                     margin-top: 1.5rem;
                 }
 
-                .apply-heading {
-                    font-size: 1.1rem;
-                    font-weight: 700;
-                    margin: 0 0 1rem 0;
-                }
-
                 .job-overview {
                     border-bottom: var(--dbp-border);
                     margin-bottom: 1.25rem;
@@ -2570,6 +2505,20 @@ export class JobOfferFormElement extends BaseFormElement {
                     font-size: 1rem;
                     padding: 0.25rem 0.75rem;
                     color: var(--dbp-content);
+                }
+
+                fieldset {
+                    padding: 0.75rem;
+                    display: grid;
+                    gap: 0.5em;
+                    border: 1px solid var(--dbp-content);
+                    padding-bottom: 1rem;
+                }
+
+                legend {
+                    font-weight: 400;
+                    font-size: 1.17em;
+                    padding: 0 5px;
                 }
 
                 /* Three-column form row for first name, last name, email */
@@ -2702,6 +2651,7 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.35rem;
+                    width: max-content;
                 }
 
                 .external-application-missing {

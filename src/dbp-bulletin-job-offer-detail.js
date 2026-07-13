@@ -201,7 +201,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return this._localized(job.salary ?? '', job.salaryEn ?? '');
     }
 
-    _renderAreaOfInterestTags(job, t) {
+    _renderAreaOfInterestTags(job) {
+        const t = (key) => this._i18n.t(key);
         const areaOfInterestLabels = getAreaOfInterestLabels(
             job.areasOfInterest ?? job.areaOfInterest,
             t,
@@ -213,6 +214,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="job-tags">
+                <span class="tag-label">${t('view-job-offers.areas-of-interest')}:</span>
                 ${areaOfInterestLabels.map(
                     (label) => html`
                         <span class="job-tag">${label}</span>
@@ -779,11 +781,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       @click="${() => this._handleApply()}">
                                                       <dbp-icon
                                                           class="btn-icon"
-                                                          name="${
-                                                              isExternalJob
-                                                                  ? 'send-diagonal'
-                                                                  : 'chevron-down'
-                                                          }"
+                                                          name="send-diagonal"
                                                           aria-hidden="true"></dbp-icon>
                                                       ${t('job-offer-detail.apply')}
                                                   </button>
@@ -1095,6 +1093,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
             .meta-item.tag {
                 margin-top: 0.5rem;
+            }
+
+            .tag-label {
+                font-weight: 600;
             }
 
             /* Right-side tag and action buttons stay in the second grid column */
