@@ -2300,82 +2300,88 @@ export class JobOfferFormElement extends BaseFormElement {
 
         if (this._hasApplied) {
             return html`
-                <div class="apply-form">
-                    ${jobOverview}
-                    <div class="applied-notice">
-                        <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
-                        <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
-                    </div>
-                </div>
+                <fieldset>
+                    <legend class="apply-form">
+                        ${jobOverview}
+                        <div class="applied-notice">
+                            <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
+                            <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
+                        </div>
+                    </legend>
+                </fieldset>
             `;
         }
 
         return html`
-            <form class="apply-form" @submit="${this._onApplySubmit}" novalidate>
-                ${jobOverview}
+            <fieldset>
+                <legend>${t('job-offer-detail.application-title')}</legend>
+                <form @submit="${this._onApplySubmit}" novalidate>
+                    ${jobOverview}
 
-                <h4 class="apply-heading">${t('job-offer-detail.application-title')}</h4>
+                    <dbp-form-string-element
+                        ${ref(this._messageRef)}
+                        subscribe="lang"
+                        name="freeText"
+                        label="${t('job-offer-detail.message')}"
+                        .value="${this.formData?.freeText ?? ''}"
+                        .customValidator="${this._messageValidator}"
+                        rows="4"></dbp-form-string-element>
 
-                <dbp-form-string-element
-                    ${ref(this._messageRef)}
-                    subscribe="lang"
-                    name="freeText"
-                    label="${t('job-offer-detail.message')}"
-                    .value="${this.formData?.freeText ?? ''}"
-                    .customValidator="${this._messageValidator}"
-                    rows="4"></dbp-form-string-element>
+                    ${
+                        supportsApplicationAttachments
+                            ? html`
+                                  <div class="file-upload-container">
+                                      <div class="file-upload-title-container">
+                                          <h5 class="attachments-title">
+                                              ${t('job-offer-detail.attachments')}
+                                          </h5>
+                                          <span class="file-upload-limit-warning">
+                                              ${t('job-offer-detail.attachments-help', {
+                                                  count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                                  size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                                              })}
+                                          </span>
+                                      </div>
 
-                ${
-                    supportsApplicationAttachments
-                        ? html`
-                              <div class="file-upload-container">
-                                  <div class="file-upload-title-container">
-                                      <h5 class="attachments-title">
-                                          ${t('job-offer-detail.attachments')}
-                                      </h5>
-                                      <span class="file-upload-limit-warning">
-                                          ${t('job-offer-detail.attachments-help', {
-                                              count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                              size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
-                                          })}
-                                      </span>
+                                      <div class="uploaded-files">
+                                          ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
+                                      </div>
+
+                                      <button
+                                          class="button is-secondary upload-button upload-button--attachment"
+                                          type="button"
+                                          ?disabled="${
+                                              this._isSubmitting ||
+                                              attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT
+                                          }"
+                                          @click="${this._openAttachmentPicker}">
+                                          <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
+                                          ${t(
+                                              'render-form.download-widget.upload-file-button-label',
+                                              {
+                                                  count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                              },
+                                          )}
+                                      </button>
                                   </div>
+                              `
+                            : ''
+                    }
 
-                                  <div class="uploaded-files">
-                                      ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
-                                  </div>
-
-                                  <button
-                                      class="button is-secondary upload-button upload-button--attachment"
-                                      type="button"
-                                      ?disabled="${
-                                          this._isSubmitting ||
-                                          attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT
-                                      }"
-                                      @click="${this._openAttachmentPicker}">
-                                      <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
-                                      ${t('render-form.download-widget.upload-file-button-label', {
-                                          count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                      })}
-                                  </button>
-                              </div>
-                          `
-                        : ''
-                }
-
-                <div class="form-footer">
-                    <button
-                        class="button is-primary"
-                        type="submit"
-                        ?disabled="${this._isSubmitting}">
-                        <dbp-icon
-                            class="btn-icon"
-                            name="send-diagonal"
-                            aria-hidden="true"></dbp-icon>
-                        ${t('job-offer-detail.submit')}
-                    </button>
-                </div>
-            </form>
+                    <div class="form-footer">
+                        <button
+                            class="button is-primary"
+                            type="submit"
+                            ?disabled="${this._isSubmitting}">
+                            <dbp-icon
+                                class="btn-icon"
+                                name="send-diagonal"
+                                aria-hidden="true"></dbp-icon>
+                            ${t('job-offer-detail.submit')}
+                        </button>
+                    </div>
+                </form>
+            </fieldset>
 
             <dbp-file-source
                 id="file-source"
@@ -2418,13 +2424,6 @@ export class JobOfferFormElement extends BaseFormElement {
             super.styles,
             css`
                 ${commonStyles.getButtonCSS()}
-
-                .apply-form {
-                    border: var(--dbp-border);
-                    border-radius: var(--dbp-border-radius);
-                    padding: 1.25rem;
-                    margin-top: 1.5rem;
-                }
 
                 .job-overview {
                     border-bottom: var(--dbp-border);
@@ -2513,6 +2512,7 @@ export class JobOfferFormElement extends BaseFormElement {
                     gap: 0.5em;
                     border: 1px solid var(--dbp-content);
                     padding-bottom: 1rem;
+                    margin-top: 1.5rem;
                 }
 
                 legend {

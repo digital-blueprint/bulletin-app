@@ -1026,7 +1026,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 grid-template-columns: minmax(0, 1fr) max-content;
                 align-items: flex-start;
                 column-gap: 1rem;
-                margin-bottom: 0.75rem;
             }
 
             .meta-list {
@@ -1156,6 +1155,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 gap: 0.5em;
                 border: 1px solid var(--dbp-content);
                 padding-bottom: 1rem;
+                margin-top: 1.5rem;
             }
 
             legend {
