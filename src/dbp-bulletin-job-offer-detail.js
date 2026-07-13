@@ -724,108 +724,126 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           <fieldset>
                                               <legend>Job description</legend>
                                               <div class="job-description-wrapper">
-                                                  <div class="meta-item">
-                                                      <!-- Job description: use English text when language is English and available -->
-                                                      ${this._renderDescription(job)}
-                                                  </div>
-                                                  <div class="job-description-meta-list">
-                                                      ${
-                                                          job?.startDate
-                                                              ? html`
-                                                                    <div class="meta-item">
-                                                                        <span
-                                                                            class="meta-item-label">
-                                                                            ${t('job-offer-detail.start-date')}:
-                                                                        </span>
-                                                                        ${job.startDate}
-                                                                    </div>
-                                                                `
-                                                              : ''
-                                                      }
-                                                      ${
-                                                          job?.contractDuration
-                                                              ? html`
-                                                                    <div class="meta-item">
-                                                                        <span
-                                                                            class="meta-item-label">
-                                                                            ${t('job-offer-detail.contract-duration')}:
-                                                                        </span>
-                                                                        ${this._getLocalizedContractDuration(job)}
-                                                                    </div>
-                                                                `
-                                                              : ''
-                                                      }
-                                                      ${
-                                                          job?.weeklyHours
-                                                              ? html`
-                                                                    <div class="meta-item">
-                                                                        <span
-                                                                            class="meta-item-label">
-                                                                            ${t('job-offer-detail.weekly-hours')}:
-                                                                        </span>
-                                                                        ${this._localized(
-                                                                            job.weeklyHours,
-                                                                            job.weeklyHoursEn ?? '',
-                                                                        )}
-                                                                    </div>
-                                                                `
-                                                              : ''
-                                                      }
-                                                      ${
-                                                          job?.salary
-                                                              ? html`
-                                                                    <div class="meta-item">
-                                                                        <span
-                                                                            class="meta-item-label">
-                                                                            ${t('job-offer-detail.monthly-salary')}:
-                                                                        </span>
+                                                  ${this._renderDescription(job)}
+                                                  ${
+                                                      job?.startDate ||
+                                                      job?.contractDuration ||
+                                                      job?.weeklyHours ||
+                                                      job?.salary ||
+                                                      job?.category ||
+                                                      job?.linkUrl ||
+                                                      job?.jobCategory
+                                                          ? html`
+                                                                <div
+                                                                    class="job-description-meta-list">
+                                                                    ${
+                                                                        job?.startDate
+                                                                            ? html`
+                                                                                  <div
+                                                                                      class="meta-item">
+                                                                                      <span
+                                                                                          class="meta-item-label">
+                                                                                          ${t('job-offer-detail.start-date')}:
+                                                                                      </span>
+                                                                                      ${job.startDate}
+                                                                                  </div>
+                                                                              `
+                                                                            : ''
+                                                                    }
+                                                                    ${
+                                                                        job?.contractDuration
+                                                                            ? html`
+                                                                                  <div
+                                                                                      class="meta-item">
+                                                                                      <span
+                                                                                          class="meta-item-label">
+                                                                                          ${t('job-offer-detail.contract-duration')}:
+                                                                                      </span>
+                                                                                      ${this._getLocalizedContractDuration(job)}
+                                                                                  </div>
+                                                                              `
+                                                                            : ''
+                                                                    }
+                                                                    ${
+                                                                        job?.weeklyHours
+                                                                            ? html`
+                                                                                  <div
+                                                                                      class="meta-item">
+                                                                                      <span
+                                                                                          class="meta-item-label">
+                                                                                          ${t('job-offer-detail.weekly-hours')}:
+                                                                                      </span>
+                                                                                      ${this._localized(
+                                                                                          job.weeklyHours,
+                                                                                          job.weeklyHoursEn ??
+                                                                                              '',
+                                                                                      )}
+                                                                                  </div>
+                                                                              `
+                                                                            : ''
+                                                                    }
+                                                                    ${
+                                                                        job?.salary
+                                                                            ? html`
+                                                                                  <div
+                                                                                      class="meta-item">
+                                                                                      <span
+                                                                                          class="meta-item-label">
+                                                                                          ${t('job-offer-detail.monthly-salary')}:
+                                                                                      </span>
 
-                                                                        ${this._getLocalizedMonthlySalary(job)}
-                                                                    </div>
-                                                                `
-                                                              : ''
-                                                      }
-                                                      ${
-                                                          job?.category
-                                                              ? html`
-                                                                    <div class="meta-item">
-                                                                        <span
-                                                                            class="meta-item-label">
-                                                                            ${t('job-offer-detail.contact-information')}:
-                                                                        </span>
+                                                                                      ${this._getLocalizedMonthlySalary(job)}
+                                                                                  </div>
+                                                                              `
+                                                                            : ''
+                                                                    }
+                                                                    ${
+                                                                        job?.category
+                                                                            ? html`
+                                                                                  <div
+                                                                                      class="meta-item">
+                                                                                      <span
+                                                                                          class="meta-item-label">
+                                                                                          ${t('job-offer-detail.contact-information')}:
+                                                                                      </span>
 
-                                                                        ${this._getLocalizedContactInformation(job)}
-                                                                    </div>
-                                                                `
-                                                              : ''
-                                                      }
-                                                      ${
-                                                          job?.linkUrl
-                                                              ? html`
-                                                                    <div class="meta-item">
-                                                                        <span
-                                                                            class="meta-item-label">
-                                                                            ${t('job-offer-detail.link')}:
-                                                                        </span>
-                                                                        ${this._getLocalizedLink(job)}
-                                                                    </div>
-                                                                `
-                                                              : ''
-                                                      }
-                                                      ${
-                                                          job?.jobCategory
-                                                              ? html`
-                                                                    <div class="meta-item">
-                                                                        <span
-                                                                            class="meta-item-label">
-                                                                            ${t('job-offer-detail.job-category')}:
-                                                                        </span>
-                                                                        ${this._getJobCategory(job)}
-                                                                    </div>
-                                                                `
-                                                              : ''
-                                                      }
-                                                  </div>
+                                                                                      ${this._getLocalizedContactInformation(job)}
+                                                                                  </div>
+                                                                              `
+                                                                            : ''
+                                                                    }
+                                                                    ${
+                                                                        job?.linkUrl
+                                                                            ? html`
+                                                                                  <div
+                                                                                      class="meta-item">
+                                                                                      <span
+                                                                                          class="meta-item-label">
+                                                                                          ${t('job-offer-detail.link')}:
+                                                                                      </span>
+                                                                                      ${this._getLocalizedLink(job)}
+                                                                                  </div>
+                                                                              `
+                                                                            : ''
+                                                                    }
+                                                                    ${
+                                                                        job?.jobCategory
+                                                                            ? html`
+                                                                                  <div
+                                                                                      class="meta-item">
+                                                                                      <span
+                                                                                          class="meta-item-label">
+                                                                                          ${t('job-offer-detail.job-category')}:
+                                                                                      </span>
+                                                                                      ${this._getJobCategory(job)}
+                                                                                  </div>
+                                                                              `
+                                                                            : ''
+                                                                    }
+                                                                </div>
+                                                            `
+                                                          : ''
+                                                  }
                                               </div>
                                               <div class="tag">
                                                   ${this._renderAreaOfInterestTags(job, t)}
@@ -1000,13 +1018,22 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             /* Description paragraph */
+
             .job-description {
+                flex: 3;
+            }
+
+            .job-description-wrapper {
+                display: flex;
+                gap: 20px;
+                padding-bottom: 10px;
             }
 
             .job-description-meta-list {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0px, 1fr));
-                gap: 0.25rem 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                flex: 2;
             }
 
             .company-info {
