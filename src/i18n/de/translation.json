@@ -276,7 +276,9 @@
         },
         "organization": "Organisationseinheit",
         "published-at": "Veröffentlicht am",
+        "qualifications": "Gewünschte Qualifikationen",
         "requirements": "Anforderungen",
+        "responsibilities": "Aufgaben",
         "share": "Stellenanzeige teilen",
         "share-copy": "Link kopieren",
         "share-discord": "Auf Discord teilen",
@@ -287,6 +289,7 @@
         "share-whatsapp": "Auf WhatsApp teilen",
         "start-date": "Dienstbeginn",
         "submit": "Bewerbung abschicken",
+        "we-offer": "Wir bieten",
         "weekly-hours": "Wochenstunden"
     },
     "loading-message": "Laden...",

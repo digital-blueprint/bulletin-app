@@ -276,7 +276,9 @@
         },
         "organization": "Organisational unit",
         "published-at": "Published on",
+        "qualifications": "Required qualification",
         "requirements": "Requirements",
+        "responsibilities": "Responsibilities",
         "share": "Share job offer",
         "share-copy": "Copy link",
         "share-discord": "Share on Discord",
@@ -287,6 +289,7 @@
         "share-whatsapp": "Share on WhatsApp",
         "start-date": "Start of employment",
         "submit": "Submit application",
+        "we-offer": "We offer",
         "weekly-hours": "Hours per week"
     },
     "loading-message": "Loading...",

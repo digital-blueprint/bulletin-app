@@ -110,11 +110,82 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _getLocalizedLink(job) {
         const linkURL = this._getLocalizedLinkURL(job);
+        const linkName = this._getLocalizedLinkName(job);
 
         return html`
             <a class="meta-job-link" href="${linkURL}" target="_blank" rel="noopener noreferrer">
-                ${this._getLocalizedLinkName(job)}
+                ${linkName || linkURL}
             </a>
+        `;
+    }
+    _getLocalizedRequirements(job) {
+        const items = this._localized(job.requirements ?? '', job.requirementsEn ?? '');
+        if (items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul class="job-overview-list">
+                ${items.map(
+                    (item) => html`
+                        <li>${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
+    _getLocalizedQualification(job) {
+        const items = this._localized(
+            job.requiredQualification ?? '',
+            job.requiredQualificationEn ?? '',
+        );
+        if (items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul class="job-overview-list">
+                ${items.map(
+                    (item) => html`
+                        <li>${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
+    _getLocalizedResponsibilities(job) {
+        const items = this._localized(job.responsibilities ?? '', job.responsibilitiesEn ?? '');
+        if (items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul class="job-overview-list">
+                ${items.map(
+                    (item) => html`
+                        <li>${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
+    _getWeOffer(job) {
+        const items = this._localized(job.weOffer ?? '', job.weOfferEn ?? '');
+        if (items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul class="job-overview-list">
+                ${items.map(
+                    (item) => html`
+                        <li>${item}</li>
+                    `,
+                )}
+            </ul>
         `;
     }
 
@@ -724,7 +795,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           <fieldset>
                                               <legend>Job description</legend>
                                               <div class="job-description-wrapper">
-                                                  ${this._renderDescription(job)}
                                                   ${
                                                       job?.startDate ||
                                                       job?.contractDuration ||
@@ -845,9 +915,84 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                           : ''
                                                   }
                                               </div>
-                                              <div class="tag">
-                                                  ${this._renderAreaOfInterestTags(job, t)}
-                                              </div>
+
+                                              ${
+                                                  job.areasOfInterest?.length > 0
+                                                      ? html`
+                                                            <div class="tag">
+                                                                ${this._renderAreaOfInterestTags(job, t)}
+                                                            </div>
+                                                        `
+                                                      : ''
+                                              }
+                                              ${this._renderDescription(job)}
+                                              ${
+                                                  job.requirements?.length > 0 ||
+                                                  job.requiredQualification?.length > 0 ||
+                                                  job.responsibilities?.length > 0 ||
+                                                  job.weOffer?.length > 0
+                                                      ? html`
+                                                            <div class="additional-info">
+                                                                ${
+                                                                    job?.requirements
+                                                                        ? html`
+                                                                              <div
+                                                                                  class="meta-item additional-item">
+                                                                                  <span
+                                                                                      class="meta-item-label">
+                                                                                      ${t('job-offer-detail.requirements')}:
+                                                                                  </span>
+                                                                                  ${this._getLocalizedRequirements(job)}
+                                                                              </div>
+                                                                          `
+                                                                        : ''
+                                                                }
+                                                                ${
+                                                                    job?.requiredQualification
+                                                                        ? html`
+                                                                              <div
+                                                                                  class="meta-item additional-item">
+                                                                                  <span
+                                                                                      class="meta-item-label">
+                                                                                      ${t('job-offer-detail.qualifications')}:
+                                                                                  </span>
+                                                                                  ${this._getLocalizedQualification(job)}
+                                                                              </div>
+                                                                          `
+                                                                        : ''
+                                                                }
+                                                                ${
+                                                                    job?.responsibilities
+                                                                        ? html`
+                                                                              <div
+                                                                                  class="meta-item additional-item">
+                                                                                  <span
+                                                                                      class="meta-item-label">
+                                                                                      ${t('job-offer-detail.responsibilities')}:
+                                                                                  </span>
+                                                                                  ${this._getLocalizedResponsibilities(job)}
+                                                                              </div>
+                                                                          `
+                                                                        : ''
+                                                                }
+                                                                ${
+                                                                    job?.weOffer
+                                                                        ? html`
+                                                                              <div
+                                                                                  class="meta-item additional-item">
+                                                                                  <span
+                                                                                      class="meta-item-label">
+                                                                                      ${t('job-offer-detail.we-offer')}:
+                                                                                  </span>
+                                                                                  ${this._getWeOffer(job)}
+                                                                              </div>
+                                                                          `
+                                                                        : ''
+                                                                }
+                                                            </div>
+                                                        `
+                                                      : ''
+                                              }
                                           </fieldset>
                                       </div>
 
@@ -894,7 +1039,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-end;
-                gap: 0.3rem;
+                gap: 2px;
             }
 
             .meta-item {
@@ -1024,16 +1169,33 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .job-description-wrapper {
+                gap: 2px;
+
                 display: flex;
-                gap: 20px;
-                padding-bottom: 10px;
+                flex-direction: column;
             }
 
             .job-description-meta-list {
                 display: flex;
                 flex-direction: column;
-                gap: 5px;
+                gap: 2px;
                 flex: 2;
+            }
+
+            .job-overview-list {
+                padding-left: 2px;
+                list-style: none;
+            }
+
+            .additional-info {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0px, 1fr));
+                gap: 10px 1rem;
+            }
+
+            .additional-item li::before {
+                content: '•';
+                margin-right: 0.5rem;
             }
 
             .company-info {
