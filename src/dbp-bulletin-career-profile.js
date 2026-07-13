@@ -589,6 +589,16 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         );
         const skills = this._localizedList(profile, 'skills', 'skillsEn');
         const languages = this._localizedList(profile, 'languages', 'languagesEn');
+        const furtherQualifications = this._localized(
+            profile,
+            'furtherQualifications',
+            'furtherQualificationsEn',
+        );
+        const personalInterests = this._localized(
+            profile,
+            'personalInterests',
+            'personalInterestsEn',
+        );
 
         return html`
             <span class="back-navigation">
@@ -645,6 +655,28 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                               <section>
                                   <h3>${t('student-profile-form.field-skills')}</h3>
                                   ${this._renderList(skills)}
+                              </section>
+                          `
+                        : ''
+                }
+                ${
+                    furtherQualifications
+                        ? html`
+                              <section>
+                                  <h3>
+                                      ${t('student-profile-form.field-qualification-view-mode')}
+                                  </h3>
+                                  <p>${furtherQualifications}</p>
+                              </section>
+                          `
+                        : ''
+                }
+                ${
+                    personalInterests
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-personal-interests')}</h3>
+                                  <p>${personalInterests}</p>
                               </section>
                           `
                         : ''

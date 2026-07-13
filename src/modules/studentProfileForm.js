@@ -90,12 +90,26 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-languages');
     t('student-profile-form.field-languages-en');
     t('student-profile-form.field-previous-experience');
+    t('student-profile-form.field-previous-experience-description');
     t('student-profile-form.field-previous-experience-en');
+    t('student-profile-form.field-previous-experience-en-description');
+    t('student-profile-form.field-personal-interests');
+    t('student-profile-form.field-personal-interests-description');
+    t('student-profile-form.field-personal-interests-en');
+    t('student-profile-form.field-personal-interests-en-description');
     t('student-profile-form.field-profile-summary');
     t('student-profile-form.field-profile-summary-en');
+    t('student-profile-form.field-qualification');
+    t('student-profile-form.field-qualification-description');
+    t('student-profile-form.field-qualification-en');
+    t('student-profile-form.field-qualification-en-description');
+    t('student-profile-form.field-qualification-view-mode');
     t('student-profile-form.field-skills');
+    t('student-profile-form.field-skills-description');
     t('student-profile-form.field-skills-en');
+    t('student-profile-form.field-skills-en-description');
     t('student-profile-form.field-study-program');
+    t('student-profile-form.field-text-placeholder');
     t('student-profile-form.field-website');
     t('student-profile-form.field-website-identity-warning');
     t('student-profile-form.field-website-placeholder');
@@ -206,6 +220,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._previousExperienceEn = '';
         this._skillsText = '';
         this._skillsTextEn = '';
+        this._furtherQualifications = '';
+        this._furtherQualificationsEn = '';
+        this._personalInterests = '';
+        this._personalInterestsEn = '';
         this._languagesText = '';
         this._languagesTextEn = '';
         this._availability = '';
@@ -233,6 +251,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _previousExperienceEn: {state: true},
             _skillsText: {state: true},
             _skillsTextEn: {state: true},
+            _furtherQualifications: {state: true},
+            _furtherQualificationsEn: {state: true},
+            _personalInterests: {state: true},
+            _personalInterestsEn: {state: true},
             _languagesText: {state: true},
             _languagesTextEn: {state: true},
             _availability: {state: true},
@@ -264,6 +286,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._previousExperienceEn = data.previousExperienceEn || '';
                 this._skillsText = normalizeMultilineValue(data.skills);
                 this._skillsTextEn = normalizeMultilineValue(data.skillsEn);
+                this._furtherQualifications = data.furtherQualifications || '';
+                this._furtherQualificationsEn = data.furtherQualificationsEn || '';
+                this._personalInterests = data.personalInterests || '';
+                this._personalInterestsEn = data.personalInterestsEn || '';
                 this._languagesText = normalizeMultilineValue(data.languages);
                 this._languagesTextEn = normalizeMultilineValue(data.languagesEn);
                 this._availability = data.availability || '';
@@ -435,6 +461,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             previousExperienceEn: this._previousExperienceEn.trim(),
             skills: parseMultilineList(this._skillsText),
             skillsEn: parseMultilineList(this._skillsTextEn),
+            furtherQualifications: this._furtherQualifications.trim(),
+            furtherQualificationsEn: this._furtherQualificationsEn.trim(),
+            personalInterests: this._personalInterests.trim(),
+            personalInterestsEn: this._personalInterestsEn.trim(),
             languages: parseMultilineList(this._languagesText),
             languagesEn: parseMultilineList(this._languagesTextEn),
             availability: this._availability.trim(),
@@ -616,14 +646,24 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     'student-profile-form.field-previous-experience',
                     this._previousExperience,
                     (value) => (this._previousExperience = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey:
+                            'student-profile-form.field-previous-experience-description',
+                    },
                 )}
                 ${this.renderTextField(
                     'previousExperienceEn',
                     'student-profile-form.field-previous-experience-en',
                     this._previousExperienceEn,
                     (value) => (this._previousExperienceEn = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey:
+                            'student-profile-form.field-previous-experience-en-description',
+                    },
                 )}
             </div>
 
@@ -633,14 +673,73 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     'student-profile-form.field-skills',
                     this._skillsText,
                     (value) => (this._skillsText = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-skills-description',
+                    },
                 )}
                 ${this.renderTextField(
                     'skillsEn',
                     'student-profile-form.field-skills-en',
                     this._skillsTextEn,
                     (value) => (this._skillsTextEn = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-skills-en-description',
+                    },
+                )}
+            </div>
+
+            <div class="translation-row">
+                ${this.renderTextField(
+                    'furtherQualifications',
+                    'student-profile-form.field-qualification',
+                    this._furtherQualifications,
+                    (value) => (this._furtherQualifications = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-qualification-description',
+                    },
+                )}
+                ${this.renderTextField(
+                    'furtherQualificationsEn',
+                    'student-profile-form.field-qualification-en',
+                    this._furtherQualificationsEn,
+                    (value) => (this._furtherQualificationsEn = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-qualification-en-description',
+                    },
+                )}
+            </div>
+
+            <div class="translation-row">
+                ${this.renderTextField(
+                    'personalInterests',
+                    'student-profile-form.field-personal-interests',
+                    this._personalInterests,
+                    (value) => (this._personalInterests = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-personal-interests-description',
+                    },
+                )}
+                ${this.renderTextField(
+                    'personalInterestsEn',
+                    'student-profile-form.field-personal-interests-en',
+                    this._personalInterestsEn,
+                    (value) => (this._personalInterestsEn = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey:
+                            'student-profile-form.field-personal-interests-en-description',
+                    },
                 )}
             </div>
 
