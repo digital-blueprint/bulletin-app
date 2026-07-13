@@ -27,7 +27,6 @@ import {apiCreateForm, apiUpdateForm} from '../../vendor/formalize/src/manage-fo
 import {createInstance} from '../i18n.js';
 import WorkLocationsElement, {
     getDefaultInternalWorkLocations,
-    getWorkLocationLabels,
     normalizeWorkLocations,
 } from './workLocationsElement.js';
 
@@ -2108,26 +2107,26 @@ export class JobOfferFormElement extends BaseFormElement {
         const t = (key, opts) => this._i18n.t(key, opts);
         const job = this.job;
         const localizedTitle = this._localized(job.title ?? '', job.titleEn ?? '');
-        const localizedOrganization = this._localized(
-            job.organization ?? '',
-            job.organizationEn ?? '',
-        );
-        const isExternalJob = job.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
-        const organizationLabel = isExternalJob
-            ? t('manage-job-offers.field-company')
-            : t('manage-job-offers.field-organization');
-        const organizationValue = isExternalJob ? (job.companyName ?? '') : localizedOrganization;
-        const localizedWeeklyHours = this._localized(
-            job.weeklyHours ?? '',
-            job.weeklyHoursEn ?? '',
-        );
-        const localizedSalary = this._localized(job.salary ?? '', job.salaryEn ?? '');
-        const localizedContractDuration = this._localized(
-            job.contractDuration ?? '',
-            job.contractDurationEn ?? '',
-        );
-        const localizedLinkName = this._localized(job.linkName ?? '', job.linkNameEn ?? '');
-        const localizedLinkUrl = this._localized(job.linkUrl ?? '', job.linkUrlEn ?? '');
+        /*  const localizedOrganization = this._localized(
+              job.organization ?? '',
+              job.organizationEn ?? '',
+          );
+           const isExternalJob = job.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
+           const organizationLabel = isExternalJob
+               ? t('manage-job-offers.field-company')
+               : t('manage-job-offers.field-organization');
+           const organizationValue = isExternalJob ? (job.companyName ?? '') : localizedOrganization;
+           const localizedWeeklyHours = this._localized(
+               job.weeklyHours ?? '',
+               job.weeklyHoursEn ?? '',
+           );
+           const localizedSalary = this._localized(job.salary ?? '', job.salaryEn ?? '');
+           const localizedContractDuration = this._localized(
+               job.contractDuration ?? '',
+               job.contractDurationEn ?? '',
+           );
+           const localizedLinkName = this._localized(job.linkName ?? '', job.linkNameEn ?? '');
+           const localizedLinkUrl = this._localized(job.linkUrl ?? '', job.linkUrlEn ?? ''); */
         const requirements = this._localizedList(job.requirements, job.requirementsEn);
         const responsibilities = this._localizedList(job.responsibilities, job.responsibilitiesEn);
         const requiredQualification = this._localizedList(
@@ -2135,12 +2134,12 @@ export class JobOfferFormElement extends BaseFormElement {
             job.requiredQualificationEn,
         );
         const weOffer = this._localizedList(job.weOffer, job.weOfferEn);
-        const areaOfInterestLabels = getAreaOfInterestLabels(
+        /*  const areaOfInterestLabels = getAreaOfInterestLabels(
             job.areasOfInterest ?? job.areaOfInterest,
             t,
         );
         const jobCategoryLabel = job.jobCategory ? getJobCategoryLabel(job.jobCategory, t) : '';
-        const workLocationLabels = getWorkLocationLabels(job.workLocations, t, this.lang);
+        const workLocationLabels = getWorkLocationLabels(job.workLocations, t, this.lang);*/
 
         return html`
             <section class="job-overview" aria-label="${localizedTitle}">
@@ -2148,76 +2147,6 @@ export class JobOfferFormElement extends BaseFormElement {
                     localizedTitle
                         ? html`
                               <h4 class="job-overview-title">${localizedTitle}</h4>
-                          `
-                        : ''
-                }
-
-                <dl class="job-overview-meta-list">
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-published-at'),
-                        this._formatDisplayDate(job.publishedAt ?? ''),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-deadline'),
-                        this._formatDisplayDate(job.deadline ?? ''),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-application-deadline'),
-                        this._formatDisplayDate(job.applicationDeadline ?? ''),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-start-date'),
-                        this._formatDisplayDate(job.startDate ?? ''),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-weekly-hours'),
-                        localizedWeeklyHours,
-                    )}
-                    ${this._renderJobMetaItem(t('manage-job-offers.field-salary'), localizedSalary)}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-contract-duration'),
-                        localizedContractDuration,
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-job-category'),
-                        jobCategoryLabel,
-                    )}
-                    ${this._renderJobMetaItem(organizationLabel, organizationValue)}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-work-locations'),
-                        this._renderWorkLocationList(workLocationLabels),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-link-url'),
-                        localizedLinkUrl
-                            ? html`
-                                  <a
-                                      class="job-overview-meta-link"
-                                      href="${localizedLinkUrl}"
-                                      target="_blank"
-                                      rel="noopener noreferrer">
-                                      <span>${localizedLinkName || localizedLinkUrl}</span>
-                                  </a>
-                              `
-                            : '',
-                    )}
-                </dl>
-
-                ${
-                    areaOfInterestLabels.length > 0
-                        ? html`
-                              <section class="job-overview-section">
-                                  <h5 class="job-overview-section-title">
-                                      ${t('manage-job-offers.field-area-of-interest')}
-                                  </h5>
-                                  <div class="job-overview-tags">
-                                      ${areaOfInterestLabels.map(
-                                          (label) => html`
-                                              <span class="job-overview-tag">${label}</span>
-                                          `,
-                                      )}
-                                  </div>
-                              </section>
                           `
                         : ''
                 }

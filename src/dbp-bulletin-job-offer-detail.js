@@ -6,7 +6,11 @@ import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {sendNotification} from '@dbp-toolkit/common';
 import {Notification} from '@dbp-toolkit/notification';
-import {getAreaOfInterestLabels, JobOfferFormElement} from './modules/jobOfferForm.js';
+import {
+    getAreaOfInterestLabels,
+    JobOfferFormElement,
+    getJobCategoryLabel,
+} from './modules/jobOfferForm.js';
 import {getWorkLocationLabels} from './modules/workLocationsElement.js';
 
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
@@ -62,6 +66,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             modal.close();
         }
     }
+    /**
+     * Renders a list section when at least one item is available.
+     * @param {string} title
+     * @param {unknown} value
+     * @returns {import('lit').TemplateResult|string}
+     */
 
     /**
      * Returns the English value when the current language is English and the English text is
@@ -80,6 +90,44 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _getLocalizedDescription(job) {
         return this._localized(job.description ?? '', job.descriptionEn ?? '');
+    }
+
+    _getLocalizedContractDuration(job) {
+        return this._localized(job.contractDuration ?? '', job.contractDurationEn ?? '');
+    }
+
+    _getLocalizedContactInformation(job) {
+        return this._localized(job.contactInformation ?? '', job.contactInformationEn ?? '');
+    }
+
+    _getLocalizedLinkName(job) {
+        return this._localized(job.linkName ?? '', job.linkNameEn ?? '');
+    }
+
+    _getLocalizedLinkURL(job) {
+        return this._localized(job.linkUrl ?? '', job.linkUrlEn ?? '');
+    }
+
+    _getLocalizedLink(job) {
+        const linkURL = this._getLocalizedLinkURL(job);
+
+        return html`
+            <a class="meta-job-link" href="${linkURL}" target="_blank" rel="noopener noreferrer">
+                ${this._getLocalizedLinkName(job)}
+            </a>
+        `;
+    }
+
+    _getJobCategory(job) {
+        const t = (key) => this._i18n.t(key);
+        const jobCategoryLabel = job.jobCategory ? getJobCategoryLabel(job.jobCategory, t) : '';
+        return html`
+            ${jobCategoryLabel}
+        `;
+    }
+
+    _getLocalizedMonthlySalary(job) {
+        return this._localized(job.salary ?? '', job.salaryEn ?? '');
     }
 
     _renderAreaOfInterestTags(job, t) {
@@ -176,22 +224,25 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="meta-item">
-                <dt>${label}:</dt>
-                <dd>${value}</dd>
+                <span class="meta-item-label">${label}:</span>
+                ${value}
             </div>
         `;
     }
 
     _renderWorkLocationList(labels) {
+        const i18n = this._i18n;
+        const t = (key) => (i18n ? i18n.t(key) : key);
         if (!labels.length) {
             return '';
         }
 
         return html`
             <ul class="work-location-list">
+                <span class="meta-item-label">${t('manage-job-offers.field-work-locations')}:</span>
                 ${labels.map(
                     (label) => html`
-                        <li>${label}</li>
+                        <li class="work-location-list-item">${label}</li>
                     `,
                 )}
             </ul>
@@ -429,6 +480,31 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._shareDropdownOpen = false;
     }
 
+    getInternalFavicon(job) {
+        const i18n = this._i18n;
+        const t = (key) => (i18n ? i18n.t(key) : key);
+        let getfaviconURL = commonUtils.getAssetURL(
+            '@digital-blueprint/bulletin-app',
+            'icon/favicon.svg',
+        );
+
+        if (!job.externalJobUrl) {
+            return html`
+                <img
+                    src="${getfaviconURL}"
+                    aria-label="${t('manage-job-offers.job-type-internal')}" />
+            `;
+        }
+    }
+    getOrganizationLabel(job) {
+        const i18n = this._i18n;
+        const t = (key) => (i18n ? i18n.t(key) : key);
+
+        return job.jobOfferType === 'internal'
+            ? `TU Graz ${t('view-job-offers.internal')}`
+            : (job.companyName ?? '');
+    }
+
     render() {
         const job = this.job;
         const i18n = this._i18n;
@@ -461,218 +537,311 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                         job
                             ? html`
                                   <!-- Meta row: left column = key-value pairs, right column = tag + actions -->
-                                  <div class="meta-row">
-                                      <dl class="meta-list">
-                                          <div class="meta-item">
-                                              <dt>${t('job-offer-detail.published-at')}:</dt>
-                                              <dd>${this.formatDate(job.publishedAt)}</dd>
-                                          </div>
-                                          <div class="meta-item">
-                                              <dt>${t('job-offer-detail.deadline')}:</dt>
-                                              <dd>${this.formatDate(job.deadline)}</dd>
-                                          </div>
-                                          <div class="meta-item">
-                                              <dt>${t('job-offer-detail.start-date')}:</dt>
-                                              <dd>${job.startDate}</dd>
-                                          </div>
-                                          <div class="meta-item">
-                                              <dt>${t('job-offer-detail.weekly-hours')}:</dt>
-                                              <dd>
-                                                  ${this._localized(
-                                                      job.weeklyHours,
-                                                      job.weeklyHoursEn ?? '',
-                                                  )}
-                                              </dd>
-                                          </div>
-                                          ${
-                                              !isExternalJob
-                                                  ? html`
-                                                        <div class="meta-item">
-                                                            <dt>
-                                                                ${t('job-offer-detail.organization')}:
-                                                            </dt>
-                                                            <dd>
+                                  <div class="content-wrapper">
+                                      <div class="meta-row">
+                                          <dl class="meta-list">
+                                              <div class="meta-item favicon">
+                                                  ${this.getInternalFavicon(job)}
+                                                  <span class="job-meta-type">
+                                                      ${this.getOrganizationLabel(job)}
+                                                  </span>
+                                              </div>
+                                              <div class="meta-item">
+                                                  <span class="meta-item-label">
+                                                      ${t('job-offer-detail.published-at')}:
+                                                  </span>
+                                                  ${this.formatDate(job.publishedAt)}
+                                              </div>
+                                              <div class="meta-item">
+                                                  <span class="meta-item-label">
+                                                      ${t('job-offer-detail.deadline')}:
+                                                  </span>
+                                                  ${this.formatDate(job.deadline)}
+                                              </div>
+
+                                              ${
+                                                  !isExternalJob
+                                                      ? html`
+                                                            <div class="meta-item">
+                                                                <span class="meta-item-label">
+                                                                    ${t('job-offer-detail.organization')}:
+                                                                </span>
+
                                                                 ${this._localized(
                                                                     job.organization,
                                                                     job.organizationEn ?? '',
                                                                 )}
-                                                            </dd>
-                                                        </div>
-                                                    `
-                                                  : ''
-                                          }
-                                          ${
-                                              isExternalJob && job.companyName
-                                                  ? html`
-                                                        <div class="meta-item">
-                                                            <dt>
-                                                                ${t('job-offer-detail.company')}:
-                                                            </dt>
-                                                            <dd>${job.companyName}</dd>
-                                                        </div>
-                                                    `
-                                                  : ''
-                                          }
-                                          ${
-                                              isExternalJob
-                                                  ? this._renderJobMetaItem(
-                                                        t('manage-job-offers.field-work-locations'),
-                                                        this._renderWorkLocationList(
-                                                            workLocationLabels,
-                                                        ),
-                                                    )
-                                                  : ''
-                                          }
-                                          <div class="meta-item tag">
-                                              ${this._renderAreaOfInterestTags(job, t)}
-                                          </div>
-                                      </dl>
-
-                                      <div class="meta-actions">
-                                          <div class="action-buttons">
-                                              <div class="share-button-container">
-                                                  <button
-                                                      class="button is-secondary"
-                                                      type="button"
-                                                      @click="${this.onShare}">
-                                                      <dbp-icon
-                                                          class="btn-icon"
-                                                          name="share2"
-                                                          aria-hidden="true"></dbp-icon>
-                                                      ${t('job-offer-detail.share')}
-                                                  </button>
+                                                            </div>
+                                                        `
+                                                      : ''
+                                              }
+                                              <div class="meta-item work-location">
                                                   ${
-                                                      this._shareDropdownOpen
+                                                      isExternalJob
                                                           ? html`
-                                                                <div class="share-dropdown">
-                                                                    <button
-                                                                        class="button"
-                                                                        @click="${this.shareCopy}">
-                                                                        <dbp-icon
-                                                                            name="link"
-                                                                            aria-hidden="true"
-                                                                            class="btn-icon"></dbp-icon>
-                                                                        ${t('job-offer-detail.share-copy')}
-                                                                    </button>
-                                                                    <button
-                                                                        class="button"
-                                                                        @click="${this.shareViaEmail}">
-                                                                        <dbp-icon
-                                                                            name="envelope"
-                                                                            aria-hidden="true"
-                                                                            class="btn-icon"></dbp-icon>
-                                                                        ${t('job-offer-detail.share-email')}
-                                                                    </button>
-                                                                    <button
-                                                                        class="button"
-                                                                        @click="${this.shareOnWhatsApp}">
-                                                                        <dbp-icon
-                                                                            name="whatsapp"
-                                                                            aria-hidden="true"
-                                                                            class="btn-icon"></dbp-icon>
-                                                                        ${t(
-                                                                            'job-offer-detail.share-whatsapp',
-                                                                        )}
-                                                                    </button>
-                                                                    <button
-                                                                        class="button"
-                                                                        @click="${this.shareOnLinkedIn}">
-                                                                        <dbp-icon
-                                                                            name="linkedin-original"
-                                                                            aria-hidden="true"
-                                                                            class="btn-icon"></dbp-icon>
-                                                                        ${t(
-                                                                            'job-offer-detail.share-linkedin',
-                                                                        )}
-                                                                    </button>
-                                                                    <button
-                                                                        class="button"
-                                                                        @click="${this.shareOnFacebook}">
-                                                                        <dbp-icon
-                                                                            name="facebook-original"
-                                                                            aria-hidden="true"
-                                                                            class="btn-icon"></dbp-icon>
-                                                                        ${t(
-                                                                            'job-offer-detail.share-facebook',
-                                                                        )}
-                                                                    </button>
-                                                                    <button
-                                                                        class="button"
-                                                                        @click="${this.shareOnInstagram}">
-                                                                        <dbp-icon
-                                                                            name="instagram-original"
-                                                                            aria-hidden="true"
-                                                                            class="btn-icon"></dbp-icon>
-                                                                        ${t(
-                                                                            'job-offer-detail.share-instagram',
-                                                                        )}
-                                                                    </button>
-                                                                    <button
-                                                                        class="button"
-                                                                        @click="${this.shareOnDiscord}">
-                                                                        <dbp-icon
-                                                                            name="share2"
-                                                                            aria-hidden="true"
-                                                                            class="btn-icon"></dbp-icon>
-                                                                        ${t(
-                                                                            'job-offer-detail.share-discord',
-                                                                        )}
-                                                                    </button>
-                                                                </div>
+                                                                ${this._renderWorkLocationList(
+                                                                    workLocationLabels.map(
+                                                                        (label) =>
+                                                                            label
+                                                                                .split(', ')
+                                                                                .slice(0, 2)
+                                                                                .join(', '),
+                                                                    ),
+                                                                )}
                                                             `
                                                           : ''
                                                   }
                                               </div>
-                                              <button
-                                                  class="button is-primary apply-anchor-btn"
-                                                  type="button"
-                                                  @click="${() => this._handleApply()}">
-                                                  <dbp-icon
-                                                      class="btn-icon"
-                                                      name="${
-                                                          isExternalJob
-                                                              ? 'send-diagonal'
-                                                              : 'chevron-down'
-                                                      }"
-                                                      aria-hidden="true"></dbp-icon>
-                                                  ${t('job-offer-detail.apply')}
-                                              </button>
+                                          </dl>
+
+                                          <div class="meta-actions">
+                                              <div class="action-buttons">
+                                                  <div class="share-button-container">
+                                                      <button
+                                                          class="button is-secondary"
+                                                          type="button"
+                                                          @click="${this.onShare}">
+                                                          <dbp-icon
+                                                              class="btn-icon"
+                                                              name="share2"
+                                                              aria-hidden="true"></dbp-icon>
+                                                          ${t('job-offer-detail.share')}
+                                                      </button>
+                                                      ${
+                                                          this._shareDropdownOpen
+                                                              ? html`
+                                                                    <div class="share-dropdown">
+                                                                        <button
+                                                                            class="button"
+                                                                            @click="${this.shareCopy}">
+                                                                            <dbp-icon
+                                                                                name="link"
+                                                                                aria-hidden="true"
+                                                                                class="btn-icon"></dbp-icon>
+                                                                            ${t(
+                                                                                'job-offer-detail.share-copy',
+                                                                            )}
+                                                                        </button>
+                                                                        <button
+                                                                            class="button"
+                                                                            @click="${this.shareViaEmail}">
+                                                                            <dbp-icon
+                                                                                name="envelope"
+                                                                                aria-hidden="true"
+                                                                                class="btn-icon"></dbp-icon>
+                                                                            ${t(
+                                                                                'job-offer-detail.share-email',
+                                                                            )}
+                                                                        </button>
+                                                                        <button
+                                                                            class="button"
+                                                                            @click="${
+                                                                                this.shareOnWhatsApp
+                                                                            }">
+                                                                            <dbp-icon
+                                                                                name="whatsapp"
+                                                                                aria-hidden="true"
+                                                                                class="btn-icon"></dbp-icon>
+                                                                            ${t(
+                                                                                'job-offer-detail.share-whatsapp',
+                                                                            )}
+                                                                        </button>
+                                                                        <button
+                                                                            class="button"
+                                                                            @click="${
+                                                                                this.shareOnLinkedIn
+                                                                            }">
+                                                                            <dbp-icon
+                                                                                name="linkedin-original"
+                                                                                aria-hidden="true"
+                                                                                class="btn-icon"></dbp-icon>
+                                                                            ${t(
+                                                                                'job-offer-detail.share-linkedin',
+                                                                            )}
+                                                                        </button>
+                                                                        <button
+                                                                            class="button"
+                                                                            @click="${
+                                                                                this.shareOnFacebook
+                                                                            }">
+                                                                            <dbp-icon
+                                                                                name="facebook-original"
+                                                                                aria-hidden="true"
+                                                                                class="btn-icon"></dbp-icon>
+                                                                            ${t(
+                                                                                'job-offer-detail.share-facebook',
+                                                                            )}
+                                                                        </button>
+                                                                        <button
+                                                                            class="button"
+                                                                            @click="${
+                                                                                this
+                                                                                    .shareOnInstagram
+                                                                            }">
+                                                                            <dbp-icon
+                                                                                name="instagram-original"
+                                                                                aria-hidden="true"
+                                                                                class="btn-icon"></dbp-icon>
+                                                                            ${t(
+                                                                                'job-offer-detail.share-instagram',
+                                                                            )}
+                                                                        </button>
+                                                                        <button
+                                                                            class="button"
+                                                                            @click="${this.shareOnDiscord}">
+                                                                            <dbp-icon
+                                                                                name="share2"
+                                                                                aria-hidden="true"
+                                                                                class="btn-icon"></dbp-icon>
+                                                                            ${t(
+                                                                                'job-offer-detail.share-discord',
+                                                                            )}
+                                                                        </button>
+                                                                    </div>
+                                                                `
+                                                              : ''
+                                                      }
+                                                  </div>
+                                                  <button
+                                                      class="button is-primary apply-anchor-btn"
+                                                      type="button"
+                                                      @click="${() => this._handleApply()}">
+                                                      <dbp-icon
+                                                          class="btn-icon"
+                                                          name="${
+                                                              isExternalJob
+                                                                  ? 'send-diagonal'
+                                                                  : 'chevron-down'
+                                                          }"
+                                                          aria-hidden="true"></dbp-icon>
+                                                      ${t('job-offer-detail.apply')}
+                                                  </button>
+                                              </div>
                                           </div>
                                       </div>
+
+                                      <div class="job-description">
+                                          <fieldset>
+                                              <legend>Job description</legend>
+                                              <div class="job-description-wrapper">
+                                                  <div class="meta-item">
+                                                      <!-- Job description: use English text when language is English and available -->
+                                                      ${this._renderDescription(job)}
+                                                  </div>
+                                                  <div class="job-description-meta-list">
+                                                      ${
+                                                          job?.startDate
+                                                              ? html`
+                                                                    <div class="meta-item">
+                                                                        <span
+                                                                            class="meta-item-label">
+                                                                            ${t('job-offer-detail.start-date')}:
+                                                                        </span>
+                                                                        ${job.startDate}
+                                                                    </div>
+                                                                `
+                                                              : ''
+                                                      }
+                                                      ${
+                                                          job?.contractDuration
+                                                              ? html`
+                                                                    <div class="meta-item">
+                                                                        <span
+                                                                            class="meta-item-label">
+                                                                            ${t('job-offer-detail.contract-duration')}:
+                                                                        </span>
+                                                                        ${this._getLocalizedContractDuration(job)}
+                                                                    </div>
+                                                                `
+                                                              : ''
+                                                      }
+                                                      ${
+                                                          job?.weeklyHours
+                                                              ? html`
+                                                                    <div class="meta-item">
+                                                                        <span
+                                                                            class="meta-item-label">
+                                                                            ${t('job-offer-detail.weekly-hours')}:
+                                                                        </span>
+                                                                        ${this._localized(
+                                                                            job.weeklyHours,
+                                                                            job.weeklyHoursEn ?? '',
+                                                                        )}
+                                                                    </div>
+                                                                `
+                                                              : ''
+                                                      }
+                                                      ${
+                                                          job?.salary
+                                                              ? html`
+                                                                    <div class="meta-item">
+                                                                        <span
+                                                                            class="meta-item-label">
+                                                                            ${t('job-offer-detail.monthly-salary')}:
+                                                                        </span>
+
+                                                                        ${this._getLocalizedMonthlySalary(job)}
+                                                                    </div>
+                                                                `
+                                                              : ''
+                                                      }
+                                                      ${
+                                                          job?.category
+                                                              ? html`
+                                                                    <div class="meta-item">
+                                                                        <span
+                                                                            class="meta-item-label">
+                                                                            ${t('job-offer-detail.contact-information')}:
+                                                                        </span>
+
+                                                                        ${this._getLocalizedContactInformation(job)}
+                                                                    </div>
+                                                                `
+                                                              : ''
+                                                      }
+                                                      ${
+                                                          job?.linkUrl
+                                                              ? html`
+                                                                    <div class="meta-item">
+                                                                        <span
+                                                                            class="meta-item-label">
+                                                                            ${t('job-offer-detail.link')}:
+                                                                        </span>
+                                                                        ${this._getLocalizedLink(job)}
+                                                                    </div>
+                                                                `
+                                                              : ''
+                                                      }
+                                                      ${
+                                                          job?.jobCategory
+                                                              ? html`
+                                                                    <div class="meta-item">
+                                                                        <span
+                                                                            class="meta-item-label">
+                                                                            ${t('job-offer-detail.job-category')}:
+                                                                        </span>
+                                                                        ${this._getJobCategory(job)}
+                                                                    </div>
+                                                                `
+                                                              : ''
+                                                      }
+                                                  </div>
+                                              </div>
+                                              <div class="tag">
+                                                  ${this._renderAreaOfInterestTags(job, t)}
+                                              </div>
+                                          </fieldset>
+                                      </div>
+
+                                      <!-- Application form rendered by the JobOfferFormElement component -->
+                                      <dbp-bulletin-job-offer-form
+                                          lang="${this.lang}"
+                                          .job="${job}"
+                                          .auth="${this.auth}"
+                                          entry-point-url="${this.entryPointUrl}"
+                                          form-identifier="${job.identifier}"
+                                          notification-target-id="dbp-notification-apply"></dbp-bulletin-job-offer-form>
                                   </div>
-
-                                  <!-- Job description: use English text when language is English and available -->
-                                  ${this._renderDescription(job)}
-                                  ${isExternalJob ? this._renderCompanyInformation(job, t) : ''}
-
-                                  <!-- Contact information block shown when provided; use English value when language is English -->
-                                  ${
-                                      job.contactInformation || job.contactInformationEn
-                                          ? html`
-                                                <div class="contact-information">
-                                                    <h3 class="contact-information-heading">
-                                                        ${t('job-offer-detail.contact-information')}
-                                                    </h3>
-                                                    <p>
-                                                        ${
-                                                            (this.lang === 'en' &&
-                                                                job.contactInformationEn) ||
-                                                            job.contactInformation
-                                                        }
-                                                    </p>
-                                                </div>
-                                            `
-                                          : ''
-                                  }
-
-                                  <!-- Application form rendered by the JobOfferFormElement component -->
-                                  <dbp-bulletin-job-offer-form
-                                      lang="${this.lang}"
-                                      .job="${job}"
-                                      .auth="${this.auth}"
-                                      entry-point-url="${this.entryPointUrl}"
-                                      form-identifier="${job.identifier}"
-                                      notification-target-id="dbp-notification-apply"></dbp-bulletin-job-offer-form>
                               `
                             : ''
                     }
@@ -687,13 +856,16 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
 
+            .content-wrapper {
+                padding-right: 8px;
+            }
             /* Meta section: info on the left, tag+actions on the right */
             .meta-row {
                 display: grid;
                 grid-template-columns: minmax(0, 1fr) max-content;
                 align-items: flex-start;
                 column-gap: 1rem;
-                margin-bottom: 1.5rem;
+                margin-bottom: 0.75rem;
             }
 
             .meta-list {
@@ -701,17 +873,39 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 0;
                 list-style: none;
                 min-width: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                gap: 0.3rem;
             }
 
             .meta-item {
+                display: inline;
+                gap: 0.35rem;
+                align-items: center;
+            }
+
+            .favicon {
                 display: flex;
                 gap: 0.35rem;
-                margin-bottom: 0.2rem;
-                font-size: 1rem;
+                align-items: center;
+            }
+
+            .meta-item-label {
+                font-weight: bold;
+            }
+
+            .meta-item img {
+                width: 33px;
+            }
+
+            .job-meta-type {
+                color: var(--dbp-primary);
+                font-weight: 600;
             }
 
             .meta-item dt {
-                font-weight: 700;
+                font-weight: 600;
                 white-space: nowrap;
             }
 
@@ -720,12 +914,22 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 text-wrap-mode: nowrap;
             }
 
-            .work-location-list {
-                margin: 0;
-                padding-left: 1.25rem;
-                text-wrap-mode: wrap;
+            .work-location {
+                display: block;
             }
 
+            .work-location-list {
+                list-style: none;
+            }
+
+            .work-location-list-item {
+                display: inline-block;
+                border: 1px solid var(--dbp-content);
+                border-radius: 2px;
+                padding: 0.1rem 0.4rem;
+                color: var(--dbp-content);
+                margin-bottom: 0.2rem;
+            }
             .meta-item.tag {
                 margin-top: 0.5rem;
             }
@@ -737,6 +941,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 align-items: flex-end;
                 gap: 0.75rem;
                 min-width: 0;
+                height: 100%;
+                justify-content: end;
+            }
+
+            .meta-job-link {
+                text-decoration: underline;
             }
 
             /* Outlined area-of-interest badge */
@@ -744,8 +954,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 0.4rem;
-                justify-content: flex-end;
-                max-width: min(100%, 28rem);
+                justify-content: flex-start;
             }
 
             .job-tag {
@@ -776,10 +985,28 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 top: 0;
             }
 
+            fieldset {
+                padding: 0.75rem;
+                display: grid;
+                gap: 0.5em;
+                border: 1px solid var(--dbp-content);
+                padding-bottom: 1rem;
+            }
+
+            legend {
+                font-weight: 400;
+                font-size: 1.17em;
+                padding: 0 5px;
+            }
+
             /* Description paragraph */
             .job-description {
-                margin: 0 0 1.5rem 0;
-                line-height: 1.6;
+            }
+
+            .job-description-meta-list {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0px, 1fr));
+                gap: 0.25rem 1rem;
             }
 
             .company-info {
@@ -848,9 +1075,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             /* Detail content padding */
-            .detail-content {
-                padding: 0.25rem 0;
-            }
 
             @media (max-width: 560px) {
                 .meta-row {
