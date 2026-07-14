@@ -2099,12 +2099,6 @@ export class JobOfferFormElement extends BaseFormElement {
      * Renders a summary of the current job above the application form.
      * @returns {import('lit').TemplateResult|string}
      */
-    _renderJobOverview() {
-        if (!this.job) {
-            return '';
-        }
-    }
-
     _renderExternalApplication() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const externalJobUrl = this._getExternalJobUrl();
@@ -2282,11 +2276,6 @@ export class JobOfferFormElement extends BaseFormElement {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         keepJobOfferAttachmentTranslations(t);
-        const jobOverview = this._renderJobOverview();
-
-        if (this._isExternalJobOffer) {
-            return this._renderExternalApplication(jobOverview);
-        }
 
         const supportsApplicationAttachments = this._supportsApplicationAttachments();
         const attachmentGroup = this._getAttachmentGroupData();
@@ -2302,7 +2291,6 @@ export class JobOfferFormElement extends BaseFormElement {
             return html`
                 <fieldset>
                     <legend class="apply-form">
-                        ${jobOverview}
                         <div class="applied-notice">
                             <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
                             <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
@@ -2316,8 +2304,6 @@ export class JobOfferFormElement extends BaseFormElement {
             <fieldset>
                 <legend>${t('job-offer-detail.application-title')}</legend>
                 <form @submit="${this._onApplySubmit}" novalidate>
-                    ${jobOverview}
-
                     <dbp-form-string-element
                         ${ref(this._messageRef)}
                         subscribe="lang"
