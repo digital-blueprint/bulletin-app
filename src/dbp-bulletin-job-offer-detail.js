@@ -84,6 +84,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return this.lang === 'en' && en ? en : primary;
     }
 
+    _localizedList(primary, en) {
+        const primaryItems = Array.isArray(primary) ? primary : [];
+        const enItems = Array.isArray(en) ? en : [];
+
+        return this.lang === 'en' && enItems.length > 0 ? enItems : primaryItems;
+    }
+
     _getLocalizedTitle(job) {
         return this._localized(job.title ?? '', job.titleEn ?? '');
     }
@@ -119,7 +126,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
     _getLocalizedRequirements(job) {
-        const items = this._localized(job.requirements ?? '', job.requirementsEn ?? '');
+        const items = this._localizedList(job.requirements, job.requirementsEn);
         if (items.length === 0) {
             return '';
         }
@@ -136,10 +143,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _getLocalizedQualification(job) {
-        const items = this._localized(
-            job.requiredQualification ?? '',
-            job.requiredQualificationEn ?? '',
-        );
+        const items = this._localizedList(job.requiredQualification, job.requiredQualificationEn);
         if (items.length === 0) {
             return '';
         }
@@ -156,7 +160,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _getLocalizedResponsibilities(job) {
-        const items = this._localized(job.responsibilities ?? '', job.responsibilitiesEn ?? '');
+        const items = this._localizedList(job.responsibilities, job.responsibilitiesEn);
         if (items.length === 0) {
             return '';
         }
@@ -173,7 +177,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _getWeOffer(job) {
-        const items = this._localized(job.weOffer ?? '', job.weOfferEn ?? '');
+        const items = this._localizedList(job.weOffer, job.weOfferEn);
         if (items.length === 0) {
             return '';
         }
@@ -840,14 +844,27 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               }
                                               ${this._renderDescription(job)}
                                               ${
-                                                  job.requirements?.length > 0 ||
-                                                  job.requiredQualification?.length > 0 ||
-                                                  job.responsibilities?.length > 0 ||
-                                                  job.weOffer?.length > 0
+                                                  this._localizedList(
+                                                      job.requirements,
+                                                      job.requirementsEn,
+                                                  ).length > 0 ||
+                                                  this._localizedList(
+                                                      job.requiredQualification,
+                                                      job.requiredQualificationEn,
+                                                  ).length > 0 ||
+                                                  this._localizedList(
+                                                      job.responsibilities,
+                                                      job.responsibilitiesEn,
+                                                  ).length > 0 ||
+                                                  this._localizedList(job.weOffer, job.weOfferEn)
+                                                      .length > 0
                                                       ? html`
                                                             <div class="additional-info">
                                                                 ${
-                                                                    job?.requirements
+                                                                    this._localizedList(
+                                                                        job.requirements,
+                                                                        job.requirementsEn,
+                                                                    ).length > 0
                                                                         ? html`
                                                                               <div
                                                                                   class="meta-item additional-item">
@@ -861,7 +878,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                         : ''
                                                                 }
                                                                 ${
-                                                                    job?.requiredQualification
+                                                                    this._localizedList(
+                                                                        job.requiredQualification,
+                                                                        job.requiredQualificationEn,
+                                                                    ).length > 0
                                                                         ? html`
                                                                               <div
                                                                                   class="meta-item additional-item">
@@ -875,7 +895,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                         : ''
                                                                 }
                                                                 ${
-                                                                    job?.responsibilities
+                                                                    this._localizedList(
+                                                                        job.responsibilities,
+                                                                        job.responsibilitiesEn,
+                                                                    ).length > 0
                                                                         ? html`
                                                                               <div
                                                                                   class="meta-item additional-item">
@@ -889,7 +912,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                         : ''
                                                                 }
                                                                 ${
-                                                                    job?.weOffer
+                                                                    this._localizedList(
+                                                                        job.weOffer,
+                                                                        job.weOfferEn,
+                                                                    ).length > 0
                                                                         ? html`
                                                                               <div
                                                                                   class="meta-item additional-item">
