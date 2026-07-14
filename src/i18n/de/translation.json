@@ -251,6 +251,7 @@
         "attachments": "Anhänge",
         "attachments-help_one": "Nur PDF-Dateien, maximal {{count}} Datei, je Datei max. {{size}} MB.",
         "attachments-help_other": "Nur PDF-Dateien, maximal {{count}} Dateien, je Datei max. {{size}} MB.",
+        "company": "Firma",
         "contact-information": "Kontaktinformationen",
         "contract-duration": "Befristung",
         "deadline": "Bewerbungsfrist",
