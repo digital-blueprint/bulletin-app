@@ -311,101 +311,14 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
+            <span class="meta-item-label">${t('manage-job-offers.field-work-locations')}:</span>
             <ul class="work-location-list">
-                <span class="meta-item-label">${t('manage-job-offers.field-work-locations')}:</span>
                 ${labels.map(
                     (label) => html`
                         <li class="work-location-list-item">${label}</li>
                     `,
                 )}
             </ul>
-        `;
-    }
-
-    _renderCompanyTextBlock(title, value) {
-        if (!value) {
-            return '';
-        }
-
-        const lines = value.split(/\r?\n/);
-
-        return html`
-            <section class="company-info-block">
-                <h4 class="company-info-title">${title}</h4>
-                <p>
-                    ${lines.map((line, index) =>
-                        index === 0
-                            ? line
-                            : html`
-                                  <br />
-                                  ${line}
-                              `,
-                    )}
-                </p>
-            </section>
-        `;
-    }
-
-    _renderCompanyInformation(job, t) {
-        const companyData = job.companyData ?? {};
-        const companyName =
-            this._getCompanyValue(companyData, 'name', ['companyName']) || job.companyName;
-        const department = this._getCompanyValue(companyData, 'abteilung', ['department']);
-        const address = this._getCompanyValue(companyData, 'adresse', ['address']);
-        const postalCode = this._getCompanyValue(companyData, 'plz', ['postalCode']);
-        const city = this._getCompanyValue(companyData, 'ort', ['city']);
-        const contactPerson = this._getCompanyValue(companyData, 'kontaktperson', ['contactName']);
-        const phone = this._getCompanyValue(companyData, 'telefonnummer', ['contactPhone']);
-        const email = this._getCompanyValue(companyData, 'email', ['contactEmail']);
-        const website = this._getCompanyValue(companyData, 'url', ['website']);
-        const teaser = this._getCompanyValue(companyData, 'teaser');
-        const description = this._getCompanyValue(companyData, 'beschreibung', ['description']);
-        const products = this._getCompanyValue(companyData, 'produkte', ['products']);
-        const locations = this._getCompanyValue(companyData, 'standorte', ['locations']);
-        const location = [postalCode, city].filter(Boolean).join(' ');
-
-        if (
-            !companyName &&
-            !department &&
-            !address &&
-            !location &&
-            !email &&
-            !website &&
-            !description
-        ) {
-            return '';
-        }
-
-        return html`
-            <section class="company-info">
-                <h3>${t('job-offer-detail.company')}</h3>
-                <dl class="company-info-list">
-                    ${this._renderCompanyMetaItem(t('company-form.field-name'), companyName)}
-                    ${this._renderCompanyMetaItem(t('company-form.field-department'), department)}
-                    ${this._renderCompanyMetaItem(t('company-form.field-address'), address)}
-                    ${this._renderCompanyMetaItem(t('company-form.field-city'), location)}
-                    ${this._renderCompanyMetaItem(
-                        t('company-form.field-contact-person'),
-                        contactPerson,
-                    )}
-                    ${this._renderCompanyMetaItem(t('company-form.field-phone-number'), phone)}
-                    ${this._renderCompanyMetaItem(t('company-form.field-email'), email)}
-                    ${this._renderCompanyMetaItem(
-                        t('company-form.field-url'),
-                        website
-                            ? html`
-                                  <a href="${website}" target="_blank" rel="noopener noreferrer">
-                                      ${website}
-                                  </a>
-                              `
-                            : '',
-                    )}
-                </dl>
-                ${this._renderCompanyTextBlock(t('company-form.field-teaser'), teaser)}
-                ${this._renderCompanyTextBlock(t('company-form.field-description'), description)}
-                ${this._renderCompanyTextBlock(t('company-form.field-products'), products)}
-                ${this._renderCompanyTextBlock(t('company-form.field-locations'), locations)}
-            </section>
         `;
     }
 
@@ -791,7 +704,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                                       <div class="job-description">
                                           <fieldset>
-                                              <legend>Job description</legend>
+                                              <legend>
+                                                  ${t('job-offer-detail.job-description')}:
+                                              </legend>
                                               <div class="job-description-wrapper">
                                                   ${
                                                       job?.startDate ||
@@ -866,7 +781,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                             : ''
                                                                     }
                                                                     ${
-                                                                        job?.category
+                                                                        job?.contactInformation
                                                                             ? html`
                                                                                   <div
                                                                                       class="meta-item">
