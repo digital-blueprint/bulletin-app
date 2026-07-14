@@ -191,6 +191,30 @@
     "errors": {
         "error-title": "Fehler"
     },
+    "generate-jobs": {
+        "count-description": "Wählen Sie, wie viele zufällige Stellenangebote erstellt werden sollen.",
+        "count-label": "Anzahl der zu generierenden Stellenangebote",
+        "created-title_one": "Erstelltes Stellenangebot ({{count}})",
+        "created-title_other": "Erstellte Stellenangebote ({{count}})",
+        "description": "Erstellt zufällige Stellenangebote, damit mehr Einträge auf der Seite „Stellenangebote anzeigen“ angezeigt werden.",
+        "error-not-authorized": "Nur Administratoren können Stellenangebote generieren.",
+        "error-not-ready": "Die Generierung kann erst starten, wenn Login und API-Konfiguration verfügbar sind.",
+        "error-title": "Fehler",
+        "finished-body": "Erstellt: {{created}}, Fehler: {{errors}}.",
+        "finished-title": "Generierung abgeschlossen",
+        "generate-button": "Stellenangebote generieren",
+        "generating": "Generiere...",
+        "job-type-description": "Wählen Sie, ob TU Graz-Stellen, externe Stellen oder eine zufällige Mischung aus beiden generiert werden sollen.",
+        "job-type-external": "Externe Stellen",
+        "job-type-internal": "TU Graz-Stellen",
+        "job-type-label": "Art der Stellenangebote",
+        "job-type-mixed": "Gemischt (TU Graz und extern)",
+        "not-authorized": "Diese Aktivität ist nur für Administratoren sichtbar.",
+        "report-title": "Generierungsbericht",
+        "summary-created": "Erstellt",
+        "summary-errors": "Fehler",
+        "title": "Stellenangebote generieren"
+    },
     "import-companies": {
         "description": "Wählen Sie die exportierte Firmen-CSV-Datei aus und importieren Sie die Zeilen als Firmen. Vorhandene Firmen mit demselben Namen werden übersprungen.",
         "error-company-form-missing": "Das Firmenformular wurde nicht gefunden.",

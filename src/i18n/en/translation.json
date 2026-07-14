@@ -191,6 +191,30 @@
     "errors": {
         "error-title": "Error"
     },
+    "generate-jobs": {
+        "count-description": "Choose how many random job offers should be created.",
+        "count-label": "Number of job offers to generate",
+        "created-title_one": "Created job offer ({{count}})",
+        "created-title_other": "Created job offers ({{count}})",
+        "description": "Creates random job offers so that more entries are shown on the view job offers page.",
+        "error-not-authorized": "Only administrators can generate job offers.",
+        "error-not-ready": "Generation cannot start until login and API configuration are available.",
+        "error-title": "Error",
+        "finished-body": "Created: {{created}}, errors: {{errors}}.",
+        "finished-title": "Generation finished",
+        "generate-button": "Generate job offers",
+        "generating": "Generating...",
+        "job-type-description": "Choose whether to generate TU Graz positions, external positions, or a random mix of both.",
+        "job-type-external": "External positions",
+        "job-type-internal": "TU Graz positions",
+        "job-type-label": "Type of job offers",
+        "job-type-mixed": "Mixed (TU Graz and external)",
+        "not-authorized": "This activity is only visible for administrators.",
+        "report-title": "Generation report",
+        "summary-created": "Created",
+        "summary-errors": "Errors",
+        "title": "Generate job offers"
+    },
     "import-companies": {
         "description": "Select the exported company CSV file and import its rows as companies. Existing companies with the same name are skipped.",
         "error-company-form-missing": "The company form could not be found.",

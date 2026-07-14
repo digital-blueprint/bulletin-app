@@ -125,6 +125,7 @@ let input = [
     'src/dbp-bulletin-career-profile.js',
     'src/dbp-bulletin-browse-career-profiles.js',
     'src/dbp-bulletin-import-companies.js',
+    'src/dbp-bulletin-generate-jobs.js',
     'src/modules/companyForm.js',
 ];
 
