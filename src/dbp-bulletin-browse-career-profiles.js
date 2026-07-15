@@ -472,6 +472,14 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     <h2>${this._getProfileAlias(profile)}</h2>
                 </header>
 
+                ${
+                    data.teaser
+                        ? html`
+                              <p class="profile-teaser">${data.teaser}</p>
+                          `
+                        : ''
+                }
+
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
                 ${this._renderStudiesSection(profile)}
@@ -646,6 +654,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             .activity-header p,
             .summary {
                 line-height: 1.55;
+            }
+
+            .profile-teaser {
+                font-size: 1.25rem;
+                font-weight: 700;
+                line-height: 1.5;
+                margin: 0 0 1rem 0;
             }
 
             .profile-meta {

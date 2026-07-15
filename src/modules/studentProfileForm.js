@@ -18,6 +18,7 @@ import WorkLocationsElement, {normalizeWorkLocations} from './workLocationsEleme
 const i18n = createInstance();
 const STUDENT_PROFILE_FRONTEND_KEY = 'student-profile';
 const STUDENT_PROFILE_DESCRIPTION_MAX_LENGTH = 2500;
+const STUDENT_PROFILE_TEASER_MAX_LENGTH = 100;
 
 const parseMultilineList = (value) =>
     String(value ?? '')
@@ -26,6 +27,11 @@ const parseMultilineList = (value) =>
         .filter(Boolean);
 
 const normalizeMultilineValue = (value) => (Array.isArray(value) ? value.join('\n') : value || '');
+
+const normalizeTeaserValue = (value) =>
+    String(value ?? '')
+        .slice(0, STUDENT_PROFILE_TEASER_MAX_LENGTH)
+        .trim();
 
 export const STUDENT_PROFILE_INDUSTRIES = {
     'it-software': 'student-profile-form.industry-it-software',
@@ -331,6 +337,9 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-skills-en');
     t('student-profile-form.field-skills-en-description');
     t('student-profile-form.field-study-program');
+    t('student-profile-form.field-teaser-description');
+    t('student-profile-form.field-teaser-placeholder');
+    t('student-profile-form.field-teaser-title');
     t('student-profile-form.field-text-placeholder');
     t('student-profile-form.field-website');
     t('student-profile-form.field-website-identity-warning');
@@ -457,6 +466,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._contactEmail = '';
         this._studentDataPrefillUserId = '';
         this._website = '';
+        this._teaser = '';
         this._loadingStudentData = false;
         this._isSubmitting = false;
     }
@@ -490,6 +500,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _availability: {state: true},
             _contactEmail: {state: true},
             _website: {state: true},
+            _teaser: {state: true},
             _loadingStudentData: {state: true},
             _isSubmitting: {state: true},
         };
@@ -528,6 +539,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._availability = data.availability || '';
                 this._contactEmail = data.contactEmail || '';
                 this._website = data.website || data.linkUrl || '';
+                this._teaser = normalizeTeaserValue(data.teaser);
             }
 
             if (
@@ -706,6 +718,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             availability: this._availability.trim(),
             contactEmail: this._contactEmail.trim(),
             website: this._website.trim(),
+            teaser: normalizeTeaserValue(this._teaser),
             studentCreatorId: this.auth?.['user-id'] || '',
             studentPersonIdentifier: this.auth?.person_id || '',
         };
@@ -1065,6 +1078,19 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     },
                 )}
             </div>
+
+            ${this.renderTextField(
+                'teaser',
+                'student-profile-form.field-teaser-title',
+                this._teaser,
+                (value) => (this._teaser = normalizeTeaserValue(value)),
+                {
+                    rows: 4,
+                    maxlength: STUDENT_PROFILE_TEASER_MAX_LENGTH,
+                    placeholderKey: 'student-profile-form.field-teaser-placeholder',
+                    descriptionKey: 'student-profile-form.field-teaser-description',
+                },
+            )}
 
             <div class="form-footer">
                 <button
