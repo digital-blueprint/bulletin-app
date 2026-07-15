@@ -251,7 +251,7 @@
         "attachments": "Attachments",
         "attachments-help_one": "PDF files only, up to {{count}} file, max. {{size}} MB per file.",
         "attachments-help_other": "PDF files only, up to {{count}} files, max. {{size}} MB per file.",
-        "company": "Company",
+        "company": "Company information",
         "contact-information": "Contact information",
         "contract-duration": "Contract duration",
         "deadline": "Application deadline",

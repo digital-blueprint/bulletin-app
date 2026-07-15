@@ -2184,8 +2184,9 @@ export class JobOfferFormElement extends BaseFormElement {
         const externalJobUrl = this._getExternalJobUrl();
 
         return html`
-            <fieldset>
-                <legend>${t('job-offer-detail.external-application-title')}</legend>
+            <div class="apply-submit-wrapper">
+                <h3>${t('job-offer-detail.external-application-title')}</h3>
+                <hr />
                 <p class="external-application-text">
                     ${t('job-offer-detail.external-application-text')}
                 </p>
@@ -2211,7 +2212,7 @@ export class JobOfferFormElement extends BaseFormElement {
                               </p>
                           `
                 }
-            </fieldset>
+            </div>
         `;
     }
 
@@ -2382,9 +2383,9 @@ export class JobOfferFormElement extends BaseFormElement {
 
         return html`
             <form @submit="${this._onApplySubmit}" novalidate>
-                <fieldset>
-                    <legend>${t('job-offer-detail.application-title')}</legend>
-
+                <div class="apply-submit-wrapper">
+                    <h3>${t('job-offer-detail.application-title')}</h3>
+                    <hr />
                     <dbp-form-string-element
                         ${ref(this._messageRef)}
                         subscribe="lang"
@@ -2447,7 +2448,7 @@ export class JobOfferFormElement extends BaseFormElement {
                             ${t('job-offer-detail.submit')}
                         </button>
                     </div>
-                </fieldset>
+                </div>
             </form>
 
             <dbp-file-source
@@ -2506,7 +2507,19 @@ export class JobOfferFormElement extends BaseFormElement {
                     font-size: 1.17em;
                     padding: 0 5px;
                 }
+                .apply-submit-wrapper {
+                    margin-top: 2rem;
+                }
+                h3 {
+                    margin: 0px;
+                    font-size: 1.3rem;
+                    font-weight: 400;
+                }
 
+                hr {
+                    margin-top: 0;
+                    margin-bottom: 1rem;
+                }
                 .job-overview {
                     border-bottom: var(--dbp-border);
                     margin-bottom: 1.25rem;
@@ -2718,6 +2731,7 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.35rem;
+                    width: max-content;
                 }
 
                 .external-application-missing {

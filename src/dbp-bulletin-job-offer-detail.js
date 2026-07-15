@@ -351,8 +351,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <section class="company-info">
+            <div class="apply-submit-wrapper">
                 <h3>${t('job-offer-detail.company')}</h3>
+                <hr />
                 <dl class="company-info-list">
                     ${this._renderCompanyMetaItem(t('company-form.field-name'), companyName)}
                     ${this._renderCompanyMetaItem(t('company-form.field-department'), department)}
@@ -379,7 +380,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 ${this._renderCompanyTextBlock(t('company-form.field-description'), description)}
                 ${this._renderCompanyTextBlock(t('company-form.field-products'), products)}
                 ${this._renderCompanyTextBlock(t('company-form.field-locations'), locations)}
-            </section>
+            </div>
         `;
     }
 
@@ -791,10 +792,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       </div>
 
                                       <div class="job-description">
-                                          <fieldset>
-                                              <legend>
-                                                  ${t('job-offer-detail.job-description')}:
-                                              </legend>
+                                          <div class="apply-submit-wrapper">
+                                              <h3>${t('job-offer-detail.job-description')}</h3>
+                                              <hr />
                                               <div class="job-description-wrapper">
                                                   ${
                                                       job?.startDate ||
@@ -1018,7 +1018,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                         `
                                                       : ''
                                               }
-                                          </fieldset>
+                                          </div>
                                       </div>
 
                                       ${isExternalJob ? this._renderCompanyInformation(job, t) : ''}
@@ -1199,6 +1199,16 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 flex: 3;
             }
 
+            h3 {
+                margin: 0px;
+                font-size: 1.3rem;
+                font-weight: 400;
+            }
+
+            hr {
+                margin-bottom: 1rem;
+            }
+
             .job-description-wrapper {
                 gap: 2px;
 
@@ -1229,6 +1239,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin-right: 0.5rem;
             }
 
+            .apply-submit-wrapper {
+                margin-top: 2rem;
+            }
             .company-info {
                 border: var(--dbp-border);
                 border-radius: var(--dbp-border-radius);
