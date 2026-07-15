@@ -27,7 +27,6 @@ import {apiCreateForm, apiUpdateForm} from '../../vendor/formalize/src/manage-fo
 import {createInstance} from '../i18n.js';
 import WorkLocationsElement, {
     getDefaultInternalWorkLocations,
-    getWorkLocationLabels,
     normalizeWorkLocations,
 } from './workLocationsElement.js';
 
@@ -2179,150 +2178,14 @@ export class JobOfferFormElement extends BaseFormElement {
      * Renders a summary of the current job above the application form.
      * @returns {import('lit').TemplateResult|string}
      */
-    _renderJobOverview() {
-        if (!this.job) {
-            return '';
-        }
 
-        const t = (key, opts) => this._i18n.t(key, opts);
-        const job = this.job;
-        const localizedTitle = this._localized(job.title ?? '', job.titleEn ?? '');
-        const localizedOrganization = this._localized(
-            job.organization ?? '',
-            job.organizationEn ?? '',
-        );
-        const isExternalJob = job.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
-        const organizationLabel = isExternalJob
-            ? t('manage-job-offers.field-company')
-            : t('manage-job-offers.field-organization');
-        const organizationValue = isExternalJob ? (job.companyName ?? '') : localizedOrganization;
-        const localizedWeeklyHours = this._localized(
-            job.weeklyHours ?? '',
-            job.weeklyHoursEn ?? '',
-        );
-        const localizedSalary = this._localized(job.salary ?? '', job.salaryEn ?? '');
-        const localizedContractDuration = this._localized(
-            job.contractDuration ?? '',
-            job.contractDurationEn ?? '',
-        );
-        const localizedLinkName = this._localized(job.linkName ?? '', job.linkNameEn ?? '');
-        const localizedLinkUrl = this._localized(job.linkUrl ?? '', job.linkUrlEn ?? '');
-        const requirements = this._localizedList(job.requirements, job.requirementsEn);
-        const responsibilities = this._localizedList(job.responsibilities, job.responsibilitiesEn);
-        const requiredQualification = this._localizedList(
-            job.requiredQualification,
-            job.requiredQualificationEn,
-        );
-        const weOffer = this._localizedList(job.weOffer, job.weOfferEn);
-        const areaOfInterestLabels = getAreaOfInterestLabels(
-            job.areasOfInterest ?? job.areaOfInterest,
-            t,
-        );
-        const jobCategoryLabel = job.jobCategory ? getJobCategoryLabel(job.jobCategory, t) : '';
-        const workLocationLabels = getWorkLocationLabels(job.workLocations, t, this.lang);
-
-        return html`
-            <section class="job-overview" aria-label="${localizedTitle}">
-                ${
-                    localizedTitle
-                        ? html`
-                              <h4 class="job-overview-title">${localizedTitle}</h4>
-                          `
-                        : ''
-                }
-
-                <dl class="job-overview-meta-list">
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-published-at'),
-                        this._formatDisplayDate(job.publishedAt ?? ''),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-deadline'),
-                        this._formatDisplayDate(job.deadline ?? ''),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-application-deadline'),
-                        this._formatDisplayDate(job.applicationDeadline ?? ''),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-start-date'),
-                        this._formatDisplayDate(job.startDate ?? ''),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-weekly-hours'),
-                        localizedWeeklyHours,
-                    )}
-                    ${this._renderJobMetaItem(t('manage-job-offers.field-salary'), localizedSalary)}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-contract-duration'),
-                        localizedContractDuration,
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-job-category'),
-                        jobCategoryLabel,
-                    )}
-                    ${this._renderJobMetaItem(organizationLabel, organizationValue)}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-work-locations'),
-                        this._renderWorkLocationList(workLocationLabels),
-                    )}
-                    ${this._renderJobMetaItem(
-                        t('manage-job-offers.field-link-url'),
-                        localizedLinkUrl
-                            ? html`
-                                  <a
-                                      class="job-overview-meta-link"
-                                      href="${localizedLinkUrl}"
-                                      target="_blank"
-                                      rel="noopener noreferrer">
-                                      <span>${localizedLinkName || localizedLinkUrl}</span>
-                                  </a>
-                              `
-                            : '',
-                    )}
-                </dl>
-
-                ${
-                    areaOfInterestLabels.length > 0
-                        ? html`
-                              <section class="job-overview-section">
-                                  <h5 class="job-overview-section-title">
-                                      ${t('manage-job-offers.field-area-of-interest')}
-                                  </h5>
-                                  <div class="job-overview-tags">
-                                      ${areaOfInterestLabels.map(
-                                          (label) => html`
-                                              <span class="job-overview-tag">${label}</span>
-                                          `,
-                                      )}
-                                  </div>
-                              </section>
-                          `
-                        : ''
-                }
-                ${this._renderJobListSection(t('job-offer-detail.requirements'), requirements)}
-                ${this._renderJobListSection(
-                    t('manage-job-offers.field-responsibilities'),
-                    responsibilities,
-                )}
-                ${this._renderJobListSection(
-                    t('manage-job-offers.field-required-qualification'),
-                    requiredQualification,
-                )}
-                ${this._renderJobListSection(t('manage-job-offers.field-we-offer'), weOffer)}
-            </section>
-        `;
-    }
-
-    _renderExternalApplication(jobOverview) {
+    _renderExternalApplication() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const externalJobUrl = this._getExternalJobUrl();
 
         return html`
-            <div class="apply-form">
-                ${jobOverview}
-
-                <h4 class="apply-heading">${t('job-offer-detail.external-application-title')}</h4>
+            <fieldset>
+                <legend>${t('job-offer-detail.external-application-title')}</legend>
                 <p class="external-application-text">
                     ${t('job-offer-detail.external-application-text')}
                 </p>
@@ -2348,7 +2211,7 @@ export class JobOfferFormElement extends BaseFormElement {
                               </p>
                           `
                 }
-            </div>
+            </fieldset>
         `;
     }
 
@@ -2491,10 +2354,9 @@ export class JobOfferFormElement extends BaseFormElement {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         keepJobOfferAttachmentTranslations(t);
-        const jobOverview = this._renderJobOverview();
 
         if (this._isExternalJobOffer) {
-            return this._renderExternalApplication(jobOverview);
+            return this._renderExternalApplication();
         }
 
         const supportsApplicationAttachments = this._supportsApplicationAttachments();
@@ -2510,7 +2372,6 @@ export class JobOfferFormElement extends BaseFormElement {
         if (this._hasApplied) {
             return html`
                 <div class="apply-form">
-                    ${jobOverview}
                     <div class="applied-notice">
                         <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
                         <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
@@ -2520,70 +2381,73 @@ export class JobOfferFormElement extends BaseFormElement {
         }
 
         return html`
-            <form class="apply-form" @submit="${this._onApplySubmit}" novalidate>
-                ${jobOverview}
+            <form @submit="${this._onApplySubmit}" novalidate>
+                <fieldset>
+                    <legend>${t('job-offer-detail.application-title')}</legend>
 
-                <h4 class="apply-heading">${t('job-offer-detail.application-title')}</h4>
+                    <dbp-form-string-element
+                        ${ref(this._messageRef)}
+                        subscribe="lang"
+                        name="freeText"
+                        label="${t('job-offer-detail.message')}"
+                        .value="${this.formData?.freeText ?? ''}"
+                        .customValidator="${this._messageValidator}"
+                        rows="4"></dbp-form-string-element>
 
-                <dbp-form-string-element
-                    ${ref(this._messageRef)}
-                    subscribe="lang"
-                    name="freeText"
-                    label="${t('job-offer-detail.message')}"
-                    .value="${this.formData?.freeText ?? ''}"
-                    .customValidator="${this._messageValidator}"
-                    rows="4"></dbp-form-string-element>
+                    ${
+                        supportsApplicationAttachments
+                            ? html`
+                                  <div class="file-upload-container">
+                                      <div class="file-upload-title-container">
+                                          <h5 class="attachments-title">
+                                              ${t('job-offer-detail.attachments')}
+                                          </h5>
+                                          <span class="file-upload-limit-warning">
+                                              ${t('job-offer-detail.attachments-help', {
+                                                  count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                                  size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                                              })}
+                                          </span>
+                                      </div>
 
-                ${
-                    supportsApplicationAttachments
-                        ? html`
-                              <div class="file-upload-container">
-                                  <div class="file-upload-title-container">
-                                      <h5 class="attachments-title">
-                                          ${t('job-offer-detail.attachments')}
-                                      </h5>
-                                      <span class="file-upload-limit-warning">
-                                          ${t('job-offer-detail.attachments-help', {
-                                              count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                              size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
-                                          })}
-                                      </span>
+                                      <div class="uploaded-files">
+                                          ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
+                                      </div>
+
+                                      <button
+                                          class="button is-secondary upload-button upload-button--attachment"
+                                          type="button"
+                                          ?disabled="${
+                                              this._isSubmitting ||
+                                              attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT
+                                          }"
+                                          @click="${this._openAttachmentPicker}">
+                                          <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
+                                          ${t(
+                                              'render-form.download-widget.upload-file-button-label',
+                                              {
+                                                  count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                              },
+                                          )}
+                                      </button>
                                   </div>
+                              `
+                            : ''
+                    }
 
-                                  <div class="uploaded-files">
-                                      ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
-                                  </div>
-
-                                  <button
-                                      class="button is-secondary upload-button upload-button--attachment"
-                                      type="button"
-                                      ?disabled="${
-                                          this._isSubmitting ||
-                                          attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT
-                                      }"
-                                      @click="${this._openAttachmentPicker}">
-                                      <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
-                                      ${t('render-form.download-widget.upload-file-button-label', {
-                                          count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                      })}
-                                  </button>
-                              </div>
-                          `
-                        : ''
-                }
-
-                <div class="form-footer">
-                    <button
-                        class="button is-primary"
-                        type="submit"
-                        ?disabled="${this._isSubmitting}">
-                        <dbp-icon
-                            class="btn-icon"
-                            name="send-diagonal"
-                            aria-hidden="true"></dbp-icon>
-                        ${t('job-offer-detail.submit')}
-                    </button>
-                </div>
+                    <div class="form-footer">
+                        <button
+                            class="button is-primary"
+                            type="submit"
+                            ?disabled="${this._isSubmitting}">
+                            <dbp-icon
+                                class="btn-icon"
+                                name="send-diagonal"
+                                aria-hidden="true"></dbp-icon>
+                            ${t('job-offer-detail.submit')}
+                        </button>
+                    </div>
+                </fieldset>
             </form>
 
             <dbp-file-source
@@ -2628,17 +2492,19 @@ export class JobOfferFormElement extends BaseFormElement {
             css`
                 ${commonStyles.getButtonCSS()}
 
-                .apply-form {
-                    border: var(--dbp-border);
-                    border-radius: var(--dbp-border-radius);
-                    padding: 1.25rem;
+                fieldset {
+                    padding: 0.75rem;
+                    display: grid;
+                    gap: 0.5em;
+                    border: 1px solid var(--dbp-content);
+                    padding-bottom: 1rem;
                     margin-top: 1.5rem;
                 }
 
-                .apply-heading {
-                    font-size: 1.1rem;
-                    font-weight: 700;
-                    margin: 0 0 1rem 0;
+                legend {
+                    font-weight: 400;
+                    font-size: 1.17em;
+                    padding: 0 5px;
                 }
 
                 .job-overview {
