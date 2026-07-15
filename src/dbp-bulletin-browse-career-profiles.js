@@ -6,6 +6,8 @@ import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import JobProfileModule, {
     formatStudentStudies,
+    getStudentProfileFieldLabels,
+    getStudentProfileIndustryLabels,
     JobProfileInterestFormElement,
     normalizeStudentStudies,
 } from './modules/studentProfileForm.js';
@@ -244,6 +246,20 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         );
     }
 
+    _renderProfileSelectSection(profile, labelKey, values, getLabels) {
+        const labels = getLabels(values, (key, opts) => this._i18n.t(key, opts));
+        if (labels.length === 0) {
+            return '';
+        }
+
+        return html`
+            <section>
+                <h3>${this._i18n.t(labelKey)}</h3>
+                ${this._renderList(labels)}
+            </section>
+        `;
+    }
+
     _getTableData() {
         return this._profiles.map((profile) => {
             const data = profile.additionalData ?? {};
@@ -459,6 +475,18 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
                 ${this._renderStudiesSection(profile)}
+                ${this._renderProfileSelectSection(
+                    profile,
+                    'student-profile-form.field-industries',
+                    data.industries,
+                    getStudentProfileIndustryLabels,
+                )}
+                ${this._renderProfileSelectSection(
+                    profile,
+                    'student-profile-form.field-fields',
+                    data.fields,
+                    getStudentProfileFieldLabels,
+                )}
                 ${
                     normalizeWorkLocations(data.workLocations).length
                         ? html`
