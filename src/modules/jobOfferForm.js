@@ -873,6 +873,86 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return match ? selectElement.parseDataFeedElement(match.dataFeedElement) : {};
     }
 
+    _parseCompanyDataFeedElement(dataFeedElement) {
+        if (!dataFeedElement) {
+            return {};
+        }
+
+        if (typeof dataFeedElement === 'object') {
+            return dataFeedElement;
+        }
+
+        try {
+            return JSON.parse(dataFeedElement);
+        } catch (error) {
+            console.warn('Failed to parse company submission dataFeedElement:', error);
+            return {};
+        }
+    }
+
+    async _refreshSelectedCompany() {
+        if (!this._isExternalJob) {
+            return;
+        }
+
+        const submissionId = this._companySubmissionId.trim();
+        if (!submissionId) {
+            this._companyName = '';
+            this._companyData = {};
+            return;
+        }
+
+        if (this.entryPointUrl && this.auth?.token) {
+            const submissionPath = submissionId.startsWith('/formalize/submissions/')
+                ? submissionId
+                : `/formalize/submissions/${submissionId}`;
+
+            try {
+                const response = await fetch(this.entryPointUrl + submissionPath, {
+                    headers: {
+                        'Content-Type': 'application/ld+json',
+                        Authorization: `Bearer ${this.auth.token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const companyData = this._parseCompanyDataFeedElement(
+                        (await response.json()).dataFeedElement,
+                    );
+                    const companyName = companyData?.name ?? companyData?.companyName;
+
+                    this._companyData = companyData;
+                    this._companyName = Array.isArray(companyName)
+                        ? companyName.join(', ')
+                        : companyName && typeof companyName === 'object'
+                          ? JSON.stringify(companyName)
+                          : String(companyName || submissionId);
+                    return;
+                }
+
+                console.warn(
+                    `Failed to refresh company submission. Response status: ${response.status}`,
+                );
+            } catch (error) {
+                console.warn('Failed to refresh company submission:', error);
+            }
+        }
+
+        const selectElement = this.shadowRoot?.querySelector(
+            'dbp-submission-select-element[name="company-submission"]',
+        );
+        const companyName = this._resolveCompanyName(selectElement, submissionId);
+        const companyData = this._resolveCompanyData(selectElement, submissionId);
+
+        if (companyName) {
+            this._companyName = companyName;
+        }
+
+        if (Object.keys(companyData).length > 0) {
+            this._companyData = companyData;
+        }
+    }
+
     /**
      * Builds the form payload and calls apiCreateForm or apiUpdateForm depending on mode.
      * On success dispatches a form event, on failure shows an error notification.
@@ -893,6 +973,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         }
 
         this._isSubmitting = true;
+
+        await this._refreshSelectedCompany();
 
         // JSON Schema for validating job application submissions
         const dataFeedSchema = JSON.stringify({
