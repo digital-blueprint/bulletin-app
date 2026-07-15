@@ -364,12 +364,28 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                         contactPerson,
                     )}
                     ${this._renderCompanyMetaItem(t('company-form.field-phone-number'), phone)}
-                    ${this._renderCompanyMetaItem(t('company-form.field-email'), email)}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-email'),
+                        email
+                            ? html`
+                                  <a
+                                      class="meta-job-link"
+                                      href="mailto:${email}"
+                                      rel="noopener noreferrer">
+                                      ${email}
+                                  </a>
+                              `
+                            : '',
+                    )}
                     ${this._renderCompanyMetaItem(
                         t('company-form.field-url'),
                         website
                             ? html`
-                                  <a href="${website}" target="_blank" rel="noopener noreferrer">
+                                  <a
+                                      class="meta-job-link"
+                                      href="${website}"
+                                      target="_blank"
+                                      rel="noopener noreferrer">
                                       ${website}
                                   </a>
                               `
@@ -1212,7 +1228,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .job-description-wrapper {
                 gap: 2px;
-
                 display: flex;
                 flex-direction: column;
             }
@@ -1256,6 +1271,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin: 0 0 0.75rem 0;
             }
 
+            .company-info-block {
+                margin-top: 0.5rem;
+            }
+
             .company-info-list {
                 display: grid;
                 gap: 0.5rem 1rem;
@@ -1265,7 +1284,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .company-info-item {
                 display: grid;
-                gap: 0.15rem;
             }
 
             .company-info-item dt,
@@ -1276,19 +1294,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             .company-info-item dd,
             .company-info-block p {
                 margin: 0;
-            }
-
-            .company-info-block {
-                margin-top: 1rem;
-            }
-
-            .company-info-block h4 {
-                font-size: 1rem;
-                margin: 0 0 0.35rem 0;
-            }
-
-            .company-info-block p {
-                line-height: 1.6;
             }
 
             /* Contact information block */
