@@ -791,7 +791,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           </div>
                                       </div>
 
-                                      <div class="job-description">
+                                      <div>
                                           <div class="apply-submit-wrapper">
                                               <h3>${t('job-offer-detail.job-description')}</h3>
                                               <hr />
@@ -1197,6 +1197,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .job-description {
                 flex: 3;
+                padding: 10px 0;
             }
 
             h3 {
