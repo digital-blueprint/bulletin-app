@@ -21,6 +21,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         /** @type {boolean} Whether the share dropdown is open */
         this._shareDropdownOpen = false;
         this._onDocumentPointerDown = this._handleDocumentPointerDown.bind(this);
+        this.universityShortName = '';
     }
 
     static get scopedElements() {
@@ -37,6 +38,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             ...super.properties,
             job: {type: Object},
             _shareDropdownOpen: {state: true},
+            universityShortName: {type: String, attribute: 'university-short-name'},
         };
     }
 
@@ -574,12 +576,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
     }
     getOrganizationLabel(job) {
-        const i18n = this._i18n;
-        const t = (key) => (i18n ? i18n.t(key) : key);
-
-        return job.jobOfferType === 'internal'
-            ? `TU Graz ${t('view-job-offers.internal')}`
-            : (job.companyName ?? '');
+        return job.jobOfferType === 'internal' ? this.universityShortName : (job.companyName ?? '');
     }
 
     render() {

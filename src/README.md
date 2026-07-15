@@ -21,6 +21,8 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`
     - note: most often this should be an attribute that is not set directly, but subscribed at a provider
+- `university-short-name` (optional, default: `TUGraz`): the short name of the university to display internal job offers
+    - example `university-short-name="TUGraz"`
 
 #### Slots
 

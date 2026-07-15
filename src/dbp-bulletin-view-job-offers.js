@@ -55,6 +55,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loading = false;
         /** @type {boolean} Whether the API request failed */
         this._loadError = false;
+        this.universityShortName = '';
     }
 
     static get properties() {
@@ -68,6 +69,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             sortOrder: {type: String, state: true},
             currentPage: {type: Number, state: true},
             pageSize: {type: Number, state: true},
+            universityShortName: {type: String, attribute: 'university-short-name'},
             _selectedJob: {state: true},
             _jobOffers: {state: true},
             _loading: {state: true},
@@ -706,12 +708,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     getOrganizationLabel(job) {
-        const i18n = this._i18n;
-        const t = (key) => (i18n ? i18n.t(key) : key);
-
-        return job.jobOfferType === 'internal'
-            ? `TU Graz ${t('view-job-offers.internal')}`
-            : (job.companyName ?? '');
+        return job.jobOfferType === 'internal' ? this.universityShortName : (job.companyName ?? '');
     }
 
     render() {
@@ -1059,6 +1056,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     ${ref(this._detailRef)}
                     .job="${this._selectedJob}"
                     lang="${this.lang}"
+                    subscribe="university-short-name"
                     entry-point-url="${this.entryPointUrl}"
                     .auth="${this.auth}"
                     @dbp-modal-closed="${this.onDialogClosed}"></dbp-bulletin-job-offer-detail>

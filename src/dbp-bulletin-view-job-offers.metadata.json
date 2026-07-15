@@ -14,5 +14,5 @@
         "de": "Zeigt eine Liste aller verfügbaren Stellenangebote",
         "en": "Shows a list of available job offers"
     },
-    "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url"
+    "subscribe": "lang,entry-point-url,auth,html-overrides,base-path,routing-url,university-short-name"
 }
