@@ -11,6 +11,7 @@ import JobProfileModule, {
     JobProfileInterestFormElement,
     normalizeStudentStudies,
 } from './modules/studentProfileForm.js';
+import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
 
 class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -476,6 +477,19 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
+    _renderWorkLocations(profile) {
+        const labels = getWorkLocationLabels(
+            normalizeWorkLocations(profile?.additionalData?.workLocations),
+            (key, opts) => this._i18n.t(key, opts),
+            this.lang,
+        );
+        if (labels.length === 0) {
+            return '';
+        }
+
+        return this._renderList(labels);
+    }
+
     _renderProfileCard(profile) {
         const isOwnProfile = this._isOwnProfile(profile);
 
@@ -616,6 +630,16 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
                 ${this._renderStudiesSection(profile)}
+                ${
+                    normalizeWorkLocations(data.workLocations).length
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-locations')}</h3>
+                                  ${this._renderWorkLocations(profile)}
+                              </section>
+                          `
+                        : ''
+                }
 
                 <dl class="profile-meta">
                     ${this._renderMetaItem(

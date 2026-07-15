@@ -9,6 +9,7 @@ import JobProfileModule, {
     JobProfileInterestFormElement,
     normalizeStudentStudies,
 } from './modules/studentProfileForm.js';
+import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
 class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
@@ -235,6 +236,14 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         `;
     }
 
+    _getWorkLocationLabels(profile) {
+        return getWorkLocationLabels(
+            normalizeWorkLocations(profile?.additionalData?.workLocations),
+            (key, opts) => this._i18n.t(key, opts),
+            this.lang,
+        );
+    }
+
     _getTableData() {
         return this._profiles.map((profile) => {
             const data = profile.additionalData ?? {};
@@ -242,6 +251,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             return {
                 alias: this._getProfileAlias(profile),
                 studyProgram: formatStudentStudies(data),
+                workLocations: this._getWorkLocationLabels(profile).join(', '),
                 previousExperience: this._localized(
                     profile,
                     'previousExperience',
@@ -313,6 +323,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 {
                     title: t('browse-career-profiles.column-study-program'),
                     field: 'studyProgram',
+                    sorter: 'string',
+                    minWidth: 220,
+                },
+                {
+                    title: t('student-profile-form.field-locations'),
+                    field: 'workLocations',
                     sorter: 'string',
                     minWidth: 220,
                 },
@@ -443,6 +459,16 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
                 ${this._renderStudiesSection(profile)}
+                ${
+                    normalizeWorkLocations(data.workLocations).length
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-locations')}</h3>
+                                  ${this._renderList(this._getWorkLocationLabels(profile))}
+                              </section>
+                          `
+                        : ''
+                }
 
                 <dl class="profile-meta">
                     ${this._renderMetaItem(

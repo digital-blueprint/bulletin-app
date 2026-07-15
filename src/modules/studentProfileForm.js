@@ -13,6 +13,7 @@ import * as commonStyles from '@dbp-toolkit/common/styles';
 import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {createInstance} from '../i18n.js';
+import WorkLocationsElement, {normalizeWorkLocations} from './workLocationsElement.js';
 
 const i18n = createInstance();
 const STUDENT_PROFILE_FRONTEND_KEY = 'student-profile';
@@ -89,6 +90,7 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-contact-email');
     t('student-profile-form.field-languages');
     t('student-profile-form.field-languages-en');
+    t('student-profile-form.field-locations');
     t('student-profile-form.field-previous-experience');
     t('student-profile-form.field-previous-experience-description');
     t('student-profile-form.field-previous-experience-en');
@@ -200,6 +202,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             'dbp-date-element': DbpDateElement,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
+            'dbp-work-locations-element': WorkLocationsElement,
         };
     }
 
@@ -226,6 +229,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._personalInterestsEn = '';
         this._languagesText = '';
         this._languagesTextEn = '';
+        this._workLocations = [];
         this._availability = '';
         this._contactEmail = '';
         this._studentDataPrefillUserId = '';
@@ -257,6 +261,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _personalInterestsEn: {state: true},
             _languagesText: {state: true},
             _languagesTextEn: {state: true},
+            _workLocations: {state: true},
             _availability: {state: true},
             _contactEmail: {state: true},
             _website: {state: true},
@@ -292,6 +297,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._personalInterestsEn = data.personalInterestsEn || '';
                 this._languagesText = normalizeMultilineValue(data.languages);
                 this._languagesTextEn = normalizeMultilineValue(data.languagesEn);
+                this._workLocations = normalizeWorkLocations(data.workLocations);
                 this._availability = data.availability || '';
                 this._contactEmail = data.contactEmail || '';
                 this._website = data.website || data.linkUrl || '';
@@ -467,6 +473,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             personalInterestsEn: this._personalInterestsEn.trim(),
             languages: parseMultilineList(this._languagesText),
             languagesEn: parseMultilineList(this._languagesTextEn),
+            workLocations: normalizeWorkLocations(this._workLocations),
             availability: this._availability.trim(),
             contactEmail: this._contactEmail.trim(),
             website: this._website.trim(),
@@ -759,6 +766,16 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     {rows: 4},
                 )}
             </div>
+
+            <dbp-work-locations-element
+                lang="${this.lang}"
+                lang-dir="${this.langDir}"
+                label="${t('student-profile-form.field-locations')}"
+                .value="${this._workLocations}"
+                @change="${(event) =>
+                    (this._workLocations = normalizeWorkLocations(
+                        event.detail.value,
+                    ))}"></dbp-work-locations-element>
 
             <div class="translation-row">
                 ${this.renderDateField(
