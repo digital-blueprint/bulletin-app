@@ -14,5 +14,5 @@
         "de": "Ermöglicht das Verwalten von Stellenangeboten",
         "en": "Enables managing job offers"
     },
-    "subscribe": "lang,lang-dir,entry-point-url,auth,html-overrides,base-path,routing-url,allow-list-frontend-keys,hide-create-submission-button"
+    "subscribe": "lang,lang-dir,entry-point-url,auth,html-overrides,base-path,routing-url,allow-list-frontend-keys,hide-create-submission-button,enable-forms-bulk-delete"
 }
