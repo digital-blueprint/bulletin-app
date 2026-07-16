@@ -1057,6 +1057,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     .job="${this._selectedJob}"
                     lang="${this.lang}"
                     subscribe="university-short-name"
+                    .universityShortName="${this.universityShortName}"
                     entry-point-url="${this.entryPointUrl}"
                     .auth="${this.auth}"
                     @dbp-modal-closed="${this.onDialogClosed}"></dbp-bulletin-job-offer-detail>
