@@ -260,6 +260,25 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         `;
     }
 
+    _renderIndustriesSection(profile) {
+        const data = profile.additionalData ?? {};
+        if (data.openToAllIndustries) {
+            return html`
+                <section>
+                    <h3>${this._i18n.t('student-profile-form.field-industries')}</h3>
+                    <p>${this._i18n.t('student-profile-form.field-open-to-all-industries')}</p>
+                </section>
+            `;
+        }
+
+        return this._renderProfileSelectSection(
+            profile,
+            'student-profile-form.field-industries',
+            data.industries,
+            getStudentProfileIndustryLabels,
+        );
+    }
+
     _getTableData() {
         return this._profiles.map((profile) => {
             const data = profile.additionalData ?? {};
@@ -482,13 +501,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
-                ${this._renderStudiesSection(profile)}
-                ${this._renderProfileSelectSection(
-                    profile,
-                    'student-profile-form.field-industries',
-                    data.industries,
-                    getStudentProfileIndustryLabels,
-                )}
+                ${this._renderStudiesSection(profile)} ${this._renderIndustriesSection(profile)}
                 ${this._renderProfileSelectSection(
                     profile,
                     'student-profile-form.field-fields',

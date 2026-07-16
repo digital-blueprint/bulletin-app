@@ -250,6 +250,7 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-languages');
     t('student-profile-form.field-languages-en');
     t('student-profile-form.field-locations');
+    t('student-profile-form.field-open-to-all-industries');
     t('student-profile-form.field-industries');
     t('student-profile-form.field-fields');
     t('student-profile-form.field-select-placeholder');
@@ -459,6 +460,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._personalInterestsEn = '';
         this._languagesText = '';
         this._languagesTextEn = '';
+        this._openToAllIndustries = false;
         this._industries = [];
         this._fields = [];
         this._workLocations = [];
@@ -494,6 +496,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _personalInterestsEn: {state: true},
             _languagesText: {state: true},
             _languagesTextEn: {state: true},
+            _openToAllIndustries: {state: true},
             _industries: {state: true},
             _fields: {state: true},
             _workLocations: {state: true},
@@ -533,6 +536,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._personalInterestsEn = data.personalInterestsEn || '';
                 this._languagesText = normalizeMultilineValue(data.languages);
                 this._languagesTextEn = normalizeMultilineValue(data.languagesEn);
+                this._openToAllIndustries = Boolean(data.openToAllIndustries);
                 this._industries = normalizeStudentProfileSelectValues(data.industries);
                 this._fields = normalizeStudentProfileSelectValues(data.fields);
                 this._workLocations = normalizeWorkLocations(data.workLocations);
@@ -712,7 +716,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             personalInterestsEn: this._personalInterestsEn.trim(),
             languages: parseMultilineList(this._languagesText),
             languagesEn: parseMultilineList(this._languagesTextEn),
-            industries: normalizeStudentProfileSelectValues(this._industries),
+            openToAllIndustries: this._openToAllIndustries,
+            industries: this._openToAllIndustries
+                ? []
+                : normalizeStudentProfileSelectValues(this._industries),
             fields: normalizeStudentProfileSelectValues(this._fields),
             workLocations: normalizeWorkLocations(this._workLocations),
             availability: this._availability.trim(),
@@ -841,6 +848,20 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                         onChange(nextValue);
                     }
                 }}"></dbp-enum-element>
+        `;
+    }
+
+    renderCheckboxField(name, labelKey, value, onChange) {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        return html`
+            <label class="checkbox-field">
+                <input
+                    type="checkbox"
+                    name="${name}"
+                    .checked="${value}"
+                    @change="${(event) => onChange(event.target.checked)}" />
+                <span>${t(labelKey)}</span>
+            </label>
         `;
     }
 
@@ -1033,13 +1054,25 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             </div>
 
             <div class="translation-row">
-                ${this.renderMultiSelectField(
-                    'industries',
-                    'student-profile-form.field-industries',
-                    industryItems,
-                    this._industries,
-                    (value) => (this._industries = value),
-                )}
+                <div>
+                    ${this.renderCheckboxField(
+                        'openToAllIndustries',
+                        'student-profile-form.field-open-to-all-industries',
+                        this._openToAllIndustries,
+                        (value) => (this._openToAllIndustries = value),
+                    )}
+                    ${
+                        this._openToAllIndustries
+                            ? ''
+                            : this.renderMultiSelectField(
+                                  'industries',
+                                  'student-profile-form.field-industries',
+                                  industryItems,
+                                  this._industries,
+                                  (value) => (this._industries = value),
+                              )
+                    }
+                </div>
                 ${this.renderMultiSelectField(
                     'fields',
                     'student-profile-form.field-fields',
@@ -1150,6 +1183,17 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
 
                 .profile-prefill-info p {
                     margin: 0.5rem 0 0;
+                }
+
+                .checkbox-field {
+                    display: flex;
+                    gap: 0.5rem;
+                    align-items: flex-start;
+                    margin-bottom: 1rem;
+                }
+
+                .checkbox-field input {
+                    margin-top: 0.2rem;
                 }
 
                 .form-footer {
