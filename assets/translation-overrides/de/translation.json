@@ -4,12 +4,29 @@
             "edit-form-button": "Stellenangebot bearbeiten",
             "name": "Stellenbezeichnung",
             "open-forms": "Stellenangebote verwalten",
-            "no-submission-data-available": "Für diese Stelle sind noch keine Bewerbungen vorhanden."
+            "no-submission-data-available": "Für diese Stelle sind noch keine Bewerbungen vorhanden.",
+            "no-form-selected": "Kein Stellenangebot ausgewählt"
+        },
+        "errors": {
+            "no-form-id-provided": "Keine Stellenangebot-ID angegeben",
+            "forms-processing-failed_one": "{{count}} Stellenangebot konnte nicht verarbeitet werden",
+            "forms-processing-failed_other": "{{count}} Stellenangebote konnten nicht verarbeitet werden"
+        },
+        "success": {
+            "forms-processed_one": "{{count}} Stellenangebot wurde erfolgreich verarbeitet",
+            "forms-processed_other": "{{count}} Stellenangebote wurden erfolgreich verarbeitet"
         }
     },
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
-            "create-form-button": "Neues Stellenangebot erstellen"
+            "create-form-button": "Neues Stellenangebot erstellen",
+            "delete-selected-forms-button": "Ausgewählte Stellenangebote löschen"
+        }
+    },
+    "dbp-formalize-deletion-confirmation-modal": {
+        "manage-forms": {
+            "delete-forms-confirmation-message": "Sind Sie sicher, dass Sie die ausgewählten Stellenangebote löschen möchten?",
+            "delete-forms-confirmation-message-li2": "Gelöschte Stellenangebote werden für Sie und alle Mitwirkenden unwiderruflich verloren sein."
         }
     },
     "dbp-formalize-edit-form-dialog": {

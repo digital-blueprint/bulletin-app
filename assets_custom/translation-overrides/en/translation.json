@@ -4,12 +4,29 @@
             "edit-form-button": "Edit job offer",
             "name": "Position title",
             "open-forms": "Manage job offers",
-            "no-submission-data-available": "There are no job applications for this position yet."
+            "no-submission-data-available": "There are no job applications for this position yet.",
+            "no-form-selected": "No job offer selected"
+        },
+        "errors": {
+            "no-form-id-provided": "No job offer ID is provided",
+            "forms-processing-failed_one": "{{count}} job offer failed to be processed",
+            "forms-processing-failed_other": "{{count}} job offers failed to be processed"
+        },
+        "success": {
+            "forms-processed_one": "{{count}} job offer processed successfully",
+            "forms-processed_other": "{{count}} job offers processed successfully"
         }
     },
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
-            "create-form-button": "Create new job offer"
+            "create-form-button": "Create new job offer",
+            "delete-selected-forms-button": "Delete selected job offers"
+        }
+    },
+    "dbp-formalize-deletion-confirmation-modal": {
+        "manage-forms": {
+            "delete-forms-confirmation-message": "Are you sure you want to delete the selected job offer(s)?",
+            "delete-forms-confirmation-message-li2": "Deleted job offers will be permanently lost for you and all contributors."
         }
     },
     "dbp-formalize-edit-form-dialog": {

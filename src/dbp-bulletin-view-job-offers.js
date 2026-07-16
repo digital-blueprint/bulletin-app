@@ -1,10 +1,10 @@
-import {css, html, nothing, unsafeCSS} from 'lit';
+import {css, html} from 'lit';
 import {ref, createRef} from 'lit/directives/ref.js';
 import {repeat} from 'lit/directives/repeat.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {DBPSelect, Icon, MiniSpinner, getIconSVGURL} from '@dbp-toolkit/common';
+import {DBPSelect, Icon, MiniSpinner} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
@@ -19,8 +19,8 @@ import {
     normalizeWorkLocations,
 } from './modules/workLocationsElement.js';
 
-const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100];
-const DEFAULT_PAGE_SIZE = 10;
+// Number of job cards shown initially and appended each time the user scrolls to the end
+const INFINITE_SCROLL_BATCH_SIZE = 12;
 
 class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -41,8 +41,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.filterWeeklyHoursMin = '';
         this.filterWeeklyHoursMax = '';
         this.sortOrder = 'date-desc';
-        this.currentPage = 1;
-        this.pageSize = DEFAULT_PAGE_SIZE;
+        /** @type {number} Number of job cards currently rendered for the infinite scroll list */
+        this._visibleCount = INFINITE_SCROLL_BATCH_SIZE;
+        /** @type {import('lit/directives/ref.js').Ref} Sentinel element observed to trigger loading more */
+        this._sentinelRef = createRef();
+        /** @type {IntersectionObserver|null} Observer that appends more jobs when the sentinel is visible */
+        this._intersectionObserver = null;
         /** @type {object|null} Currently selected job offer shown in the detail dialog */
         this._selectedJob = null;
         /** @type {import('lit/directives/ref.js').Ref} Direct reference to the detail dialog element */
@@ -67,8 +71,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             filterWeeklyHoursMin: {type: String, state: true},
             filterWeeklyHoursMax: {type: String, state: true},
             sortOrder: {type: String, state: true},
-            currentPage: {type: Number, state: true},
-            pageSize: {type: Number, state: true},
+            _visibleCount: {type: Number, state: true},
             universityShortName: {type: String, attribute: 'university-short-name'},
             _selectedJob: {state: true},
             _jobOffers: {state: true},
@@ -95,6 +98,45 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     break;
             }
         });
+    }
+
+    updated(changedProperties) {
+        super.updated(changedProperties);
+        // (Re)attach the observer after each render so it always points at the
+        // current sentinel element, which is only present while more jobs remain.
+        this._observeSentinel();
+    }
+
+    disconnectedCallback() {
+        if (this._intersectionObserver) {
+            this._intersectionObserver.disconnect();
+            this._intersectionObserver = null;
+        }
+        super.disconnectedCallback();
+    }
+
+    /**
+     * Connects the IntersectionObserver to the sentinel element so scrolling to the
+     * bottom of the list appends the next batch of job cards.
+     */
+    _observeSentinel() {
+        if (!this._intersectionObserver) {
+            this._intersectionObserver = new IntersectionObserver(
+                (entries) => {
+                    if (entries.some((entry) => entry.isIntersecting)) {
+                        this._loadMore();
+                    }
+                },
+                {rootMargin: '200px'},
+            );
+        }
+
+        this._intersectionObserver.disconnect();
+
+        const sentinel = this._sentinelRef.value;
+        if (sentinel) {
+            this._intersectionObserver.observe(sentinel);
+        }
     }
 
     /**
@@ -654,18 +696,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     onSearchInput(e) {
         this.searchQuery = e.target.value;
         this._clearUnavailableAreaOfInterest();
-        this.currentPage = 1;
+        this._resetVisibleCount();
     }
 
     onAreaOfInterestChange(e) {
         this.filterAreaOfInterest = e.detail?.value ?? e.target.value;
-        this.currentPage = 1;
+        this._resetVisibleCount();
     }
 
     onWorkLocationChange(e) {
         this.filterWorkLocation = e.detail?.value ?? '';
         this._clearUnavailableAreaOfInterest();
-        this.currentPage = 1;
+        this._resetVisibleCount();
     }
 
     onWeeklyHoursMinChange(e) {
@@ -678,7 +720,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         this.filterWeeklyHoursMin = sanitizedValue;
         this._clearUnavailableAreaOfInterest();
-        this.currentPage = 1;
+        this._resetVisibleCount();
     }
 
     onWeeklyHoursMaxChange(e) {
@@ -690,21 +732,27 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         this.filterWeeklyHoursMax = sanitizedValue;
         this._clearUnavailableAreaOfInterest();
-        this.currentPage = 1;
+        this._resetVisibleCount();
     }
 
     onSortChange(e) {
         this.sortOrder = e.target.value;
-        this.currentPage = 1;
+        this._resetVisibleCount();
     }
 
-    onPageSizeChange(e) {
-        this.pageSize = Number(e.target.value);
-        this.currentPage = 1;
+    /**
+     * Resets the infinite-scroll list back to the first batch.
+     * Used whenever the filters or sorting change so the user starts at the top.
+     */
+    _resetVisibleCount() {
+        this._visibleCount = INFINITE_SCROLL_BATCH_SIZE;
     }
 
-    goToPage(page) {
-        this.currentPage = page;
+    /**
+     * Appends one more batch of job cards to the visible list.
+     */
+    _loadMore() {
+        this._visibleCount += INFINITE_SCROLL_BATCH_SIZE;
     }
 
     getOrganizationLabel(job) {
@@ -768,25 +816,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         const availableWorkLocations = this.getAvailableWorkLocations();
         const filtered = this.getFilteredJobs();
-        const totalPages = Math.max(1, Math.ceil(filtered.length / this.pageSize));
 
-        // Clamp current page within valid range
-        const page = Math.min(this.currentPage, totalPages);
-        const pageStart = (page - 1) * this.pageSize;
-        const pageJobs = filtered.slice(pageStart, pageStart + this.pageSize);
-
-        // Build the visible page-number window (at most 5 pages centred on current)
-        const windowSize = 2;
-        let rangeStart = Math.max(1, page - windowSize);
-        let rangeEnd = Math.min(totalPages, page + windowSize);
-        if (rangeEnd - rangeStart < windowSize * 2) {
-            rangeStart = Math.max(1, rangeEnd - windowSize * 2);
-            rangeEnd = Math.min(totalPages, rangeStart + windowSize * 2);
-        }
-        const pageNumbers = [];
-        for (let p = rangeStart; p <= rangeEnd; p++) {
-            pageNumbers.push(p);
-        }
+        // Infinite scroll: only render the first _visibleCount jobs; more are appended
+        // when the sentinel scrolls into view.
+        const visibleCount = Math.min(this._visibleCount, filtered.length);
+        const visibleJobs = filtered.slice(0, visibleCount);
+        const hasMore = visibleCount < filtered.length;
 
         return html`
             <div class="job-board">
@@ -910,7 +945,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         : html`
                               <div class="job-grid">
                                   ${repeat(
-                                      pageJobs,
+                                      visibleJobs,
                                       (job) => job.identifier,
                                       (job) => html`
                                           <div class="job-card">
@@ -966,86 +1001,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                           `
                 }
 
-                <!-- Pagination bar -->
+                <!-- Infinite scroll sentinel — loading more jobs when it enters the viewport -->
                 ${
-                    filtered.length > 0
+                    hasMore
                         ? html`
-                              <div class="pagination-bar">
-                                  <div class="page-size-wrapper">
-                                      <label class="label pagination-label" for="page-size">
-                                          ${t('view-job-offers.page-size')}
-                                      </label>
-                                      <div class="page-size-select-wrapper">
-                                          <select
-                                              id="page-size"
-                                              class="pagination-page-size"
-                                              @change="${this.onPageSizeChange}">
-                                              ${PAGE_SIZE_OPTIONS.map(
-                                                  (n) => html`
-                                                      <option
-                                                          value="${n}"
-                                                          ?selected="${this.pageSize === n}">
-                                                          ${n}
-                                                      </option>
-                                                  `,
-                                              )}
-                                          </select>
-                                      </div>
-                                  </div>
-
-                                  <div class="pagination-buttons">
-                                      <div class="pagination-nav-group">
-                                          <button
-                                              type="button"
-                                              class="button pagination-button"
-                                              ?disabled="${page <= 1}"
-                                              aria-label="${t('view-job-offers.pagination-first')}"
-                                              @click="${() => this.goToPage(1)}">
-                                              &lt;&lt;
-                                          </button>
-                                          <button
-                                              type="button"
-                                              class="button pagination-button pagination-button-compact"
-                                              ?disabled="${page <= 1}"
-                                              aria-label="${t('view-job-offers.pagination-prev')}"
-                                              @click="${() => this.goToPage(page - 1)}">
-                                              &lt;
-                                          </button>
-                                      </div>
-                                      <div class="pagination-pages-group">
-                                          ${pageNumbers.map(
-                                              (p) => html`
-                                                  <button
-                                                      type="button"
-                                                      class="button pagination-button pagination-page ${
-                                                          p === page ? 'is-active' : ''
-                                                      }"
-                                                      @click="${() => this.goToPage(p)}"
-                                                      aria-current="${p === page ? 'page' : nothing}">
-                                                      ${p}
-                                                  </button>
-                                              `,
-                                          )}
-                                      </div>
-                                      <div class="pagination-nav-group">
-                                          <button
-                                              type="button"
-                                              class="button pagination-button pagination-button-compact"
-                                              ?disabled="${page >= totalPages}"
-                                              aria-label="${t('view-job-offers.pagination-next')}"
-                                              @click="${() => this.goToPage(page + 1)}">
-                                              &gt;
-                                          </button>
-                                          <button
-                                              type="button"
-                                              class="button pagination-button"
-                                              ?disabled="${page >= totalPages}"
-                                              aria-label="${t('view-job-offers.pagination-last')}"
-                                              @click="${() => this.goToPage(totalPages)}">
-                                              &gt;&gt;
-                                          </button>
-                                      </div>
-                                  </div>
+                              <div class="infinite-scroll-sentinel" ${ref(this._sentinelRef)}>
+                                  <dbp-mini-spinner></dbp-mini-spinner>
+                                  <span>${t('view-job-offers.loading-more')}</span>
                               </div>
                           `
                         : ''
@@ -1371,175 +1333,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 color: var(--dbp-muted);
             }
 
-            /* Pagination bar */
-            .pagination-bar {
-                --pagination-control-height: 40px;
+            /* Infinite scroll sentinel — loading indicator shown while more jobs remain */
+            .infinite-scroll-sentinel {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-                padding: 0.5rem 0;
-                color: var(--dbp-content);
-            }
-
-            .page-size-wrapper {
-                display: flex;
-                align-items: center;
-                gap: 0;
-            }
-
-            .pagination-label {
-                margin-bottom: 0;
-                white-space: nowrap;
-                font-size: 1rem;
-                color: var(--dbp-content);
-                font-weight: 400;
-                padding-right: 14px;
-            }
-
-            .page-size-select-wrapper {
-                position: relative;
-                display: inline-flex;
-                align-items: center;
-            }
-
-            .page-size-select-wrapper::after {
-                content: '';
-                position: absolute;
-                right: 0.6rem;
-                width: 1rem;
-                height: 1rem;
-                pointer-events: none;
-                background-color: var(--dbp-content);
-                mask-image: url('${unsafeCSS(getIconSVGURL('chevron-down'))}');
-                -webkit-mask-image: url('${unsafeCSS(getIconSVGURL('chevron-down'))}');
-                mask-repeat: no-repeat;
-                -webkit-mask-repeat: no-repeat;
-                mask-position: center;
-                -webkit-mask-position: center;
-                mask-size: contain;
-                -webkit-mask-size: contain;
-            }
-
-            .pagination-page-size {
-                box-sizing: border-box;
-                width: auto;
-                min-height: var(--pagination-control-height);
-                padding: calc(0.5em - 1px) 1.95em calc(0.5em - 1px) 0.75em;
-                padding-left: 0.75em !important;
-                padding-right: 1.95em !important;
-                color: var(--dbp-content);
-                background-color: var(--dbp-background);
-                border: var(--dbp-border);
-                border-radius: var(--dbp-border-radius);
-                cursor: pointer;
-                appearance: none;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                background: none;
-                background-image: none !important;
-            }
-
-            .pagination-page-size  option {
-                background-color: var(--dbp-background);
-                color: var(--dbp-content);
-            }
-
-            .pagination-buttons {
-                display: flex;
-                align-items: center;
                 gap: 0.75rem;
-            }
-
-            .pagination-nav-group,
-            .pagination-pages-group {
-                display: flex;
-                align-items: center;
-            }
-
-            .pagination-nav-group {
-                gap: 0.25rem;
-            }
-
-            .pagination-button {
-                opacity: unset;
-                border-radius: var(--dbp-border-radius);
-                cursor: pointer;
-                padding: calc(0.375em - 1px) 0.75em;
-                text-align: center;
-                white-space: nowrap;
-                font-size: inherit;
-                font-weight: bolder;
-                font-family: inherit;
-                transition:
-                    all 0.15s ease 0s,
-                    color 0.15s ease 0s;
-                background: var(--dbp-secondary-surface);
-                color: var(--dbp-on-secondary-surface);
-                border-color: var(--dbp-secondary-surface-border-color);
-                height: var(--pagination-control-height);
-                min-width: var(--pagination-control-height);
-                min-height: var(--pagination-control-height);
-                box-sizing: border-box;
-                display: inline-flex;
-                justify-content: center;
-                align-items: center;
-                padding-top: 0;
-                padding-bottom: 0;
-                line-height: 1;
-            }
-
-            .pagination-button:hover:not([disabled]) {
-                background: var(--dbp-hover-background-color);
-                color: var(--dbp-hover-color, var(--dbp-on-secondary-surface));
-            }
-
-            .pagination-button[disabled] {
-                opacity: 0.45;
-                cursor: default;
-            }
-
-            .pagination-page {
-                min-width: var(--pagination-control-height);
-            }
-
-            .pagination-button-compact {
-                min-width: 2.25rem;
-                padding-left: 0.4rem;
-                padding-right: 0.4rem;
-            }
-
-            .pagination-page.is-active {
-                background: var(--dbp-selected);
-                color: var(--dbp-on-selected-surface);
-                border-color: var(--dbp-on-secondary-surface);
-            }
-
-            @media (max-width: 600px) {
-                .pagination-bar {
-                    justify-content: flex-start;
-                }
-
-                .pagination-label {
-                    display: none;
-                }
-
-                .pagination-buttons {
-                    gap: 0.375rem;
-                }
-
-                .pagination-nav-group {
-                    gap: 0.125rem;
-                }
-
-                .pagination-button {
-                    border: none;
-                }
-
-                .pagination-page-size {
-                    padding-right: 1.5em;
-                }
+                padding: 1.5rem 0;
+                color: var(--dbp-muted);
             }
         `;
     }

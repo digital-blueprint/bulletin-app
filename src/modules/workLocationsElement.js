@@ -470,6 +470,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         this.lang = this._i18n.language;
         this.langDir = '';
         this.value = [];
+        this.label = '';
         this.disabled = false;
         this.disabledButton = false;
         this._country = AUSTRIA_COUNTRY_CODE;
@@ -487,6 +488,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             lang: {type: String},
             langDir: {type: String, attribute: 'lang-dir'},
             value: {type: Array},
+            label: {type: String},
             disabled: {type: Boolean, reflect: true},
             disabledButton: {type: Boolean},
             _country: {state: true},
@@ -688,7 +690,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             <link rel="stylesheet" href="${select2CSS}" />
             <section class="work-locations">
                 <h4 class="field-label company-info-title">
-                    ${t('manage-job-offers.field-work-locations')}
+                    ${this.label || t('manage-job-offers.field-work-locations')}
                 </h4>
 
                 <div class="selector-stack">

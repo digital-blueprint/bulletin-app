@@ -1,7 +1,7 @@
 import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-object.js';
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
 import {css, html} from 'lit';
-import {DbpDateElement, DbpStringElement} from '@dbp-toolkit/form-elements';
+import {DbpDateElement, DbpEnumElement, DbpStringElement} from '@dbp-toolkit/form-elements';
 import {
     Button,
     Icon,
@@ -13,10 +13,12 @@ import * as commonStyles from '@dbp-toolkit/common/styles';
 import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {createInstance} from '../i18n.js';
+import WorkLocationsElement, {normalizeWorkLocations} from './workLocationsElement.js';
 
 const i18n = createInstance();
 const STUDENT_PROFILE_FRONTEND_KEY = 'student-profile';
 const STUDENT_PROFILE_DESCRIPTION_MAX_LENGTH = 2500;
+const STUDENT_PROFILE_TEASER_MAX_LENGTH = 100;
 
 const parseMultilineList = (value) =>
     String(value ?? '')
@@ -25,6 +27,164 @@ const parseMultilineList = (value) =>
         .filter(Boolean);
 
 const normalizeMultilineValue = (value) => (Array.isArray(value) ? value.join('\n') : value || '');
+
+const normalizeTeaserValue = (value) =>
+    String(value ?? '')
+        .slice(0, STUDENT_PROFILE_TEASER_MAX_LENGTH)
+        .trim();
+
+export const STUDENT_PROFILE_INDUSTRIES = {
+    'it-software': 'student-profile-form.industry-it-software',
+    'management-consulting': 'student-profile-form.industry-management-consulting',
+    'non-university-research': 'student-profile-form.industry-non-university-research',
+    'universities-higher-education': 'student-profile-form.industry-universities-higher-education',
+    'architecture-engineering-firms':
+        'student-profile-form.industry-architecture-engineering-firms',
+    'building-civil-construction': 'student-profile-form.industry-building-civil-construction',
+    'building-materials': 'student-profile-form.industry-building-materials',
+    'wood-furniture': 'student-profile-form.industry-wood-furniture',
+    'mechanical-engineering': 'student-profile-form.industry-mechanical-engineering',
+    automotive: 'student-profile-form.industry-automotive',
+    'rail-vehicles': 'student-profile-form.industry-rail-vehicles',
+    'metal-production-processing': 'student-profile-form.industry-metal-production-processing',
+    'metal-goods': 'student-profile-form.industry-metal-goods',
+    'plant-engineering-environmental-technology':
+        'student-profile-form.industry-plant-engineering-environmental-technology',
+    'paper-pulp-packaging': 'student-profile-form.industry-paper-pulp-packaging',
+    'mining-metallurgy': 'student-profile-form.industry-mining-metallurgy',
+    electronics: 'student-profile-form.industry-electronics',
+    'electrical-engineering': 'student-profile-form.industry-electrical-engineering',
+    'medical-technology': 'student-profile-form.industry-medical-technology',
+    'measurement-instruments': 'student-profile-form.industry-measurement-instruments',
+    telecommunications: 'student-profile-form.industry-telecommunications',
+    'energy-water-supply': 'student-profile-form.industry-energy-water-supply',
+    'chemicals-pharma': 'student-profile-form.industry-chemicals-pharma',
+    plastics: 'student-profile-form.industry-plastics',
+    'physics-chemistry-labs': 'student-profile-form.industry-physics-chemistry-labs',
+    'food-beverages': 'student-profile-form.industry-food-beverages',
+    'textiles-clothing-leather': 'student-profile-form.industry-textiles-clothing-leather',
+    'staffing-recruitment': 'student-profile-form.industry-staffing-recruitment',
+    'passenger-freight-transport': 'student-profile-form.industry-passenger-freight-transport',
+    'banking-insurance': 'student-profile-form.industry-banking-insurance',
+    'publishing-printing': 'student-profile-form.industry-publishing-printing',
+    advertising: 'student-profile-form.industry-advertising',
+    'retail-trade': 'student-profile-form.industry-retail-trade',
+    'agriculture-forestry': 'student-profile-form.industry-agriculture-forestry',
+    tourism: 'student-profile-form.industry-tourism',
+    'public-administration-healthcare':
+        'student-profile-form.industry-public-administration-healthcare',
+    'real-estate-rental': 'student-profile-form.industry-real-estate-rental',
+    'other-services': 'student-profile-form.industry-other-services',
+    'other-manufacturing': 'student-profile-form.industry-other-manufacturing',
+};
+
+export const STUDENT_PROFILE_FIELDS = {
+    'computer-science-sw-development-business':
+        'student-profile-form.field-study-computer-science-sw-development-business',
+    'information-and-computer-engineering':
+        'student-profile-form.field-study-information-and-computer-engineering',
+    architecture: 'student-profile-form.field-study-architecture',
+    'civil-engineering': 'student-profile-form.field-study-civil-engineering',
+    'business-construction': 'student-profile-form.field-study-business-construction',
+    'mechanical-engineering': 'student-profile-form.field-study-mechanical-engineering',
+    'business-mechanical-engineering':
+        'student-profile-form.field-study-business-mechanical-engineering',
+    'electrical-engineering-ee-business':
+        'student-profile-form.field-study-electrical-engineering-ee-business',
+    'technical-mathematics': 'student-profile-form.field-study-technical-mathematics',
+    'technical-physics': 'student-profile-form.field-study-technical-physics',
+    'surveying-geomatics': 'student-profile-form.field-study-surveying-geomatics',
+    'technical-chemistry': 'student-profile-form.field-study-technical-chemistry',
+    biosciences: 'student-profile-form.field-study-biosciences',
+    geosciences: 'student-profile-form.field-study-geosciences',
+    'process-engineering': 'student-profile-form.field-study-process-engineering',
+    'teacher-training': 'student-profile-form.field-study-teacher-training',
+    'bachelor-engineering-sciences':
+        'student-profile-form.field-study-bachelor-engineering-sciences',
+    'bachelor-natural-sciences': 'student-profile-form.field-study-bachelor-natural-sciences',
+    'completed-doctoral-studies': 'student-profile-form.field-study-completed-doctoral-studies',
+    'university-studies-general': 'student-profile-form.field-study-university-studies-general',
+    'advanced-materials-science': 'student-profile-form.field-study-advanced-materials-science',
+    'biomedical-engineering': 'student-profile-form.field-study-biomedical-engineering',
+    'environmental-systems-sciences-natural-sciences-technology':
+        'student-profile-form.field-study-environmental-systems-sciences-natural-sciences-technology',
+};
+
+const parseSelectValues = (value) => {
+    if (Array.isArray(value)) {
+        return value;
+    }
+
+    if (typeof value !== 'string') {
+        return value ? [value] : [];
+    }
+
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
+        return [];
+    }
+
+    if (trimmedValue.startsWith('[')) {
+        try {
+            const parsedValue = JSON.parse(trimmedValue);
+            return Array.isArray(parsedValue) ? parsedValue : [trimmedValue];
+        } catch {
+            return [trimmedValue];
+        }
+    }
+
+    return [trimmedValue];
+};
+
+export const normalizeStudentProfileSelectValues = (value) => [
+    ...new Set(
+        parseSelectValues(value)
+            .map((item) => String(item ?? '').trim())
+            .filter(Boolean),
+    ),
+];
+
+const areStringArraysEqual = (left, right) => {
+    if (left === right) {
+        return true;
+    }
+
+    if (!Array.isArray(left) || !Array.isArray(right) || left.length !== right.length) {
+        return false;
+    }
+
+    return left.every((value, index) => value === right[index]);
+};
+
+const getStudentProfileSelectLabel = (options, value, t) => {
+    const translationKey = options[value];
+    return translationKey ? t(translationKey) : value;
+};
+
+const getStudentProfileSelectItems = (options, t) =>
+    Object.fromEntries(
+        Object.keys(options).map((value) => [
+            value,
+            getStudentProfileSelectLabel(options, value, t),
+        ]),
+    );
+
+const getStudentProfileSelectLabels = (options, value, t) =>
+    normalizeStudentProfileSelectValues(value).map((item) =>
+        getStudentProfileSelectLabel(options, item, t),
+    );
+
+export const getStudentProfileIndustryItems = (t) =>
+    getStudentProfileSelectItems(STUDENT_PROFILE_INDUSTRIES, t);
+
+export const getStudentProfileIndustryLabels = (value, t) =>
+    getStudentProfileSelectLabels(STUDENT_PROFILE_INDUSTRIES, value, t);
+
+export const getStudentProfileFieldItems = (t) =>
+    getStudentProfileSelectItems(STUDENT_PROFILE_FIELDS, t);
+
+export const getStudentProfileFieldLabels = (value, t) =>
+    getStudentProfileSelectLabels(STUDENT_PROFILE_FIELDS, value, t);
 
 export const normalizeStudentStudies = (localData) => {
     const value =
@@ -89,13 +249,98 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-contact-email');
     t('student-profile-form.field-languages');
     t('student-profile-form.field-languages-en');
+    t('student-profile-form.field-locations');
+    t('student-profile-form.field-industries');
+    t('student-profile-form.field-fields');
+    t('student-profile-form.field-select-placeholder');
+    t('student-profile-form.field-study-advanced-materials-science');
+    t('student-profile-form.field-study-architecture');
+    t('student-profile-form.field-study-bachelor-engineering-sciences');
+    t('student-profile-form.field-study-bachelor-natural-sciences');
+    t('student-profile-form.field-study-biomedical-engineering');
+    t('student-profile-form.field-study-biosciences');
+    t('student-profile-form.field-study-business-construction');
+    t('student-profile-form.field-study-business-mechanical-engineering');
+    t('student-profile-form.field-study-civil-engineering');
+    t('student-profile-form.field-study-completed-doctoral-studies');
+    t('student-profile-form.field-study-computer-science-sw-development-business');
+    t('student-profile-form.field-study-electrical-engineering-ee-business');
+    t(
+        'student-profile-form.field-study-environmental-systems-sciences-natural-sciences-technology',
+    );
+    t('student-profile-form.field-study-geosciences');
+    t('student-profile-form.field-study-information-and-computer-engineering');
+    t('student-profile-form.field-study-mechanical-engineering');
+    t('student-profile-form.field-study-process-engineering');
+    t('student-profile-form.field-study-surveying-geomatics');
+    t('student-profile-form.field-study-teacher-training');
+    t('student-profile-form.field-study-technical-chemistry');
+    t('student-profile-form.field-study-technical-mathematics');
+    t('student-profile-form.field-study-technical-physics');
+    t('student-profile-form.field-study-university-studies-general');
+    t('student-profile-form.industry-advertising');
+    t('student-profile-form.industry-agriculture-forestry');
+    t('student-profile-form.industry-architecture-engineering-firms');
+    t('student-profile-form.industry-automotive');
+    t('student-profile-form.industry-banking-insurance');
+    t('student-profile-form.industry-building-civil-construction');
+    t('student-profile-form.industry-building-materials');
+    t('student-profile-form.industry-chemicals-pharma');
+    t('student-profile-form.industry-electrical-engineering');
+    t('student-profile-form.industry-electronics');
+    t('student-profile-form.industry-energy-water-supply');
+    t('student-profile-form.industry-food-beverages');
+    t('student-profile-form.industry-it-software');
+    t('student-profile-form.industry-management-consulting');
+    t('student-profile-form.industry-measurement-instruments');
+    t('student-profile-form.industry-mechanical-engineering');
+    t('student-profile-form.industry-medical-technology');
+    t('student-profile-form.industry-metal-goods');
+    t('student-profile-form.industry-metal-production-processing');
+    t('student-profile-form.industry-mining-metallurgy');
+    t('student-profile-form.industry-non-university-research');
+    t('student-profile-form.industry-other-manufacturing');
+    t('student-profile-form.industry-other-services');
+    t('student-profile-form.industry-paper-pulp-packaging');
+    t('student-profile-form.industry-passenger-freight-transport');
+    t('student-profile-form.industry-physics-chemistry-labs');
+    t('student-profile-form.industry-plant-engineering-environmental-technology');
+    t('student-profile-form.industry-plastics');
+    t('student-profile-form.industry-public-administration-healthcare');
+    t('student-profile-form.industry-publishing-printing');
+    t('student-profile-form.industry-rail-vehicles');
+    t('student-profile-form.industry-real-estate-rental');
+    t('student-profile-form.industry-retail-trade');
+    t('student-profile-form.industry-staffing-recruitment');
+    t('student-profile-form.industry-telecommunications');
+    t('student-profile-form.industry-textiles-clothing-leather');
+    t('student-profile-form.industry-tourism');
+    t('student-profile-form.industry-universities-higher-education');
+    t('student-profile-form.industry-wood-furniture');
     t('student-profile-form.field-previous-experience');
+    t('student-profile-form.field-previous-experience-description');
     t('student-profile-form.field-previous-experience-en');
+    t('student-profile-form.field-previous-experience-en-description');
+    t('student-profile-form.field-personal-interests');
+    t('student-profile-form.field-personal-interests-description');
+    t('student-profile-form.field-personal-interests-en');
+    t('student-profile-form.field-personal-interests-en-description');
     t('student-profile-form.field-profile-summary');
     t('student-profile-form.field-profile-summary-en');
+    t('student-profile-form.field-qualification');
+    t('student-profile-form.field-qualification-description');
+    t('student-profile-form.field-qualification-en');
+    t('student-profile-form.field-qualification-en-description');
+    t('student-profile-form.field-qualification-view-mode');
     t('student-profile-form.field-skills');
+    t('student-profile-form.field-skills-description');
     t('student-profile-form.field-skills-en');
+    t('student-profile-form.field-skills-en-description');
     t('student-profile-form.field-study-program');
+    t('student-profile-form.field-teaser-description');
+    t('student-profile-form.field-teaser-placeholder');
+    t('student-profile-form.field-teaser-title');
+    t('student-profile-form.field-text-placeholder');
     t('student-profile-form.field-website');
     t('student-profile-form.field-website-identity-warning');
     t('student-profile-form.field-website-placeholder');
@@ -183,9 +428,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
     static get scopedElements() {
         return {
             'dbp-string-element': DbpStringElement,
+            'dbp-enum-element': DbpEnumElement,
             'dbp-date-element': DbpDateElement,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
+            'dbp-work-locations-element': WorkLocationsElement,
         };
     }
 
@@ -206,12 +453,20 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._previousExperienceEn = '';
         this._skillsText = '';
         this._skillsTextEn = '';
+        this._furtherQualifications = '';
+        this._furtherQualificationsEn = '';
+        this._personalInterests = '';
+        this._personalInterestsEn = '';
         this._languagesText = '';
         this._languagesTextEn = '';
+        this._industries = [];
+        this._fields = [];
+        this._workLocations = [];
         this._availability = '';
         this._contactEmail = '';
         this._studentDataPrefillUserId = '';
         this._website = '';
+        this._teaser = '';
         this._loadingStudentData = false;
         this._isSubmitting = false;
     }
@@ -233,11 +488,19 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _previousExperienceEn: {state: true},
             _skillsText: {state: true},
             _skillsTextEn: {state: true},
+            _furtherQualifications: {state: true},
+            _furtherQualificationsEn: {state: true},
+            _personalInterests: {state: true},
+            _personalInterestsEn: {state: true},
             _languagesText: {state: true},
             _languagesTextEn: {state: true},
+            _industries: {state: true},
+            _fields: {state: true},
+            _workLocations: {state: true},
             _availability: {state: true},
             _contactEmail: {state: true},
             _website: {state: true},
+            _teaser: {state: true},
             _loadingStudentData: {state: true},
             _isSubmitting: {state: true},
         };
@@ -264,11 +527,19 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._previousExperienceEn = data.previousExperienceEn || '';
                 this._skillsText = normalizeMultilineValue(data.skills);
                 this._skillsTextEn = normalizeMultilineValue(data.skillsEn);
+                this._furtherQualifications = data.furtherQualifications || '';
+                this._furtherQualificationsEn = data.furtherQualificationsEn || '';
+                this._personalInterests = data.personalInterests || '';
+                this._personalInterestsEn = data.personalInterestsEn || '';
                 this._languagesText = normalizeMultilineValue(data.languages);
                 this._languagesTextEn = normalizeMultilineValue(data.languagesEn);
+                this._industries = normalizeStudentProfileSelectValues(data.industries);
+                this._fields = normalizeStudentProfileSelectValues(data.fields);
+                this._workLocations = normalizeWorkLocations(data.workLocations);
                 this._availability = data.availability || '';
                 this._contactEmail = data.contactEmail || '';
                 this._website = data.website || data.linkUrl || '';
+                this._teaser = normalizeTeaserValue(data.teaser);
             }
 
             if (
@@ -435,11 +706,19 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             previousExperienceEn: this._previousExperienceEn.trim(),
             skills: parseMultilineList(this._skillsText),
             skillsEn: parseMultilineList(this._skillsTextEn),
+            furtherQualifications: this._furtherQualifications.trim(),
+            furtherQualificationsEn: this._furtherQualificationsEn.trim(),
+            personalInterests: this._personalInterests.trim(),
+            personalInterestsEn: this._personalInterestsEn.trim(),
             languages: parseMultilineList(this._languagesText),
             languagesEn: parseMultilineList(this._languagesTextEn),
+            industries: normalizeStudentProfileSelectValues(this._industries),
+            fields: normalizeStudentProfileSelectValues(this._fields),
+            workLocations: normalizeWorkLocations(this._workLocations),
             availability: this._availability.trim(),
             contactEmail: this._contactEmail.trim(),
             website: this._website.trim(),
+            teaser: normalizeTeaserValue(this._teaser),
             studentCreatorId: this.auth?.['user-id'] || '',
             studentPersonIdentifier: this.auth?.person_id || '',
         };
@@ -544,10 +823,33 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         `;
     }
 
+    renderMultiSelectField(name, labelKey, items, value, onChange) {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        return html`
+            <dbp-enum-element
+                name="${name}"
+                lang="${this.lang}"
+                label="${t(labelKey)}"
+                multiple
+                display-mode="tags"
+                .tagPlaceholder="${{[this.lang]: t('student-profile-form.field-select-placeholder')}}"
+                .items="${items}"
+                .value="${value}"
+                @change="${(event) => {
+                    const nextValue = normalizeStudentProfileSelectValues(event.detail.value);
+                    if (!areStringArraysEqual(value, nextValue)) {
+                        onChange(nextValue);
+                    }
+                }}"></dbp-enum-element>
+        `;
+    }
+
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const studies = this._getDisplayStudies();
         const studyProgram = studies.length ? formatStudentStudies({studies}) : this._studyProgram;
+        const industryItems = getStudentProfileIndustryItems(t);
+        const fieldItems = getStudentProfileFieldItems(t);
         keepStudentProfileTranslations(t);
 
         return html`
@@ -616,14 +918,24 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     'student-profile-form.field-previous-experience',
                     this._previousExperience,
                     (value) => (this._previousExperience = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey:
+                            'student-profile-form.field-previous-experience-description',
+                    },
                 )}
                 ${this.renderTextField(
                     'previousExperienceEn',
                     'student-profile-form.field-previous-experience-en',
                     this._previousExperienceEn,
                     (value) => (this._previousExperienceEn = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey:
+                            'student-profile-form.field-previous-experience-en-description',
+                    },
                 )}
             </div>
 
@@ -633,14 +945,73 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     'student-profile-form.field-skills',
                     this._skillsText,
                     (value) => (this._skillsText = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-skills-description',
+                    },
                 )}
                 ${this.renderTextField(
                     'skillsEn',
                     'student-profile-form.field-skills-en',
                     this._skillsTextEn,
                     (value) => (this._skillsTextEn = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-skills-en-description',
+                    },
+                )}
+            </div>
+
+            <div class="translation-row">
+                ${this.renderTextField(
+                    'furtherQualifications',
+                    'student-profile-form.field-qualification',
+                    this._furtherQualifications,
+                    (value) => (this._furtherQualifications = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-qualification-description',
+                    },
+                )}
+                ${this.renderTextField(
+                    'furtherQualificationsEn',
+                    'student-profile-form.field-qualification-en',
+                    this._furtherQualificationsEn,
+                    (value) => (this._furtherQualificationsEn = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-qualification-en-description',
+                    },
+                )}
+            </div>
+
+            <div class="translation-row">
+                ${this.renderTextField(
+                    'personalInterests',
+                    'student-profile-form.field-personal-interests',
+                    this._personalInterests,
+                    (value) => (this._personalInterests = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey: 'student-profile-form.field-personal-interests-description',
+                    },
+                )}
+                ${this.renderTextField(
+                    'personalInterestsEn',
+                    'student-profile-form.field-personal-interests-en',
+                    this._personalInterestsEn,
+                    (value) => (this._personalInterestsEn = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'student-profile-form.field-text-placeholder',
+                        descriptionKey:
+                            'student-profile-form.field-personal-interests-en-description',
+                    },
                 )}
             </div>
 
@@ -662,6 +1033,33 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             </div>
 
             <div class="translation-row">
+                ${this.renderMultiSelectField(
+                    'industries',
+                    'student-profile-form.field-industries',
+                    industryItems,
+                    this._industries,
+                    (value) => (this._industries = value),
+                )}
+                ${this.renderMultiSelectField(
+                    'fields',
+                    'student-profile-form.field-fields',
+                    fieldItems,
+                    this._fields,
+                    (value) => (this._fields = value),
+                )}
+            </div>
+
+            <dbp-work-locations-element
+                lang="${this.lang}"
+                lang-dir="${this.langDir}"
+                label="${t('student-profile-form.field-locations')}"
+                .value="${this._workLocations}"
+                @change="${(event) =>
+                    (this._workLocations = normalizeWorkLocations(
+                        event.detail.value,
+                    ))}"></dbp-work-locations-element>
+
+            <div class="translation-row">
                 ${this.renderDateField(
                     'availability',
                     'student-profile-form.field-availability',
@@ -680,6 +1078,19 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     },
                 )}
             </div>
+
+            ${this.renderTextField(
+                'teaser',
+                'student-profile-form.field-teaser-title',
+                this._teaser,
+                (value) => (this._teaser = normalizeTeaserValue(value)),
+                {
+                    rows: 4,
+                    maxlength: STUDENT_PROFILE_TEASER_MAX_LENGTH,
+                    placeholderKey: 'student-profile-form.field-teaser-placeholder',
+                    descriptionKey: 'student-profile-form.field-teaser-description',
+                },
+            )}
 
             <div class="form-footer">
                 <button

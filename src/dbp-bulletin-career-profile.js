@@ -9,8 +9,11 @@ import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import JobProfileModule, {
     JobProfileEditFormElement,
     JobProfileInterestFormElement,
+    getStudentProfileFieldLabels,
+    getStudentProfileIndustryLabels,
     normalizeStudentStudies,
 } from './modules/studentProfileForm.js';
+import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
 
 class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -476,6 +479,33 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
+    _renderWorkLocations(profile) {
+        const labels = getWorkLocationLabels(
+            normalizeWorkLocations(profile?.additionalData?.workLocations),
+            (key, opts) => this._i18n.t(key, opts),
+            this.lang,
+        );
+        if (labels.length === 0) {
+            return '';
+        }
+
+        return this._renderList(labels);
+    }
+
+    _renderProfileSelectSection(profile, labelKey, values, getLabels) {
+        const labels = getLabels(values, (key, opts) => this._i18n.t(key, opts));
+        if (labels.length === 0) {
+            return '';
+        }
+
+        return html`
+            <section>
+                <h3>${this._i18n.t(labelKey)}</h3>
+                ${this._renderList(labels)}
+            </section>
+        `;
+    }
+
     _renderProfileCard(profile) {
         const isOwnProfile = this._isOwnProfile(profile);
 
@@ -589,6 +619,16 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         );
         const skills = this._localizedList(profile, 'skills', 'skillsEn');
         const languages = this._localizedList(profile, 'languages', 'languagesEn');
+        const furtherQualifications = this._localized(
+            profile,
+            'furtherQualifications',
+            'furtherQualificationsEn',
+        );
+        const personalInterests = this._localized(
+            profile,
+            'personalInterests',
+            'personalInterestsEn',
+        );
 
         return html`
             <span class="back-navigation">
@@ -603,9 +643,39 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <h2>${t('career-profile.own-profile-title')}</h2>
                 </header>
 
+                ${
+                    data.teaser
+                        ? html`
+                              <p class="profile-teaser">${data.teaser}</p>
+                          `
+                        : ''
+                }
+
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
                 ${this._renderStudiesSection(profile)}
+                ${this._renderProfileSelectSection(
+                    profile,
+                    'student-profile-form.field-industries',
+                    data.industries,
+                    getStudentProfileIndustryLabels,
+                )}
+                ${this._renderProfileSelectSection(
+                    profile,
+                    'student-profile-form.field-fields',
+                    data.fields,
+                    getStudentProfileFieldLabels,
+                )}
+                ${
+                    normalizeWorkLocations(data.workLocations).length
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-locations')}</h3>
+                                  ${this._renderWorkLocations(profile)}
+                              </section>
+                          `
+                        : ''
+                }
 
                 <dl class="profile-meta">
                     ${this._renderMetaItem(
@@ -645,6 +715,28 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                               <section>
                                   <h3>${t('student-profile-form.field-skills')}</h3>
                                   ${this._renderList(skills)}
+                              </section>
+                          `
+                        : ''
+                }
+                ${
+                    furtherQualifications
+                        ? html`
+                              <section>
+                                  <h3>
+                                      ${t('student-profile-form.field-qualification-view-mode')}
+                                  </h3>
+                                  <p>${furtherQualifications}</p>
+                              </section>
+                          `
+                        : ''
+                }
+                ${
+                    personalInterests
+                        ? html`
+                              <section>
+                                  <h3>${t('student-profile-form.field-personal-interests')}</h3>
+                                  <p>${personalInterests}</p>
                               </section>
                           `
                         : ''
@@ -974,6 +1066,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .summary {
                 line-height: 1.55;
+            }
+
+            .profile-teaser {
+                font-size: 1.25rem;
+                font-weight: 700;
+                line-height: 1.5;
+                margin: 0 0 1rem 0;
             }
 
             .profile-meta {

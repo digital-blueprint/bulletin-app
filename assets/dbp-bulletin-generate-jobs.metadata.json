@@ -1,0 +1,19 @@
+{
+    "element": "dbp-bulletin-generate-jobs",
+    "module_src": "dbp-bulletin-generate-jobs.js",
+    "routing_name": "generate-jobs",
+    "required_roles": ["ROLE_BULLETIN_ADMIN"],
+    "name": {
+        "de": "Stellenangebote generieren",
+        "en": "Generate job offers"
+    },
+    "short_name": {
+        "de": "Stellenangebote generieren",
+        "en": "Generate job offers"
+    },
+    "description": {
+        "de": "Erzeugt zufällige Stellenangebote zu Testzwecken.",
+        "en": "Generates random job offers for testing purposes."
+    },
+    "subscribe": "lang,entry-point-url,auth,base-path"
+}
