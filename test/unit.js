@@ -93,6 +93,43 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             ['matching-job'],
         );
     });
+
+    test('should open a deep-linked job after loading job offers', async () => {
+        const element = document.createElement('dbp-bulletin-view-job-offers');
+        const originalFetch = globalThis.fetch;
+        let openedJob = null;
+
+        element._i18n = {t: (key) => key};
+        element.auth = {token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        element.routingUrl = 'job/deep-job';
+        element.openJobDialog = (job) => {
+            openedJob = job;
+        };
+        globalThis.fetch = async () => ({
+            ok: true,
+            json: async () => ({
+                'hydra:member': [
+                    {
+                        identifier: 'deep-job',
+                        name: 'Deep linked job',
+                        additionalData: {
+                            deadline: '2030-01-01',
+                            areasOfInterest: ['it'],
+                        },
+                    },
+                ],
+            }),
+        });
+
+        try {
+            await element._fetchJobOffers();
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.equal(openedJob?.identifier, 'deep-job');
+    });
 });
 
 suite('dbp-bulletin app shell', () => {

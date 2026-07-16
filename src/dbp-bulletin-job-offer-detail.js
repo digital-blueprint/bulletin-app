@@ -53,9 +53,17 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /** Opens the modal dialog. */
-    open() {
+    async open() {
+        await this.updateComplete;
         const modal = this.shadowRoot?.querySelector('dbp-modal');
-        if (modal) {
+
+        if (!modal) {
+            return;
+        }
+
+        await modal.updateComplete;
+
+        if (modal.modalDialog) {
             modal.open();
         }
     }
@@ -64,7 +72,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     close() {
         this._shareDropdownOpen = false;
         const modal = this.shadowRoot?.querySelector('dbp-modal');
-        if (modal) {
+        if (modal?.modalDialog) {
             modal.close();
         }
     }

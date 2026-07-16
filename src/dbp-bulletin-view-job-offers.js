@@ -151,6 +151,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         this._loading = true;
         this._loadError = false;
+        let jobOffersLoaded = false;
 
         const frontendKey = new JobOfferModule().getFormFrontendKey();
         const url =
@@ -260,11 +261,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .filter((job) => this._isDeadlineVisible(job.deadline));
             this._clearUnavailableAreaOfInterest();
             await this._loadAndApplyLocalizedOrganizationNames();
+            jobOffersLoaded = true;
         } catch (error) {
             console.error('Error loading job offers:', error);
             this._loadError = true;
         } finally {
             this._loading = false;
+        }
+
+        if (jobOffersLoaded) {
+            this.handleRoutingUrlChange();
         }
     }
 
