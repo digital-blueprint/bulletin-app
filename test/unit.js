@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 
 import '../src/dbp-bulletin-view-job-offers';
-import '../src/dbp-bulletin.js';
+import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import {
     JobOfferFormElement,
     hasSubmissionCheckContextChanged,
@@ -92,6 +92,22 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             node.getFilteredJobs().map((job) => job.identifier),
             ['matching-job'],
         );
+    });
+});
+
+suite('dbp-bulletin app shell', () => {
+    test('should enable the sticky footer for the job offers view', async () => {
+        const element = new BulletinAppShell();
+
+        element.activeView = 'view-job-offers';
+        element._updateStickyFooterState();
+
+        assert.isTrue(element.classList.contains('sticky-footer-active'));
+
+        element.activeView = 'welcome';
+        element._updateStickyFooterState();
+
+        assert.isFalse(element.classList.contains('sticky-footer-active'));
     });
 });
 
