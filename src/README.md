@@ -92,9 +92,9 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 You use template tags to inject slots into the activity.
 These templates will be converted to div containers when the page is loaded and will not show up before that.
 
-### dbp-bulletin-generate-student-profiles
+### dbp-bulletin-generate-career-profiles
 
-Generates random student profiles for testing purposes. This activity requires the `ROLE_BULLETIN_ADMIN` role.
+Generates random career profiles for testing purposes. This activity requires the `ROLE_BULLETIN_ADMIN` role.
 
 Note that you will need a Keycloak server along with a client ID for the domain you are running this HTML on.
 

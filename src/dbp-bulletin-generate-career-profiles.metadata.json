@@ -1,0 +1,19 @@
+{
+    "element": "dbp-bulletin-generate-career-profiles",
+    "module_src": "dbp-bulletin-generate-career-profiles.js",
+    "routing_name": "generate-career-profiles",
+    "required_roles": ["ROLE_BULLETIN_ADMIN"],
+    "name": {
+        "de": "Karriereprofile generieren",
+        "en": "Generate career profiles"
+    },
+    "short_name": {
+        "de": "Karriereprofile generieren",
+        "en": "Generate career profiles"
+    },
+    "description": {
+        "de": "Erzeugt zufällige Karriereprofile zu Testzwecken.",
+        "en": "Generates random career profiles for testing purposes."
+    },
+    "subscribe": "lang,entry-point-url,auth,base-path"
+}

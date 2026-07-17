@@ -193,6 +193,25 @@
     "errors": {
         "error-title": "Fehler"
     },
+    "generate-career-profiles": {
+        "count-description": "Wählen Sie, wie viele zufällige Karriereprofile erstellt werden sollen.",
+        "count-label": "Anzahl der zu generierenden Karriereprofile",
+        "created-title_one": "Erstelltes Karriereprofil ({{count}})",
+        "created-title_other": "Erstellte Karriereprofile ({{count}})",
+        "description": "Erstellt zufällige Karriereprofile, damit mehr Einträge auf der Seite „Karriereprofile durchsuchen“ angezeigt werden.",
+        "error-not-authorized": "Nur Entwickler*innen können Karriereprofile generieren.",
+        "error-not-ready": "Die Generierung kann erst starten, wenn Login und API-Konfiguration verfügbar sind.",
+        "error-title": "Fehler",
+        "finished-body": "Erstellt: {{created}}, Fehler: {{errors}}.",
+        "finished-title": "Generierung abgeschlossen",
+        "generate-button": "Karriereprofile generieren",
+        "generating": "Generiere...",
+        "not-authorized": "Diese Aktivität ist nur für Entwickler*innen sichtbar.",
+        "report-title": "Generierungsbericht",
+        "summary-created": "Erstellt",
+        "summary-errors": "Fehler",
+        "title": "Karriereprofile generieren"
+    },
     "generate-jobs": {
         "count-description": "Wählen Sie, wie viele zufällige Stellenangebote erstellt werden sollen.",
         "count-label": "Anzahl der zu generierenden Stellenangebote",
@@ -216,25 +235,6 @@
         "summary-created": "Erstellt",
         "summary-errors": "Fehler",
         "title": "Stellenangebote generieren"
-    },
-    "generate-student-profiles": {
-        "count-description": "Wählen Sie, wie viele zufällige Studentenprofile erstellt werden sollen.",
-        "count-label": "Anzahl der zu generierenden Studentenprofile",
-        "created-title_one": "Erstelltes Studentenprofil ({{count}})",
-        "created-title_other": "Erstellte Studentenprofile ({{count}})",
-        "description": "Erstellt zufällige Studentenprofile, damit mehr Einträge auf der Seite „Karriereprofile durchsuchen“ angezeigt werden.",
-        "error-not-authorized": "Nur Entwickler*innen können Studentenprofile generieren.",
-        "error-not-ready": "Die Generierung kann erst starten, wenn Login und API-Konfiguration verfügbar sind.",
-        "error-title": "Fehler",
-        "finished-body": "Erstellt: {{created}}, Fehler: {{errors}}.",
-        "finished-title": "Generierung abgeschlossen",
-        "generate-button": "Studentenprofile generieren",
-        "generating": "Generiere...",
-        "not-authorized": "Diese Aktivität ist nur für Entwickler*innen sichtbar.",
-        "report-title": "Generierungsbericht",
-        "summary-created": "Erstellt",
-        "summary-errors": "Fehler",
-        "title": "Studentenprofile generieren"
     },
     "import-companies": {
         "description": "Wählen Sie die exportierte Firmen-CSV-Datei aus und importieren Sie die Zeilen als Firmen. Vorhandene Firmen mit demselben Namen werden übersprungen.",

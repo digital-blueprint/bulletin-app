@@ -133,7 +133,7 @@ const randomSubset = (items, max) => {
 // Formats a Date as an ISO date string (YYYY-MM-DD).
 const toIsoDate = (date) => date.toISOString().split('T')[0];
 
-class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
+class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
             'dbp-button': Button,
@@ -161,8 +161,8 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
         return (this.auth?._roles ?? []).includes(BULLETIN_ADMIN_ROLE);
     }
 
-    // Builds a single random student-profile form payload compatible with /formalize/forms.
-    _buildRandomStudentProfile(index) {
+    // Builds a single random career-profile form payload compatible with /formalize/forms.
+    _buildRandomCareerProfile(index) {
         const module = new JobProfileModule();
         const uniqueSuffix = `#${Date.now().toString().slice(-5)}-${index + 1}`;
         const studies = randomSubset(SAMPLE_STUDIES, 2).map((name) => ({name}));
@@ -203,8 +203,8 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
             fields: randomSubset(Object.keys(STUDENT_PROFILE_FIELDS), 3),
             workLocations: randomSubset(SAMPLE_WORK_LOCATIONS, 2),
             availability,
-            contactEmail: `student-profile-${Date.now()}-${index + 1}@example.org`,
-            website: `https://profiles.example.org/student-${Date.now()}-${index + 1}`,
+            contactEmail: `career-profile-${Date.now()}-${index + 1}@example.org`,
+            website: `https://profiles.example.org/career-${Date.now()}-${index + 1}`,
             teaser: SAMPLE_SUMMARIES_DE[summaryIndex].slice(0, 100).trim(),
             studentCreatorId: `generated-student-${Date.now()}-${index + 1}`,
             studentPersonIdentifier: '',
@@ -232,13 +232,13 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
             frontendKey: module.getFormFrontendKey(),
             additionalData,
             dataFeedSchema,
-            // Each company can signal interest only once per student profile.
+            // Each company can signal interest only once per career profile.
             maxNumSubmissionsPerCreator: 1,
         };
     }
 
-    // Creates a single student profile form via POST /formalize/forms.
-    async _createStudentProfileForm(formData) {
+    // Creates a single career profile form via POST /formalize/forms.
+    async _createCareerProfileForm(formData) {
         const body = {
             name: formData.name,
             localizedNames: formData.localizedNames,
@@ -267,8 +267,8 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
 
         if (!this._isDeveloper) {
             sendNotification({
-                summary: this._i18n.t('generate-student-profiles.error-title'),
-                body: this._i18n.t('generate-student-profiles.error-not-authorized'),
+                summary: this._i18n.t('generate-career-profiles.error-title'),
+                body: this._i18n.t('generate-career-profiles.error-not-authorized'),
                 type: 'danger',
                 timeout: 0,
             });
@@ -277,8 +277,8 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
 
         if (!this.auth?.token || !this.entryPointUrl) {
             sendNotification({
-                summary: this._i18n.t('generate-student-profiles.error-title'),
-                body: this._i18n.t('generate-student-profiles.error-not-ready'),
+                summary: this._i18n.t('generate-career-profiles.error-title'),
+                body: this._i18n.t('generate-career-profiles.error-not-ready'),
                 type: 'danger',
                 timeout: 0,
             });
@@ -292,16 +292,16 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
         const report = {created: [], errors: []};
 
         await commonUtils.asyncArrayForEach(Array.from({length: count}), async (_value, index) => {
-            const formData = this._buildRandomStudentProfile(index);
+            const formData = this._buildRandomCareerProfile(index);
             try {
-                const created = await this._createStudentProfileForm(formData);
+                const created = await this._createCareerProfileForm(formData);
                 if (created) {
                     report.created.push(formData.name);
                 } else {
                     report.errors.push(formData.name);
                 }
             } catch (error) {
-                console.error('Failed to generate student profile:', error);
+                console.error('Failed to generate career profile:', error);
                 report.errors.push(formData.name);
             }
         });
@@ -310,8 +310,8 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
         this._isGenerating = false;
 
         sendNotification({
-            summary: this._i18n.t('generate-student-profiles.finished-title'),
-            body: this._i18n.t('generate-student-profiles.finished-body', {
+            summary: this._i18n.t('generate-career-profiles.finished-title'),
+            body: this._i18n.t('generate-career-profiles.finished-body', {
                 created: report.created.length,
                 errors: report.errors.length,
             }),
@@ -330,23 +330,23 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
         if (!this._isDeveloper) {
             return html`
                 <section class="activity-header">
-                    <h2>${t('generate-student-profiles.title')}</h2>
-                    <p>${t('generate-student-profiles.not-authorized')}</p>
+                    <h2>${t('generate-career-profiles.title')}</h2>
+                    <p>${t('generate-career-profiles.not-authorized')}</p>
                 </section>
             `;
         }
 
         return html`
             <section class="activity-header">
-                <h2>${t('generate-student-profiles.title')}</h2>
-                <p>${t('generate-student-profiles.description')}</p>
+                <h2>${t('generate-career-profiles.title')}</h2>
+                <p>${t('generate-career-profiles.description')}</p>
             </section>
 
             <section class="generate-card">
                 <div class="select-option">
-                    <label for="profile-count">${t('generate-student-profiles.count-label')}</label>
+                    <label for="profile-count">${t('generate-career-profiles.count-label')}</label>
                     <p id="profile-count-description">
-                        ${t('generate-student-profiles.count-description')}
+                        ${t('generate-career-profiles.count-description')}
                     </p>
                     <dbp-select
                         id="profile-count"
@@ -364,8 +364,8 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
                     type="is-primary"
                     value="${
                         this._isGenerating
-                            ? t('generate-student-profiles.generating')
-                            : t('generate-student-profiles.generate-button')
+                            ? t('generate-career-profiles.generating')
+                            : t('generate-career-profiles.generate-button')
                     }"
                     ?disabled="${this._isGenerating}"
                     @click="${this._handleGenerate}"></dbp-button>
@@ -375,15 +375,15 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
                 this._report
                     ? html`
                           <section class="report-card">
-                              <h2>${t('generate-student-profiles.report-title')}</h2>
+                              <h2>${t('generate-career-profiles.report-title')}</h2>
                               <div class="summary-grid">
                                   <div>
                                       <strong>${this._report.created.length}</strong>
-                                      <span>${t('generate-student-profiles.summary-created')}</span>
+                                      <span>${t('generate-career-profiles.summary-created')}</span>
                                   </div>
                                   <div>
                                       <strong>${this._report.errors.length}</strong>
-                                      <span>${t('generate-student-profiles.summary-errors')}</span>
+                                      <span>${t('generate-career-profiles.summary-errors')}</span>
                                   </div>
                               </div>
                               ${
@@ -391,7 +391,7 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
                                       ? html`
                                             <section class="report-section">
                                                 <h3>
-                                                    ${t('generate-student-profiles.created-title', {
+                                                    ${t('generate-career-profiles.created-title', {
                                                         count: this._report.created.length,
                                                     })}
                                                 </h3>
@@ -511,6 +511,6 @@ class GenerateStudentProfilesActivity extends ScopedElementsMixin(DBPBulletinLit
 }
 
 commonUtils.defineCustomElement(
-    'dbp-bulletin-generate-student-profiles',
-    GenerateStudentProfilesActivity,
+    'dbp-bulletin-generate-career-profiles',
+    GenerateCareerProfilesActivity,
 );

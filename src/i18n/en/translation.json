@@ -193,6 +193,25 @@
     "errors": {
         "error-title": "Error"
     },
+    "generate-career-profiles": {
+        "count-description": "Choose how many random career profiles should be created.",
+        "count-label": "Number of career profiles to generate",
+        "created-title_one": "Created career profile ({{count}})",
+        "created-title_other": "Created career profiles ({{count}})",
+        "description": "Creates random career profiles so that more entries are shown on the browse career profiles page.",
+        "error-not-authorized": "Only developers can generate career profiles.",
+        "error-not-ready": "Generation cannot start until login and API configuration are available.",
+        "error-title": "Error",
+        "finished-body": "Created: {{created}}, errors: {{errors}}.",
+        "finished-title": "Generation finished",
+        "generate-button": "Generate career profiles",
+        "generating": "Generating...",
+        "not-authorized": "This activity is only visible for developers.",
+        "report-title": "Generation report",
+        "summary-created": "Created",
+        "summary-errors": "Errors",
+        "title": "Generate career profiles"
+    },
     "generate-jobs": {
         "count-description": "Choose how many random job offers should be created.",
         "count-label": "Number of job offers to generate",
@@ -216,25 +235,6 @@
         "summary-created": "Created",
         "summary-errors": "Errors",
         "title": "Generate job offers"
-    },
-    "generate-student-profiles": {
-        "count-description": "Choose how many random student profiles should be created.",
-        "count-label": "Number of student profiles to generate",
-        "created-title_one": "Created student profile ({{count}})",
-        "created-title_other": "Created student profiles ({{count}})",
-        "description": "Creates random student profiles so that more entries are shown on the browse career profiles page.",
-        "error-not-authorized": "Only developers can generate student profiles.",
-        "error-not-ready": "Generation cannot start until login and API configuration are available.",
-        "error-title": "Error",
-        "finished-body": "Created: {{created}}, errors: {{errors}}.",
-        "finished-title": "Generation finished",
-        "generate-button": "Generate student profiles",
-        "generating": "Generating...",
-        "not-authorized": "This activity is only visible for developers.",
-        "report-title": "Generation report",
-        "summary-created": "Created",
-        "summary-errors": "Errors",
-        "title": "Generate student profiles"
     },
     "import-companies": {
         "description": "Select the exported company CSV file and import its rows as companies. Existing companies with the same name are skipped.",
