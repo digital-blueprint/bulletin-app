@@ -1,0 +1,19 @@
+{
+    "element": "dbp-bulletin-generate-student-profiles",
+    "module_src": "dbp-bulletin-generate-student-profiles.js",
+    "routing_name": "generate-student-profiles",
+    "required_roles": ["ROLE_BULLETIN_ADMIN"],
+    "name": {
+        "de": "Studentenprofile generieren",
+        "en": "Generate student profiles"
+    },
+    "short_name": {
+        "de": "Studentenprofile generieren",
+        "en": "Generate student profiles"
+    },
+    "description": {
+        "de": "Erzeugt zufällige Studentenprofile zu Testzwecken.",
+        "en": "Generates random student profiles for testing purposes."
+    },
+    "subscribe": "lang,entry-point-url,auth,base-path"
+}

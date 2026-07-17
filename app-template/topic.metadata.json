@@ -15,7 +15,8 @@
     "activities": [
         {"path": "/app/dbp-bulletin-view-job-offers.metadata.json", "visible": true},
         {"path": "/app/dbp-formalize-manage-forms.metadata.json", "visible": true},
-        {"path": "/app/dbp-bulletin-import-companies.metadata.json", "visible": true}
+        {"path": "/app/dbp-bulletin-import-companies.metadata.json", "visible": true},
+        {"path": "/app/dbp-bulletin-generate-student-profiles.metadata.json", "visible": true}
     ],
     "attributes": ["hide-create-submission-button"]
 }
