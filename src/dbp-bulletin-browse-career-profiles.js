@@ -939,6 +939,21 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 padding: 1rem;
             }
 
+            .profile-detail ul {
+                margin: 0.25rem 0 1rem 0;
+                padding-left: 1.5rem;
+                list-style: disc;
+            }
+
+            .profile-detail li {
+                line-height: 1.55;
+                margin: 0;
+            }
+
+            .profile-detail section h3 {
+                margin-bottom: 0.25rem;
+            }
+
             .profile-name {
                 color: var(--dbp-muted);
                 margin: 0 0 0.5rem 0;
