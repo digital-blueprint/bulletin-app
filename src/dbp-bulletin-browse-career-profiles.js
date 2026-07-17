@@ -1,6 +1,13 @@
 import {css, html} from 'lit';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {Button, Icon, IconButton, MiniSpinner, sendNotification} from '@dbp-toolkit/common';
+import {
+    Button,
+    DBPSelect,
+    Icon,
+    IconButton,
+    MiniSpinner,
+    sendNotification,
+} from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
@@ -10,24 +17,37 @@ import JobProfileModule, {
     getStudentProfileIndustryLabels,
     JobProfileInterestFormElement,
     normalizeStudentStudies,
+    normalizeStudentProfileSelectValues,
 } from './modules/studentProfileForm.js';
-import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
+import {
+    getLocationHierarchy,
+    getLocationKey,
+    getWorkLocationLabels,
+    normalizeWorkLocations,
+    WorkLocationSelectElement,
+} from './modules/workLocationsElement.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
 class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
             'dbp-button': Button,
+            'dbp-select': DBPSelect,
             'dbp-icon': Icon,
             'dbp-icon-button': IconButton,
             'dbp-mini-spinner': MiniSpinner,
             'dbp-tabulator-table': CustomTabulatorTable,
             'dbp-job-profile-interest-form': JobProfileInterestFormElement,
+            'dbp-work-location-select-element': WorkLocationSelectElement,
         };
     }
 
     constructor() {
         super();
+        this.searchQuery = '';
+        this.filterIndustry = '';
+        this.filterField = '';
+        this.filterWorkLocation = '';
         this._profiles = [];
         this._selectedProfile = null;
         this._loadingProfiles = false;
@@ -38,6 +58,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     static get properties() {
         return {
             ...super.properties,
+            searchQuery: {type: String, state: true},
+            filterIndustry: {type: String, state: true},
+            filterField: {type: String, state: true},
+            filterWorkLocation: {type: String, state: true},
             _profiles: {state: true},
             _selectedProfile: {state: true},
             _loadingProfiles: {state: true},
@@ -80,9 +104,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         if (
             changedProperties.has('_profiles') ||
             changedProperties.has('lang') ||
+            changedProperties.has('searchQuery') ||
+            changedProperties.has('filterIndustry') ||
+            changedProperties.has('filterField') ||
+            changedProperties.has('filterWorkLocation') ||
             changedProperties.has('_selectedProfile')
         ) {
-            this._syncProfileTable();
+            this._syncProfileTable(changedProperties);
         }
     }
 
@@ -246,6 +274,128 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         );
     }
 
+    _getIndustryLabels(profile) {
+        const data = profile?.additionalData ?? {};
+        return getStudentProfileIndustryLabels(data.industries, (key, opts) =>
+            this._i18n.t(key, opts),
+        );
+    }
+
+    _getFieldLabels(profile) {
+        return getStudentProfileFieldLabels(profile?.additionalData?.fields, (key, opts) =>
+            this._i18n.t(key, opts),
+        );
+    }
+
+    _formatDate(value) {
+        if (!value) {
+            return '';
+        }
+
+        const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+        if (!dateOnlyMatch) {
+            return value;
+        }
+
+        const [, year, month, day] = dateOnlyMatch;
+        return `${day}.${month}.${year}`;
+    }
+
+    _getFilteredProfiles({
+        includeIndustry = true,
+        includeField = true,
+        includeWorkLocation = true,
+    } = {}) {
+        const query = this.searchQuery.toLowerCase().trim();
+
+        return this._profiles.filter((profile) => {
+            const data = profile.additionalData ?? {};
+            const studies = formatStudentStudies(data);
+            const workLocationLabels = this._getWorkLocationLabels(profile);
+            const industries = normalizeStudentProfileSelectValues(data.industries);
+            const industryLabels = this._getIndustryLabels(profile);
+            const fields = normalizeStudentProfileSelectValues(data.fields);
+            const fieldLabels = this._getFieldLabels(profile);
+            const localizedTextValues = [
+                data.availability,
+                data.teaser,
+                this._localized(profile, 'summary', 'summaryEn'),
+                this._localized(profile, 'previousExperience', 'previousExperienceEn'),
+                ...this._localizedList(profile, 'skills', 'skillsEn'),
+            ];
+
+            const matchesSearch =
+                !query ||
+                [
+                    this._getProfileAlias(profile),
+                    studies,
+                    ...workLocationLabels,
+                    ...industryLabels,
+                    ...fieldLabels,
+                    ...localizedTextValues,
+                ]
+                    .filter(Boolean)
+                    .some((value) => String(value).toLowerCase().includes(query));
+            const matchesIndustry =
+                !includeIndustry ||
+                !this.filterIndustry ||
+                data.openToAllIndustries ||
+                industries.includes(this.filterIndustry);
+            const matchesField =
+                !includeField || !this.filterField || fields.includes(this.filterField);
+            const matchesWorkLocation =
+                !includeWorkLocation ||
+                !this.filterWorkLocation ||
+                normalizeWorkLocations(data.workLocations).some((location) =>
+                    getLocationHierarchy(location).some(
+                        (ancestor) => getLocationKey(ancestor) === this.filterWorkLocation,
+                    ),
+                );
+
+            return matchesSearch && matchesIndustry && matchesField && matchesWorkLocation;
+        });
+    }
+
+    _getAvailableIndustries() {
+        return [
+            ...new Set(
+                this._getFilteredProfiles({includeIndustry: false}).flatMap((profile) =>
+                    normalizeStudentProfileSelectValues(profile.additionalData?.industries),
+                ),
+            ),
+        ];
+    }
+
+    _getAvailableFields() {
+        return [
+            ...new Set(
+                this._getFilteredProfiles({includeField: false}).flatMap((profile) =>
+                    normalizeStudentProfileSelectValues(profile.additionalData?.fields),
+                ),
+            ),
+        ];
+    }
+
+    _getAvailableWorkLocations() {
+        return normalizeWorkLocations(
+            this._getFilteredProfiles({includeWorkLocation: false}).flatMap((profile) =>
+                normalizeWorkLocations(profile.additionalData?.workLocations).flatMap((location) =>
+                    getLocationHierarchy(location),
+                ),
+            ),
+        );
+    }
+
+    _clearUnavailableFilters() {
+        if (this.filterIndustry && !this._getAvailableIndustries().includes(this.filterIndustry)) {
+            this.filterIndustry = '';
+        }
+
+        if (this.filterField && !this._getAvailableFields().includes(this.filterField)) {
+            this.filterField = '';
+        }
+    }
+
     _renderProfileSelectSection(profile, labelKey, values, getLabels) {
         const labels = getLabels(values, (key, opts) => this._i18n.t(key, opts));
         if (labels.length === 0) {
@@ -280,13 +430,14 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     _getTableData() {
-        return this._profiles.map((profile) => {
+        return this._getFilteredProfiles().map((profile) => {
             const data = profile.additionalData ?? {};
             const skills = this._localizedList(profile, 'skills', 'skillsEn');
             return {
                 alias: this._getProfileAlias(profile),
                 studyProgram: formatStudentStudies(data),
                 workLocations: this._getWorkLocationLabels(profile).join(', '),
+                availableFrom: data.availability ?? '',
                 previousExperience: this._localized(
                     profile,
                     'previousExperience',
@@ -368,6 +519,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     minWidth: 220,
                 },
                 {
+                    title: t('student-profile-form.field-availability'),
+                    field: 'availableFrom',
+                    sorter: 'string',
+                    formatter: (cell) => this._formatDate(cell.getValue()),
+                    minWidth: 160,
+                },
+                {
                     title: t('browse-career-profiles.column-previous-experience'),
                     field: 'previousExperience',
                     sorter: 'string',
@@ -392,7 +550,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         };
     }
 
-    async _syncProfileTable() {
+    async _syncProfileTable(changedProperties = new Map()) {
         const table = this.renderRoot?.querySelector('#student-profiles-table');
         if (!table || this._selectedProfile) {
             return;
@@ -411,7 +569,46 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
 
         table.tabulatorTable.setLocale(this.lang);
+        if (changedProperties.has('lang')) {
+            table.tabulatorTable.setColumns(options.columns);
+        }
         table.tabulatorTable.replaceData(options.data);
+    }
+
+    _getSelectOptions(values, getLabels) {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        return [
+            {
+                value: '',
+                label: t('browse-career-profiles.select-placeholder'),
+            },
+            ...values
+                .map((value) => ({
+                    value,
+                    label: getLabels(value, t)[0] ?? value,
+                }))
+                .sort((a, b) => a.label.localeCompare(b.label, this.lang)),
+        ];
+    }
+
+    onSearchInput(event) {
+        this.searchQuery = event.target.value;
+        this._clearUnavailableFilters();
+    }
+
+    onIndustryChange(event) {
+        this.filterIndustry = event.detail?.value ?? event.target.value;
+        this._clearUnavailableFilters();
+    }
+
+    onFieldChange(event) {
+        this.filterField = event.detail?.value ?? event.target.value;
+        this._clearUnavailableFilters();
+    }
+
+    onWorkLocationChange(event) {
+        this.filterWorkLocation = event.detail?.value ?? '';
+        this._clearUnavailableFilters();
     }
 
     _renderMetaItem(label, value) {
@@ -429,6 +626,20 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
     _renderOverview() {
         const t = (key, opts) => this._i18n.t(key, opts);
+        const industryOptions = this._getSelectOptions(
+            this._getAvailableIndustries(),
+            getStudentProfileIndustryLabels,
+        );
+        const fieldOptions = this._getSelectOptions(
+            this._getAvailableFields(),
+            getStudentProfileFieldLabels,
+        );
+        const selectedIndustryLabel =
+            industryOptions.find((option) => option.value === this.filterIndustry)?.label ??
+            t('browse-career-profiles.select-placeholder');
+        const selectedFieldLabel =
+            fieldOptions.find((option) => option.value === this.filterField)?.label ??
+            t('browse-career-profiles.select-placeholder');
 
         return html`
             <section class="activity-header">
@@ -444,6 +655,74 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         : ''
                 }
             </section>
+
+            <div class="profile-filter-row">
+                <div class="field search-field">
+                    <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
+                    <div class="control search-control">
+                        <input
+                            type="text"
+                            class="input"
+                            placeholder="${t('browse-career-profiles.search-placeholder')}"
+                            .value="${this.searchQuery}"
+                            @input="${this.onSearchInput}"
+                            aria-label="${t('browse-career-profiles.search-placeholder')}" />
+                        <span class="search-icon" aria-hidden="true">
+                            <dbp-icon name="search"></dbp-icon>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="filter-profile-industry">
+                        ${t('student-profile-form.field-industries')}
+                    </label>
+                    <div class="control">
+                        <dbp-select
+                            id="filter-profile-industry"
+                            class="filter-select"
+                            allow-expand
+                            align="left"
+                            label="${selectedIndustryLabel}"
+                            .options="${industryOptions}"
+                            .value="${this.filterIndustry}"
+                            @change="${this.onIndustryChange}"></dbp-select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="filter-profile-field">
+                        ${t('student-profile-form.field-fields')}
+                    </label>
+                    <div class="control">
+                        <dbp-select
+                            id="filter-profile-field"
+                            class="filter-select"
+                            allow-expand
+                            align="left"
+                            label="${selectedFieldLabel}"
+                            .options="${fieldOptions}"
+                            .value="${this.filterField}"
+                            @change="${this.onFieldChange}"></dbp-select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="filter-profile-work-location">
+                        ${t('student-profile-form.field-locations')}
+                    </label>
+                    <div class="control">
+                        <dbp-work-location-select-element
+                            id="filter-profile-work-location"
+                            lang="${this.lang}"
+                            lang-dir="${this.langDir}"
+                            placeholder="${t('browse-career-profiles.select-placeholder')}"
+                            .locations="${this._getAvailableWorkLocations()}"
+                            .value="${this.filterWorkLocation}"
+                            @change="${this.onWorkLocationChange}"></dbp-work-location-select-element>
+                    </div>
+                </div>
+            </div>
 
             <dbp-tabulator-table
                 lang="${this.lang}"
@@ -634,6 +913,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
     static get styles() {
         return css`
+            ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
             ${commonStyles.getNotificationCSS()}
 
@@ -667,6 +947,66 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             .activity-header p,
             .summary {
                 line-height: 1.55;
+            }
+
+            .profile-filter-row {
+                --filter-control-height: 2.1rem;
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .profile-filter-row .field {
+                margin-bottom: 0;
+            }
+
+            .search-control {
+                position: relative;
+            }
+
+            .search-control .input {
+                padding-right: 2.5rem;
+                width: 100%;
+            }
+
+            .search-icon {
+                position: absolute;
+                right: 0.75rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--dbp-muted);
+                display: flex;
+                align-items: center;
+                pointer-events: none;
+            }
+
+            .filter-select {
+                display: block;
+                width: 100%;
+            }
+
+            .filter-select::part(trigger) {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .filter-select::part(menu) {
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
+                max-height: min(20rem, 60vh);
+                overflow-x: hidden;
+                overflow-y: auto;
+                top: 2rem;
+            }
+
+            .profile-filter-row dbp-work-location-select-element {
+                --work-location-select-height: var(--filter-control-height);
+            }
+
+            .search-label-spacer {
+                display: block;
             }
 
             .profile-teaser {
@@ -721,6 +1061,14 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             @media (max-width: 720px) {
                 .activity-header {
                     display: grid;
+                }
+
+                .profile-filter-row {
+                    grid-template-columns: 1fr;
+                }
+
+                .search-label-spacer {
+                    display: none;
                 }
 
                 .profile-meta {

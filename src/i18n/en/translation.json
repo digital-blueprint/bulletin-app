@@ -10,6 +10,8 @@
         "load-error": "The career profiles could not be loaded.",
         "load-error-title": "Loading failed",
         "no-profiles": "No career profiles are available yet.",
+        "search-placeholder": "Search career profiles",
+        "select-placeholder": "All",
         "title": "View career profiles",
         "view-profile": "View profile"
     },

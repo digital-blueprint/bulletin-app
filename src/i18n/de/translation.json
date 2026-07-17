@@ -10,6 +10,8 @@
         "load-error": "Die Karriereprofile konnten nicht geladen werden.",
         "load-error-title": "Laden fehlgeschlagen",
         "no-profiles": "Es sind noch keine Karriereprofile verfügbar.",
+        "search-placeholder": "Karriereprofile suchen",
+        "select-placeholder": "Alle",
         "title": "Karriereprofile durchsuchen",
         "view-profile": "Profil anzeigen"
     },
