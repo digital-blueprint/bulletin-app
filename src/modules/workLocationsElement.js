@@ -838,7 +838,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             .field-label {
                 font-size: 18px;
                 font-weight: 400;
-                margin: 10px 0;
+                margin: 0;
             }
 
             .selector-stack {

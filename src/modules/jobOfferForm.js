@@ -1273,7 +1273,21 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         <div class="field-note">${descriptionMaxLengthNote}</div>
                     </div>
                 </div>
-                <div class="mandatory-date-wrapper">
+                ${
+                    this._isInternalJob
+                        ? null
+                        : html`
+                              <dbp-work-locations-element
+                                  lang="${this.lang}"
+                                  lang-dir="${this.langDir}"
+                                  .value="${this._workLocations}"
+                                  @change="${(e) =>
+                                      (this._workLocations = normalizeWorkLocations(
+                                          e.detail.value,
+                                      ))}"></dbp-work-locations-element>
+                          `
+                }
+                <div class="translation-row">
                     <dbp-date-element
                         name="published-at"
                         lang="${this.lang}"
@@ -1290,6 +1304,16 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         required
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
 
+                    <dbp-number-element
+                        name="weekly-hours"
+                        lang="${this.lang}"
+                        label="${t('manage-job-offers.field-weekly-hours')}"
+                        min="0"
+                        step="0.5"
+                        required
+                        .value="${this._weeklyHours}"
+                        @change="${(e) => (this._weeklyHours = e.detail.value)}"></dbp-number-element>
+                    
                     <dbp-date-element
                         name="application-deadline"
                         lang="${this.lang}"
@@ -1298,7 +1322,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         required
                         @change="${(e) =>
                             (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
-                </div>
+
+            </div>
+                        
             </div>
             <div id="optional-data-wrapper" class="optional-data-wrapper">
                 <button
@@ -1321,20 +1347,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 <div
                     class="content
                     ${this.optionalContent ? 'optional-data-visible' : 'optional-data-hidden'}">
-                    ${
-                        this._isInternalJob
-                            ? null
-                            : html`
-                                  <dbp-work-locations-element
-                                      lang="${this.lang}"
-                                      lang-dir="${this.langDir}"
-                                      .value="${this._workLocations}"
-                                      @change="${(e) =>
-                                          (this._workLocations = normalizeWorkLocations(
-                                              e.detail.value,
-                                          ))}"></dbp-work-locations-element>
-                              `
-                    }
+                   
                     <div class="half-col">
                         <dbp-date-element
                             name="start-date"
@@ -1343,17 +1356,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             .value="${this._startDate}"
                             @change="${(e) =>
                                 (this._startDate = e.detail.value)}"></dbp-date-element>
-
-                        <dbp-number-element
-                            name="weekly-hours"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-weekly-hours')}"
-                            min="0"
-                            step="0.5"
-                            .value="${this._weeklyHours}"
-                            @change="${(e) =>
-                                (this._weeklyHours = e.detail.value)}"></dbp-number-element>
                     </div>
+                       
                     <div class="translation-row">
                         <dbp-string-element
                             name="salary"
@@ -1593,7 +1597,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             .translation-row {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 1rem;
+                gap: 0 1rem;
             }
 
             .required-field-note {
