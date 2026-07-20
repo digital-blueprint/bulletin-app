@@ -1034,7 +1034,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: block;
             }
 
-            .activity-header,
             .profile-card,
             .profile-card-actions,
             .owner-actions {
@@ -1042,7 +1041,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 gap: 1rem;
             }
 
-            .activity-header,
             .profile-card {
                 align-items: flex-start;
                 justify-content: space-between;
