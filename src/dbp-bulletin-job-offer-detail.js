@@ -1346,6 +1346,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     left: 0;
                     right: initial;
                 }
+
+                .action-buttons {
+                    justify-content: start;
+                }
+                .additional-info {
+                    grid-template-columns: 1fr;
+                }
             }
 
             /* Share dropdown styles */
