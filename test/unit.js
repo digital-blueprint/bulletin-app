@@ -7,7 +7,10 @@ import {
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
 } from '../src/modules/jobOfferForm.js';
-import {formatStudentStudies as formatCareerProfileStudies} from '../src/modules/studentProfileForm.js';
+import {
+    formatStudentStudies as formatCareerProfileStudies,
+    JobProfileEditFormElement,
+} from '../src/modules/studentProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
@@ -279,6 +282,14 @@ suite('work locations country selection', () => {
 });
 
 suite('career profile student studies', () => {
+    const tagName = 'test-job-profile-edit-form-element';
+
+    suiteSetup(() => {
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobProfileEditFormElement);
+        }
+    });
+
     test('should format multiple fetched studies for the saved profile', () => {
         assert.equal(
             formatCareerProfileStudies({
@@ -289,5 +300,56 @@ suite('career profile student studies', () => {
             }),
             '066 921 Computer Science (Bachelorstudium), 066 937 Software Engineering and Management (Masterstudium)',
         );
+    });
+
+    test('should select multiple fetched studies for the profile', async () => {
+        const element = document.createElement(tagName);
+        element.currentStudentStudies = [
+            {key: 'bachelor', name: 'Computer Science (Bachelorstudium)'},
+            {key: 'master', name: 'Software Engineering and Management (Masterstudium)'},
+        ];
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const studyField = element.shadowRoot.querySelector('[name="study-program"]');
+        assert.isNotNull(studyField);
+        assert.deepEqual(studyField.items, {
+            'Computer Science (Bachelorstudium)': 'Computer Science (Bachelorstudium)',
+            'Software Engineering and Management (Masterstudium)':
+                'Software Engineering and Management (Masterstudium)',
+        });
+        assert.deepEqual(studyField.value, [
+            'Computer Science (Bachelorstudium)',
+            'Software Engineering and Management (Masterstudium)',
+        ]);
+        assert.deepEqual(element._getDisplayStudies(), element.currentStudentStudies);
+
+        element._selectStudies(['Software Engineering and Management (Masterstudium)']);
+
+        assert.deepEqual(element._getDisplayStudies(), [element.currentStudentStudies[1]]);
+        assert.equal(element._studyProgram, 'Software Engineering and Management (Masterstudium)');
+        element.remove();
+    });
+
+    test('should preserve multiple saved studies when editing a profile', async () => {
+        const element = document.createElement(tagName);
+        element.currentStudentStudies = [
+            {key: 'bachelor', name: 'Computer Science (Bachelorstudium)'},
+            {key: 'master', name: 'Software Engineering and Management (Masterstudium)'},
+            {key: 'doctoral', name: 'Computer Science (Doktoratsstudium)'},
+        ];
+        element.existingForm = {
+            additionalData: {
+                studies: [element.currentStudentStudies[0], element.currentStudentStudies[2]],
+            },
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.deepEqual(element._getDisplayStudies(), [
+            element.currentStudentStudies[0],
+            element.currentStudentStudies[2],
+        ]);
+        element.remove();
     });
 });

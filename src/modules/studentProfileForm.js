@@ -227,6 +227,18 @@ export const formatStudentStudies = (localData) => {
         .join(', ');
 };
 
+const mergeStudentStudies = (...studyLists) => {
+    const studiesByName = new Map();
+
+    studyLists.flat().forEach((study) => {
+        if (study?.name && !studiesByName.has(study.name)) {
+            studiesByName.set(study.name, study);
+        }
+    });
+
+    return [...studiesByName.values()];
+};
+
 const isValidWebsiteUrl = (value) => {
     const trimmedValue = value.trim();
     if (!trimmedValue) {
@@ -338,6 +350,7 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-skills-en');
     t('student-profile-form.field-skills-en-description');
     t('student-profile-form.field-study-program');
+    t('student-profile-form.field-study-program-description');
     t('student-profile-form.field-teaser-description');
     t('student-profile-form.field-teaser-placeholder');
     t('student-profile-form.field-teaser-title');
@@ -450,6 +463,8 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._summaryEn = '';
         this._studyProgram = '';
         this._studies = [];
+        this._availableStudies = [];
+        this._selectedStudyNames = [];
         this._previousExperience = '';
         this._previousExperienceEn = '';
         this._skillsText = '';
@@ -486,6 +501,8 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _summaryEn: {state: true},
             _studyProgram: {state: true},
             _studies: {state: true},
+            _availableStudies: {state: true},
+            _selectedStudyNames: {state: true},
             _previousExperience: {state: true},
             _previousExperienceEn: {state: true},
             _skillsText: {state: true},
@@ -524,6 +541,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._summary = data.summary || '';
                 this._summaryEn = data.summaryEn || '';
                 this._studies = normalizeStudentStudies(data);
+                this._selectedStudyNames = this._studies.map((study) => study.name);
                 this._studyProgram =
                     data.studyProgram || formatStudentStudies({studies: this._studies});
                 this._previousExperience = data.previousExperience || '';
@@ -545,17 +563,14 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._website = data.website || data.linkUrl || '';
                 this._teaser = normalizeTeaserValue(data.teaser);
             }
-
-            if (
-                (propName === 'currentStudentStudies' || propName === 'existingForm') &&
-                Array.isArray(this.currentStudentStudies) &&
-                this.currentStudentStudies.length > 0 &&
-                !Array.isArray(this.existingForm?.additionalData?.studies)
-            ) {
-                this._studies = normalizeStudentStudies({studies: this.currentStudentStudies});
-                this._studyProgram = formatStudentStudies({studies: this._studies});
-            }
         });
+
+        if (
+            changedProperties.has('currentStudentStudies') ||
+            changedProperties.has('existingForm')
+        ) {
+            this._setAvailableStudies(this.currentStudentStudies);
+        }
 
         if (
             changedProperties.has('auth') ||
@@ -591,10 +606,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             const studies = normalizeStudentStudies(localData);
 
             this._contactEmail = this._contactEmail || localData.email || '';
-            this._studies = studies.length ? studies : this._studies;
-            this._studyProgram = this._studies.length
-                ? formatStudentStudies({studies: this._studies})
-                : this._studyProgram || formatStudentStudies(localData);
+            this._setAvailableStudies(studies);
             this._studentDataPrefillUserId = userId;
         } catch (error) {
             console.error('Error pre-filling student profile data:', error);
@@ -636,20 +648,58 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         return (
             this._summary.trim() !== '' &&
             this._contactEmail.trim() !== '' &&
+            (this._availableStudies.length === 0 || this._getDisplayStudies().length > 0) &&
             isValidWebsiteUrl(this._website)
         );
     }
 
+    _setAvailableStudies(studies) {
+        const fetchedStudies = normalizeStudentStudies({studies});
+        const currentStudies = normalizeStudentStudies({studies: this.currentStudentStudies});
+        const savedData = this.existingForm?.additionalData ?? {};
+        const savedStudies = Array.isArray(savedData.studies)
+            ? normalizeStudentStudies({studies: savedData.studies})
+            : [];
+        const selectableStudies = mergeStudentStudies(fetchedStudies, currentStudies, savedStudies);
+        const legacyStudies =
+            selectableStudies.length === 0 && this._studyProgram
+                ? normalizeStudentStudies({studyProgram: this._studyProgram})
+                : [];
+
+        this._availableStudies = mergeStudentStudies(selectableStudies, legacyStudies);
+
+        const selectedStudyNames = this._selectedStudyNames.filter((studyName) =>
+            this._availableStudies.some((study) => study.name === studyName),
+        );
+
+        this._selectStudies(
+            selectedStudyNames.length > 0
+                ? selectedStudyNames
+                : savedStudies.length > 0
+                  ? savedStudies.map((study) => study.name)
+                  : this._availableStudies.map((study) => study.name),
+            true,
+        );
+    }
+
+    _selectStudies(studyNames, force = false) {
+        const requestedStudyNames = new Set(normalizeStudentProfileSelectValues(studyNames));
+        const studies = this._availableStudies.filter((study) =>
+            requestedStudyNames.has(study.name),
+        );
+        const selectedStudyNames = studies.map((study) => study.name);
+        if (!force && areStringArraysEqual(this._selectedStudyNames, selectedStudyNames)) {
+            return;
+        }
+
+        this._studies = studies;
+        this._selectedStudyNames = selectedStudyNames;
+        this._studyProgram = studies.length ? formatStudentStudies({studies}) : this._studyProgram;
+    }
+
     _getDisplayStudies() {
-        if (this._studies.length > 0) {
-            return this._studies;
-        }
-
-        if (Array.isArray(this.currentStudentStudies) && this.currentStudentStudies.length > 0) {
-            return normalizeStudentStudies({studies: this.currentStudentStudies});
-        }
-
-        return [];
+        const selectedStudyNames = new Set(this._selectedStudyNames);
+        return this._availableStudies.filter((study) => selectedStudyNames.has(study.name));
     }
 
     async submit() {
@@ -672,12 +722,15 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         }
 
         if (!this._isFormValid) {
+            const hasRequiredValues =
+                this._summary.trim() &&
+                this._contactEmail.trim() &&
+                (this._availableStudies.length === 0 || studies.length > 0);
             sendNotification({
                 summary: t('student-profile-form.create-error-title'),
-                body:
-                    this._summary.trim() && this._contactEmail.trim()
-                        ? t('student-profile-form.validation-url')
-                        : t('student-profile-form.validation-required'),
+                body: hasRequiredValues
+                    ? t('student-profile-form.validation-url')
+                    : t('student-profile-form.validation-required'),
                 type: 'warning',
                 timeout: 0,
                 targetNotificationId: 'student-profile-form-notification',
@@ -867,8 +920,9 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
 
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
-        const studies = this._getDisplayStudies();
-        const studyProgram = studies.length ? formatStudentStudies({studies}) : this._studyProgram;
+        const studyItems = Object.fromEntries(
+            this._availableStudies.map((study) => [study.name, study.name]),
+        );
         const industryItems = getStudentProfileIndustryItems(t);
         const fieldItems = getStudentProfileFieldItems(t);
         keepStudentProfileTranslations(t);
@@ -904,31 +958,39 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     : ''
             }
             ${
-                this._loadingStudentData || studyProgram || studies.length
+                this._loadingStudentData || this._availableStudies.length
                     ? html`
-                          <div class="profile-prefill-info">
-                              <strong>${t('student-profile-form.field-study-program')}:</strong>
-                              ${
-                                  studies.length
-                                      ? html`
-                                            <ul>
-                                                ${studies.map(
-                                                    (study) => html`
-                                                        <li>${study.name}</li>
-                                                    `,
+                          ${
+                              this._availableStudies.length
+                                  ? html`
+                                        <dbp-enum-element
+                                            name="study-program"
+                                            lang="${this.lang}"
+                                            label="${t('student-profile-form.field-study-program')}"
+                                            multiple
+                                            display-mode="tags"
+                                            .tagPlaceholder="${{
+                                                [this.lang]: t(
+                                                    'student-profile-form.field-select-placeholder',
+                                                ),
+                                            }}"
+                                            .items="${studyItems}"
+                                            .value="${this._selectedStudyNames}"
+                                            required
+                                            @change="${(event) =>
+                                                this._selectStudies(event.detail.value)}">
+                                            <div slot="description">
+                                                ${t(
+                                                    'student-profile-form.field-study-program-description',
                                                 )}
-                                            </ul>
-                                        `
-                                      : this._loadingStudentData
-                                        ? html`
-                                              <dbp-mini-spinner
-                                                  text="${t('loading-message')}"></dbp-mini-spinner>
-                                          `
-                                        : html`
-                                              ${studyProgram}
-                                          `
-                              }
-                          </div>
+                                            </div>
+                                        </dbp-enum-element>
+                                    `
+                                  : html`
+                                        <dbp-mini-spinner
+                                            text="${t('loading-message')}"></dbp-mini-spinner>
+                                    `
+                          }
                       `
                     : ''
             }
