@@ -4,7 +4,7 @@ import {repeat} from 'lit/directives/repeat.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {DBPSelect, Icon, MiniSpinner} from '@dbp-toolkit/common';
+import {DBPSelect, Icon, MiniSpinner, DBPLoginRequired} from '@dbp-toolkit/common';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
@@ -30,6 +30,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             'dbp-mini-spinner': MiniSpinner,
             'dbp-bulletin-job-offer-detail': JobOfferDetail,
             'dbp-work-location-select-element': WorkLocationSelectElement,
+            'dbp-login-required': DBPLoginRequired,
         };
     }
 
@@ -780,9 +781,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         if (!this.isLoggedIn()) {
             return html`
-                <div class="notification is-warning login-required-message">
-                    ${t('view-job-offers.error-login-required')}
-                </div>
+                <dbp-login-required
+                    subscribe="auth,lang"
+                    @dbp-login-requested=${this._onLoginClicked}></dbp-login-required>
             `;
         }
 

@@ -616,7 +616,6 @@
         "auth-loading": "Checking login status...",
         "available-positions": "Available positions",
         "error-load-failed": "Failed to load job offers. Please try again later.",
-        "error-login-required": "Please log in to view job offers.",
         "loading": "Loading job offers…",
         "loading-more": "Loading more job offers…",
         "no-results": "No job offers found.",
