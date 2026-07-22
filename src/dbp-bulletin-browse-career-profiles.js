@@ -7,6 +7,7 @@ import {
     IconButton,
     MiniSpinner,
     sendNotification,
+    DBPLoginRequired,
 } from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
@@ -40,6 +41,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             'dbp-tabulator-table': CustomTabulatorTable,
             'dbp-job-profile-interest-form': JobProfileInterestFormElement,
             'dbp-work-location-select-element': WorkLocationSelectElement,
+            'dbp-login-required': DBPLoginRequired,
         };
     }
 
@@ -887,16 +889,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     render() {
-        const t = (key, opts) => this._i18n.t(key, opts);
-
         if (!this.isLoggedIn() && !this.isAuthPending()) {
             return html`
-                <div class="notification is-warning">
-                    ${t('error-login-message')}
-                    <a href="#" @click="${(event) => this._onLoginClicked(event)}">
-                        ${t('error-login-link')}
-                    </a>
-                </div>
+                <dbp-login-required
+                    subscribe="auth,lang"
+                    @dbp-login-requested=${this._onLoginClicked}></dbp-login-required>
             `;
         }
 

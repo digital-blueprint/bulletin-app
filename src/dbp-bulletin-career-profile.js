@@ -1,6 +1,6 @@
 import {css, html} from 'lit';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {Button, Icon, MiniSpinner, sendNotification} from '@dbp-toolkit/common';
+import {Button, Icon, MiniSpinner, sendNotification, DBPLoginRequired} from '@dbp-toolkit/common';
 import {Modal} from '@dbp-toolkit/common/src/modal.js';
 import {Notification} from '@dbp-toolkit/notification';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
@@ -27,6 +27,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             'dbp-notification': Notification,
             'dbp-job-profile-edit-form': JobProfileEditFormElement,
             'dbp-job-profile-interest-form': JobProfileInterestFormElement,
+            'dbp-login-required': DBPLoginRequired,
         };
     }
 
@@ -995,16 +996,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     render() {
-        const t = (key, opts) => this._i18n.t(key, opts);
-
         if (!this.isLoggedIn() && !this.isAuthPending()) {
             return html`
-                <div class="notification is-warning">
-                    ${t('error-login-message')}
-                    <a href="#" @click="${(event) => this._onLoginClicked(event)}">
-                        ${t('error-login-link')}
-                    </a>
-                </div>
+                <dbp-login-required
+                    subscribe="auth,lang"
+                    @dbp-login-requested=${this._onLoginClicked}></dbp-login-required>
             `;
         }
 

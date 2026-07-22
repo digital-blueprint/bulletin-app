@@ -188,8 +188,6 @@
         "error-update-failed": "Stellenangebot konnte nicht aktualisiert werden. Antwortstatus: {{status}}",
         "success-updated": "Stellenangebot erfolgreich aktualisiert"
     },
-    "error-login-link": "Einloggen",
-    "error-login-message": "Sie müssen eingeloggt sein, um diese Seite zu verwenden. ",
     "errors": {
         "error-title": "Fehler"
     },

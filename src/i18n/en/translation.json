@@ -188,8 +188,6 @@
         "error-update-failed": "Failed to update job offer. Response status: {{status}}",
         "success-updated": "Job offer updated successfully"
     },
-    "error-login-link": "Log in",
-    "error-login-message": "You need to be logged in to use this page. ",
     "errors": {
         "error-title": "Error"
     },
