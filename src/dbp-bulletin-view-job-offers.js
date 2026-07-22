@@ -4,7 +4,8 @@ import {repeat} from 'lit/directives/repeat.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {DBPSelect, Icon, MiniSpinner, DBPLoginRequired} from '@dbp-toolkit/common';
+import {Icon, MiniSpinner, DBPLoginRequired} from '@dbp-toolkit/common';
+import {DbpEnumElement} from '@dbp-toolkit/form-elements';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
@@ -25,7 +26,7 @@ const INFINITE_SCROLL_BATCH_SIZE = 12;
 class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
-            'dbp-select': DBPSelect,
+            'dbp-enum-element': DbpEnumElement,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
             'dbp-bulletin-job-offer-detail': JobOfferDetail,
@@ -37,7 +38,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
         this.searchQuery = '';
-        this.filterAreaOfInterest = '';
+        this.filterAreasOfInterest = [];
         this.filterWorkLocation = '';
         this.filterWeeklyHoursMin = '';
         this.filterWeeklyHoursMax = '';
@@ -67,7 +68,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return {
             ...super.properties,
             searchQuery: {type: String, state: true},
-            filterAreaOfInterest: {type: String, state: true},
+            filterAreasOfInterest: {type: Array, state: true},
             filterWorkLocation: {type: String, state: true},
             filterWeeklyHoursMin: {type: String, state: true},
             filterWeeklyHoursMax: {type: String, state: true},
@@ -472,12 +473,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     job.title.toLowerCase().includes(query) ||
                     areaOfInterestLabels.some((label) => label.toLowerCase().includes(query)) ||
                     this._getLocalizedDescription(job).toLowerCase().includes(query);
+                const jobAreasOfInterest = normalizeAreaOfInterestValues(
+                    job.areasOfInterest ?? job.areaOfInterest,
+                );
                 const matchesAreaOfInterest =
                     !includeAreaOfInterest ||
-                    !this.filterAreaOfInterest ||
-                    normalizeAreaOfInterestValues(
-                        job.areasOfInterest ?? job.areaOfInterest,
-                    ).includes(this.filterAreaOfInterest);
+                    this.filterAreasOfInterest.length === 0 ||
+                    this.filterAreasOfInterest.some((value) => jobAreasOfInterest.includes(value));
                 const matchesWorkLocation =
                     !includeWorkLocation ||
                     !this.filterWorkLocation ||
@@ -550,12 +552,17 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _clearUnavailableAreaOfInterest() {
-        if (!this.filterAreaOfInterest) {
+        if (this.filterAreasOfInterest.length === 0) {
             return;
         }
 
-        if (!this.getAvailableAreasOfInterest().includes(this.filterAreaOfInterest)) {
-            this.filterAreaOfInterest = '';
+        const availableAreasOfInterest = new Set(this.getAvailableAreasOfInterest());
+        const nextAreasOfInterest = this.filterAreasOfInterest.filter((value) =>
+            availableAreasOfInterest.has(value),
+        );
+
+        if (nextAreasOfInterest.length !== this.filterAreasOfInterest.length) {
+            this.filterAreasOfInterest = nextAreasOfInterest;
         }
     }
 
@@ -707,7 +714,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     onAreaOfInterestChange(e) {
-        this.filterAreaOfInterest = e.detail?.value ?? e.target.value;
+        const nextAreasOfInterest = normalizeAreaOfInterestValues(e.detail?.value);
+        const selectionUnchanged =
+            nextAreasOfInterest.length === this.filterAreasOfInterest.length &&
+            nextAreasOfInterest.every(
+                (value, index) => value === this.filterAreasOfInterest[index],
+            );
+
+        if (selectionUnchanged) {
+            return;
+        }
+
+        this.filterAreasOfInterest = nextAreasOfInterest;
         this._resetVisibleCount();
     }
 
@@ -790,19 +808,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const sortedAreasOfInterest = this.getAvailableAreasOfInterest().sort((a, b) =>
             getAreaOfInterestLabel(a, t).localeCompare(getAreaOfInterestLabel(b, t), this.lang),
         );
-        const areaOfInterestOptions = [
-            {
-                value: '',
-                label: t('view-job-offers.select-placeholder'),
-            },
-            ...sortedAreasOfInterest.map((value) => ({
-                value,
-                label: getAreaOfInterestLabel(value, t),
-            })),
-        ];
-        const selectedAreaOfInterestLabel =
-            areaOfInterestOptions.find((option) => option.value === this.filterAreaOfInterest)
-                ?.label ?? t('view-job-offers.select-placeholder');
+        const areaOfInterestItems = Object.fromEntries(
+            sortedAreasOfInterest.map((value) => [value, getAreaOfInterestLabel(value, t)]),
+        );
 
         // Loading state
         if (this._loading) {
@@ -850,21 +858,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         </div>
                     </div>
 
-                    <div class="field">
-                        <label class="label" for="filter-area-of-interest">
-                            ${t('view-job-offers.areas-of-interest')}
-                        </label>
-                        <div class="control">
-                            <dbp-select
-                                id="filter-area-of-interest"
-                                class="filter-select"
-                                allow-expand
-                                align="left"
-                                label="${selectedAreaOfInterestLabel}"
-                                .options="${areaOfInterestOptions}"
-                                .value="${this.filterAreaOfInterest}"
-                                @change="${this.onAreaOfInterestChange}"></dbp-select>
-                        </div>
+                    <div class="field area-of-interest-filter">
+                        <dbp-enum-element
+                            name="filter-area-of-interest"
+                            lang="${this.lang}"
+                            label="${t('view-job-offers.areas-of-interest')}"
+                            multiple
+                            display-mode="tags"
+                            .tagPlaceholder="${{
+                                [this.lang]: t('view-job-offers.select-placeholder'),
+                            }}"
+                            .items="${areaOfInterestItems}"
+                            .value="${this.filterAreasOfInterest}"
+                            @change="${this.onAreaOfInterestChange}"></dbp-enum-element>
                     </div>
                 </div>
 
@@ -1072,26 +1078,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .search-control {
                 position: relative;
-            }
-
-            .filter-select {
-                display: block;
-                width: 100%;
-            }
-
-            .filter-select::part(trigger) {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .filter-select::part(menu) {
-                width: 100%;
-                min-width: 100%;
-                max-width: 100%;
-                max-height: min(20rem, 60vh);
-                overflow-x: hidden;
-                overflow-y: auto;
-                top: 2rem;
             }
 
             .search-control .input {

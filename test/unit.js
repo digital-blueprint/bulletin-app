@@ -67,7 +67,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         );
     });
 
-    test('should match area filter against multi-select values', () => {
+    test('should match any selected area filter against multi-select values', () => {
         node._i18n = {t: (key) => key};
         node._jobOffers = [
             {
@@ -90,11 +90,11 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             },
         ];
 
-        node.filterAreaOfInterest = 'management';
+        node.filterAreasOfInterest = ['management', 'research'];
 
         assert.deepEqual(
             node.getFilteredJobs().map((job) => job.identifier),
-            ['matching-job'],
+            ['other-job', 'matching-job'],
         );
     });
 
