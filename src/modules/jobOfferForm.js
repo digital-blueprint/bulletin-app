@@ -682,7 +682,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._description.trim() !== '' &&
             this._publishedAt.trim() !== '' &&
             this._deadline.trim() !== '' &&
-            this._applicationDeadline.trim() !== '' &&
             this._jobOfferType.trim() !== '' &&
             hasJobOwner
         );
@@ -1319,7 +1318,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         lang="${this.lang}"
                         label="${t('manage-job-offers.field-application-deadline')}"
                         .value="${this._applicationDeadline}"
-                        required
                         @change="${(e) =>
                             (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
 

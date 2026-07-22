@@ -2,7 +2,7 @@ import {assert} from 'chai';
 
 import '../src/dbp-bulletin-view-job-offers';
 import {BulletinAppShell} from '../src/dbp-bulletin.js';
-import {
+import JobOfferModule, {
     JobOfferFormElement,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
@@ -184,6 +184,21 @@ suite('jobOfferForm area normalization', () => {
         assert.deepEqual(normalizeAreaOfInterestValues('Science'), ['natural-sciences']);
         assert.deepEqual(normalizeAreaOfInterestValues('Wissenschaft'), ['natural-sciences']);
         assert.deepEqual(normalizeAreaOfInterestValues(['IT', 'Management']), ['it', 'management']);
+    });
+});
+
+suite('jobOfferForm validation', () => {
+    test('should allow an empty application deadline', () => {
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        const element = new JobOfferEditFormElement();
+        element._title = 'Software developer';
+        element._description = 'Job description';
+        element._publishedAt = '2026-07-22';
+        element._deadline = '2026-08-22';
+        element._applicationDeadline = '';
+        element._organization = 'TU Graz';
+
+        assert.isTrue(element._isFormValid);
     });
 });
 
