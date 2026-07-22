@@ -852,7 +852,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                                   <h3>
                                       ${t('student-profile-form.field-qualification-view-mode')}
                                   </h3>
-                                  <p>${furtherQualifications}</p>
+                                  <p class="multiline-text">${furtherQualifications}</p>
                               </section>
                           `
                         : ''
@@ -962,6 +962,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             .activity-header p,
             .summary {
                 line-height: 1.55;
+            }
+
+            .multiline-text {
+                white-space: pre-line;
             }
 
             .profile-filter-row {
