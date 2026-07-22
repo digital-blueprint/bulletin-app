@@ -98,6 +98,33 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         );
     });
 
+    test('should preserve selected filters when a search has no results', () => {
+        node._i18n = {t: (key) => key};
+        node._jobOffers = [
+            {
+                identifier: 'selected-filter-job',
+                title: 'Matching publication',
+                areasOfInterest: ['management'],
+                workLocations: [{country: 'AT', region: 'styria', city: 'graz'}],
+                description: '',
+                publishedAt: '2026-01-15',
+            },
+        ];
+        node.filterAreasOfInterest = ['management'];
+        node.filterWorkLocation = 'AT|styria|graz';
+
+        node.onSearchInput({target: {value: 'no matching job'}});
+
+        assert.deepEqual(node.filterAreasOfInterest, ['management']);
+        assert.equal(node.filterWorkLocation, 'AT|styria|graz');
+        assert.deepEqual(node.getAvailableAreasOfInterest({includeSelected: true}), ['management']);
+        assert.deepInclude(node.getAvailableWorkLocations({includeSelected: true}), {
+            country: 'AT',
+            region: 'styria',
+            city: 'graz',
+        });
+    });
+
     test('should open a deep-linked job after loading job offers', async () => {
         const element = document.createElement('dbp-bulletin-view-job-offers');
         const originalFetch = globalThis.fetch;

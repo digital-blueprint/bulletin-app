@@ -509,29 +509,50 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .sort((a, b) => this.compareJobsByDate(a, b));
     }
 
-    getAvailableWorkLocations() {
+    getAvailableWorkLocations({includeSelected = false} = {}) {
         const jobs = this.getFilteredJobs({includeWorkLocation: false});
         // Expand each job location into its hierarchy so broader locations
         // (region, country) are also selectable. A job in Graz therefore also
         // makes Styria and Austria available as filter options.
-        return normalizeWorkLocations(
+        const availableLocations = normalizeWorkLocations(
             jobs.flatMap((job) =>
                 normalizeWorkLocations(job.workLocations ?? []).flatMap((location) =>
                     getLocationHierarchy(location),
                 ),
             ),
         );
+
+        if (!includeSelected || !this.filterWorkLocation) {
+            return availableLocations;
+        }
+
+        const selectedLocation = this._jobOffers
+            .flatMap((job) =>
+                normalizeWorkLocations(job.workLocations ?? []).flatMap((location) =>
+                    getLocationHierarchy(location),
+                ),
+            )
+            .find((location) => getLocationKey(location) === this.filterWorkLocation);
+
+        return normalizeWorkLocations([
+            ...availableLocations,
+            ...(selectedLocation ? [selectedLocation] : []),
+        ]);
     }
 
-    getAvailableAreasOfInterest() {
+    getAvailableAreasOfInterest({includeSelected = false} = {}) {
         const jobs = this.getFilteredJobs({includeAreaOfInterest: false});
-        return [
+        const availableAreasOfInterest = [
             ...new Set(
                 jobs.flatMap((job) =>
                     normalizeAreaOfInterestValues(job.areasOfInterest ?? job.areaOfInterest),
                 ),
             ),
         ];
+
+        return includeSelected
+            ? [...new Set([...availableAreasOfInterest, ...this.filterAreasOfInterest])]
+            : availableAreasOfInterest;
     }
 
     getInternalFavicon(job) {
@@ -709,7 +730,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     onSearchInput(e) {
         this.searchQuery = e.target.value;
-        this._clearUnavailableAreaOfInterest();
         this._resetVisibleCount();
     }
 
@@ -805,7 +825,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             `;
         }
 
-        const sortedAreasOfInterest = this.getAvailableAreasOfInterest().sort((a, b) =>
+        const sortedAreasOfInterest = this.getAvailableAreasOfInterest({
+            includeSelected: true,
+        }).sort((a, b) =>
             getAreaOfInterestLabel(a, t).localeCompare(getAreaOfInterestLabel(b, t), this.lang),
         );
         const areaOfInterestItems = Object.fromEntries(
@@ -829,7 +851,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             `;
         }
 
-        const availableWorkLocations = this.getAvailableWorkLocations();
+        const availableWorkLocations = this.getAvailableWorkLocations({includeSelected: true});
         const filtered = this.getFilteredJobs();
 
         // Infinite scroll: only render the first _visibleCount jobs; more are appended
