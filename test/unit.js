@@ -189,8 +189,13 @@ suite('jobOfferForm area normalization', () => {
 
 suite('jobOfferForm validation', () => {
     test('should allow an empty application deadline', () => {
+        const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
-        const element = new JobOfferEditFormElement();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
         element._title = 'Software developer';
         element._description = 'Job description';
         element._publishedAt = '2026-07-22';
