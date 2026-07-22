@@ -13,6 +13,7 @@ import {
     mergeLocalizedStudentStudies,
 } from '../src/modules/studentProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
+import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
@@ -204,6 +205,48 @@ suite('jobOfferForm validation', () => {
         element._organization = 'TU Graz';
 
         assert.isTrue(element._isFormValid);
+    });
+});
+
+suite('jobOfferForm error notifications', () => {
+    test('should target create errors at the edit dialog notification', async () => {
+        const originalFetch = globalThis.fetch;
+        let notificationDetail = null;
+        const notificationHandler = (event) => {
+            notificationDetail = event.detail;
+            event.preventDefault();
+        };
+
+        globalThis.fetch = async () => ({
+            ok: false,
+            status: 403,
+            json: async () => ({}),
+        });
+        window.addEventListener('dbp-notification-send', notificationHandler, {capture: true});
+
+        try {
+            await apiCreateForm(
+                {
+                    auth: {token: 'token'},
+                    entryPointUrl: 'https://example.invalid',
+                    _i18n: {t: (key) => key},
+                },
+                {
+                    name: 'Job offer',
+                    localizedNames: [],
+                    frontendKey: 'job-offer',
+                },
+                {errorNotificationTargetId: 'edit-form-dialog-notification'},
+            );
+        } finally {
+            window.removeEventListener('dbp-notification-send', notificationHandler, {
+                capture: true,
+            });
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.equal(notificationDetail?.targetNotificationId, 'edit-form-dialog-notification');
+        assert.equal(notificationDetail?.type, 'danger');
     });
 });
 

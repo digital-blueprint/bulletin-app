@@ -1086,13 +1086,21 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             entryPointUrl: this.entryPointUrl,
             _i18n: this._i18n,
         };
+        const notificationOptions = {
+            errorNotificationTargetId: 'edit-form-dialog-notification',
+        };
 
         try {
             let result;
             if (isEditMode) {
-                result = await apiUpdateForm(host, this.existingForm.formId, formData);
+                result = await apiUpdateForm(
+                    host,
+                    this.existingForm.formId,
+                    formData,
+                    notificationOptions,
+                );
             } else {
-                result = await apiCreateForm(host, formData);
+                result = await apiCreateForm(host, formData, notificationOptions);
             }
 
             if (result) {
