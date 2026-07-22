@@ -346,6 +346,7 @@ const keepStudentProfileTranslations = (t) => {
     t('student-profile-form.field-open-to-all-industries');
     t('student-profile-form.field-industries');
     t('student-profile-form.field-fields');
+    t('student-profile-form.field-fields-description');
     t('student-profile-form.field-select-placeholder');
     t('student-profile-form.field-study-advanced-materials-science');
     t('student-profile-form.field-study-architecture');
@@ -988,7 +989,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         `;
     }
 
-    renderMultiSelectField(name, labelKey, items, value, onChange) {
+    renderMultiSelectField(name, labelKey, items, value, onChange, options = {}) {
         const t = (key, opts) => this._i18n.t(key, opts);
         return html`
             <dbp-enum-element
@@ -1005,7 +1006,15 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     if (!areStringArraysEqual(value, nextValue)) {
                         onChange(nextValue);
                     }
-                }}"></dbp-enum-element>
+                }}">
+                ${
+                    options.descriptionKey
+                        ? html`
+                              <div slot="description">${t(options.descriptionKey)}</div>
+                          `
+                        : ''
+                }
+            </dbp-enum-element>
         `;
     }
 
@@ -1249,6 +1258,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     fieldItems,
                     this._fields,
                     (value) => (this._fields = value),
+                    {descriptionKey: 'student-profile-form.field-fields-description'},
                 )}
             </div>
 
