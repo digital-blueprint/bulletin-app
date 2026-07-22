@@ -1252,6 +1252,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 flex-direction: column;
                 align-items: flex-start;
                 justify-content: space-between;
+                border: 1px solid var(--dbp-content);
+                padding: 1.5rem;
             }
 
             .contact-email {
@@ -1263,7 +1265,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin: 0;
             }
             dt {
-                font-weight: bold;
+                font-weight: 300;
+                font-size: 1.17em;
                 margin: 0;
             }
 
@@ -1275,6 +1278,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             .contact-wrapper {
                 display: flex;
                 flex-direction: row;
+            }
+            .contact-wrapper dt {
+                font-size: 1rem;
             }
 
             .contact-value {
