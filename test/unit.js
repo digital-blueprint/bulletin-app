@@ -10,6 +10,7 @@ import {
 import {
     formatStudentStudies as formatCareerProfileStudies,
     JobProfileEditFormElement,
+    mergeLocalizedStudentStudies,
 } from '../src/modules/studentProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 
@@ -302,11 +303,99 @@ suite('career profile student studies', () => {
         );
     });
 
+    test('should merge and format German and English study names', () => {
+        const studies = mergeLocalizedStudentStudies(
+            {
+                studies: [
+                    {key: 'bachelor', name: 'Informatik (Bachelorstudium)'},
+                    {key: 'master', name: 'Softwareentwicklung (Masterstudium)'},
+                ],
+            },
+            {
+                studies: [
+                    {key: 'bachelor', name: 'Computer Science (Bachelor programme)'},
+                    {key: 'master', name: 'Software Engineering (Master programme)'},
+                ],
+            },
+        );
+
+        assert.deepEqual(studies, [
+            {
+                key: 'bachelor',
+                name: 'Informatik (Bachelorstudium)',
+                nameEn: 'Computer Science (Bachelor programme)',
+            },
+            {
+                key: 'master',
+                name: 'Softwareentwicklung (Masterstudium)',
+                nameEn: 'Software Engineering (Master programme)',
+            },
+        ]);
+        assert.equal(
+            formatCareerProfileStudies({studies}, 'en'),
+            'Computer Science (Bachelor programme), Software Engineering (Master programme)',
+        );
+    });
+
+    test('should fetch German and English studies with Accept-Language', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        const requestedLanguages = [];
+        element.auth = {'user-id': 'student-1', token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        element.currentStudentStudies = [];
+        globalThis.fetch = async (_url, options) => {
+            const language = options.headers['Accept-Language'];
+            requestedLanguages.push(language);
+            return {
+                ok: true,
+                json: async () => ({
+                    localData: {
+                        email: language === 'de' ? 'student@example.com' : undefined,
+                        studies: [
+                            {
+                                key: 'bachelor',
+                                name:
+                                    language === 'en'
+                                        ? 'Computer Science (Bachelor programme)'
+                                        : 'Informatik (Bachelorstudium)',
+                            },
+                        ],
+                    },
+                }),
+            };
+        };
+
+        try {
+            await element._prefillStudentData();
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.deepEqual(requestedLanguages, ['de', 'en']);
+        assert.deepEqual(element._getDisplayStudies(), [
+            {
+                key: 'bachelor',
+                name: 'Informatik (Bachelorstudium)',
+                nameEn: 'Computer Science (Bachelor programme)',
+            },
+        ]);
+    });
+
     test('should select multiple fetched studies for the profile', async () => {
         const element = document.createElement(tagName);
+        element.lang = 'en';
         element.currentStudentStudies = [
-            {key: 'bachelor', name: 'Computer Science (Bachelorstudium)'},
-            {key: 'master', name: 'Software Engineering and Management (Masterstudium)'},
+            {
+                key: 'bachelor',
+                name: 'Informatik (Bachelorstudium)',
+                nameEn: 'Computer Science (Bachelor programme)',
+            },
+            {
+                key: 'master',
+                name: 'Softwareentwicklung (Masterstudium)',
+                nameEn: 'Software Engineering (Master programme)',
+            },
         ];
         document.body.appendChild(element);
         await element.updateComplete;
@@ -314,21 +403,57 @@ suite('career profile student studies', () => {
         const studyField = element.shadowRoot.querySelector('[name="study-program"]');
         assert.isNotNull(studyField);
         assert.deepEqual(studyField.items, {
-            'Computer Science (Bachelorstudium)': 'Computer Science (Bachelorstudium)',
-            'Software Engineering and Management (Masterstudium)':
-                'Software Engineering and Management (Masterstudium)',
+            'key:bachelor': 'Computer Science (Bachelor programme)',
+            'key:master': 'Software Engineering (Master programme)',
         });
-        assert.deepEqual(studyField.value, [
-            'Computer Science (Bachelorstudium)',
-            'Software Engineering and Management (Masterstudium)',
-        ]);
+        assert.deepEqual(studyField.value, ['key:bachelor', 'key:master']);
         assert.deepEqual(element._getDisplayStudies(), element.currentStudentStudies);
 
-        element._selectStudies(['Software Engineering and Management (Masterstudium)']);
+        element._selectStudies(['key:master']);
 
         assert.deepEqual(element._getDisplayStudies(), [element.currentStudentStudies[1]]);
-        assert.equal(element._studyProgram, 'Software Engineering and Management (Masterstudium)');
+        assert.equal(element._studyProgram, 'Softwareentwicklung (Masterstudium)');
         element.remove();
+    });
+
+    test('should save German and English study names in the profile', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        let requestBody;
+        element.auth = {token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        element.currentStudentStudies = [
+            {
+                key: 'bachelor',
+                name: 'Informatik (Bachelorstudium)',
+                nameEn: 'Computer Science (Bachelor programme)',
+            },
+        ];
+        document.body.appendChild(element);
+        await element.updateComplete;
+        element._summary = 'Profil';
+        element._contactEmail = 'student@example.com';
+        globalThis.fetch = async (_url, options) => {
+            requestBody = JSON.parse(options.body);
+            return {
+                ok: true,
+                json: async () => ({identifier: 'profile-1'}),
+            };
+        };
+
+        try {
+            await element.submit();
+        } finally {
+            globalThis.fetch = originalFetch;
+            element.remove();
+        }
+
+        assert.deepEqual(requestBody.additionalData.studies, element.currentStudentStudies);
+        assert.equal(requestBody.additionalData.studyProgram, 'Informatik (Bachelorstudium)');
+        assert.equal(
+            requestBody.additionalData.studyProgramEn,
+            'Computer Science (Bachelor programme)',
+        );
     });
 
     test('should preserve multiple saved studies when editing a profile', async () => {

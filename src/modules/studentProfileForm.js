@@ -221,22 +221,103 @@ export const normalizeStudentStudies = (localData) => {
     return name ? [{name}] : [];
 };
 
-export const formatStudentStudies = (localData) => {
+const STUDENT_STUDY_IDENTIFIER_FIELDS = [
+    'key',
+    'identifier',
+    'id',
+    'code',
+    'curriculumKey',
+    'curriculumId',
+];
+
+const getStableStudentStudyIdentifier = (study) => {
+    for (const field of STUDENT_STUDY_IDENTIFIER_FIELDS) {
+        if (study?.[field] !== undefined && study[field] !== null && study[field] !== '') {
+            return `${field}:${study[field]}`;
+        }
+    }
+
+    return null;
+};
+
+export const getStudentStudyValue = (study) =>
+    getStableStudentStudyIdentifier(study) ?? ['name', study?.name ?? ''].join(':');
+
+export const getLocalizedStudentStudyName = (study, lang = 'de') =>
+    lang === 'en' ? study?.nameEn || study?.name || '' : study?.name || study?.nameEn || '';
+
+export const formatStudentStudies = (localData, lang = 'de') => {
+    if (
+        lang === 'en' &&
+        (!Array.isArray(localData?.studies) || localData.studies.length === 0) &&
+        localData?.studyProgramEn
+    ) {
+        return String(localData.studyProgramEn);
+    }
+
     return normalizeStudentStudies(localData)
-        .map((study) => study.name)
+        .map((study) => getLocalizedStudentStudyName(study, lang))
         .join(', ');
 };
 
-const mergeStudentStudies = (...studyLists) => {
-    const studiesByName = new Map();
+export const mergeLocalizedStudentStudies = (germanLocalData, englishLocalData) => {
+    const germanStudies = normalizeStudentStudies(germanLocalData);
+    const englishStudies = normalizeStudentStudies(englishLocalData);
+    const englishStudiesByIdentifier = new Map(
+        englishStudies
+            .map((study, index) => [getStableStudentStudyIdentifier(study), {study, index}])
+            .filter(([identifier]) => identifier),
+    );
+    const matchedEnglishIndexes = new Set();
 
-    studyLists.flat().forEach((study) => {
-        if (study?.name && !studiesByName.has(study.name)) {
-            studiesByName.set(study.name, study);
+    const studies = germanStudies.map((study, index) => {
+        const identifier = getStableStudentStudyIdentifier(study);
+        const match = identifier ? englishStudiesByIdentifier.get(identifier) : null;
+        const englishIndex = match?.index ?? index;
+        const englishStudy = match?.study ?? englishStudies[englishIndex];
+        if (englishStudy) {
+            matchedEnglishIndexes.add(englishIndex);
+        }
+
+        return {
+            ...study,
+            nameEn: englishStudy?.name || study.nameEn || study.name,
+        };
+    });
+
+    englishStudies.forEach((study, index) => {
+        if (!matchedEnglishIndexes.has(index)) {
+            studies.push({...study, nameEn: study.name});
         }
     });
 
-    return [...studiesByName.values()];
+    return studies;
+};
+
+const mergeStudentStudies = (...studyLists) => {
+    const studiesByIdentifier = new Map();
+
+    studyLists.flat().forEach((study) => {
+        if (!study?.name) {
+            return;
+        }
+
+        const key = getStudentStudyValue(study);
+        const existingStudy = studiesByIdentifier.get(key);
+        if (!existingStudy) {
+            studiesByIdentifier.set(key, study);
+            return;
+        }
+
+        const mergedStudy = {...study, ...existingStudy};
+        const nameEn = existingStudy.nameEn || study.nameEn;
+        if (nameEn) {
+            mergedStudy.nameEn = nameEn;
+        }
+        studiesByIdentifier.set(key, mergedStudy);
+    });
+
+    return [...studiesByIdentifier.values()];
 };
 
 const isValidWebsiteUrl = (value) => {
@@ -464,7 +545,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._studyProgram = '';
         this._studies = [];
         this._availableStudies = [];
-        this._selectedStudyNames = [];
+        this._selectedStudyKeys = [];
         this._previousExperience = '';
         this._previousExperienceEn = '';
         this._skillsText = '';
@@ -502,7 +583,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             _studyProgram: {state: true},
             _studies: {state: true},
             _availableStudies: {state: true},
-            _selectedStudyNames: {state: true},
+            _selectedStudyKeys: {state: true},
             _previousExperience: {state: true},
             _previousExperienceEn: {state: true},
             _skillsText: {state: true},
@@ -541,7 +622,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 this._summary = data.summary || '';
                 this._summaryEn = data.summaryEn || '';
                 this._studies = normalizeStudentStudies(data);
-                this._selectedStudyNames = this._studies.map((study) => study.name);
+                this._selectedStudyKeys = this._studies.map(getStudentStudyValue);
                 this._studyProgram =
                     data.studyProgram || formatStudentStudies({studies: this._studies});
                 this._previousExperience = data.previousExperience || '';
@@ -600,10 +681,25 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._loadingStudentData = true;
 
         try {
-            const localData = await this._fetchPersonLocalData(userId, ['email', 'studies']);
+            const needsStudies =
+                normalizeStudentStudies({
+                    studies: this.currentStudentStudies,
+                }).length === 0;
+            const [localData, englishLocalData] = await Promise.all([
+                this._fetchPersonLocalData(
+                    userId,
+                    needsStudies ? ['email', 'studies'] : ['email'],
+                    'de',
+                ),
+                needsStudies
+                    ? this._fetchPersonLocalData(userId, ['studies'], 'en')
+                    : Promise.resolve({}),
+            ]);
 
             // Email is kept in additionalData for contacting the student, but never shown to companies.
-            const studies = normalizeStudentStudies(localData);
+            const studies = needsStudies
+                ? mergeLocalizedStudentStudies(localData, englishLocalData)
+                : this.currentStudentStudies;
 
             this._contactEmail = this._contactEmail || localData.email || '';
             this._setAvailableStudies(studies);
@@ -615,7 +711,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         }
     }
 
-    async _fetchPersonLocalData(userId, localDataAttributes) {
+    async _fetchPersonLocalData(userId, localDataAttributes, language) {
         const includeLocal = localDataAttributes.join(',');
         const response = await fetch(
             `${this.entryPointUrl}/base/people/${encodeURIComponent(
@@ -625,16 +721,19 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 headers: {
                     'Content-Type': 'application/ld+json',
                     Authorization: `Bearer ${this.auth.token}`,
+                    'Accept-Language': language,
                 },
             },
         );
 
         if (!response.ok) {
             if (localDataAttributes.includes('studies')) {
-                return this._fetchPersonLocalData(
-                    userId,
-                    localDataAttributes.filter((attribute) => attribute !== 'studies'),
+                const fallbackAttributes = localDataAttributes.filter(
+                    (attribute) => attribute !== 'studies',
                 );
+                return fallbackAttributes.length > 0
+                    ? this._fetchPersonLocalData(userId, fallbackAttributes, language)
+                    : {};
             }
 
             throw new Error(response.statusText || response.status);
@@ -668,38 +767,40 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
 
         this._availableStudies = mergeStudentStudies(selectableStudies, legacyStudies);
 
-        const selectedStudyNames = this._selectedStudyNames.filter((studyName) =>
-            this._availableStudies.some((study) => study.name === studyName),
+        const selectedStudyKeys = this._selectedStudyKeys.filter((studyKey) =>
+            this._availableStudies.some((study) => getStudentStudyValue(study) === studyKey),
         );
 
         this._selectStudies(
-            selectedStudyNames.length > 0
-                ? selectedStudyNames
+            selectedStudyKeys.length > 0
+                ? selectedStudyKeys
                 : savedStudies.length > 0
-                  ? savedStudies.map((study) => study.name)
-                  : this._availableStudies.map((study) => study.name),
+                  ? savedStudies.map(getStudentStudyValue)
+                  : this._availableStudies.map(getStudentStudyValue),
             true,
         );
     }
 
-    _selectStudies(studyNames, force = false) {
-        const requestedStudyNames = new Set(normalizeStudentProfileSelectValues(studyNames));
+    _selectStudies(studyKeys, force = false) {
+        const requestedStudyKeys = new Set(normalizeStudentProfileSelectValues(studyKeys));
         const studies = this._availableStudies.filter((study) =>
-            requestedStudyNames.has(study.name),
+            requestedStudyKeys.has(getStudentStudyValue(study)),
         );
-        const selectedStudyNames = studies.map((study) => study.name);
-        if (!force && areStringArraysEqual(this._selectedStudyNames, selectedStudyNames)) {
+        const selectedStudyKeys = studies.map(getStudentStudyValue);
+        if (!force && areStringArraysEqual(this._selectedStudyKeys, selectedStudyKeys)) {
             return;
         }
 
         this._studies = studies;
-        this._selectedStudyNames = selectedStudyNames;
+        this._selectedStudyKeys = selectedStudyKeys;
         this._studyProgram = studies.length ? formatStudentStudies({studies}) : this._studyProgram;
     }
 
     _getDisplayStudies() {
-        const selectedStudyNames = new Set(this._selectedStudyNames);
-        return this._availableStudies.filter((study) => selectedStudyNames.has(study.name));
+        const selectedStudyKeys = new Set(this._selectedStudyKeys);
+        return this._availableStudies.filter((study) =>
+            selectedStudyKeys.has(getStudentStudyValue(study)),
+        );
     }
 
     async submit() {
@@ -709,6 +810,9 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         const studyProgram = studies.length
             ? formatStudentStudies({studies})
             : this._studyProgram.trim();
+        const studyProgramEn = studies.length
+            ? formatStudentStudies({studies}, 'en')
+            : this.existingForm?.additionalData?.studyProgramEn || studyProgram;
 
         if (!this._contactEmail.trim()) {
             sendNotification({
@@ -758,6 +862,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             summary: this._summary.trim(),
             summaryEn: this._summaryEn.trim(),
             studyProgram,
+            studyProgramEn,
             studies,
             previousExperience: this._previousExperience.trim(),
             previousExperienceEn: this._previousExperienceEn.trim(),
@@ -921,7 +1026,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const studyItems = Object.fromEntries(
-            this._availableStudies.map((study) => [study.name, study.name]),
+            this._availableStudies.map((study) => [
+                getStudentStudyValue(study),
+                getLocalizedStudentStudyName(study, this.lang),
+            ]),
         );
         const industryItems = getStudentProfileIndustryItems(t);
         const fieldItems = getStudentProfileFieldItems(t);
@@ -975,7 +1083,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                                                 ),
                                             }}"
                                             .items="${studyItems}"
-                                            .value="${this._selectedStudyNames}"
+                                            .value="${this._selectedStudyKeys}"
                                             required
                                             @change="${(event) =>
                                                 this._selectStudies(event.detail.value)}">

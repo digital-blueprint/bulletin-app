@@ -11,6 +11,8 @@ import JobProfileModule, {
     JobProfileInterestFormElement,
     getStudentProfileFieldLabels,
     getStudentProfileIndustryLabels,
+    getLocalizedStudentStudyName,
+    mergeLocalizedStudentStudies,
     normalizeStudentStudies,
 } from './modules/studentProfileForm.js';
 import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
@@ -44,6 +46,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._currentStudentStudies = [];
         this._currentStudentStudiesUserId = '';
         this._loadingCurrentStudentStudies = false;
+        this._currentStudentStudiesPromise = null;
     }
 
     static get properties() {
@@ -102,43 +105,58 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     async _fetchCurrentStudentStudies() {
         const userId = this.auth?.['user-id'];
+        if (this._loadingCurrentStudentStudies) {
+            return this._currentStudentStudiesPromise;
+        }
+
         if (
             !userId ||
             !this.auth?.token ||
             !this.entryPointUrl ||
-            this._loadingCurrentStudentStudies ||
             this._currentStudentStudiesUserId === userId
         ) {
             return;
         }
 
         this._loadingCurrentStudentStudies = true;
-
-        try {
-            const response = await fetch(
-                `${this.entryPointUrl}/base/people/${encodeURIComponent(
+        this._currentStudentStudiesPromise = (async () => {
+            try {
+                const url = `${this.entryPointUrl}/base/people/${encodeURIComponent(
                     userId,
-                )}?includeLocal=${encodeURIComponent('studies')}`,
-                {
-                    headers: {
-                        'Content-Type': 'application/ld+json',
-                        Authorization: `Bearer ${this.auth.token}`,
-                    },
-                },
-            );
+                )}?includeLocal=${encodeURIComponent('studies')}`;
+                const [germanResponse, englishResponse] = await Promise.all(
+                    ['de', 'en'].map((language) =>
+                        fetch(url, {
+                            headers: {
+                                'Content-Type': 'application/ld+json',
+                                Authorization: `Bearer ${this.auth.token}`,
+                                'Accept-Language': language,
+                            },
+                        }),
+                    ),
+                );
+                if (!germanResponse.ok && !englishResponse.ok) {
+                    return;
+                }
 
-            if (!response.ok) {
-                return;
+                const [germanPerson, englishPerson] = await Promise.all([
+                    germanResponse.ok ? germanResponse.json() : {},
+                    englishResponse.ok ? englishResponse.json() : {},
+                ]);
+                this._currentStudentStudies = mergeLocalizedStudentStudies(
+                    germanPerson?.localData ?? {},
+                    englishPerson?.localData ?? {},
+                );
+                this._currentStudentStudiesUserId = userId;
+            } catch (error) {
+                console.error('Error loading student studies:', error);
+            } finally {
+                this._loadingCurrentStudentStudies = false;
+                this._currentStudentStudiesPromise = null;
             }
+        })();
 
-            const person = await response.json();
-            this._currentStudentStudies = normalizeStudentStudies(person?.localData ?? {});
-            this._currentStudentStudiesUserId = userId;
-        } catch (error) {
-            console.error('Error loading student studies:', error);
-        } finally {
-            this._loadingCurrentStudentStudies = false;
-        }
+        return this._currentStudentStudiesPromise;
     }
 
     async _fetchProfiles() {
@@ -455,7 +473,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             return '';
         }
 
-        return this._renderList(studies.map((study) => study.name));
+        return this._renderList(
+            studies.map((study) => getLocalizedStudentStudyName(study, this.lang)),
+        );
     }
 
     _renderStudiesSection(profile) {

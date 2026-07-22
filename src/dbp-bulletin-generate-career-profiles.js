@@ -165,7 +165,7 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
     _buildRandomCareerProfile(index) {
         const module = new JobProfileModule();
         const uniqueSuffix = `#${Date.now().toString().slice(-5)}-${index + 1}`;
-        const studies = randomSubset(SAMPLE_STUDIES, 2).map((name) => ({name}));
+        const studies = randomSubset(SAMPLE_STUDIES, 2).map((name) => ({name, nameEn: name}));
         const skillIndexes = randomSubset(
             Array.from({length: SAMPLE_SKILLS.length}, (_value, skillIndex) => skillIndex),
             4,
@@ -185,6 +185,7 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             summary: SAMPLE_SUMMARIES_DE[summaryIndex],
             summaryEn: SAMPLE_SUMMARIES[summaryIndex],
             studyProgram: studies.map((study) => study.name).join(', '),
+            studyProgramEn: studies.map((study) => study.nameEn).join(', '),
             studies,
             previousExperience: SAMPLE_EXPERIENCE_DE[experienceIndex],
             previousExperienceEn: SAMPLE_EXPERIENCE[experienceIndex],

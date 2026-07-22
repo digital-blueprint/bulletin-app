@@ -13,6 +13,7 @@ import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import JobProfileModule, {
     formatStudentStudies,
+    getLocalizedStudentStudyName,
     getStudentProfileFieldLabels,
     getStudentProfileIndustryLabels,
     JobProfileInterestFormElement,
@@ -249,7 +250,9 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             return '';
         }
 
-        return this._renderList(studies.map((study) => study.name));
+        return this._renderList(
+            studies.map((study) => getLocalizedStudentStudyName(study, this.lang)),
+        );
     }
 
     _renderStudiesSection(profile) {
@@ -310,7 +313,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
         return this._profiles.filter((profile) => {
             const data = profile.additionalData ?? {};
-            const studies = formatStudentStudies(data);
+            const studies = formatStudentStudies(data, this.lang);
             const workLocationLabels = this._getWorkLocationLabels(profile);
             const industries = normalizeStudentProfileSelectValues(data.industries);
             const industryLabels = this._getIndustryLabels(profile);
@@ -435,7 +438,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             const skills = this._localizedList(profile, 'skills', 'skillsEn');
             return {
                 alias: this._getProfileAlias(profile),
-                studyProgram: formatStudentStudies(data),
+                studyProgram: formatStudentStudies(data, this.lang),
                 workLocations: this._getWorkLocationLabels(profile).join(', '),
                 availableFrom: data.availability ?? '',
                 previousExperience: this._localized(
