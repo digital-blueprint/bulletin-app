@@ -187,15 +187,18 @@ suite('dbp-bulletin app shell', () => {
                 visible: true,
                 disabled: false,
                 required_roles: [],
-                required_any_roles: ['ROLE_BULLETIN_STUDENT', 'ROLE_BULLETIN_FT_HAUS'],
+                required_any_roles: [
+                    'ROLE_BULLETIN_JOB_OFFER_USER',
+                    'ROLE_BULLETIN_JOB_OFFER_MANAGER',
+                ],
             },
         };
 
-        element._roles = ['ROLE_BULLETIN_FT_HAUS'];
+        element._roles = ['ROLE_BULLETIN_JOB_OFFER_MANAGER'];
         element._updateVisibleRoutes();
         assert.deepEqual(element.visibleRoutes, [{name: 'view-job-offers', disabled: false}]);
 
-        element._roles = ['ROLE_BULLETIN_EXTERNAL_COMPANY'];
+        element._roles = ['ROLE_BULLETIN_CAREER_PROFILE_USER'];
         element._updateVisibleRoutes();
         assert.deepEqual(element.visibleRoutes, []);
     });

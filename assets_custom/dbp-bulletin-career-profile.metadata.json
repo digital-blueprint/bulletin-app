@@ -2,7 +2,7 @@
     "element": "dbp-bulletin-career-profile",
     "module_src": "dbp-bulletin-career-profile.js",
     "routing_name": "career-profile",
-    "required_roles": ["ROLE_BULLETIN_STUDENT"],
+    "required_roles": ["ROLE_BULLETIN_CAREER_PROFILE_MANAGER"],
     "name": {
         "de": "Eigenes Karriereprofil verwalten",
         "en": "Manage your career profile"

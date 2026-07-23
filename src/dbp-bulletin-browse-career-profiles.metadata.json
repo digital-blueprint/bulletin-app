@@ -2,7 +2,7 @@
     "element": "dbp-bulletin-browse-career-profiles",
     "module_src": "dbp-bulletin-browse-career-profiles.js",
     "routing_name": "browse-career-profiles",
-    "required_any_roles": ["ROLE_BULLETIN_EXTERNAL_COMPANY", "ROLE_BULLETIN_FT_HAUS"],
+    "required_any_roles": ["ROLE_BULLETIN_CAREER_PROFILE_USER", "ROLE_BULLETIN_JOB_OFFER_MANAGER"],
     "name": {
         "de": "Karriereprofile durchsuchen",
         "en": "View career profiles"
