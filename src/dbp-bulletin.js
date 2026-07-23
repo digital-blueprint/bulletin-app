@@ -37,6 +37,30 @@ export class BulletinAppShell extends AppShell {
         super.update(changedProperties);
     }
 
+    _updateVisibleRoutes() {
+        const originalRequiredRoles = new Map();
+
+        // Adapt any-role requirements to the toolkit's all-role visibility check.
+        for (const routingName of this.routes) {
+            const activity = this.metadata[routingName];
+            const requiredAnyRoles = activity.required_any_roles ?? [];
+            if (requiredAnyRoles.length === 0) continue;
+
+            originalRequiredRoles.set(activity, activity.required_roles);
+            if (!requiredAnyRoles.some((role) => this._roles.includes(role))) {
+                activity.required_roles = [...activity.required_roles, null];
+            }
+        }
+
+        try {
+            super._updateVisibleRoutes();
+        } finally {
+            for (const [activity, requiredRoles] of originalRequiredRoles) {
+                activity.required_roles = requiredRoles;
+            }
+        }
+    }
+
     _updateStickyFooterState() {
         this.classList.toggle('sticky-footer-active', this.activeView === 'view-job-offers');
     }

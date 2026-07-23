@@ -2,6 +2,7 @@
     "element": "dbp-formalize-manage-fields",
     "module_src": "dbp-formalize-manage-fields.js",
     "routing_name": "manage-fields",
+    "required_roles": ["ROLE_BULLETIN_FT_HAUS"],
     "name": {
         "de": "Nutzerdefinierte Felder verwalten",
         "en": "Manage user-defined fields"

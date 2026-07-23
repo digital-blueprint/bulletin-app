@@ -178,6 +178,27 @@ suite('dbp-bulletin app shell', () => {
 
         assert.isFalse(element.classList.contains('sticky-footer-active'));
     });
+
+    test('should show an activity when any required role matches', () => {
+        const element = new BulletinAppShell();
+        element.routes = ['view-job-offers'];
+        element.metadata = {
+            'view-job-offers': {
+                visible: true,
+                disabled: false,
+                required_roles: [],
+                required_any_roles: ['ROLE_BULLETIN_STUDENT', 'ROLE_BULLETIN_FT_HAUS'],
+            },
+        };
+
+        element._roles = ['ROLE_BULLETIN_FT_HAUS'];
+        element._updateVisibleRoutes();
+        assert.deepEqual(element.visibleRoutes, [{name: 'view-job-offers', disabled: false}]);
+
+        element._roles = ['ROLE_BULLETIN_EXTERNAL_COMPANY'];
+        element._updateVisibleRoutes();
+        assert.deepEqual(element.visibleRoutes, []);
+    });
 });
 
 suite('jobOfferForm area normalization', () => {

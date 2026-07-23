@@ -2,6 +2,7 @@
     "element": "dbp-bulletin-view-job-offers",
     "module_src": "dbp-bulletin-view-job-offers.js",
     "routing_name": "view-job-offers",
+    "required_any_roles": ["ROLE_BULLETIN_STUDENT", "ROLE_BULLETIN_FT_HAUS"],
     "name": {
         "de": "Stellenangebote anzeigen",
         "en": "View job offers"

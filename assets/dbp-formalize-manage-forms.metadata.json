@@ -2,6 +2,7 @@
     "element": "dbp-formalize-manage-forms",
     "module_src": "dbp-formalize-manage-forms.js",
     "routing_name": "manage-job-offers",
+    "required_roles": ["ROLE_BULLETIN_FT_HAUS"],
     "name": {
         "de": "Stellenangebote verwalten",
         "en": "Manage job offers"
