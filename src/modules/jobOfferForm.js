@@ -1399,7 +1399,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             @change="${(e) =>
                                 (this._contractDurationEn = e.detail.value)}"></dbp-string-element>
                     </div>
-                    <div class="half-col">
+                    <div >
                         <dbp-enum-element
                             name="job-category"
                             lang="${this.lang}"
