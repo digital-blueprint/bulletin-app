@@ -765,6 +765,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           )
                                         : ''
                                 }
+                            
+                        </dt>
+                        <dt>
                             ${this._i18n.t('student-profile-form.field-preferred-work-location')}:
                         </dt>
                         <dd>
