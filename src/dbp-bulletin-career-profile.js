@@ -474,9 +474,20 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             return '';
         }
 
-        return this._renderList(
-            studies.map((study) => getLocalizedStudentStudyLabel(study, this.lang)),
-        );
+        return html`
+            <dt>${this._i18n.t('student-profile-form.field-study-program')}:</dt>
+            <dd class="studyProgram-list">
+                ${this._renderList(
+                    studies.map(
+                        (study) => html`
+                            <span class="tag">
+                                ${getLocalizedStudentStudyLabel(study, this.lang)}
+                            </span>
+                        `,
+                    ),
+                )}
+            </dd>
+        `;
     }
 
     _renderStudiesSection(profile) {
@@ -486,8 +497,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <section class="profile-studies">
-                <h3>${this._i18n.t('student-profile-form.field-study-program')}</h3>
+            <dl class="profile-studies">
+                <dt>${this._i18n.t('student-profile-form.field-study-program')}</dt>
                 ${
                     studies.length
                         ? this._renderStudies(profile)
@@ -496,7 +507,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   text="${this._i18n.t('loading-message')}"></dbp-mini-spinner>
                           `
                 }
-            </section>
+            </dl>
         `;
     }
 
@@ -717,9 +728,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           </dt>
                                           <dd class="contact-value">${data.contactEmail}</dd>
                                       </dl>
-                                      <span class="additional-note" aria-describedby="email-note">
-                                          ${this._i18n.t('student-profile-form.field-contact-email-note')}
-                                      </span>
                                   </div>
                               `
                             : ''
@@ -737,6 +745,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <p>${summary}</p>
 
                     <dl>
+                        ${this._renderStudies(profile)}
                         <dt>${this._i18n.t('student-profile-form.field-availability')}:</dt>
                         <dd>${data.availability}</dd>
 
@@ -1309,7 +1318,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .industry-list,
             .field-list,
-            .work-location-list {
+            .work-location-list,
+            .studyProgram-list ul {
                 list-style: none;
                 padding: 0;
             }
