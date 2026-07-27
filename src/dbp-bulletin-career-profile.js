@@ -498,7 +498,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <dl class="profile-studies">
-                <dt>${this._i18n.t('student-profile-form.field-study-program')}</dt>
+                <dt>${this._i18n.t('student-profile-form.field-study-program')}:</dt>
                 ${
                     studies.length
                         ? this._renderStudies(profile)
@@ -753,7 +753,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 ${
                                     data.website || data.linkUrl
                                         ? this._renderMetaItem(
-                                              t('student-profile-form.field-website'),
+                                              t('student-profile-form.field-website') + ':',
                                               html`
                                                   <a
                                                       href="${data.website || data.linkUrl}"
@@ -1282,14 +1282,14 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin: 0;
             }
             dt {
-                font-weight: 300;
-                font-size: 1.17em;
+                font-weight: 600;
+                font-size: 1em;
                 margin: 0;
             }
 
             dd {
                 margin-left: 2px;
-                margin-bottom: 1.5rem;
+                margin-bottom: 0.75rem;
             }
 
             .contact-wrapper {
