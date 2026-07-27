@@ -652,6 +652,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _renderProfileCard(profile) {
+        const t = (key, opts) => this._i18n.t(key, opts);
         const isOwnProfile = this._isOwnProfile(profile);
         const data = profile.additionalData ?? {};
         const workLocationLabels = getWorkLocationLabels(
@@ -749,14 +750,21 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         <dt>${this._i18n.t('student-profile-form.field-availability')}:</dt>
                         <dd>${data.availability}</dd>
 
-                        <dt>${this._i18n.t('student-profile-form.field-website')}:</dt>
-                        <dd>
-                            <a href="${data.website}" target="_blank" rel="noopener noreferrer">
-                                ${data.website}
-                            </a>
-                        </dd>
-
-                        <dt>
+                                ${
+                                    data.website || data.linkUrl
+                                        ? this._renderMetaItem(
+                                              t('student-profile-form.field-website'),
+                                              html`
+                                                  <a
+                                                      href="${data.website || data.linkUrl}"
+                                                      target="_blank"
+                                                      rel="noopener noreferrer">
+                                                      ${data.website || data.linkUrl}
+                                                  </a>
+                                              `,
+                                          )
+                                        : ''
+                                }
                             ${this._i18n.t('student-profile-form.field-preferred-work-location')}:
                         </dt>
                         <dd>
