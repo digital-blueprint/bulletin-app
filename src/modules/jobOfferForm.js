@@ -699,6 +699,25 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return normalizeHttpUrl(this._externalJobUrl) !== '';
     }
 
+    _handleWeeklyHoursInput(event) {
+        const inputElement = event?.target;
+        const rawValue = String(inputElement?.value ?? '').trim();
+
+        if (rawValue === '') {
+            this._weeklyHours = '';
+            return;
+        }
+        const numericValue = Number(rawValue.replace(',', '.'));
+        const normalizedValue =
+            Number.isFinite(numericValue) && numericValue > 99 ? '99' : rawValue;
+
+        if (inputElement) {
+            inputElement.value = normalizedValue;
+        }
+
+        this._weeklyHours = normalizedValue;
+    }
+
     _normalizeJobOfferType(value, data = {}) {
         if (JOB_OFFER_TYPES.includes(value)) {
             return value;
@@ -1315,10 +1334,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         name="weekly-hours"
                         lang="${this.lang}"
                         label="${t('manage-job-offers.field-weekly-hours')}"
+                        type="number"
                         min="0"
+                        max="99"
                         step="0.5"
                         required
                         .value="${this._weeklyHours}"
+                        @input="${this._handleWeeklyHoursInput}"
                         @change="${(e) => (this._weeklyHours = e.detail.value)}"></dbp-number-element>
                     
                     <dbp-date-element
