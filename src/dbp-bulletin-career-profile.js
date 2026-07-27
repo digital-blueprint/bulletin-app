@@ -1299,6 +1299,14 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 width: max-content;
             }
 
+            .industry-list {
+                padding: 0;
+            }
+
+            .tag {
+                margin-bottom: 5px;
+            }
+
             .industry-list,
             .field-list,
             .work-location-list {
