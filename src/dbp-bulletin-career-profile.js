@@ -591,7 +591,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         if (data.openToAllIndustries) {
             return html`
-                <p>${this._i18n.t('student-profile-form.field-open-to-all-industries')}</p>
+                <span>${this._i18n.t('student-profile-form.field-open-to-all-industries')}</span>
             `;
         }
 
@@ -741,61 +741,122 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                               `
                             : ''
                     }
-                    <p>${summary}</p>
-
+                    ${
+                        summary
+                            ? html`
+                                  <p>${summary}</p>
+                              `
+                            : ''
+                    }
                     <dl>
                         ${this._renderStudies(profile)}
-                        <dt>${this._i18n.t('student-profile-form.field-availability')}:</dt>
-                        <dd>${data.availability}</dd>
-
-                                ${
-                                    data.website || data.linkUrl
-                                        ? this._renderMetaItem(
-                                              t('student-profile-form.field-website') + ':',
-                                              html`
-                                                  <a
-                                                      href="${data.website || data.linkUrl}"
-                                                      target="_blank"
-                                                      rel="noopener noreferrer">
-                                                      ${data.website || data.linkUrl}
-                                                  </a>
-                                              `,
-                                          )
-                                        : ''
-                                }
-                            
-                        </dt>
-                        <dt>
-                            ${this._i18n.t('student-profile-form.field-preferred-work-location')}:
-                        </dt>
-                        <dd>
-                            ${this._renderWorkLocationList(
-                                workLocationLabels.map((label) =>
-                                    label.split(', ').slice(0, 2).join(', '),
-                                ),
-                            )}
-                        </dd>
-
-                        <dt>${this._i18n.t('student-profile-form.field-preferred-industries')}:</dt>
-                        <dd>${this._getIndustries(profile)}</dd>
-
-                        <dt>${this._i18n.t('student-profile-form.field-fields')}:</dt>
-                        <dd>${this._getFields(profile)}</dd>
-
-                        <dt>${this._i18n.t('student-profile-form.field-previous-experience')}:</dt>
-                        <dd>${previousExperience}</dd>
-
-                        <dt>${this._i18n.t('student-profile-form.field-qualification')}:</dt>
-                        <dd>${qualification}</dd>
-
-                        <dt>${this._i18n.t('student-profile-form.field-personal-interests')}:</dt>
-                        <dd>${personalInterests}</dd>
-
-                        <dt>${this._i18n.t('student-profile-form.field-skills')}:</dt>
-                        <dd>${this._getSkills(profile)}</dd>
-
-                        <dt>${this._i18n.t('student-profile-form.field-languages-view-mode')}:</dt>
-                        <dd>${this._getLanguages(profile)}</dd>
+                        ${
+                            data.availability
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('student-profile-form.field-availability')}:
+                                      </dt>
+                                      <dd>${data.availability}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            data.website || data.linkUrl
+                                ? this._renderMetaItem(
+                                      t('student-profile-form.field-website') + ':',
+                                      html`
+                                          <a
+                                              href="${data.website || data.linkUrl}"
+                                              target="_blank"
+                                              rel="noopener noreferrer">
+                                              ${data.website || data.linkUrl}
+                                          </a>
+                                      `,
+                                  )
+                                : ''
+                        }
+                        ${
+                            workLocationLabels && workLocationLabels.length
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('student-profile-form.field-preferred-work-location')}:
+                                      </dt>
+                                      <dd>
+                                          ${this._renderWorkLocationList(
+                                              workLocationLabels.map((label) =>
+                                                  label.split(', ').slice(0, 2).join(', '),
+                                              ),
+                                          )}
+                                      </dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            this._getIndustries(profile)
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('student-profile-form.field-preferred-industries')}:
+                                      </dt>
+                                      <dd>${this._getIndustries(profile)}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            this._getFields(profile)
+                                ? html`
+                                      <dt>${this._i18n.t('student-profile-form.field-fields')}:</dt>
+                                      <dd>${this._getFields(profile)}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            previousExperience
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('student-profile-form.field-previous-experience')}:
+                                      </dt>
+                                      <dd>${previousExperience}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            qualification
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('student-profile-form.field-qualification')}:
+                                      </dt>
+                                      <dd>${qualification}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            personalInterests
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('student-profile-form.field-personal-interests')}:
+                                      </dt>
+                                      <dd>${personalInterests}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            this._getSkills(profile)
+                                ? html`
+                                      <dt>${this._i18n.t('student-profile-form.field-skills')}:</dt>
+                                      <dd>${this._getSkills(profile)}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            this._getLanguages(profile)
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('student-profile-form.field-languages-view-mode')}:
+                                      </dt>
+                                      <dd>${this._getLanguages(profile)}</dd>
+                                  `
+                                : ''
+                        }
                     </dl>
                 </div>
             </div>
