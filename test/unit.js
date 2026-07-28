@@ -9,6 +9,7 @@ import JobOfferModule, {
 } from '../src/modules/jobOfferForm.js';
 import {
     formatStudentStudies as formatCareerProfileStudies,
+    getLocalizedStudentStudyLabel,
     JobProfileEditFormElement,
     mergeLocalizedStudentStudies,
 } from '../src/modules/studentProfileForm.js';
@@ -406,15 +407,20 @@ suite('career profile student studies', () => {
     });
 
     test('should format multiple fetched studies for the saved profile', () => {
+        const studies = [
+            {key: 'UF 874', name: 'Telematik'},
+            {name: '066 937 Software Engineering and Management (Masterstudium)'},
+        ];
+
         assert.equal(
-            formatCareerProfileStudies({
-                studies: [
-                    {key: 'unused', name: '066 921 Computer Science (Bachelorstudium)'},
-                    {name: '066 937 Software Engineering and Management (Masterstudium)'},
-                ],
-            }),
-            '066 921 Computer Science (Bachelorstudium), 066 937 Software Engineering and Management (Masterstudium)',
+            formatCareerProfileStudies({studies}),
+            'Telematik, 066 937 Software Engineering and Management (Masterstudium)',
         );
+        assert.equal(
+            formatCareerProfileStudies({studies}, 'de', true),
+            'UF 874 - Telematik, 066 937 Software Engineering and Management (Masterstudium)',
+        );
+        assert.equal(getLocalizedStudentStudyLabel(studies[0]), 'UF 874 - Telematik');
     });
 
     test('should merge and format German and English study names', () => {
@@ -517,8 +523,8 @@ suite('career profile student studies', () => {
         const studyField = element.shadowRoot.querySelector('[name="study-program"]');
         assert.isNotNull(studyField);
         assert.deepEqual(studyField.items, {
-            'key:bachelor': 'Computer Science (Bachelor programme)',
-            'key:master': 'Software Engineering (Master programme)',
+            'key:bachelor': 'bachelor - Computer Science (Bachelor programme)',
+            'key:master': 'master - Software Engineering (Master programme)',
         });
         assert.deepEqual(studyField.value, ['key:bachelor', 'key:master']);
         assert.deepEqual(element._getDisplayStudies(), element.currentStudentStudies);

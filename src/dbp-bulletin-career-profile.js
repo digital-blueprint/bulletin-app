@@ -11,7 +11,7 @@ import JobProfileModule, {
     JobProfileInterestFormElement,
     getStudentProfileFieldLabels,
     getStudentProfileIndustryLabels,
-    getLocalizedStudentStudyName,
+    getLocalizedStudentStudyLabel,
     mergeLocalizedStudentStudies,
     normalizeStudentStudies,
 } from './modules/studentProfileForm.js';
@@ -475,7 +475,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return this._renderList(
-            studies.map((study) => getLocalizedStudentStudyName(study, this.lang)),
+            studies.map((study) => getLocalizedStudentStudyLabel(study, this.lang)),
         );
     }
 

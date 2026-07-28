@@ -246,7 +246,13 @@ export const getStudentStudyValue = (study) =>
 export const getLocalizedStudentStudyName = (study, lang = 'de') =>
     lang === 'en' ? study?.nameEn || study?.name || '' : study?.name || study?.nameEn || '';
 
-export const formatStudentStudies = (localData, lang = 'de') => {
+export const getLocalizedStudentStudyLabel = (study, lang = 'de') => {
+    const name = getLocalizedStudentStudyName(study, lang);
+    const key = String(study?.key ?? '').trim();
+    return key && name ? `${key} - ${name}` : key || name;
+};
+
+export const formatStudentStudies = (localData, lang = 'de', includeKey = false) => {
     if (
         lang === 'en' &&
         (!Array.isArray(localData?.studies) || localData.studies.length === 0) &&
@@ -256,7 +262,11 @@ export const formatStudentStudies = (localData, lang = 'de') => {
     }
 
     return normalizeStudentStudies(localData)
-        .map((study) => getLocalizedStudentStudyName(study, lang))
+        .map((study) =>
+            includeKey
+                ? getLocalizedStudentStudyLabel(study, lang)
+                : getLocalizedStudentStudyName(study, lang),
+        )
         .join(', ');
 };
 
@@ -1037,7 +1047,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         const studyItems = Object.fromEntries(
             this._availableStudies.map((study) => [
                 getStudentStudyValue(study),
-                getLocalizedStudentStudyName(study, this.lang),
+                getLocalizedStudentStudyLabel(study, this.lang),
             ]),
         );
         const industryItems = getStudentProfileIndustryItems(t);
