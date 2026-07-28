@@ -489,6 +489,7 @@
         "contact-email-missing": "Your contact email could not be loaded automatically. Please try again later or contact support.",
         "create-error-title": "Error",
         "create-success": "The student profile has been saved.",
+        "error-grant-read-access": "The student profile was created, but access for the authorized reader groups could not be granted.",
         "field-availability": "Available from",
         "field-contact-email": "Contact email",
         "field-fields": "Areas of interest",

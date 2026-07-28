@@ -10,6 +10,7 @@ import JobOfferModule, {
 } from '../src/modules/jobOfferForm.js';
 import {
     formatStudentStudies as formatCareerProfileStudies,
+    grantCareerProfileReadAccess,
     getLocalizedStudentStudyLabel,
     JobProfileEditFormElement,
     mergeLocalizedStudentStudies,
@@ -653,8 +654,10 @@ suite('career profile student studies', () => {
         await element.updateComplete;
         element._summary = 'Profil';
         element._contactEmail = 'student@example.com';
-        globalThis.fetch = async (_url, options) => {
-            requestBody = JSON.parse(options.body);
+        globalThis.fetch = async (url, options) => {
+            if (url.endsWith('/formalize/forms')) {
+                requestBody = JSON.parse(options.body);
+            }
             return {
                 ok: true,
                 json: async () => ({identifier: 'profile-1'}),
@@ -696,5 +699,59 @@ suite('career profile student studies', () => {
             element.currentStudentStudies[2],
         ]);
         element.remove();
+    });
+});
+
+suite('career profile authorization grants', () => {
+    test('should grant read access to staff and the career-profile reader group', async () => {
+        const originalFetch = globalThis.fetch;
+        const requests = [];
+
+        globalThis.fetch = async (url, options) => {
+            requests.push({url, options});
+            return {ok: true};
+        };
+
+        try {
+            const granted = await grantCareerProfileReadAccess(
+                {
+                    auth: {token: 'token'},
+                    entryPointUrl: 'https://example.invalid',
+                },
+                'profile-identifier',
+            );
+
+            assert.isTrue(granted);
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.lengthOf(requests, 2);
+        for (const request of requests) {
+            assert.equal(
+                request.url,
+                'https://example.invalid/authorization/resource-action-grants',
+            );
+            assert.equal(request.options.method, 'POST');
+            assert.equal(request.options.headers['Content-Type'], 'application/ld+json');
+            assert.equal(request.options.headers.Authorization, 'Bearer token');
+        }
+        assert.deepEqual(
+            requests.map(({options}) => JSON.parse(options.body)),
+            [
+                {
+                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceIdentifier: 'profile-identifier',
+                    action: 'read',
+                    dynamicGroupIdentifier: 'staff',
+                },
+                {
+                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceIdentifier: 'profile-identifier',
+                    action: 'read',
+                    groupIdentifier: '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df',
+                },
+            ],
+        );
     });
 });

@@ -489,6 +489,7 @@
         "contact-email-missing": "Ihre Kontakt-E-Mail konnte nicht automatisch geladen werden. Bitte versuchen Sie es später erneut oder wenden Sie sich an den Support.",
         "create-error-title": "Fehler",
         "create-success": "Das Studierendenprofil wurde gespeichert.",
+        "error-grant-read-access": "Das Studierendenprofil wurde erstellt, aber der Zugriff für die berechtigten Lesergruppen konnte nicht erteilt werden.",
         "field-availability": "Verfügbar ab",
         "field-contact-email": "Kontakt-E-Mail",
         "field-fields": "Interessensprofile",

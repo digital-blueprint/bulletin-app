@@ -20,6 +20,55 @@ const i18n = createInstance();
 const STUDENT_PROFILE_FRONTEND_KEY = 'student-profile';
 const STUDENT_PROFILE_DESCRIPTION_MAX_LENGTH = 2500;
 const STUDENT_PROFILE_TEASER_MAX_LENGTH = 100;
+const CAREER_PROFILE_READER_GROUP = '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df';
+
+/**
+ * Grants staff and the career-profile reader group access to a new profile.
+ *
+ * @param {object} host
+ * @param {string} formIdentifier
+ * @returns {Promise<boolean>}
+ */
+export async function grantCareerProfileReadAccess(host, formIdentifier) {
+    if (!formIdentifier) {
+        return false;
+    }
+
+    const grantUrl = host.entryPointUrl + '/authorization/resource-action-grants';
+    const grantBodies = [
+        {
+            resourceClass: 'DbpRelayFormalizeForm',
+            resourceIdentifier: formIdentifier,
+            action: 'read',
+            dynamicGroupIdentifier: 'staff',
+        },
+        {
+            resourceClass: 'DbpRelayFormalizeForm',
+            resourceIdentifier: formIdentifier,
+            action: 'read',
+            groupIdentifier: CAREER_PROFILE_READER_GROUP,
+        },
+    ];
+    const responses = await Promise.all(
+        grantBodies.map((body) =>
+            fetch(grantUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/ld+json',
+                    Authorization: 'Bearer ' + host.auth.token,
+                },
+                body: JSON.stringify(body),
+            }),
+        ),
+    );
+
+    const failedResponse = responses.find((response) => !response.ok);
+    if (failedResponse) {
+        console.error('Failed to grant read access to career profile:', failedResponse.status);
+    }
+
+    return !failedResponse;
+}
 
 const parseMultilineList = (value) =>
     String(value ?? '')
@@ -939,6 +988,21 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                 formData,
                 isEditMode ? this.existingForm.formId : null,
             );
+
+            if (
+                result &&
+                !isEditMode &&
+                !(await grantCareerProfileReadAccess(host, result.identifier))
+            ) {
+                sendNotification({
+                    summary: t('student-profile-form.create-error-title'),
+                    body: t('student-profile-form.error-grant-read-access'),
+                    type: 'danger',
+                    timeout: 0,
+                    targetNotificationId: 'student-profile-form-notification',
+                });
+                return null;
+            }
 
             if (result) {
                 sendNotification({
