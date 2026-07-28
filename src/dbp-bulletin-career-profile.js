@@ -497,17 +497,15 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <dl class="profile-studies">
-                <dt>${this._i18n.t('student-profile-form.field-study-program')}:</dt>
-                ${
-                    studies.length
-                        ? this._renderStudies(profile)
-                        : html`
-                              <dbp-mini-spinner
-                                  text="${this._i18n.t('loading-message')}"></dbp-mini-spinner>
-                          `
-                }
-            </dl>
+            <dt>${this._i18n.t('student-profile-form.field-study-program')}:</dt>
+            ${
+                studies.length
+                    ? this._renderStudies(profile)
+                    : html`
+                          <dbp-mini-spinner
+                              text="${this._i18n.t('loading-message')}"></dbp-mini-spinner>
+                      `
+            }
         `;
     }
 
