@@ -42,6 +42,39 @@ const JOB_OFFER_TYPE_INTERNAL = 'internal';
 const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
 
+/**
+ * Grants all authenticated users read access to a job-offer form.
+ *
+ * @param {object} host
+ * @param {string} formIdentifier
+ * @returns {Promise<boolean>}
+ */
+export async function grantJobOfferReadAccess(host, formIdentifier) {
+    if (!formIdentifier) {
+        return false;
+    }
+
+    const response = await fetch(host.entryPointUrl + '/authorization/resource-action-grants', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/ld+json',
+            Authorization: 'Bearer ' + host.auth.token,
+        },
+        body: JSON.stringify({
+            resourceClass: 'DbpRelayFormalizeForm',
+            resourceIdentifier: formIdentifier,
+            action: 'read',
+            dynamicGroupIdentifier: 'everybody',
+        }),
+    });
+
+    if (!response.ok) {
+        console.error('Failed to grant read access to job offer:', response.status);
+    }
+
+    return response.ok;
+}
+
 const keepJobOfferAttachmentTranslations = (t) => {
     t(
         'create-form.error-create-failed',
@@ -1120,6 +1153,16 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 );
             } else {
                 result = await apiCreateForm(host, formData, notificationOptions);
+                if (result && !(await grantJobOfferReadAccess(host, result.identifier))) {
+                    sendNotification({
+                        summary: t('create-job-offer.error-title'),
+                        body: t('create-job-offer.error-grant-read-access'),
+                        type: 'danger',
+                        timeout: 0,
+                        targetNotificationId: 'edit-form-dialog-notification',
+                    });
+                    return null;
+                }
             }
 
             if (result) {

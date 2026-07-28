@@ -181,6 +181,7 @@
         "success-created": "Job offer published successfully"
     },
     "create-job-offer": {
+        "error-grant-read-access": "The job offer was created, but read access for authenticated users could not be granted.",
         "error-title": "Error",
         "validation-required": "Please fill in all required fields."
     },

@@ -181,6 +181,7 @@
         "success-created": "Stellenangebot erfolgreich veröffentlicht"
     },
     "create-job-offer": {
+        "error-grant-read-access": "Das Stellenangebot wurde erstellt, aber der Lesezugriff für authentifizierte Benutzer*innen konnte nicht erteilt werden.",
         "error-title": "Fehler",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus."
     },

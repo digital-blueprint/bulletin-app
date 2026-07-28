@@ -4,7 +4,11 @@ import {Button, DBPSelect, sendNotification} from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
-import JobOfferModule, {JOB_CATEGORIES, AREAS_OF_INTEREST} from './modules/jobOfferForm.js';
+import JobOfferModule, {
+    JOB_CATEGORIES,
+    AREAS_OF_INTEREST,
+    grantJobOfferReadAccess,
+} from './modules/jobOfferForm.js';
 import {getDefaultInternalWorkLocations} from './modules/workLocationsElement.js';
 
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
@@ -275,7 +279,12 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             body: JSON.stringify(body),
         });
 
-        return response.ok;
+        if (!response.ok) {
+            return false;
+        }
+
+        const createdForm = await response.json();
+        return grantJobOfferReadAccess(this, createdForm.identifier);
     }
 
     async _handleGenerate() {

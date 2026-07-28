@@ -4,6 +4,7 @@ import '../src/dbp-bulletin-view-job-offers';
 import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
+    grantJobOfferReadAccess,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
 } from '../src/modules/jobOfferForm.js';
@@ -272,6 +273,45 @@ suite('jobOfferForm error notifications', () => {
 
         assert.equal(notificationDetail?.targetNotificationId, 'edit-form-dialog-notification');
         assert.equal(notificationDetail?.type, 'danger');
+    });
+});
+
+suite('jobOfferForm authorization grants', () => {
+    test('should grant everybody read access to a newly created form', async () => {
+        const originalFetch = globalThis.fetch;
+        let requestUrl;
+        let requestOptions;
+
+        globalThis.fetch = async (url, options) => {
+            requestUrl = url;
+            requestOptions = options;
+            return {ok: true};
+        };
+
+        try {
+            const granted = await grantJobOfferReadAccess(
+                {
+                    auth: {token: 'token'},
+                    entryPointUrl: 'https://example.invalid',
+                },
+                'form-identifier',
+            );
+
+            assert.isTrue(granted);
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.equal(requestUrl, 'https://example.invalid/authorization/resource-action-grants');
+        assert.equal(requestOptions.method, 'POST');
+        assert.equal(requestOptions.headers['Content-Type'], 'application/ld+json');
+        assert.equal(requestOptions.headers.Authorization, 'Bearer token');
+        assert.deepEqual(JSON.parse(requestOptions.body), {
+            resourceClass: 'DbpRelayFormalizeForm',
+            resourceIdentifier: 'form-identifier',
+            action: 'read',
+            dynamicGroupIdentifier: 'everybody',
+        });
     });
 });
 
