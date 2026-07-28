@@ -1323,9 +1323,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 gap: 1rem;
             }
 
-            .profile-card-actions {
-                margin-left: auto;
-            }
             .profile-card {
                 display: flex;
                 flex-direction: column;
@@ -1375,7 +1372,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             .student-teaser {
                 font-weight: bold;
                 font-size: 1.25rem;
-                width: max-content;
             }
 
             .industry-list {
@@ -1417,22 +1413,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             .profile-detail h2 {
                 margin-top: 0;
             }
-
-            fieldset {
-                padding: 0.75rem;
-                display: grid;
-                gap: 0.5em;
-                border: 1px solid var(--dbp-content);
-                padding-bottom: 1rem;
-                margin-top: 1.5rem;
-            }
-
-            legend {
-                font-weight: 400;
-                font-size: 1.17em;
-                padding: 0 5px;
-            }
-
             .profile-list,
             .submission-list {
                 display: grid;
@@ -1455,6 +1435,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             .owner-actions {
                 flex-wrap: wrap;
                 justify-content: flex-end;
+                display: flex;
+                gap: 5px;
             }
 
             .profile-name,
@@ -1542,13 +1524,32 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     display: grid;
                 }
 
-                .profile-card-actions,
                 .owner-actions {
                     justify-content: flex-start;
                 }
 
                 .profile-meta {
                     grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 540px) {
+                .profile-card-header {
+                    flex-direction: column;
+                }
+                .profile-card-actions {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                }
+
+                .profile-card-actions .button.is-primary {
+                    grid-column: 1 / -1;
+                }
+            }
+            @media (max-width: 540px) {
+                .contact-wrapper {
+                    display: flex;
+                    flex-direction: column;
                 }
             }
         `;
