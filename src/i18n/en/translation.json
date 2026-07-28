@@ -163,7 +163,7 @@
         "interest-success": "Express interest",
         "interest-success-body": "The student can now see your company's interest submission.",
         "interest-title": "Signal company interest",
-        "required-field-note": "* marks a required field",
+        "required-field-note": "marks a required field",
         "save-profile": "Save",
         "validation-required": "Please fill in all required fields.",
         "validation-url": "career-profile-form.validation-url"

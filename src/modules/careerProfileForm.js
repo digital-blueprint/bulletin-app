@@ -1128,8 +1128,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         keepCareerProfileTranslations(t);
 
         return html`
-            <p class="required-field-note">${t('career-profile-form.required-field-note')}</p>
-
+            <div class="content">
             <div class="translation-row">
                 ${this.renderTextField(
                     'summary',
@@ -1370,24 +1369,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     descriptionKey: 'career-profile-form.field-teaser-description',
                 },
             )}
-
-            <div class="form-footer">
-                <button
-                    class="button is-primary"
-                    type="button"
-                    ?disabled="${this._isSubmitting}"
-                    @click="${() => this.submit()}">
-                    ${
-                        this._isSubmitting
-                            ? html`
-                                  <dbp-mini-spinner></dbp-mini-spinner>
-                              `
-                            : html`
-                                  <dbp-icon name="save" aria-hidden="true"></dbp-icon>
-                              `
-                    }
-                    ${t('career-profile-form.save-profile')}
-                </button>
             </div>
         `;
     }
@@ -1400,8 +1381,8 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     display: block;
                 }
 
-                .required-field-note {
-                    margin-top: 0;
+                .content {
+                    padding-right: 8px;
                 }
 
                 .translation-row {
@@ -1420,10 +1401,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 
                 .profile-prefill-info {
                     background: var(--dbp-secondary-surface);
-                    border: var(--dbp-border);
-                    border-radius: var(--dbp-border-radius);
                     margin: 0 0 1rem 0;
-                    padding: 0.75rem 1rem;
                 }
 
                 .profile-prefill-info h3 {
@@ -1448,12 +1426,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 
                 .checkbox-field input {
                     margin-top: 0.2rem;
-                }
-
-                .form-footer {
-                    display: flex;
-                    justify-content: flex-end;
-                    margin-top: 1rem;
                 }
 
                 .button {

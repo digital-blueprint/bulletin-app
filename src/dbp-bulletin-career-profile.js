@@ -47,6 +47,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._currentStudentStudiesUserId = '';
         this._loadingCurrentStudentStudies = false;
         this._currentStudentStudiesPromise = null;
+        this._isSubmitting = false;
     }
 
     static get properties() {
@@ -64,6 +65,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             _isDeletingProfile: {state: true},
             _currentStudentStudies: {state: true},
             _loadingCurrentStudentStudies: {state: true},
+            _isSubmitting: {state: true},
         };
     }
 
@@ -1140,6 +1142,20 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
+    async _saveProfile() {
+        const formElement = this._('#career-profile-edit-form');
+        if (!formElement) {
+            return;
+        }
+
+        this._isSubmitting = true;
+        try {
+            await formElement.submit();
+        } finally {
+            this._isSubmitting = false;
+        }
+    }
+
     _renderEditModal() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const title = this._editDialogProfile
@@ -1150,15 +1166,39 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             <dbp-modal
                 id="career-profile-edit-modal"
                 modal-id="career-profile-edit-modal"
-                subscribe="lang">
+                subscribe="lang"
+                style="--dbp-modal-min-width: min(95vw, 900px); --dbp-modal-max-width: min(95vw, 900px); --dbp-modal-max-height: 90vh; --dbp-modal-content-overflow-y: auto;">
                 <div slot="title">
                     <h2 class="modal-title">${title}</h2>
+                </div>
+                <div slot="header" class="modal-header">
+                    <p class="required-field-note">
+                        <span class="required-asterisk">*</span>
+                        ${t('career-profile-form.required-field-note')}
+                    </p>
+                    <button
+                        class="button is-primary save-button"
+                        type="button"
+                        ?disabled="${this._isSubmitting}"
+                        @click="${() => this._saveProfile()}">
+                        ${
+                            this._isSubmitting
+                                ? html`
+                                      <dbp-mini-spinner></dbp-mini-spinner>
+                                  `
+                                : html`
+                                      <dbp-icon name="save" aria-hidden="true"></dbp-icon>
+                                  `
+                        }
+                        ${t('career-profile-form.save-profile')}
+                    </button>
                 </div>
                 <div slot="content">
                     <dbp-notification
                         id="career-profile-form-notification"
                         lang="${this.lang}"></dbp-notification>
                     <dbp-career-profile-edit-form
+                        id="career-profile-edit-form"
                         lang="${this.lang}"
                         lang-dir="${this.langDir}"
                         .auth="${this.auth}"
@@ -1479,6 +1519,23 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .owner-actions {
                 margin-top: 1rem;
+            }
+
+            .required-field-note {
+                margin-top: 0;
+            }
+
+            .required-asterisk {
+                color: var(--dbp-accent);
+            }
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .save-button {
+                height: max-content;
             }
 
             .delete-dialog-actions {
