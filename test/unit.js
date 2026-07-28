@@ -502,9 +502,50 @@ suite('career profile student studies', () => {
         ]);
     });
 
+    test('should fetch English names when current studies only contain German names', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        const requestedLanguages = [];
+        element.lang = 'en';
+        element.auth = {'user-id': 'student-1', token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        element.currentStudentStudies = [{key: 'UF 874', name: 'Telematik'}];
+        globalThis.fetch = async (_url, options) => {
+            const language = options.headers['Accept-Language'];
+            requestedLanguages.push(language);
+            return {
+                ok: true,
+                json: async () => ({
+                    localData: {
+                        email: language === 'de' ? 'student@example.com' : undefined,
+                        studies: [
+                            {
+                                key: 'UF 874',
+                                name: language === 'en' ? 'Telematics' : 'Telematik',
+                            },
+                        ],
+                    },
+                }),
+            };
+        };
+
+        try {
+            await element._prefillStudentData();
+            document.body.appendChild(element);
+            await element.updateComplete;
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        const studyField = element.shadowRoot.querySelector('[name="study-program"]');
+        assert.deepEqual(requestedLanguages, ['de', 'en']);
+        assert.deepEqual(studyField.items, {'key:UF 874': 'UF 874 - Telematics'});
+        element.remove();
+    });
+
     test('should select multiple fetched studies for the profile', async () => {
         const element = document.createElement(tagName);
-        element.lang = 'en';
+        element.lang = 'de';
         element.currentStudentStudies = [
             {
                 key: 'bachelor',
@@ -520,12 +561,31 @@ suite('career profile student studies', () => {
         document.body.appendChild(element);
         await element.updateComplete;
 
-        const studyField = element.shadowRoot.querySelector('[name="study-program"]');
+        let studyField = element.shadowRoot.querySelector('[name="study-program"]');
         assert.isNotNull(studyField);
+        assert.deepEqual(studyField.items, {
+            'key:bachelor': 'bachelor - Informatik (Bachelorstudium)',
+            'key:master': 'master - Softwareentwicklung (Masterstudium)',
+        });
+
+        element.lang = 'en';
+        await element.updateComplete;
+        studyField = element.shadowRoot.querySelector('[name="study-program"]');
+        await studyField.updateComplete;
+
         assert.deepEqual(studyField.items, {
             'key:bachelor': 'bachelor - Computer Science (Bachelor programme)',
             'key:master': 'master - Software Engineering (Master programme)',
         });
+        assert.deepEqual(
+            [...studyField.shadowRoot.querySelectorAll('.select2-selection__choice')].map(
+                (choice) => choice.title,
+            ),
+            [
+                'bachelor - Computer Science (Bachelor programme)',
+                'master - Software Engineering (Master programme)',
+            ],
+        );
         assert.deepEqual(studyField.value, ['key:bachelor', 'key:master']);
         assert.deepEqual(element._getDisplayStudies(), element.currentStudentStudies);
 

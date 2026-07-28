@@ -1,6 +1,7 @@
 import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-object.js';
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
 import {css, html} from 'lit';
+import {keyed} from 'lit/directives/keyed.js';
 import {DbpDateElement, DbpEnumElement, DbpStringElement} from '@dbp-toolkit/form-elements';
 import {
     Button,
@@ -551,6 +552,7 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this.entryPointUrl = '';
         this.existingForm = null;
         this.currentStudentStudies = [];
+        this._localizedStudentStudies = [];
         this._summary = '';
         this._summaryEn = '';
         this._studyProgram = '';
@@ -692,10 +694,11 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
         this._loadingStudentData = true;
 
         try {
+            const currentStudies = normalizeStudentStudies({
+                studies: this.currentStudentStudies,
+            });
             const needsStudies =
-                normalizeStudentStudies({
-                    studies: this.currentStudentStudies,
-                }).length === 0;
+                currentStudies.length === 0 || currentStudies.some((study) => !study.nameEn);
             const [localData, englishLocalData] = await Promise.all([
                 this._fetchPersonLocalData(
                     userId,
@@ -710,9 +713,10 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
             // Email is kept in additionalData for contacting the student, but never shown to companies.
             const studies = needsStudies
                 ? mergeLocalizedStudentStudies(localData, englishLocalData)
-                : this.currentStudentStudies;
+                : currentStudies;
 
             this._contactEmail = this._contactEmail || localData.email || '';
+            this._localizedStudentStudies = studies;
             this._setAvailableStudies(studies);
             this._studentDataPrefillUserId = userId;
         } catch (error) {
@@ -765,12 +769,21 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
 
     _setAvailableStudies(studies) {
         const fetchedStudies = normalizeStudentStudies({studies});
+        const localizedStudies =
+            this._studentDataPrefillUserId === this.auth?.['user-id']
+                ? normalizeStudentStudies({studies: this._localizedStudentStudies})
+                : [];
         const currentStudies = normalizeStudentStudies({studies: this.currentStudentStudies});
         const savedData = this.existingForm?.additionalData ?? {};
         const savedStudies = Array.isArray(savedData.studies)
             ? normalizeStudentStudies({studies: savedData.studies})
             : [];
-        const selectableStudies = mergeStudentStudies(fetchedStudies, currentStudies, savedStudies);
+        const selectableStudies = mergeStudentStudies(
+            localizedStudies,
+            fetchedStudies,
+            currentStudies,
+            savedStudies,
+        );
         const legacyStudies =
             selectableStudies.length === 0 && this._studyProgram
                 ? normalizeStudentStudies({studyProgram: this._studyProgram})
@@ -1089,30 +1102,33 @@ export class JobProfileEditFormElement extends ScopedElementsMixin(DBPLitElement
                     ? html`
                           ${
                               this._availableStudies.length
-                                  ? html`
-                                        <dbp-enum-element
-                                            name="study-program"
-                                            lang="${this.lang}"
-                                            label="${t('student-profile-form.field-study-program')}"
-                                            multiple
-                                            display-mode="tags"
-                                            .tagPlaceholder="${{
-                                                [this.lang]: t(
-                                                    'student-profile-form.field-select-placeholder',
-                                                ),
-                                            }}"
-                                            .items="${studyItems}"
-                                            .value="${this._selectedStudyKeys}"
-                                            required
-                                            @change="${(event) =>
-                                                this._selectStudies(event.detail.value)}">
-                                            <div slot="description">
-                                                ${t(
-                                                    'student-profile-form.field-study-program-description',
-                                                )}
-                                            </div>
-                                        </dbp-enum-element>
-                                    `
+                                  ? keyed(
+                                        this.lang,
+                                        html`
+                                            <dbp-enum-element
+                                                name="study-program"
+                                                lang="${this.lang}"
+                                                label="${t('student-profile-form.field-study-program')}"
+                                                multiple
+                                                display-mode="tags"
+                                                .tagPlaceholder="${{
+                                                    [this.lang]: t(
+                                                        'student-profile-form.field-select-placeholder',
+                                                    ),
+                                                }}"
+                                                .items="${studyItems}"
+                                                .value="${this._selectedStudyKeys}"
+                                                required
+                                                @change="${(event) =>
+                                                    this._selectStudies(event.detail.value)}">
+                                                <div slot="description">
+                                                    ${t(
+                                                        'student-profile-form.field-study-program-description',
+                                                    )}
+                                                </div>
+                                            </dbp-enum-element>
+                                        `,
+                                    )
                                   : html`
                                         <dbp-mini-spinner
                                             text="${t('loading-message')}"></dbp-mini-spinner>
