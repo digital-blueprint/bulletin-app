@@ -1206,12 +1206,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
         return html`
             <div class="mandatory">
-                <div>
-                    <h3 class="legend-title">
-                        ${t('manage-job-offers.mandatory-data')}
-                    </h3>
-                    <hr />
-                </div>
                 <dbp-enum-element
                     class="job-offer-type-field"
                     name="job-offer-type"
