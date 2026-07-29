@@ -1198,6 +1198,15 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             }
 
             <div class="translation-row">
+                ${this.renderDateField(
+                    'availability',
+                    'career-profile-form.field-availability',
+                    this._availability,
+                    (value) => (this._availability = value),
+                )}
+            </div>
+
+            <div class="translation-row">
                 ${this.renderTextField(
                     'previousExperience',
                     'career-profile-form.field-previous-experience',
@@ -1337,13 +1346,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                         event.detail.value,
                     ))}"></dbp-work-locations-element>
 
-            <div class="translation-row">
-                ${this.renderDateField(
-                    'availability',
-                    'career-profile-form.field-availability',
-                    this._availability,
-                    (value) => (this._availability = value),
-                )}
+            <div>
                 ${this.renderTextField(
                     'website',
                     'career-profile-form.field-website',
