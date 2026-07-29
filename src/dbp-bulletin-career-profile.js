@@ -6,15 +6,15 @@ import {Notification} from '@dbp-toolkit/notification';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
-import JobProfileModule, {
-    JobProfileEditFormElement,
-    JobProfileInterestFormElement,
-    getStudentProfileFieldLabels,
-    getStudentProfileIndustryLabels,
+import CareerProfileModule, {
+    CareerProfileEditFormElement,
+    CareerProfileInterestFormElement,
+    getCareerProfileFieldLabels,
+    getCareerProfileIndustryLabels,
     getLocalizedStudentStudyLabel,
     mergeLocalizedStudentStudies,
     normalizeStudentStudies,
-} from './modules/studentProfileForm.js';
+} from './modules/careerProfileForm.js';
 import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
 
 class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
@@ -25,8 +25,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             'dbp-mini-spinner': MiniSpinner,
             'dbp-modal': Modal,
             'dbp-notification': Notification,
-            'dbp-job-profile-edit-form': JobProfileEditFormElement,
-            'dbp-job-profile-interest-form': JobProfileInterestFormElement,
+            'dbp-career-profile-edit-form': CareerProfileEditFormElement,
+            'dbp-career-profile-interest-form': CareerProfileInterestFormElement,
             'dbp-login-required': DBPLoginRequired,
         };
     }
@@ -172,8 +172,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loadingProfiles = true;
         this._loadError = false;
 
-        // Student profiles are stored as Formalize forms and grouped by their frontend key.
-        const frontendKey = new JobProfileModule().getFormFrontendKey();
+        // Career profiles are stored as Formalize forms and grouped by their frontend key.
+        const frontendKey = new CareerProfileModule().getFormFrontendKey();
         const url =
             this.entryPointUrl +
             '/formalize/forms?perPage=9999&whereFrontendKeyIn[]=' +
@@ -197,7 +197,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             this._profilesLoaded = true;
             this._handleRoutingUrlChange();
         } catch (error) {
-            console.error('Error loading student profiles:', error);
+            console.error('Error loading career profiles:', error);
             this._loadError = true;
         } finally {
             this._loadingProfiles = false;
@@ -306,7 +306,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 data: this._parseSubmissionData(submission),
             }));
         } catch (error) {
-            console.error('Error loading student profile submissions:', error);
+            console.error('Error loading career profile submissions:', error);
             this._submissionsLoadError = true;
         } finally {
             this._loadingSubmissions = false;
@@ -354,11 +354,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         await this._fetchCurrentStudentStudies();
         this._editDialogProfile = profile;
-        this.updateComplete.then(() => this._('#student-profile-edit-modal')?.open());
+        this.updateComplete.then(() => this._('#career-profile-edit-modal')?.open());
     }
 
     async _handleProfileSaved() {
-        this._('#student-profile-edit-modal')?.close();
+        this._('#career-profile-edit-modal')?.close();
         await this._fetchProfiles();
     }
 
@@ -368,7 +368,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         this._deleteDialogProfile = profile;
-        this.updateComplete.then(() => this._('#student-profile-delete-modal')?.open());
+        this.updateComplete.then(() => this._('#career-profile-delete-modal')?.open());
     }
 
     async _deleteProfile() {
@@ -380,7 +380,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._isDeletingProfile = true;
 
         try {
-            // Deleting the Formalize form also removes the student profile represented by it.
+            // Deleting the Formalize form also removes the career profile represented by it.
             const response = await fetch(
                 `${this.entryPointUrl}/formalize/forms/${profile.identifier}`,
                 {
@@ -407,14 +407,14 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 timeout: 5,
             });
 
-            this._('#student-profile-delete-modal')?.close();
+            this._('#career-profile-delete-modal')?.close();
             this._deleteDialogProfile = null;
             this._selectedProfile = null;
             this._submissions = [];
             this.sendSetPropertyEvent('routing-url', '/', true);
             await this._fetchProfiles();
         } catch (error) {
-            console.error('Error deleting student profile:', error);
+            console.error('Error deleting career profile:', error);
             sendNotification({
                 summary: this._i18n.t('career-profile.delete-error-title'),
                 body: error.message || this._i18n.t('career-profile.delete-error'),
@@ -487,7 +487,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <section class="profile-studies">
-                <h3>${this._i18n.t('student-profile-form.field-study-program')}</h3>
+                <h3>${this._i18n.t('career-profile-form.field-study-program')}</h3>
                 ${
                     studies.length
                         ? this._renderStudies(profile)
@@ -532,17 +532,17 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         if (data.openToAllIndustries) {
             return html`
                 <section>
-                    <h3>${this._i18n.t('student-profile-form.field-industries')}</h3>
-                    <p>${this._i18n.t('student-profile-form.field-open-to-all-industries')}</p>
+                    <h3>${this._i18n.t('career-profile-form.field-industries')}</h3>
+                    <p>${this._i18n.t('career-profile-form.field-open-to-all-industries')}</p>
                 </section>
             `;
         }
 
         return this._renderProfileSelectSection(
             profile,
-            'student-profile-form.field-industries',
+            'career-profile-form.field-industries',
             data.industries,
-            getStudentProfileIndustryLabels,
+            getCareerProfileIndustryLabels,
         );
     }
 
@@ -696,15 +696,15 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 ${this._renderStudiesSection(profile)} ${this._renderIndustriesSection(profile)}
                 ${this._renderProfileSelectSection(
                     profile,
-                    'student-profile-form.field-fields',
+                    'career-profile-form.field-fields',
                     data.fields,
-                    getStudentProfileFieldLabels,
+                    getCareerProfileFieldLabels,
                 )}
                 ${
                     normalizeWorkLocations(data.workLocations).length
                         ? html`
                               <section>
-                                  <h3>${t('student-profile-form.field-locations')}</h3>
+                                  <h3>${t('career-profile-form.field-locations')}</h3>
                                   ${this._renderWorkLocations(profile)}
                               </section>
                           `
@@ -713,13 +713,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 <dl class="profile-meta">
                     ${this._renderMetaItem(
-                        t('student-profile-form.field-availability'),
+                        t('career-profile-form.field-availability'),
                         data.availability,
                     )}
                     ${
                         data.website || data.linkUrl
                             ? this._renderMetaItem(
-                                  t('student-profile-form.field-website'),
+                                  t('career-profile-form.field-website'),
                                   html`
                                       <a
                                           href="${data.website || data.linkUrl}"
@@ -737,7 +737,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     previousExperience
                         ? html`
                               <section>
-                                  <h3>${t('student-profile-form.field-previous-experience')}</h3>
+                                  <h3>${t('career-profile-form.field-previous-experience')}</h3>
                                   <p>${previousExperience}</p>
                               </section>
                           `
@@ -747,7 +747,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     skills.length
                         ? html`
                               <section>
-                                  <h3>${t('student-profile-form.field-skills')}</h3>
+                                  <h3>${t('career-profile-form.field-skills')}</h3>
                                   ${this._renderList(skills)}
                               </section>
                           `
@@ -757,9 +757,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     furtherQualifications
                         ? html`
                               <section>
-                                  <h3>
-                                      ${t('student-profile-form.field-qualification-view-mode')}
-                                  </h3>
+                                  <h3>${t('career-profile-form.field-qualification-view-mode')}</h3>
                                   <p class="multiline-text">${furtherQualifications}</p>
                               </section>
                           `
@@ -769,7 +767,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     personalInterests
                         ? html`
                               <section>
-                                  <h3>${t('student-profile-form.field-personal-interests')}</h3>
+                                  <h3>${t('career-profile-form.field-personal-interests')}</h3>
                                   <p>${personalInterests}</p>
                               </section>
                           `
@@ -779,7 +777,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     languages.length
                         ? html`
                               <section>
-                                  <h3>${t('student-profile-form.field-languages')}</h3>
+                                  <h3>${t('career-profile-form.field-languages')}</h3>
                                   ${this._renderList(languages)}
                               </section>
                           `
@@ -812,12 +810,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                           </div>
                       `
                     : html`
-                          <dbp-job-profile-interest-form
+                          <dbp-career-profile-interest-form
                               lang="${this.lang}"
                               .auth="${this.auth}"
                               entry-point-url="${this.entryPointUrl}"
                               form-identifier="${profile.identifier}"
-                              .profile="${profile}"></dbp-job-profile-interest-form>
+                              .profile="${profile}"></dbp-career-profile-interest-form>
                       `
             }
         `;
@@ -893,11 +891,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 <h3>${data.companyName || t('career-profile.unknown-company')}</h3>
                 <dl class="profile-meta">
                     ${this._renderMetaItem(
-                        t('student-profile-form.interest-contact-name'),
+                        t('career-profile-form.interest-contact-name'),
                         data.contactName,
                     )}
                     ${this._renderMetaItem(
-                        t('student-profile-form.interest-contact-email'),
+                        t('career-profile-form.interest-contact-email'),
                         data.contactEmail,
                     )}
                 </dl>
@@ -905,7 +903,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     data.message
                         ? html`
                               <section>
-                                  <h4>${t('student-profile-form.interest-message')}</h4>
+                                  <h4>${t('career-profile-form.interest-message')}</h4>
                                   <p>${data.message}</p>
                               </section>
                           `
@@ -923,17 +921,17 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <dbp-modal
-                id="student-profile-edit-modal"
-                modal-id="student-profile-edit-modal"
+                id="career-profile-edit-modal"
+                modal-id="career-profile-edit-modal"
                 subscribe="lang">
                 <div slot="title">
                     <h2 class="modal-title">${title}</h2>
                 </div>
                 <div slot="content">
                     <dbp-notification
-                        id="student-profile-form-notification"
+                        id="career-profile-form-notification"
                         lang="${this.lang}"></dbp-notification>
-                    <dbp-job-profile-edit-form
+                    <dbp-career-profile-edit-form
                         lang="${this.lang}"
                         lang-dir="${this.langDir}"
                         .auth="${this.auth}"
@@ -942,7 +940,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         .currentStudentStudies="${this._currentStudentStudies}"
                         @dbp-edit-form-saved="${
                             this._handleProfileSaved
-                        }"></dbp-job-profile-edit-form>
+                        }"></dbp-career-profile-edit-form>
                 </div>
             </dbp-modal>
         `;
@@ -957,8 +955,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <dbp-modal
-                id="student-profile-delete-modal"
-                modal-id="student-profile-delete-modal"
+                id="career-profile-delete-modal"
+                modal-id="career-profile-delete-modal"
                 subscribe="lang">
                 <div slot="title">
                     <h2 class="modal-title">${t('career-profile.delete-dialog-title')}</h2>
@@ -970,7 +968,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             class="button is-secondary"
                             type="button"
                             ?disabled="${this._isDeletingProfile}"
-                            @click="${() => this._('#student-profile-delete-modal')?.close()}">
+                            @click="${() => this._('#career-profile-delete-modal')?.close()}">
                             ${t('career-profile.delete-dialog-cancel')}
                         </button>
                         <button

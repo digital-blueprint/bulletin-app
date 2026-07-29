@@ -12,9 +12,9 @@ import {
     formatStudentStudies as formatCareerProfileStudies,
     grantCareerProfileReadAccess,
     getLocalizedStudentStudyLabel,
-    JobProfileEditFormElement,
+    CareerProfileEditFormElement,
     mergeLocalizedStudentStudies,
-} from '../src/modules/studentProfileForm.js';
+} from '../src/modules/careerProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
 
@@ -439,11 +439,11 @@ suite('work locations country selection', () => {
 });
 
 suite('career profile student studies', () => {
-    const tagName = 'test-job-profile-edit-form-element';
+    const tagName = 'test-career-profile-edit-form-element';
 
     suiteSetup(() => {
         if (!customElements.get(tagName)) {
-            customElements.define(tagName, JobProfileEditFormElement);
+            customElements.define(tagName, CareerProfileEditFormElement);
         }
     });
 
