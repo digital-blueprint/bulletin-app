@@ -2136,10 +2136,6 @@ export class JobOfferFormElement extends BaseFormElement {
         return this.job?.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
     }
 
-    _getExternalJobUrl() {
-        return normalizeHttpUrl(this.job?.externalJobUrl ?? '');
-    }
-
     /**
      * Returns the English value when the current language is English and a translation exists.
      * @param {string} primary
@@ -2258,48 +2254,6 @@ export class JobOfferFormElement extends BaseFormElement {
                     )}
                 </ul>
             </section>
-        `;
-    }
-
-    /**
-     * Renders a summary of the current job above the application form.
-     * @returns {import('lit').TemplateResult|string}
-     */
-
-    _renderExternalApplication() {
-        const t = (key, opts) => this._i18n.t(key, opts);
-        const externalJobUrl = this._getExternalJobUrl();
-
-        return html`
-            <div class="apply-submit-wrapper">
-                <h3>${t('job-offer-detail.external-application-title')}</h3>
-                <hr />
-                <p class="external-application-text">
-                    ${t('job-offer-detail.external-application-text')}
-                </p>
-
-                ${
-                    externalJobUrl
-                        ? html`
-                              <a
-                                  class="button is-primary external-application-link"
-                                  href="${externalJobUrl}"
-                                  target="_blank"
-                                  rel="noopener noreferrer">
-                                  <dbp-icon
-                                      class="btn-icon"
-                                      name="send-diagonal"
-                                      aria-hidden="true"></dbp-icon>
-                                  ${t('job-offer-detail.apply-external')}
-                              </a>
-                          `
-                        : html`
-                              <p class="external-application-missing">
-                                  ${t('job-offer-detail.external-application-missing')}
-                              </p>
-                          `
-                }
-            </div>
         `;
     }
 
@@ -2443,8 +2397,10 @@ export class JobOfferFormElement extends BaseFormElement {
         const t = (key, opts) => this._i18n.t(key, opts);
         keepJobOfferAttachmentTranslations(t);
 
+        // External job offers are not applied for in this app, the "apply" button in the detail
+        // dialog leads directly to the external website, so no application form is rendered.
         if (this._isExternalJobOffer) {
-            return this._renderExternalApplication();
+            return html``;
         }
 
         const supportsApplicationAttachments = this._supportsApplicationAttachments();
@@ -2807,23 +2763,6 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.35rem;
-                }
-
-                .external-application-text {
-                    margin: 0 0 1rem 0;
-                    line-height: 1.5;
-                }
-
-                .external-application-link {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.35rem;
-                    width: max-content;
-                }
-
-                .external-application-missing {
-                    color: var(--dbp-danger);
-                    margin: 0;
                 }
 
                 .btn-icon {

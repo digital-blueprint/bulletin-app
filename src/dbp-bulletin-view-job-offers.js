@@ -880,7 +880,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         </div>
                     </div>
 
-                    <div class="field area-of-interest-filter">
+                    <div class="field">
                         <dbp-enum-element
                             name="filter-area-of-interest"
                             lang="${this.lang}"
@@ -1143,6 +1143,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: block;
             }
 
+            /* Toolkit form elements render their own label inside a fieldset, so the label styling
+               and the vertical position have to be aligned with the plain ".label" of the other
+               filter fields */
+            .search-filter-row dbp-enum-element,
+            .filters-row dbp-enum-element {
+                --dbp-label-font-weight: 600;
+                --dbp-label-margin-bottom: 0.5em;
+                display: block;
+                /* Compensates the 10px fieldset margin of the toolkit form element */
+                margin: -10px 0;
+            }
+
             /* Weekly hours range — two number inputs with a separator */
             .weekly-hours-range {
                 display: flex;
@@ -1161,11 +1173,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 flex-shrink: 0;
                 color: var(--dbp-muted);
             }
-            .job-meta-type{
+            .job-meta-type {
                 color: var(--dbp-primary);
-                font-weight:500;
+                font-weight: 500;
             }
-
 
             @media (max-width: 600px) {
                 .search-filter-row,
@@ -1248,26 +1259,26 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .job-card-body {
                 flex: 1;
-                margin-bottom:5px;
+                margin-bottom: 5px;
             }
 
             .job-card-header {
-                display:flex;
-                flex-direction:row;
+                display: flex;
+                flex-direction: row;
                 justify-content: space-between;
             }
 
-            .job-card-header img{
+            .job-card-header img {
                 max-height: 28px;
                 object-fit: cover;
             }
 
             .favicon-visible {
-                display:block;
+                display: block;
             }
 
             .favicon-hidden {
-                display:none;
+                display: none;
             }
 
             .job-title {
@@ -1281,14 +1292,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .job-meta-list .button {
-                height:max-content;
-            }
-                .job-meta-item {
-                    display: flex;
-                    gap:5px;
-                }
+                height: max-content;
             }
 
+            .job-meta-item {
+                display: flex;
+                gap: 5px;
+            }
 
             .job-meta-item dt,
             .job-meta-item dd {
@@ -1325,7 +1335,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-card-footer {
                 display: flex;
                 justify-content: flex-end;
-                align-items:flex-end;
+                align-items: flex-end;
             }
 
             /* Button icon aligned inside the secondary button */

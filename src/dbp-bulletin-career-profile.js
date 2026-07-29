@@ -836,7 +836,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             qualification
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-qualification')}:
+                                          ${this._i18n.t('career-profile-form.field-qualification-view-mode')}:
                                       </dt>
                                       <dd>${qualification}</dd>
                                   `
@@ -855,7 +855,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ${
                             this._getSkills(profile)
                                 ? html`
-                                      <dt>${this._i18n.t('career-profile-form.field-skills')}:</dt>
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-skills-view-mode')}:
+                                      </dt>
                                       <dd>${this._getSkills(profile)}</dd>
                                   `
                                 : ''
@@ -1029,7 +1031,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     skills.length
                         ? html`
                               <section>
-                                  <h3>${t('career-profile-form.field-skills')}</h3>
+                                  <h3>${t('career-profile-form.field-skills-view-mode')}</h3>
                                   ${this._renderList(skills)}
                               </section>
                           `
@@ -1059,7 +1061,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     languages.length
                         ? html`
                               <section>
-                                  <h3>${t('career-profile-form.field-languages')}</h3>
+                                  <h3>${t('career-profile-form.field-languages-view-mode')}</h3>
                                   ${this._renderList(languages)}
                               </section>
                           `
@@ -1352,10 +1354,33 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 flex-direction: column;
                 margin: 0;
             }
-            dt {
+
+            /* All subtitles of the view mode share the same styling, no matter whether they are
+               rendered as a definition term or as a section heading */
+            dt,
+            .profile-detail h3,
+            .submission-card h4 {
                 font-weight: 600;
                 font-size: 1em;
                 margin: 0;
+            }
+
+            .profile-detail h3,
+            .submission-card h4 {
+                margin-bottom: 0.25rem;
+            }
+
+            .profile-detail section {
+                margin-bottom: 0.75rem;
+            }
+
+            .profile-detail ul {
+                margin: 0;
+                padding-left: 1.5rem;
+            }
+
+            .profile-detail li {
+                line-height: 1.55;
             }
 
             dd {
@@ -1438,7 +1463,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 1rem;
             }
 
-            .profile-card h3,
             .submission-card h3 {
                 margin: 0 0 0.35rem 0;
             }
@@ -1477,10 +1501,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.75rem 1rem;
                 margin: 1rem 0;
-            }
-
-            .profile-meta dt {
-                font-weight: 700;
             }
 
             .profile-meta dd {

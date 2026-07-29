@@ -808,16 +808,26 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                               : ''
                                                       }
                                                   </div>
-                                                  <button
-                                                      class="button is-primary apply-anchor-btn"
-                                                      type="button"
-                                                      @click="${() => this._handleApply()}">
-                                                      <dbp-icon
-                                                          class="btn-icon"
-                                                          name="send-diagonal"
-                                                          aria-hidden="true"></dbp-icon>
-                                                      ${t('job-offer-detail.apply')}
-                                                  </button>
+                                                  ${
+                                                      // For external job offers the button leads to
+                                                      // the company website, so it is only useful
+                                                      // when a valid link is available.
+                                                      isExternalJob && !this._getExternalJobUrl(job)
+                                                          ? ''
+                                                          : html`
+                                                                <button
+                                                                    class="button is-primary apply-anchor-btn"
+                                                                    type="button"
+                                                                    @click="${() =>
+                                                                        this._handleApply()}">
+                                                                    <dbp-icon
+                                                                        class="btn-icon"
+                                                                        name="send-diagonal"
+                                                                        aria-hidden="true"></dbp-icon>
+                                                                    ${t('job-offer-detail.apply')}
+                                                                </button>
+                                                            `
+                                                  }
                                               </div>
                                           </div>
                                       </div>
@@ -1048,14 +1058,22 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                                       ${isExternalJob ? this._renderCompanyInformation(job, t) : ''}
 
-                                      <!-- Application form rendered by the JobOfferFormElement component -->
-                                      <dbp-bulletin-job-offer-form
-                                          lang="${this.lang}"
-                                          .job="${job}"
-                                          .auth="${this.auth}"
-                                          entry-point-url="${this.entryPointUrl}"
-                                          form-identifier="${job.identifier}"
-                                          notification-target-id="dbp-notification-apply"></dbp-bulletin-job-offer-form>
+                                      <!-- Application form rendered by the JobOfferFormElement component.
+                                           External job offers are applied for on the company website,
+                                           so no application form is shown for them. -->
+                                      ${
+                                          isExternalJob
+                                              ? ''
+                                              : html`
+                                                    <dbp-bulletin-job-offer-form
+                                                        lang="${this.lang}"
+                                                        .job="${job}"
+                                                        .auth="${this.auth}"
+                                                        entry-point-url="${this.entryPointUrl}"
+                                                        form-identifier="${job.identifier}"
+                                                        notification-target-id="dbp-notification-apply"></dbp-bulletin-job-offer-form>
+                                                `
+                                      }
                                   </div>
                               `
                             : ''
