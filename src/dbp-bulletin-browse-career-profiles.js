@@ -415,25 +415,6 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         `;
     }
 
-    _renderIndustriesSection(profile) {
-        const data = profile.additionalData ?? {};
-        if (data.openToAllIndustries) {
-            return html`
-                <section>
-                    <h3>${this._i18n.t('career-profile-form.field-industries')}</h3>
-                    <p>${this._i18n.t('career-profile-form.field-open-to-all-industries')}</p>
-                </section>
-            `;
-        }
-
-        return this._renderProfileSelectSection(
-            profile,
-            'career-profile-form.field-industries',
-            data.industries,
-            getCareerProfileIndustryLabels,
-        );
-    }
-
     _getTableData() {
         return this._getFilteredProfiles().map((profile) => {
             const data = profile.additionalData ?? {};
@@ -631,17 +612,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
     _renderOverview() {
         const t = (key, opts) => this._i18n.t(key, opts);
-        const industryOptions = this._getSelectOptions(
-            this._getAvailableIndustries(),
-            getCareerProfileIndustryLabels,
-        );
         const fieldOptions = this._getSelectOptions(
             this._getAvailableFields(),
             getCareerProfileFieldLabels,
         );
-        const selectedIndustryLabel =
-            industryOptions.find((option) => option.value === this.filterIndustry)?.label ??
-            t('browse-career-profiles.select-placeholder');
         const selectedFieldLabel =
             fieldOptions.find((option) => option.value === this.filterField)?.label ??
             t('browse-career-profiles.select-placeholder');
@@ -675,23 +649,6 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         <span class="search-icon" aria-hidden="true">
                             <dbp-icon name="search"></dbp-icon>
                         </span>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="label" for="filter-profile-industry">
-                        ${t('career-profile-form.field-industries')}
-                    </label>
-                    <div class="control">
-                        <dbp-select
-                            id="filter-profile-industry"
-                            class="filter-select"
-                            allow-expand
-                            align="left"
-                            label="${selectedIndustryLabel}"
-                            .options="${industryOptions}"
-                            .value="${this.filterIndustry}"
-                            @change="${this.onIndustryChange}"></dbp-select>
                     </div>
                 </div>
 

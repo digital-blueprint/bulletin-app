@@ -402,7 +402,6 @@ const keepCareerProfileTranslations = (t) => {
     t('career-profile-form.field-languages');
     t('career-profile-form.field-languages-en');
     t('career-profile-form.field-locations');
-    t('career-profile-form.field-open-to-all-industries');
     t('career-profile-form.field-industries');
     t('career-profile-form.field-fields');
     t('career-profile-form.field-fields-description');
@@ -1124,7 +1123,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 getLocalizedStudentStudyLabel(study, this.lang),
             ]),
         );
-        const industryItems = getCareerProfileIndustryItems(t);
         const fieldItems = getCareerProfileFieldItems(t);
         keepCareerProfileTranslations(t);
 
@@ -1319,25 +1317,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             </div>
 
             <div class="translation-row">
-                <div>
-                    ${this.renderCheckboxField(
-                        'openToAllIndustries',
-                        'career-profile-form.field-open-to-all-industries',
-                        this._openToAllIndustries,
-                        (value) => (this._openToAllIndustries = value),
-                    )}
-                    ${
-                        this._openToAllIndustries
-                            ? ''
-                            : this.renderMultiSelectField(
-                                  'industries',
-                                  'career-profile-form.field-industries',
-                                  industryItems,
-                                  this._industries,
-                                  (value) => (this._industries = value),
-                              )
-                    }
-                </div>
                 ${this.renderMultiSelectField(
                     'fields',
                     'career-profile-form.field-fields',

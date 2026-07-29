@@ -10,7 +10,6 @@ import CareerProfileModule, {
     CareerProfileEditFormElement,
     CareerProfileInterestFormElement,
     getCareerProfileFieldLabels,
-    getCareerProfileIndustryLabels,
     getLocalizedStudentStudyLabel,
     mergeLocalizedStudentStudies,
     normalizeStudentStudies,
@@ -548,24 +547,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             </section>
         `;
     }
-    _renderIndustriesSection(profile) {
-        const data = profile.additionalData ?? {};
-        if (data.openToAllIndustries) {
-            return html`
-                <section>
-                    <h3>${this._i18n.t('career-profile-form.field-industries')}</h3>
-                    <p>${this._i18n.t('career-profile-form.field-open-to-all-industries')}</p>
-                </section>
-            `;
-        }
-
-        return this._renderProfileSelectSection(
-            profile,
-            'career-profile-form.field-industries',
-            data.industries,
-            getCareerProfileIndustryLabels,
-        );
-    }
 
     _getLanguages(profile) {
         const items = this._localizedList(profile, 'languages', 'languagesEn');
@@ -594,32 +575,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
-                    `,
-                )}
-            </ul>
-        `;
-    }
-    _getIndustries(profile) {
-        const data = profile?.additionalData ?? {};
-
-        if (data.openToAllIndustries) {
-            return html`
-                <span>${this._i18n.t('career-profile-form.field-open-to-all-industries')}</span>
-            `;
-        }
-
-        const t = (key, opts) => this._i18n.t(key, opts);
-        const items = getCareerProfileIndustryLabels(data.industries, t);
-
-        if (!Array.isArray(items) || items.length === 0) {
-            return '';
-        }
-
-        return html`
-            <ul class="industry-list">
-                ${items.map(
-                    (item) => html`
-                        <li class="tag">${item}</li>
                     `,
                 )}
             </ul>
@@ -801,16 +756,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               ),
                                           )}
                                       </dd>
-                                  `
-                                : ''
-                        }
-                        ${
-                            this._getIndustries(profile)
-                                ? html`
-                                      <dt>
-                                          ${this._i18n.t('career-profile-form.field-preferred-industries')}:
-                                      </dt>
-                                      <dd>${this._getIndustries(profile)}</dd>
                                   `
                                 : ''
                         }
