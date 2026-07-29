@@ -479,6 +479,28 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         );
     }
 
+    _renderStudiesMeta(profile) {
+        const studies = this._getProfileStudies(profile);
+        if (studies.length === 0) {
+            return '';
+        }
+
+        return html`
+            <dt>${this._i18n.t('career-profile-form.field-study-program')}:</dt>
+            <dd class="studyProgram-list">
+                ${this._renderList(
+                    studies.map(
+                        (study) => html`
+                            <span class="tag">
+                                ${getLocalizedStudentStudyLabel(study, this.lang)}
+                            </span>
+                        `,
+                    ),
+                )}
+            </dd>
+        `;
+    }
+
     _renderStudiesSection(profile) {
         const studies = this._getProfileStudies(profile);
         if (studies.length === 0 && !this._loadingCurrentStudentStudies) {
@@ -526,7 +548,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             </section>
         `;
     }
-
     _renderIndustriesSection(profile) {
         const data = profile.additionalData ?? {};
         if (data.openToAllIndustries) {
@@ -546,51 +567,312 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         );
     }
 
-    _renderProfileCard(profile) {
-        const isOwnProfile = this._isOwnProfile(profile);
+    _getLanguages(profile) {
+        const items = this._localizedList(profile, 'languages', 'languagesEn');
+        if (!Array.isArray(items) || items.length === 0) {
+            return '';
+        }
 
         return html`
-            <article class="profile-card">
-                <div>
-                    <h3>${this._i18n.t('career-profile.own-profile-title')}</h3>
-                </div>
-                <div class="profile-card-actions">
-                    <button
+            <ul>
+                ${items.map(
+                    (item) => html`
+                        <li>${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+    _getSkills(profile) {
+        const items = this._localizedList(profile, 'skills', 'skillsEn');
+        if (!Array.isArray(items) || items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul>
+                ${items.map(
+                    (item) => html`
+                        <li>${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+    _getIndustries(profile) {
+        const data = profile?.additionalData ?? {};
+
+        if (data.openToAllIndustries) {
+            return html`
+                <span>${this._i18n.t('career-profile-form.field-open-to-all-industries')}</span>
+            `;
+        }
+
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const items = getCareerProfileIndustryLabels(data.industries, t);
+
+        if (!Array.isArray(items) || items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul class="industry-list">
+                ${items.map(
+                    (item) => html`
+                        <li class="tag">${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+    _getFields(profile) {
+        const data = profile?.additionalData ?? {};
+
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const items = getCareerProfileFieldLabels(data.fields, t);
+
+        if (!Array.isArray(items) || items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul class="field-list">
+                ${items.map(
+                    (item) => html`
+                        <li class="tag">${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
+    _renderWorkLocationList(labels) {
+        if (!labels.length) {
+            return '';
+        }
+
+        return html`
+            <ul class="work-location-list">
+                ${labels.map(
+                    (label) => html`
+                        <li class="work-location-list-item">${label}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
+    _renderProfileCard(profile) {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const isOwnProfile = this._isOwnProfile(profile);
+        const data = profile.additionalData ?? {};
+        const workLocationLabels = getWorkLocationLabels(
+            normalizeWorkLocations(data.workLocations),
+            (key, opts) => this._i18n.t(key, opts),
+            this.lang,
+        );
+        const summary = this._localized(profile, 'summary', 'summaryEn');
+        const personalInterests = this._localized(
+            profile,
+            'personalInterests',
+            'personalInterestsEn',
+        );
+        const qualification = this._localized(
+            profile,
+            'furtherQualifications',
+            'furtherQualificationsEn',
+        );
+        const previousExperience = this._localized(
+            profile,
+            'previousExperience',
+            'previousExperienceEn',
+        );
+
+        return html`
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h2>${this._i18n.t('career-profile.own-profile-title')}</h2>
+                    <div class="profile-card-actions">
+                        <!-- ><button
                         class="button is-secondary"
                         type="button"
                         @click="${() => this._openProfile(profile)}">
                         <dbp-icon name="magnifier" aria-hidden="true"></dbp-icon>
                         ${this._i18n.t('career-profile.view-profile')}
-                    </button>
+                    </button>-->
+                        ${
+                            isOwnProfile
+                                ? html`
+                                      <button
+                                          class="button is-secondary"
+                                          type="button"
+                                          @click="${() => this._openEditDialog(profile)}">
+                                          <dbp-icon name="pencil" aria-hidden="true"></dbp-icon>
+                                          ${this._i18n.t('career-profile.edit-profile')}
+                                      </button>
+                                      <button
+                                          class="button is-secondary"
+                                          type="button"
+                                          @click="${() => this._openDeleteDialog(profile)}">
+                                          <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
+                                          ${this._i18n.t('career-profile.delete-profile')}
+                                      </button>
+                                      <button
+                                          class="button is-primary"
+                                          type="button"
+                                          @click="${() => this._openSubmissions(profile)}">
+                                          <dbp-icon name="list" aria-hidden="true"></dbp-icon>
+                                          ${this._i18n.t('career-profile.view-submissions')}
+                                      </button>
+                                  `
+                                : ''
+                        }
+                    </div>
+                </div>
+                <div>
                     ${
-                        isOwnProfile
+                        isOwnProfile && data.contactEmail
                             ? html`
-                                  <button
-                                      class="button is-secondary"
-                                      type="button"
-                                      @click="${() => this._openEditDialog(profile)}">
-                                      <dbp-icon name="pencil" aria-hidden="true"></dbp-icon>
-                                      ${this._i18n.t('career-profile.edit-profile')}
-                                  </button>
-                                  <button
-                                      class="button is-secondary"
-                                      type="button"
-                                      @click="${() => this._openDeleteDialog(profile)}">
-                                      <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
-                                      ${this._i18n.t('career-profile.delete-profile')}
-                                  </button>
-                                  <button
-                                      class="button is-primary"
-                                      type="button"
-                                      @click="${() => this._openSubmissions(profile)}">
-                                      <dbp-icon name="list" aria-hidden="true"></dbp-icon>
-                                      ${this._i18n.t('career-profile.view-submissions')}
-                                  </button>
+                                  <div class="contact-email">
+                                      <dl class="contact-wrapper">
+                                          <dt>
+                                              ${this._i18n.t('career-profile-form.field-contact-email')}:
+                                          </dt>
+                                          <dd class="contact-value">${data.contactEmail}</dd>
+                                      </dl>
+                                  </div>
                               `
                             : ''
                     }
                 </div>
-            </article>
+
+                <div class="career-profile-wrapper">
+                    ${
+                        data.teaser
+                            ? html`
+                                  <p class="student-teaser">${data.teaser}</p>
+                              `
+                            : ''
+                    }
+                    ${
+                        summary
+                            ? html`
+                                  <p>${summary}</p>
+                              `
+                            : ''
+                    }
+                    <dl>
+                        ${this._renderStudiesMeta(profile)}
+                        ${
+                            data.availability
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-availability')}:
+                                      </dt>
+                                      <dd>${data.availability}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            data.website || data.linkUrl
+                                ? this._renderMetaItem(
+                                      t('career-profile-form.field-website') + ':',
+                                      html`
+                                          <a
+                                              href="${data.website || data.linkUrl}"
+                                              target="_blank"
+                                              rel="noopener noreferrer">
+                                              ${data.website || data.linkUrl}
+                                          </a>
+                                      `,
+                                  )
+                                : ''
+                        }
+                        ${
+                            workLocationLabels && workLocationLabels.length
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-preferred-work-location')}:
+                                      </dt>
+                                      <dd>
+                                          ${this._renderWorkLocationList(
+                                              workLocationLabels.map((label) =>
+                                                  label.split(', ').slice(0, 2).join(', '),
+                                              ),
+                                          )}
+                                      </dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            this._getIndustries(profile)
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-preferred-industries')}:
+                                      </dt>
+                                      <dd>${this._getIndustries(profile)}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            this._getFields(profile)
+                                ? html`
+                                      <dt>${this._i18n.t('career-profile-form.field-fields')}:</dt>
+                                      <dd>${this._getFields(profile)}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            previousExperience
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-previous-experience')}:
+                                      </dt>
+                                      <dd>${previousExperience}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            qualification
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-qualification')}:
+                                      </dt>
+                                      <dd>${qualification}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            personalInterests
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-personal-interests')}:
+                                      </dt>
+                                      <dd>${personalInterests}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            this._getSkills(profile)
+                                ? html`
+                                      <dt>${this._i18n.t('career-profile-form.field-skills')}:</dt>
+                                      <dd>${this._getSkills(profile)}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            this._getLanguages(profile)
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-languages-view-mode')}:
+                                      </dt>
+                                      <dd>${this._getLanguages(profile)}</dd>
+                                  `
+                                : ''
+                        }
+                    </dl>
+                </div>
+            </div>
         `;
     }
 
@@ -1032,18 +1314,102 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: block;
             }
 
-            .activity-header,
-            .profile-card,
-            .profile-card-actions,
+            h2 {
+                margin: 0;
+                font-size: 1.25rem;
+            }
+
+            .profile-card-header {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .profile-card {
+                gap: 0;
+                margin-top: 1rem;
+            }
+
             .owner-actions {
                 display: flex;
                 gap: 1rem;
             }
 
-            .activity-header,
             .profile-card {
+                display: flex;
+                flex-direction: column;
                 align-items: flex-start;
                 justify-content: space-between;
+                border: 1px solid var(--dbp-content);
+                padding: 1.5rem;
+            }
+
+            .contact-email {
+                margin-top: 1rem;
+            }
+            dl {
+                display: flex;
+                flex-direction: column;
+                margin: 0;
+            }
+            dt {
+                font-weight: 600;
+                font-size: 1em;
+                margin: 0;
+            }
+
+            dd {
+                margin-left: 2px;
+                margin-bottom: 0.75rem;
+            }
+
+            .contact-wrapper {
+                display: flex;
+                flex-direction: row;
+            }
+            .contact-wrapper dt {
+                font-size: 1rem;
+            }
+
+            .contact-value {
+                margin: 0;
+                margin-left: 3px;
+            }
+
+            .additional-note {
+                font-size: 14px;
+                color: var(--dbp-override-muted);
+            }
+
+            .student-teaser {
+                font-weight: bold;
+                font-size: 1.25rem;
+            }
+
+            .industry-list {
+                padding: 0;
+            }
+
+            .tag {
+                margin-bottom: 5px;
+            }
+
+            .industry-list,
+            .field-list,
+            .work-location-list,
+            .studyProgram-list ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            .tag,
+            .work-location-list-item {
+                display: inline-block;
+                border: 1px solid var(--dbp-content);
+                border-radius: 2px;
+                padding: 0.1rem 0.4rem;
+                font-size: 1rem;
+                color: var(--dbp-content);
             }
 
             .activity-header {
@@ -1059,14 +1425,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             .profile-detail h2 {
                 margin-top: 0;
             }
-
             .profile-list,
             .submission-list {
                 display: grid;
                 gap: 1rem;
             }
 
-            .profile-card,
             .profile-detail,
             .submission-card {
                 border: var(--dbp-border);
@@ -1083,6 +1447,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             .owner-actions {
                 flex-wrap: wrap;
                 justify-content: flex-end;
+                display: flex;
+                gap: 5px;
             }
 
             .profile-name,
@@ -1170,13 +1536,32 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     display: grid;
                 }
 
-                .profile-card-actions,
                 .owner-actions {
                     justify-content: flex-start;
                 }
 
                 .profile-meta {
                     grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 540px) {
+                .profile-card-header {
+                    flex-direction: column;
+                }
+                .profile-card-actions {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                }
+
+                .profile-card-actions .button.is-primary {
+                    grid-column: 1 / -1;
+                }
+            }
+            @media (max-width: 540px) {
+                .contact-wrapper {
+                    display: flex;
+                    flex-direction: column;
                 }
             }
         `;
