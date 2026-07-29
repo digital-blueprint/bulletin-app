@@ -474,6 +474,17 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             return '';
         }
 
+        return this._renderList(
+            studies.map((study) => getLocalizedStudentStudyLabel(study, this.lang)),
+        );
+    }
+
+    _renderStudiesMeta(profile) {
+        const studies = this._getProfileStudies(profile);
+        if (studies.length === 0) {
+            return '';
+        }
+
         return html`
             <dt>${this._i18n.t('career-profile-form.field-study-program')}:</dt>
             <dd class="studyProgram-list">
@@ -497,15 +508,17 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <dt>${this._i18n.t('career-profile-form.field-study-program')}:</dt>
-            ${
-                studies.length
-                    ? this._renderStudies(profile)
-                    : html`
-                          <dbp-mini-spinner
-                              text="${this._i18n.t('loading-message')}"></dbp-mini-spinner>
-                      `
-            }
+            <section class="profile-studies">
+                <h3>${this._i18n.t('career-profile-form.field-study-program')}</h3>
+                ${
+                    studies.length
+                        ? this._renderStudies(profile)
+                        : html`
+                              <dbp-mini-spinner
+                                  text="${this._i18n.t('loading-message')}"></dbp-mini-spinner>
+                          `
+                }
+            </section>
         `;
     }
 
@@ -749,7 +762,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             : ''
                     }
                     <dl>
-                        ${this._renderStudies(profile)}
+                        ${this._renderStudiesMeta(profile)}
                         ${
                             data.availability
                                 ? html`
@@ -870,6 +883,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <section class="activity-header">
                 <div>
+                    <h2>${t('career-profile.title')}</h2>
                     <p>${t('career-profile.description')}</p>
                 </div>
                 <button
