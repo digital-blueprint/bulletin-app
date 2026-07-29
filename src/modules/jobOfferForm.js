@@ -1374,17 +1374,34 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
 
                     <dbp-number-element
-                        name="weekly-hours"
+                        name="weekly-hours-min"
                         lang="${this.lang}"
-                        label="${t('manage-job-offers.field-weekly-hours')}"
+                        label="${t('manage-job-offers.field-weekly-hours-min')}"
                         type="number"
                         min="0"
                         max="99"
                         step="0.5"
                         required
-                        .value="${this._weeklyHours}"
-                        @input="${this._handleWeeklyHoursInput}"
-                        @change="${(e) => (this._weeklyHours = e.detail.value)}"></dbp-number-element>
+                        placeholder="${t('view-job-offers.weekly-hours-min')}"
+                        aria-label="${t('view-job-offers.weekly-hours-min')}" 
+                        .value="${this.filterWeeklyHoursMin}"
+                        @input="${this.onWeeklyHoursMinChange}"
+                        @change="${(e) => (this.filterWeeklyHoursMin = e.detail.value)}"></dbp-number-element>
+                    
+                    <dbp-number-element
+                        name="weekly-hours-max"
+                        lang="${this.lang}"
+                        label="${t('manage-job-offers.field-weekly-hours-max')}"
+                        type="number"
+                        min="0"
+                        max="99"
+                        step="0.5"
+                        required
+                        placeholder="${t('view-job-offers.weekly-hours-max')}"
+                        aria-label="${t('view-job-offers.weekly-hours-max')}"
+                        .value="${this.filterWeeklyHoursMax}"
+                        @input="${this.onWeeklyHoursMaxChange}"
+                        @change="${(e) => (this.filterWeeklyHoursMax = e.detail.value)}"></dbp-number-element>
                     
                     <dbp-date-element
                         name="application-deadline"
