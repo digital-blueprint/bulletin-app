@@ -1400,6 +1400,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     <dbp-date-element
                         name="application-deadline"
                         lang="${this.lang}"
+                        required
                         label="${t('manage-job-offers.field-application-deadline')}"
                         .value="${this._applicationDeadline}"
                         @change="${(e) =>
