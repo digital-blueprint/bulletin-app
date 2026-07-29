@@ -4,10 +4,11 @@ import {Button, DBPSelect, sendNotification} from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
-import JobProfileModule, {
-    STUDENT_PROFILE_FIELDS,
-    STUDENT_PROFILE_INDUSTRIES,
-} from './modules/studentProfileForm.js';
+import CareerProfileModule, {
+    CAREER_PROFILE_FIELDS,
+    CAREER_PROFILE_INDUSTRIES,
+    grantCareerProfileReadAccess,
+} from './modules/careerProfileForm.js';
 
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const PROFILE_COUNT_OPTIONS = ['5', '10', '20', '50', '100'];
@@ -163,7 +164,7 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
 
     // Builds a single random career-profile form payload compatible with /formalize/forms.
     _buildRandomCareerProfile(index) {
-        const module = new JobProfileModule();
+        const module = new CareerProfileModule();
         const uniqueSuffix = `#${Date.now().toString().slice(-5)}-${index + 1}`;
         const studies = randomSubset(SAMPLE_STUDIES, 2).map((name) => ({name, nameEn: name}));
         const skillIndexes = randomSubset(
@@ -200,8 +201,8 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             openToAllIndustries,
             industries: openToAllIndustries
                 ? []
-                : randomSubset(Object.keys(STUDENT_PROFILE_INDUSTRIES), 4),
-            fields: randomSubset(Object.keys(STUDENT_PROFILE_FIELDS), 3),
+                : randomSubset(Object.keys(CAREER_PROFILE_INDUSTRIES), 4),
+            fields: randomSubset(Object.keys(CAREER_PROFILE_FIELDS), 3),
             workLocations: randomSubset(SAMPLE_WORK_LOCATIONS, 2),
             availability,
             contactEmail: `career-profile-${Date.now()}-${index + 1}@example.org`,
@@ -212,7 +213,7 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
         };
 
         const dataFeedSchema = JSON.stringify({
-            title: 'StudentProfileInterest',
+            title: 'CareerProfileInterest',
             type: 'object',
             additionalProperties: false,
             properties: {
@@ -258,7 +259,12 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             body: JSON.stringify(body),
         });
 
-        return response.ok;
+        if (!response.ok) {
+            return false;
+        }
+
+        const createdForm = await response.json();
+        return grantCareerProfileReadAccess(this, createdForm.identifier);
     }
 
     async _handleGenerate() {
