@@ -5,7 +5,7 @@
         "column-name": "Kandidat*in",
         "column-previous-experience": "Vorerfahrung",
         "column-skills": "Kompetenzen",
-        "column-study-program": "Studium",
+        "column-study-program": "Studienfächer",
         "description": "Durchsuchen Sie Karriereprofile der Studierenden, die nach einer Arbeit suchen. Die Profile sind anonymisiert, jedoch können Sie die Studierenden bei Interesse über unser Formular kontaktieren.",
         "load-error": "Die Karriereprofile konnten nicht geladen werden.",
         "load-error-title": "Laden fehlgeschlagen",

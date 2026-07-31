@@ -5,7 +5,7 @@
         "column-name": "Candidate",
         "column-previous-experience": "Previous experience",
         "column-skills": "Skills",
-        "column-study-program": "Study program",
+        "column-study-program": "Study fields",
         "description": "Browse the career profiles of students who are looking for a job. The profiles are anonymised, but in case of interest, you can contact the students via our form.",
         "load-error": "The career profiles could not be loaded.",
         "load-error-title": "Loading failed",
