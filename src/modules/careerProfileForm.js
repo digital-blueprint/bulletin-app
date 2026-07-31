@@ -1077,6 +1077,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         return html`
             <dbp-enum-element
                 name="${name}"
+                class="area-interest"
                 lang="${this.lang}"
                 label="${t(labelKey)}"
                 multiple
@@ -1274,6 +1275,17 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             </div>
 
             <div class="translation-row">
+                ${this.renderMultiSelectField(
+                    'fields',
+                    'career-profile-form.field-fields',
+                    fieldItems,
+                    this._fields,
+                    (value) => (this._fields = value),
+                    {descriptionKey: 'career-profile-form.field-fields-description'},
+                )}
+            </div>
+
+            <div class="translation-row">
                 ${this.renderTextField(
                     'personalInterests',
                     'career-profile-form.field-personal-interests',
@@ -1313,17 +1325,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     this._languagesTextEn,
                     (value) => (this._languagesTextEn = value),
                     {rows: 4},
-                )}
-            </div>
-
-            <div class="translation-row">
-                ${this.renderMultiSelectField(
-                    'fields',
-                    'career-profile-form.field-fields',
-                    fieldItems,
-                    this._fields,
-                    (value) => (this._fields = value),
-                    {descriptionKey: 'career-profile-form.field-fields-description'},
                 )}
             </div>
 
@@ -1407,6 +1408,14 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     display: grid;
                     grid-template-columns: repeat(2, minmax(0, 1fr));
                     gap: 1rem;
+                }
+
+                .translation-row > dbp-enum-element.area-interest {
+                    display: block !important;
+                    grid-column-start: 1 !important;
+                    grid-column-end: 3 !important;
+                    width: 100%;
+                    min-width: 0;
                 }
 
                 .profile-prefill-info {
