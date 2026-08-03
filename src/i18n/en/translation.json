@@ -532,7 +532,7 @@
         "field-deadline": "End of publication",
         "field-description": "Job description",
         "field-description-en": "Job description (en)",
-        "field-description-max-length": "Maximum 2500 characters",
+        "field-description-max-length": "Maximum 5000 characters",
         "field-description-placeholder": "",
         "field-external-job-url": "External job URL",
         "field-external-job-url-placeholder": "https://...",

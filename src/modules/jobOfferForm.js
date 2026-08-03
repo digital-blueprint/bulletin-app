@@ -37,7 +37,7 @@ const JOB_APPLICATION_ATTACHMENT_LIMIT = 5;
 const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB = 10000;
 const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
 const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
-const JOB_DESCRIPTION_MAX_LENGTH = 2500;
+const JOB_DESCRIPTION_MAX_LENGTH = 5000;
 const JOB_OFFER_TYPE_INTERNAL = 'internal';
 const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
@@ -1307,7 +1307,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
                 </div>
 
-                <div class="translation-row">
+                <div class="translation-row field-note-wrap">
                     <div class="field-with-note">
                         <dbp-string-element
                             name="description"
@@ -1315,7 +1315,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             label="${t('manage-job-offers.field-description')}"
                             placeholder="${t('manage-job-offers.field-description-placeholder')}"
                             .value="${this._description}"
-                            rows="5"
+                            rows="18"
                             maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
                             required
                             @change="${(e) =>
@@ -1329,7 +1329,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             lang="${this.lang}"
                             label="${t('manage-job-offers.field-description-en')}"
                             .value="${this._descriptionEn}"
-                            rows="5"
+                            rows="18"
                             maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
                             @change="${(e) =>
                                 (this._descriptionEn = e.detail.value)}"></dbp-string-element>
@@ -1688,6 +1688,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 font-size: 0.875rem;
                 line-height: 1.4;
                 margin: 0 0 0.75rem;
+            }
+
+            .field-note-wrap {
+                grid-template-columns: auto;
             }
 
             .field-with-note {

@@ -532,7 +532,7 @@
         "field-deadline": "Ende der Veröffentlichung",
         "field-description": "Beschreibung der Stellenanzeige",
         "field-description-en": "Beschreibung der Stelleanzeige (en)",
-        "field-description-max-length": "Maximal 2500 Zeichen",
+        "field-description-max-length": "Maximal 5000 Zeichen",
         "field-description-placeholder": "",
         "field-external-job-url": "Externe Stellen-URL",
         "field-external-job-url-placeholder": "https://...",
