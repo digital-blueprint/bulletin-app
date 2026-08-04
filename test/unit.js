@@ -169,7 +169,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 
     test('should load another batch of job offers when requested', async () => {
         const element = document.createElement('dbp-bulletin-view-job-offers');
-        element._i18n = {t: (key) => key};
+        element._i18n = {t: (key) => key, changeLanguage: () => {}};
         element.isAuthPending = () => false;
         element.isLoggedIn = () => true;
         element._jobOffers = Array.from({length: 13}, (_, index) => ({
