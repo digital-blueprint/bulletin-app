@@ -999,8 +999,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                               <div class="load-more-wrapper">
                                   <button
                                       type="button"
-                                      class="button is-secondary load-more-button"
+                                      class="button is-primary load-more-button"
                                       @click="${this._loadMore}">
+                                      <dbp-icon
+                                          class="btn-icon"
+                                          name="angle-double-down"
+                                          aria-hidden="true"></dbp-icon>
                                       ${t('view-job-offers.load-more')}
                                   </button>
                               </div>
@@ -1323,6 +1327,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 align-items: center;
                 justify-content: center;
                 padding: 1.5rem 0;
+            }
+
+            .load-more-button {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
             }
         `;
     }
