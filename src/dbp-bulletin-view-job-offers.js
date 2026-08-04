@@ -20,8 +20,8 @@ import {
     normalizeWorkLocations,
 } from './modules/workLocationsElement.js';
 
-// Number of job cards shown initially and appended each time the user scrolls to the end
-const INFINITE_SCROLL_BATCH_SIZE = 12;
+// Number of job cards shown initially and appended each time the user requests more
+const LOAD_MORE_BATCH_SIZE = 12;
 
 class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -43,12 +43,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.filterWeeklyHoursMin = '';
         this.filterWeeklyHoursMax = '';
         this.sortOrder = 'date-desc';
-        /** @type {number} Number of job cards currently rendered for the infinite scroll list */
-        this._visibleCount = INFINITE_SCROLL_BATCH_SIZE;
-        /** @type {import('lit/directives/ref.js').Ref} Sentinel element observed to trigger loading more */
-        this._sentinelRef = createRef();
-        /** @type {IntersectionObserver|null} Observer that appends more jobs when the sentinel is visible */
-        this._intersectionObserver = null;
+        /** @type {number} Number of job cards currently rendered */
+        this._visibleCount = LOAD_MORE_BATCH_SIZE;
         /** @type {object|null} Currently selected job offer shown in the detail dialog */
         this._selectedJob = null;
         /** @type {import('lit/directives/ref.js').Ref} Direct reference to the detail dialog element */
@@ -100,45 +96,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     break;
             }
         });
-    }
-
-    updated(changedProperties) {
-        super.updated(changedProperties);
-        // (Re)attach the observer after each render so it always points at the
-        // current sentinel element, which is only present while more jobs remain.
-        this._observeSentinel();
-    }
-
-    disconnectedCallback() {
-        if (this._intersectionObserver) {
-            this._intersectionObserver.disconnect();
-            this._intersectionObserver = null;
-        }
-        super.disconnectedCallback();
-    }
-
-    /**
-     * Connects the IntersectionObserver to the sentinel element so scrolling to the
-     * bottom of the list appends the next batch of job cards.
-     */
-    _observeSentinel() {
-        if (!this._intersectionObserver) {
-            this._intersectionObserver = new IntersectionObserver(
-                (entries) => {
-                    if (entries.some((entry) => entry.isIntersecting)) {
-                        this._loadMore();
-                    }
-                },
-                {rootMargin: '200px'},
-            );
-        }
-
-        this._intersectionObserver.disconnect();
-
-        const sentinel = this._sentinelRef.value;
-        if (sentinel) {
-            this._intersectionObserver.observe(sentinel);
-        }
     }
 
     /**
@@ -786,18 +743,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
-     * Resets the infinite-scroll list back to the first batch.
+     * Resets the job list back to the first batch.
      * Used whenever the filters or sorting change so the user starts at the top.
      */
     _resetVisibleCount() {
-        this._visibleCount = INFINITE_SCROLL_BATCH_SIZE;
+        this._visibleCount = LOAD_MORE_BATCH_SIZE;
     }
 
     /**
      * Appends one more batch of job cards to the visible list.
      */
     _loadMore() {
-        this._visibleCount += INFINITE_SCROLL_BATCH_SIZE;
+        this._visibleCount += LOAD_MORE_BATCH_SIZE;
     }
 
     getOrganizationLabel(job) {
@@ -854,8 +811,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const availableWorkLocations = this.getAvailableWorkLocations({includeSelected: true});
         const filtered = this.getFilteredJobs();
 
-        // Infinite scroll: only render the first _visibleCount jobs; more are appended
-        // when the sentinel scrolls into view.
+        // Render the first _visibleCount jobs until the user requests another batch.
         const visibleCount = Math.min(this._visibleCount, filtered.length);
         const visibleJobs = filtered.slice(0, visibleCount);
         const hasMore = visibleCount < filtered.length;
@@ -1036,13 +992,17 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                           `
                 }
 
-                <!-- Infinite scroll sentinel — loading more jobs when it enters the viewport -->
+                <!-- Load more control -->
                 ${
                     hasMore
                         ? html`
-                              <div class="infinite-scroll-sentinel" ${ref(this._sentinelRef)}>
-                                  <dbp-mini-spinner></dbp-mini-spinner>
-                                  <span>${t('view-job-offers.loading-more')}</span>
+                              <div class="load-more-wrapper">
+                                  <button
+                                      type="button"
+                                      class="button is-secondary load-more-button"
+                                      @click="${this._loadMore}">
+                                      ${t('view-job-offers.load-more')}
+                                  </button>
                               </div>
                           `
                         : ''
@@ -1358,14 +1318,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 color: var(--dbp-muted);
             }
 
-            /* Infinite scroll sentinel — loading indicator shown while more jobs remain */
-            .infinite-scroll-sentinel {
+            .load-more-wrapper {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 0.75rem;
                 padding: 1.5rem 0;
-                color: var(--dbp-muted);
             }
         `;
     }

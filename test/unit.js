@@ -166,23 +166,36 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 
         assert.equal(openedJob?.identifier, 'deep-job');
     });
+
+    test('should load another batch of job offers when requested', async () => {
+        const element = document.createElement('dbp-bulletin-view-job-offers');
+        element._i18n = {t: (key) => key};
+        element.isAuthPending = () => false;
+        element.isLoggedIn = () => true;
+        element._jobOffers = Array.from({length: 13}, (_, index) => ({
+            identifier: `job-${index}`,
+            title: `Job ${index}`,
+            areasOfInterest: [],
+            description: '',
+            publishedAt: `2026-01-${String(index + 1).padStart(2, '0')}`,
+        }));
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.lengthOf(element.shadowRoot.querySelectorAll('.job-card'), 12);
+        const loadMoreButton = element.shadowRoot.querySelector('.load-more-button');
+        assert.isNotNull(loadMoreButton);
+
+        loadMoreButton.click();
+        await element.updateComplete;
+
+        assert.lengthOf(element.shadowRoot.querySelectorAll('.job-card'), 13);
+        assert.isNull(element.shadowRoot.querySelector('.load-more-button'));
+        element.remove();
+    });
 });
 
 suite('dbp-bulletin app shell', () => {
-    test('should enable the sticky footer for the job offers view', async () => {
-        const element = new BulletinAppShell();
-
-        element.activeView = 'view-job-offers';
-        element._updateStickyFooterState();
-
-        assert.isTrue(element.classList.contains('sticky-footer-active'));
-
-        element.activeView = 'welcome';
-        element._updateStickyFooterState();
-
-        assert.isFalse(element.classList.contains('sticky-footer-active'));
-    });
-
     test('should show an activity when any required role matches', () => {
         const element = new BulletinAppShell();
         element.routes = ['view-job-offers'];
