@@ -10,6 +10,8 @@
 - View job offers: unified the placeholder texts of the search and filter fields with the browse career profiles activity
 - View job offers: removed the "External application" section from the detail dialog of external job offers, the "Apply" button now leads to the company website directly
 - Career profile: unified the styling of the subtitles in the profile view mode
+- Career profile and browse career profiles: fixed the profile view mode not rendering because of a leftover call to the removed industries section, which for example made the back navigation on the company interest submissions page update the URL without showing the profile
+- Career profile: the "Back to profile" navigation of the company interest submissions page now leads to the career profile overview instead of the profile view mode
 
 ## 0.1.0
 

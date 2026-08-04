@@ -742,7 +742,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
-                ${this._renderStudiesSection(profile)} ${this._renderIndustriesSection(profile)}
+                ${this._renderStudiesSection(profile)}
                 ${this._renderProfileSelectSection(
                     profile,
                     'career-profile-form.field-fields',

@@ -922,7 +922,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
 
-                ${this._renderStudiesSection(profile)} ${this._renderIndustriesSection(profile)}
+                ${this._renderStudiesSection(profile)}
                 ${this._renderProfileSelectSection(
                     profile,
                     'career-profile-form.field-fields',
@@ -1068,9 +1068,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <span class="back-navigation">
-                <a
-                    @click="${() => this._openProfile(profile)}"
-                    title="${t('career-profile.back-to-profile')}">
+                <a @click="${this._backToOverview}" title="${t('career-profile.back-to-profile')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
                     ${t('career-profile.back-to-profile')}
                 </a>

@@ -1,6 +1,7 @@
 import {assert} from 'chai';
 
 import '../src/dbp-bulletin-view-job-offers';
+import '../src/dbp-bulletin-career-profile.js';
 import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
@@ -753,5 +754,50 @@ suite('career profile authorization grants', () => {
                 },
             ],
         );
+    });
+});
+
+suite('dbp-bulletin-career-profile routing', () => {
+    let node;
+
+    suiteSetup(async () => {
+        node = document.createElement('dbp-bulletin-career-profile');
+        document.body.appendChild(node);
+        await node.updateComplete;
+    });
+
+    suiteTeardown(() => {
+        node.remove();
+    });
+
+    test('should switch between the overview, the profile detail and the submissions view', async () => {
+        node.auth = {token: 'token', 'user-id': 'me', person_id: 'me'};
+        node._profilesLoaded = true;
+        node._profiles = [
+            {
+                identifier: 'abc',
+                formName: 'Test profile',
+                additionalData: {studentCreatorId: 'me', teaser: 'profile-teaser-text'},
+            },
+        ];
+        await node.updateComplete;
+
+        node.routingUrl = 'profile/abc';
+        await node.updateComplete;
+        await node.updateComplete;
+        assert.isNotNull(node.shadowRoot.querySelector('.profile-detail'));
+
+        node.routingUrl = 'profile/abc/submissions';
+        await node.updateComplete;
+        await node.updateComplete;
+        assert.isNull(node.shadowRoot.querySelector('.profile-detail'));
+        assert.isNotNull(node.shadowRoot.querySelector('.submissions-view'));
+
+        // The back navigation of the submissions view leads to the profile overview
+        node.routingUrl = '/';
+        await node.updateComplete;
+        await node.updateComplete;
+        assert.isNull(node.shadowRoot.querySelector('.submissions-view'));
+        assert.isNotNull(node.shadowRoot.querySelector('.profile-list'));
     });
 });
