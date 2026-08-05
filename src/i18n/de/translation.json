@@ -617,6 +617,7 @@
         "loading": "Stellenangebote werden geladen…",
         "no-results": "Keine Stellenangebote gefunden.",
         "organizational-unit": "Organisationseinheit",
+        "position-count": "({{total}} gesamt, {{filtered}} gefiltert)",
         "published-at": "Veröffentlicht am",
         "search-placeholder": "Stellenangebote suchen",
         "select-placeholder": "Alle",

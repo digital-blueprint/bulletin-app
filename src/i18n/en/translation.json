@@ -617,6 +617,7 @@
         "loading": "Loading job offers…",
         "no-results": "No job offers found.",
         "organizational-unit": "Organisational unit",
+        "position-count": "({{total}} total, {{filtered}} filtered)",
         "published-at": "Published on",
         "search-placeholder": "Search job offers",
         "select-placeholder": "All",

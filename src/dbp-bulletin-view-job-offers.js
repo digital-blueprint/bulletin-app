@@ -763,7 +763,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     render() {
         const i18n = this._i18n;
-        const t = (key) => (i18n ? i18n.t(key) : key);
+        const t = (key, options) => (i18n ? i18n.t(key, options) : key);
 
         if (this.isAuthPending()) {
             return html`
@@ -902,7 +902,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 <!-- Section heading and sort control -->
                 <div class="section-header">
-                    <h2>${t('view-job-offers.available-positions')}</h2>
+                    <h2>
+                        ${t('view-job-offers.available-positions')}
+                        ${t('view-job-offers.position-count', {
+                            total: this._jobOffers.length,
+                            filtered: filtered.length,
+                        })}
+                    </h2>
                     <div class="sort-wrapper">
                         <label class="label sort-label" for="sort-order">
                             ${t('view-job-offers.sort-by')}

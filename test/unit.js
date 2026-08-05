@@ -193,6 +193,44 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         assert.isNull(element.shadowRoot.querySelector('.load-more-button'));
         element.remove();
     });
+
+    test('should show total and filtered job counts', async () => {
+        const element = document.createElement('dbp-bulletin-view-job-offers');
+        element._i18n = {
+            t: (key, options) =>
+                key === 'view-job-offers.position-count'
+                    ? `(${options.total} total, ${options.filtered} filtered)`
+                    : key,
+            changeLanguage: () => {},
+        };
+        element.isAuthPending = () => false;
+        element.isLoggedIn = () => true;
+        element._jobOffers = [
+            {
+                identifier: 'matching-job',
+                title: 'Matching job',
+                areasOfInterest: [],
+                description: '',
+                publishedAt: '2026-01-01',
+            },
+            {
+                identifier: 'other-job',
+                title: 'Other job',
+                areasOfInterest: [],
+                description: '',
+                publishedAt: '2026-01-02',
+            },
+        ];
+        element.searchQuery = 'matching';
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.include(
+            element.shadowRoot.querySelector('.section-header h2').textContent,
+            '(2 total, 1 filtered)',
+        );
+        element.remove();
+    });
 });
 
 suite('dbp-bulletin app shell', () => {
