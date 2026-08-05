@@ -1178,8 +1178,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .position-count {
+                color: var(--dbp-muted);
                 font-size: 1rem;
-                font-weight: 400;
+                font-weight: normal;
             }
 
             .sort-wrapper {
