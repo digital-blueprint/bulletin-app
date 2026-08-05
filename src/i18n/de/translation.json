@@ -359,6 +359,12 @@
         "summary-errors": "Fehler",
         "title": "Stellenangebote generieren"
     },
+    "hours-range": {
+        "invalid-range": "Die Mindeststunden dürfen die Höchststunden nicht überschreiten.",
+        "label": "Wochenstunden",
+        "max-placeholder": "Max",
+        "min-placeholder": "Min"
+    },
     "import-companies": {
         "description": "Wählen Sie die exportierte Firmen-CSV-Datei aus und importieren Sie die Zeilen als Firmen. Vorhandene Firmen mit demselben Namen werden übersprungen.",
         "error-company-form-missing": "Das Firmenformular wurde nicht gefunden.",
@@ -560,8 +566,8 @@
         "field-start-date": "Dienstbeginn",
         "field-we-offer": "Wir bieten",
         "field-we-offer-en": "Wir bieten (en)",
-        "field-weekly-hours-max": "Wochenstunden (max.)",
-        "field-weekly-hours-min": "Wochenstunden (min.)",
+        "field-weekly-hours-max": "",
+        "field-weekly-hours-min": "",
         "field-work-locations": "Dienstort",
         "form-type-name": "Stellenangebot",
         "job-category-internship": "Praktikum",
@@ -625,9 +631,9 @@
         "sort-date-asc": "Veröffentlichungsdatum ↑",
         "sort-date-desc": "Veröffentlichungsdatum ↓",
         "view-details": "Anzeigen",
-        "weekly-hours": "Stunden pro Woche",
-        "weekly-hours-max": "Max",
-        "weekly-hours-min": "Min",
+        "weekly-hours": "Wochenstunden",
+        "weekly-hours-max": "",
+        "weekly-hours-min": "",
         "weekly-hours-range": "Wochenstunden",
         "work-location": "Dienstort"
     }

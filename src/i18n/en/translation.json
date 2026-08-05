@@ -359,6 +359,12 @@
         "summary-errors": "Errors",
         "title": "Generate job offers"
     },
+    "hours-range": {
+        "invalid-range": "Minimum hours must not exceed maximum hours.",
+        "label": "Hours per week",
+        "max-placeholder": "Max",
+        "min-placeholder": "Min"
+    },
     "import-companies": {
         "description": "Select the exported company CSV file and import its rows as companies. Existing companies with the same name are skipped.",
         "error-company-form-missing": "The company form could not be found.",
@@ -560,8 +566,8 @@
         "field-start-date": "Start of employment",
         "field-we-offer": "We offer",
         "field-we-offer-en": "We offer (en)",
-        "field-weekly-hours-max": "Max hours per week",
-        "field-weekly-hours-min": "Min hours per week",
+        "field-weekly-hours-max": "manage-job-offers.field-weekly-hours-max",
+        "field-weekly-hours-min": "manage-job-offers.field-weekly-hours-min",
         "field-work-locations": "Place of employment",
         "form-type-name": "Job offer",
         "job-category-internship": "Internship",
@@ -626,8 +632,8 @@
         "sort-date-desc": "Publishing date ↓",
         "view-details": "View",
         "weekly-hours": "Hours per week",
-        "weekly-hours-max": "Max",
-        "weekly-hours-min": "Min",
+        "weekly-hours-max": "view-job-offers.weekly-hours-max",
+        "weekly-hours-min": "view-job-offers.weekly-hours-min",
         "weekly-hours-range": "Hours per week",
         "work-location": "Place of employment"
     }
