@@ -904,10 +904,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 <div class="section-header">
                     <h2>
                         ${t('view-job-offers.available-positions')}
-                        ${t('view-job-offers.position-count', {
-                            total: this._jobOffers.length,
-                            filtered: filtered.length,
-                        })}
+                        <span class="position-count">
+                            ${t('view-job-offers.position-count', {
+                                total: this._jobOffers.length,
+                                filtered: filtered.length,
+                            })}
+                        </span>
                     </h2>
                     <div class="sort-wrapper">
                         <label class="label sort-label" for="sort-order">
@@ -1173,6 +1175,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin: 0;
                 font-size: 1.4rem;
                 font-weight: 700;
+            }
+
+            .position-count {
+                font-size: 1rem;
+                font-weight: 400;
             }
 
             .sort-wrapper {
