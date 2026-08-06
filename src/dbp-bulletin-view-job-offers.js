@@ -19,6 +19,10 @@ import {
     getLocationHierarchy,
     normalizeWorkLocations,
 } from './modules/workLocationsElement.js';
+import HoursRangeElement, {
+    formatHoursRange,
+    isHoursRangeInRange,
+} from './modules/hoursRangeElement.js';
 
 // Number of job cards shown initially and appended each time the user requests more
 const LOAD_MORE_BATCH_SIZE = 12;
@@ -31,6 +35,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             'dbp-mini-spinner': MiniSpinner,
             'dbp-bulletin-job-offer-detail': JobOfferDetail,
             'dbp-work-location-select-element': WorkLocationSelectElement,
+            'dbp-hours-range-element': HoursRangeElement,
             'dbp-login-required': DBPLoginRequired,
         };
     }
@@ -161,6 +166,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         applicationDeadline: extra.applicationDeadline ?? '',
                         startDate: extra.startDate ?? '',
                         weeklyHours: extra.weeklyHours ?? '',
+                        weeklyHoursMin: extra.weeklyHoursMin ?? '',
+                        weeklyHoursMax: extra.weeklyHoursMax ?? '',
                         weeklyHoursEn: extra.weeklyHoursEn ?? '',
                         salary: extra.salary ?? '',
                         salaryEn: extra.salaryEn ?? '',
@@ -414,11 +421,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     getFilteredJobs({includeAreaOfInterest = true, includeWorkLocation = true} = {}) {
         const query = this.searchQuery.toLowerCase().trim();
-        const minHours =
-            this.filterWeeklyHoursMin !== '' ? parseFloat(this.filterWeeklyHoursMin) : null;
-        const maxHours =
-            this.filterWeeklyHoursMax !== '' ? parseFloat(this.filterWeeklyHoursMax) : null;
-
         return this._jobOffers
             .filter((job) => {
                 const areaOfInterestLabels = getAreaOfInterestLabels(
@@ -429,7 +431,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     !query ||
                     job.title.toLowerCase().includes(query) ||
                     areaOfInterestLabels.some((label) => label.toLowerCase().includes(query)) ||
-                    this._getLocalizedDescription(job).toLowerCase().includes(query);
+                    this._getLocalizedDescription(job).toLowerCase().includes(query) ||
+                    formatHoursRange(job.weeklyHoursMin, job.weeklyHoursMax, job.weeklyHours)
+                        .toLowerCase()
+                        .includes(query) ||
+                    String(job.weeklyHoursEn ?? '')
+                        .toLowerCase()
+                        .includes(query);
                 const jobAreasOfInterest = normalizeAreaOfInterestValues(
                     job.areasOfInterest ?? job.areaOfInterest,
                 );
@@ -446,21 +454,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ),
                     );
 
-                // Parse the weekly hours value for numeric range filtering
-                const jobHours = job.weeklyHours !== '' ? parseFloat(job.weeklyHours) : null;
-                const matchesMinHours =
-                    minHours === null ||
-                    (jobHours !== null && !isNaN(jobHours) && jobHours >= minHours);
-                const matchesMaxHours =
-                    maxHours === null ||
-                    (jobHours !== null && !isNaN(jobHours) && jobHours <= maxHours);
+                const matchesHours = isHoursRangeInRange(
+                    job.weeklyHoursMin,
+                    job.weeklyHoursMax,
+                    this.filterWeeklyHoursMin,
+                    this.filterWeeklyHoursMax,
+                    job.weeklyHours,
+                );
 
                 return (
-                    matchesSearch &&
-                    matchesAreaOfInterest &&
-                    matchesWorkLocation &&
-                    matchesMinHours &&
-                    matchesMaxHours
+                    matchesSearch && matchesAreaOfInterest && matchesWorkLocation && matchesHours
                 );
             })
             .sort((a, b) => this.compareJobsByDate(a, b));
@@ -713,26 +716,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     onWeeklyHoursMinChange(e) {
-        // Keep only integer digits and cap the input at two characters.
-        const sanitizedValue = (e.target.value ?? '').replace(/\D+/g, '').slice(0, 2);
-
-        if (e.target.value !== sanitizedValue) {
-            e.target.value = sanitizedValue;
-        }
-
-        this.filterWeeklyHoursMin = sanitizedValue;
+        this.filterWeeklyHoursMin = e.detail?.min ?? '';
         this._clearUnavailableAreaOfInterest();
         this._resetVisibleCount();
     }
 
     onWeeklyHoursMaxChange(e) {
-        const sanitizedValue = (e.target.value ?? '').replace(/\D+/g, '').slice(0, 2);
-
-        if (e.target.value !== sanitizedValue) {
-            e.target.value = sanitizedValue;
-        }
-
-        this.filterWeeklyHoursMax = sanitizedValue;
+        this.filterWeeklyHoursMax = e.detail?.max ?? '';
         this._clearUnavailableAreaOfInterest();
         this._resetVisibleCount();
     }
@@ -872,32 +862,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         </div>
                     </div>
 
-                    <div class="field">
-                        <label class="label">${t('view-job-offers.weekly-hours-range')}</label>
-                        <div class="control weekly-hours-range">
-                            <input
-                                type="number"
-                                class="input"
-                                min="0"
-                                max="99"
-                                step="0.5"
-                                placeholder="${t('view-job-offers.weekly-hours-min')}"
-                                .value="${this.filterWeeklyHoursMin}"
-                                @input="${this.onWeeklyHoursMinChange}"
-                                aria-label="${t('view-job-offers.weekly-hours-min')}" />
-                            <span class="range-separator">–</span>
-                            <input
-                                type="number"
-                                class="input"
-                                min="0"
-                                max="99"
-                                step="0.5"
-                                placeholder="${t('view-job-offers.weekly-hours-max')}"
-                                .value="${this.filterWeeklyHoursMax}"
-                                @input="${this.onWeeklyHoursMaxChange}"
-                                aria-label="${t('view-job-offers.weekly-hours-max')}" />
-                        </div>
-                    </div>
+                    <dbp-hours-range-element
+                        lang="${this.lang}"
+                        lang-dir="${this.langDir}"
+                        label="${t('hours-range.label')}"
+                        .min="${this.filterWeeklyHoursMin}"
+                        .max="${this.filterWeeklyHoursMax}"
+                        @change="${(e) => {
+                            this.filterWeeklyHoursMin = e.detail?.min ?? '';
+                            this.filterWeeklyHoursMax = e.detail?.max ?? '';
+                            this._clearUnavailableAreaOfInterest();
+                            this._resetVisibleCount();
+                        }}"></dbp-hours-range-element>
                 </div>
 
                 <!-- Section heading and sort control -->
@@ -971,7 +947,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       ${this._renderJobMetaItem(
                                                           t('view-job-offers.weekly-hours'),
                                                           this._localized(
-                                                              job.weeklyHours,
+                                                              formatHoursRange(
+                                                                  job.weeklyHoursMin,
+                                                                  job.weeklyHoursMax,
+                                                                  job.weeklyHours,
+                                                              ),
                                                               job.weeklyHoursEn ?? '',
                                                           ),
                                                       )}

@@ -5,7 +5,6 @@ import {
     DbpStringElement,
     DbpDateElement,
     DbpEnumElement,
-    DbpNumberElement,
     DbpSubmissionSelectElement,
 } from '@dbp-toolkit/form-elements';
 import {ResourceSelect} from '@dbp-toolkit/resource-select';
@@ -29,6 +28,11 @@ import WorkLocationsElement, {
     getDefaultInternalWorkLocations,
     normalizeWorkLocations,
 } from './workLocationsElement.js';
+import HoursRangeElement, {
+    formatHoursRange,
+    parseOptionalHours,
+    sanitizeHoursValue,
+} from './hoursRangeElement.js';
 
 const i18n = createInstance();
 
@@ -493,10 +497,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             'dbp-string-element': DbpStringElement,
             'dbp-date-element': DbpDateElement,
             'dbp-enum-element': DbpEnumElement,
-            'dbp-number-element': DbpNumberElement,
             'dbp-submission-select-element': DbpSubmissionSelectElement,
             'dbp-resource-select': ResourceSelect,
             'dbp-work-locations-element': WorkLocationsElement,
+            'dbp-hours-range-element': HoursRangeElement,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
         };
@@ -542,6 +546,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         // Optional job detail fields
         this._startDate = '';
         this._weeklyHours = '';
+        this._weeklyHoursMin = '';
+        this._weeklyHoursMax = '';
         this._salary = '';
         this._contractDuration = '';
         this._jobCategory = '';
@@ -610,6 +616,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _workLocations: {state: true},
             _startDate: {state: true},
             _weeklyHours: {state: true},
+            _weeklyHoursMin: {state: true},
+            _weeklyHoursMax: {state: true},
             _salary: {state: true},
             _contractDuration: {state: true},
             _jobCategory: {state: true},
@@ -668,6 +676,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._workLocations = normalizeWorkLocations(d.workLocations);
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
+                const savedWeeklyHours = parseOptionalHours(d.weeklyHours);
+                this._weeklyHoursMin =
+                    d.weeklyHoursMin || (savedWeeklyHours !== null ? String(savedWeeklyHours) : '');
+                this._weeklyHoursMax =
+                    d.weeklyHoursMax || (savedWeeklyHours !== null ? String(savedWeeklyHours) : '');
                 this._salary = d.salary || '';
                 this._contractDuration = d.contractDuration || '';
                 this._jobCategory = d.jobCategory || d.jobType || '';
@@ -732,23 +745,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return normalizeHttpUrl(this._externalJobUrl) !== '';
     }
 
-    _handleWeeklyHoursInput(event) {
-        const inputElement = event?.target;
-        const rawValue = String(inputElement?.value ?? '').trim();
-
-        if (rawValue === '') {
-            this._weeklyHours = '';
-            return;
-        }
-        const numericValue = Number(rawValue.replace(',', '.'));
-        const normalizedValue =
-            Number.isFinite(numericValue) && numericValue > 99 ? '99' : rawValue;
-
-        if (inputElement) {
-            inputElement.value = normalizedValue;
-        }
-
-        this._weeklyHours = normalizedValue;
+    _handleWeeklyHoursRangeChange(event) {
+        this._weeklyHoursMin = sanitizeHoursValue(event.detail?.min);
+        this._weeklyHoursMax = sanitizeHoursValue(event.detail?.max);
+        this._weeklyHours = formatHoursRange(
+            this._weeklyHoursMin,
+            this._weeklyHoursMax,
+            this._weeklyHours,
+        );
     }
 
     _normalizeJobOfferType(value, data = {}) {
@@ -778,6 +782,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._workLocations = [];
         this._startDate = '';
         this._weeklyHours = '';
+        this._weeklyHoursMin = '';
+        this._weeklyHoursMax = '';
         this._salary = '';
         this._contractDuration = '';
         this._jobCategory = '';
@@ -1093,6 +1099,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 : getDefaultInternalWorkLocations(),
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
+            weeklyHoursMin: this._weeklyHoursMin.trim(),
+            weeklyHoursMax: this._weeklyHoursMax.trim(),
             salary: this._salary.trim(),
             contractDuration: this._contractDuration.trim(),
             jobCategory: this._jobCategory,
@@ -1367,35 +1375,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         required
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
 
-                    <dbp-number-element
-                        name="weekly-hours-min"
+                    <dbp-hours-range-element
+                        name="weekly-hours"
                         lang="${this.lang}"
-                        label="${t('manage-job-offers.field-weekly-hours-min')}"
-                        type="number"
-                        min="0"
-                        max="99"
-                        step="0.5"
-                        required
-                        placeholder="${t('view-job-offers.weekly-hours-min')}"
-                        aria-label="${t('view-job-offers.weekly-hours-min')}" 
-                        .value="${this.filterWeeklyHoursMin}"
-                        @input="${this.onWeeklyHoursMinChange}"
-                        @change="${(e) => (this.filterWeeklyHoursMin = e.detail.value)}"></dbp-number-element>
-                    
-                    <dbp-number-element
-                        name="weekly-hours-max"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-weekly-hours-max')}"
-                        type="number"
-                        min="0"
-                        max="99"
-                        step="0.5"
-                        required
-                        placeholder="${t('view-job-offers.weekly-hours-max')}"
-                        aria-label="${t('view-job-offers.weekly-hours-max')}"
-                        .value="${this.filterWeeklyHoursMax}"
-                        @input="${this.onWeeklyHoursMaxChange}"
-                        @change="${(e) => (this.filterWeeklyHoursMax = e.detail.value)}"></dbp-number-element>
+                        lang-dir="${this.langDir}"
+                        label="${t('hours-range.label')}"
+                        .min="${this._weeklyHoursMin}"
+                        .max="${this._weeklyHoursMax}"
+                        @change="${this._handleWeeklyHoursRangeChange}"></dbp-hours-range-element>
                     
                     <dbp-date-element
                         name="application-deadline"

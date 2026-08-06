@@ -12,6 +12,7 @@ import {
     getJobCategoryLabel,
 } from './modules/jobOfferForm.js';
 import {getWorkLocationLabels} from './modules/workLocationsElement.js';
+import {formatHoursRange} from './modules/hoursRangeElement.js';
 
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
@@ -612,7 +613,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const workLocationLabels = getWorkLocationLabels(job?.workLocations, t, this.lang);
         const localizedContractDuration = job ? this._getLocalizedContractDuration(job) : '';
         const localizedWeeklyHours = job
-            ? this._localized(job.weeklyHours ?? '', job.weeklyHoursEn ?? '')
+            ? this._localized(
+                  formatHoursRange(job.weeklyHoursMin, job.weeklyHoursMax, job.weeklyHours),
+                  job.weeklyHoursEn ?? '',
+              )
             : '';
         const localizedMonthlySalary = job ? this._getLocalizedMonthlySalary(job) : '';
         const localizedContactInformation = job ? this._getLocalizedContactInformation(job) : '';

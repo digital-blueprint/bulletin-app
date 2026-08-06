@@ -566,8 +566,6 @@
         "field-start-date": "Start of employment",
         "field-we-offer": "We offer",
         "field-we-offer-en": "We offer (en)",
-        "field-weekly-hours-max": "Max hours per week",
-        "field-weekly-hours-min": "Min hours per week",
         "field-work-locations": "Place of employment",
         "form-type-name": "Job offer",
         "job-category-internship": "Internship",
@@ -632,9 +630,6 @@
         "sort-date-desc": "Publishing date ↓",
         "view-details": "View",
         "weekly-hours": "Hours per week",
-        "weekly-hours-max": "Max",
-        "weekly-hours-min": "Min",
-        "weekly-hours-range": "Hours per week",
         "work-location": "Place of employment"
     }
 }
