@@ -566,8 +566,8 @@
         "field-start-date": "Dienstbeginn",
         "field-we-offer": "Wir bieten",
         "field-we-offer-en": "Wir bieten (en)",
-        "field-weekly-hours-max": "",
-        "field-weekly-hours-min": "",
+        "field-weekly-hours-max": "Wochenstunden (max.)",
+        "field-weekly-hours-min": "Wochenstunden (min.)",
         "field-work-locations": "Dienstort",
         "form-type-name": "Stellenangebot",
         "job-category-internship": "Praktikum",
@@ -632,8 +632,8 @@
         "sort-date-desc": "Veröffentlichungsdatum ↓",
         "view-details": "Anzeigen",
         "weekly-hours": "Wochenstunden",
-        "weekly-hours-max": "",
-        "weekly-hours-min": "",
+        "weekly-hours-max": "Max",
+        "weekly-hours-min": "Min",
         "weekly-hours-range": "Wochenstunden",
         "work-location": "Dienstort"
     }
