@@ -377,6 +377,8 @@ export class HoursRangeElement extends DBPLitElement {
 
             :host {
                 display: block;
+                width: 100%;
+                min-width: 0;
             }
 
             fieldset {
@@ -390,14 +392,19 @@ export class HoursRangeElement extends DBPLitElement {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
-            }
-
-            .hours-range {
-                box-sizing: border-box;
                 width: 100%;
                 min-width: 0;
-                height: 1.9em;
-                min-height: 0.2em;
+            }
+
+            .hours-range .input {
+                flex: 1 1 0;
+                width: 0;
+                min-width: 0;
+                box-sizing: border-box;
+            }
+
+            .range-separator {
+                flex: 0 0 auto;
             }
 
             .required-star {
