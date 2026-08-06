@@ -16,7 +16,7 @@ export const HOURS_STEP = 0.01;
  * @param {unknown} value
  * @returns {number|null}
  */
-const parseOptionalHours = (value) => {
+export const parseOptionalHours = (value) => {
     if (value === '' || value === null || value === undefined) {
         return null;
     }
@@ -154,11 +154,35 @@ export const isHoursRangeInRange = (jobMin, jobMax, filterMin, filterMax, scalar
         return isHoursInRange(scalarHours, selectedMin, selectedMax);
     }
 
-    // Two ranges overlap when neither one is completely before the other.
+    if (offerMin !== null && offerMax !== null && offerMin > offerMax) {
+        return false;
+    }
+
+    const effectiveOfferMin = offerMin ?? offerMax;
+    const effectiveOfferMax = offerMax ?? offerMin;
     return (
-        (selectedMin === null || offerMax === null || offerMax >= selectedMin) &&
-        (selectedMax === null || offerMin === null || offerMin <= selectedMax)
+        (selectedMin === null || effectiveOfferMin >= selectedMin) &&
+        (selectedMax === null || effectiveOfferMax <= selectedMax)
     );
+};
+
+/**
+ * Returns the display and search representation of a job's hours.
+ *
+ * @param {string|number|null|undefined} min
+ * @param {string|number|null|undefined} max
+ * @param {string|number|null|undefined} scalarHours
+ * @returns {string}
+ */
+export const formatHoursRange = (min, max, scalarHours = '') => {
+    const parsedMin = parseOptionalHours(min);
+    const parsedMax = parseOptionalHours(max);
+
+    if (parsedMin === null && parsedMax === null) {
+        return String(scalarHours ?? '').trim();
+    }
+
+    return [parsedMin, parsedMax].filter((value) => value !== null).join(' – ');
 };
 
 export class HoursRangeElement extends DBPLitElement {
