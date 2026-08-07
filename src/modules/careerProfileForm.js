@@ -1116,6 +1116,41 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         `;
     }
 
+    _renderStudySelector(studyItems, t) {
+        if (!this._loadingStudentData && !this._availableStudies.length) {
+            return '';
+        }
+
+        if (!this._availableStudies.length) {
+            return html`
+                <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
+            `;
+        }
+
+        return keyed(
+            this.lang,
+            html`
+                <dbp-enum-element
+                    name="study-program"
+                    lang="${this.lang}"
+                    label="${t('career-profile-form.field-study-program')}"
+                    multiple
+                    display-mode="tags"
+                    .tagPlaceholder="${{
+                        [this.lang]: t('career-profile-form.field-select-placeholder'),
+                    }}"
+                    .items="${studyItems}"
+                    .value="${this._selectedStudyKeys}"
+                    required
+                    @change="${(event) => this._selectStudies(event.detail.value)}">
+                    <div slot="description">
+                        ${t('career-profile-form.field-study-program-description')}
+                    </div>
+                </dbp-enum-element>
+            `,
+        );
+    }
+
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const studyItems = Object.fromEntries(
@@ -1128,7 +1163,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         keepCareerProfileTranslations(t);
 
         return html`
-            <div class="content">
             <div class="translation-row">
                 ${this.renderTextField(
                     'summary',
@@ -1156,46 +1190,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                       `
                     : ''
             }
-            ${
-                this._loadingStudentData || this._availableStudies.length
-                    ? html`
-                          ${
-                              this._availableStudies.length
-                                  ? keyed(
-                                        this.lang,
-                                        html`
-                                            <dbp-enum-element
-                                                name="study-program"
-                                                lang="${this.lang}"
-                                                label="${t('career-profile-form.field-study-program')}"
-                                                multiple
-                                                display-mode="tags"
-                                                .tagPlaceholder="${{
-                                                    [this.lang]: t(
-                                                        'career-profile-form.field-select-placeholder',
-                                                    ),
-                                                }}"
-                                                .items="${studyItems}"
-                                                .value="${this._selectedStudyKeys}"
-                                                required
-                                                @change="${(event) =>
-                                                    this._selectStudies(event.detail.value)}">
-                                                <div slot="description">
-                                                    ${t(
-                                                        'career-profile-form.field-study-program-description',
-                                                    )}
-                                                </div>
-                                            </dbp-enum-element>
-                                        `,
-                                    )
-                                  : html`
-                                        <dbp-mini-spinner
-                                            text="${t('loading-message')}"></dbp-mini-spinner>
-                                    `
-                          }
-                      `
-                    : ''
-            }
+            ${this._renderStudySelector(studyItems, t)}
 
             <div class="translation-row">
                 ${this.renderDateField(
@@ -1372,7 +1367,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     descriptionKey: 'career-profile-form.field-teaser-description',
                 },
             )}
-            </div>
         `;
     }
 
@@ -1382,9 +1376,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             css`
                 :host {
                     display: block;
-                }
-
-                .content {
                     padding-right: 8px;
                 }
 
