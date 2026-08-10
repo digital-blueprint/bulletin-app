@@ -1343,7 +1343,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             dt,
             .profile-detail h3,
             .submission-card h4 {
-                font-weight: 600;
+                font-weight: bolder;
                 font-size: 1em;
                 margin: 0;
             }

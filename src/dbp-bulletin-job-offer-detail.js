@@ -1127,8 +1127,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 align-items: center;
             }
 
-            .meta-item-label {
-                font-weight: bold;
+            .meta-item-label,
+            .tag-label,
+            .company-info-item dt,
+            .company-info-block h4 {
+                font-weight: bolder;
             }
 
             .meta-item img {
@@ -1137,11 +1140,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .job-meta-type {
                 color: var(--dbp-primary);
-                font-weight: 600;
+                font-weight: bolder;
             }
 
             .meta-item dt {
-                font-weight: 600;
+                font-weight: bolder;
                 white-space: nowrap;
             }
 
@@ -1168,10 +1171,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
             .meta-item.tag {
                 margin-top: 0.5rem;
-            }
-
-            .tag-label {
-                font-weight: 600;
             }
 
             /* Right-side tag and action buttons stay in the second grid column */
@@ -1315,11 +1314,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .company-info-item {
                 display: grid;
-            }
-
-            .company-info-item dt,
-            .company-info-block h4 {
-                font-weight: 700;
             }
 
             .company-info-item dd,

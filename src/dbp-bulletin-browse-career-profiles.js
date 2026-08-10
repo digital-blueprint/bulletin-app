@@ -998,7 +998,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             }
 
             .profile-meta dt {
-                font-weight: 700;
+                font-weight: bolder;
             }
 
             .profile-meta dd {

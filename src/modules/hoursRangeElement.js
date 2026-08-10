@@ -388,6 +388,10 @@ export class HoursRangeElement extends DBPLitElement {
                 border: 0;
             }
 
+            .label {
+                font-weight: bolder;
+            }
+
             .hours-range {
                 display: flex;
                 align-items: center;
