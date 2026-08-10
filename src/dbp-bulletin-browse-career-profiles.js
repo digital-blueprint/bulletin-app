@@ -983,6 +983,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 display: block;
             }
 
+            .label {
+                font-weight: bolder;
+            }
+
             .profile-teaser {
                 font-size: 1.25rem;
                 font-weight: 700;

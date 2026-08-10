@@ -624,7 +624,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <div class="job-meta-item">
                 <span>
-                    <b>${label}:</b>
+                    <span class="job-card-label">${label}:</span>
                     &thinsp; ${value}
                 </span>
             </div>
@@ -1034,6 +1034,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: flex;
                 flex-direction: column;
                 gap: 1.25rem;
+            }
+
+            .job-card-label {
+                font-weight: bolder;
             }
 
             /* Loading state wrapper */
