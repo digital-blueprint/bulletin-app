@@ -525,6 +525,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 },
                 {
                     title: '',
+                    frozen: true,
                     field: 'actions',
                     headerSort: false,
                     hozAlign: 'right',
