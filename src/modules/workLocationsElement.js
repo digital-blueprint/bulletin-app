@@ -832,12 +832,11 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             ${commonStyles.getSelect2CSS()}
 
             .work-locations {
-                margin-bottom: 1rem;
+                margin: 0.75rem 0;
             }
 
             .field-label {
-                font-size: 18px;
-                font-weight: 400;
+                font-weight: bolder;
                 margin: 0;
             }
 

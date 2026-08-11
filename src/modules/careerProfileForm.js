@@ -1200,6 +1200,25 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._availability = value),
                 )}
             </div>
+            <dbp-work-locations-element
+                lang="${this.lang}"
+                lang-dir="${this.langDir}"
+                label="${t('career-profile-form.field-preferred-work-location')}"
+                .value="${this._workLocations}"
+                @change="${(event) =>
+                    (this._workLocations = normalizeWorkLocations(
+                        event.detail.value,
+                    ))}"></dbp-work-locations-element>
+            <div class="translation-row">
+                ${this.renderMultiSelectField(
+                    'fields',
+                    'career-profile-form.field-fields',
+                    fieldItems,
+                    this._fields,
+                    (value) => (this._fields = value),
+                    {descriptionKey: 'career-profile-form.field-fields-description'},
+                )}
+            </div>
 
             <div class="translation-row">
                 ${this.renderTextField(
@@ -1226,32 +1245,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     },
                 )}
             </div>
-
-            <div class="translation-row">
-                ${this.renderTextField(
-                    'skills',
-                    'career-profile-form.field-skills',
-                    this._skillsText,
-                    (value) => (this._skillsText = value),
-                    {
-                        rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
-                        descriptionKey: 'career-profile-form.field-skills-description',
-                    },
-                )}
-                ${this.renderTextField(
-                    'skillsEn',
-                    'career-profile-form.field-skills-en',
-                    this._skillsTextEn,
-                    (value) => (this._skillsTextEn = value),
-                    {
-                        rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
-                        descriptionKey: 'career-profile-form.field-skills-en-description',
-                    },
-                )}
-            </div>
-
             <div class="translation-row">
                 ${this.renderTextField(
                     'furtherQualifications',
@@ -1276,15 +1269,28 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     },
                 )}
             </div>
-
             <div class="translation-row">
-                ${this.renderMultiSelectField(
-                    'fields',
-                    'career-profile-form.field-fields',
-                    fieldItems,
-                    this._fields,
-                    (value) => (this._fields = value),
-                    {descriptionKey: 'career-profile-form.field-fields-description'},
+                ${this.renderTextField(
+                    'skills',
+                    'career-profile-form.field-skills',
+                    this._skillsText,
+                    (value) => (this._skillsText = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'career-profile-form.field-text-placeholder',
+                        descriptionKey: 'career-profile-form.field-skills-description',
+                    },
+                )}
+                ${this.renderTextField(
+                    'skillsEn',
+                    'career-profile-form.field-skills-en',
+                    this._skillsTextEn,
+                    (value) => (this._skillsTextEn = value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'career-profile-form.field-text-placeholder',
+                        descriptionKey: 'career-profile-form.field-skills-en-description',
+                    },
                 )}
             </div>
 
@@ -1330,16 +1336,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     {rows: 4},
                 )}
             </div>
-
-            <dbp-work-locations-element
-                lang="${this.lang}"
-                lang-dir="${this.langDir}"
-                label="${t('career-profile-form.field-locations')}"
-                .value="${this._workLocations}"
-                @change="${(event) =>
-                    (this._workLocations = normalizeWorkLocations(
-                        event.detail.value,
-                    ))}"></dbp-work-locations-element>
 
             <div>
                 ${this.renderTextField(

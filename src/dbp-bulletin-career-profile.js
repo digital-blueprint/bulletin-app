@@ -731,21 +731,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 : ''
                         }
                         ${
-                            data.website || data.linkUrl
-                                ? this._renderMetaItem(
-                                      t('career-profile-form.field-website') + ':',
-                                      html`
-                                          <a
-                                              href="${data.website || data.linkUrl}"
-                                              target="_blank"
-                                              rel="noopener noreferrer">
-                                              ${data.website || data.linkUrl}
-                                          </a>
-                                      `,
-                                  )
-                                : ''
-                        }
-                        ${
                             workLocationLabels && workLocationLabels.length
                                 ? html`
                                       <dt>
@@ -790,22 +775,22 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 : ''
                         }
                         ${
-                            personalInterests
-                                ? html`
-                                      <dt>
-                                          ${this._i18n.t('career-profile-form.field-personal-interests')}:
-                                      </dt>
-                                      <dd>${personalInterests}</dd>
-                                  `
-                                : ''
-                        }
-                        ${
                             this._getSkills(profile)
                                 ? html`
                                       <dt>
                                           ${this._i18n.t('career-profile-form.field-skills-view-mode')}:
                                       </dt>
                                       <dd>${this._getSkills(profile)}</dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            personalInterests
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-personal-interests')}:
+                                      </dt>
+                                      <dd>${personalInterests}</dd>
                                   `
                                 : ''
                         }
@@ -817,6 +802,21 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       </dt>
                                       <dd>${this._getLanguages(profile)}</dd>
                                   `
+                                : ''
+                        }
+                        ${
+                            data.website || data.linkUrl
+                                ? this._renderMetaItem(
+                                      t('career-profile-form.field-website') + ':',
+                                      html`
+                                          <a
+                                              href="${data.website || data.linkUrl}"
+                                              target="_blank"
+                                              rel="noopener noreferrer">
+                                              ${data.website || data.linkUrl}
+                                          </a>
+                                      `,
+                                  )
                                 : ''
                         }
                     </dl>
@@ -1390,7 +1390,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .student-teaser {
-                font-weight: bold;
+                font-weight: bolder;
                 font-size: 1.25rem;
             }
 
