@@ -366,6 +366,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-basic-data')}</h3>
+                    <hr />
                     ${this.renderStringField('name', 'company-form.field-name', {required: true})}
                     ${this.renderStringField('abteilung', 'company-form.field-department', {
                         rows: 2,
@@ -378,6 +379,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-address-contact')}</h3>
+                    <hr />
                     ${this.renderStringField('adresse', 'company-form.field-address', {rows: 4})}
                     <div class="two-column-row compact-left">
                         ${this.renderStringField('plz', 'company-form.field-postal-code')}
@@ -405,6 +407,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-partnership')}</h3>
+                    <hr />
                     ${this.renderEnumField(
                         'typ',
                         'company-form.field-partner-type',
@@ -433,6 +436,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-company-profile')}</h3>
+                    <hr />
                     ${this.renderStringField('mini_teaser', 'company-form.field-mini-teaser', {
                         rows: 3,
                     })}
@@ -476,6 +480,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-relations')}</h3>
+                    <hr />
                     ${this.renderEnumField(
                         'relation_partner_branchen',
                         'company-form.field-linked-industries',
@@ -492,6 +497,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-partner-company')}</h3>
+                    <hr />
                     ${this.renderBooleanField(
                         'partnerunternehmen',
                         'company-form.field-show-partner-company',
@@ -555,8 +561,11 @@ class CompanyFormElement extends BaseFormElement {
                 font-weight: bold;
             }
 
+            .formalize-form {
+                padding-right: 8px;
+            }
+
             .form-section {
-                border-top: var(--dbp-border);
                 margin-top: 1.5rem;
                 padding-top: 1rem;
             }
@@ -568,8 +577,9 @@ class CompanyFormElement extends BaseFormElement {
             }
 
             .form-section h3 {
-                font-size: 1rem;
-                margin: 0 0 0.75rem;
+                margin: 0px;
+                font-size: 1.3rem;
+                font-weight: 400;
             }
 
             .two-column-row {
