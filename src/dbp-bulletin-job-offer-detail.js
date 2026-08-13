@@ -861,7 +861,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                           class="meta-item-label">
                                                                                           ${t('job-offer-detail.start-date')}:
                                                                                       </span>
-                                                                                      ${job.startDate}
+                                                                                      ${this.formatDate(job.startDate)}
                                                                                   </div>
                                                                               `
                                                                             : ''
