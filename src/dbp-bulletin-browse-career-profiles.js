@@ -553,6 +553,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         };
     }
 
+    _getColumnConfigurationStorageKey() {
+        const userId = this.auth?.['user-id'];
+        return userId ? `bulletin-career-profiles-${userId}` : '';
+    }
+
     async _syncProfileTable(changedProperties = new Map()) {
         const table = this.renderRoot?.querySelector('#career-profiles-table');
         if (!table || this._selectedProfile) {
@@ -709,6 +714,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 identifier="career-profiles-table"
                 pagination-enabled
                 pagination-size="10"
+                column-configuration-enabled
+                column-configuration-in-header
+                .columnConfigurationExcludedFields=${['actions']}
+                .columnConfigurationStorageKey=${this._getColumnConfigurationStorageKey()}
                 .options="${this._getTableOptions()}"></dbp-tabulator-table>
         `;
     }
