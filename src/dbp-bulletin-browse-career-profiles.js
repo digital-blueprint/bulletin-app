@@ -246,6 +246,22 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         `;
     }
 
+    _renderBulletpointList(items) {
+        if (!Array.isArray(items) || items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul class="bulletpoints-list">
+                ${items.map(
+                    (item) => html`
+                        <li>${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
+
     _renderStudies(profile) {
         const studies = normalizeStudentStudies(profile?.additionalData ?? {});
         if (studies.length === 0) {
@@ -744,39 +760,24 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
                 <dl class="profile-meta-data">
                     ${this._renderStudiesSection(profile)}
+                    ${this._renderMetaItem(
+                        t('career-profile-form.field-availability'),
+                        data.availability,
+                    )}
+                    ${
+                        normalizeWorkLocations(data.workLocations).length
+                            ? html`
+                                  <dt>${t('career-profile-form.field-preferred-work-location')}</dt>
+                                  <dd>${this._renderList(this._getWorkLocationLabels(profile))}</dd>
+                              `
+                            : ''
+                    }
                     ${this._renderProfileSelectSection(
                         profile,
                         'career-profile-form.field-fields',
                         data.fields,
                         getCareerProfileFieldLabels,
                     )}
-                    ${
-                        normalizeWorkLocations(data.workLocations).length
-                            ? html`
-                                  <dt>${t('career-profile-form.field-locations')}</dt>
-                                  <dd>${this._renderList(this._getWorkLocationLabels(profile))}</dd>
-                              `
-                            : ''
-                    }
-                    ${this._renderMetaItem(
-                        t('career-profile-form.field-availability'),
-                        data.availability,
-                    )}
-                    ${
-                        data.website || data.linkUrl
-                            ? this._renderMetaItem(
-                                  t('career-profile-form.field-website'),
-                                  html`
-                                      <a
-                                          href="${data.website || data.linkUrl}"
-                                          target="_blank"
-                                          rel="noopener noreferrer">
-                                          ${data.website || data.linkUrl}
-                                      </a>
-                                  `,
-                              )
-                            : ''
-                    }
                     ${
                         previousExperience
                             ? html`
@@ -786,18 +787,18 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                             : ''
                     }
                     ${
-                        skills.length
-                            ? html`
-                                  <dt>${t('career-profile-form.field-skills-view-mode')}</dt>
-                                  <dd>${this._renderList(skills)}</dd>
-                              `
-                            : ''
-                    }
-                    ${
                         furtherQualifications
                             ? html`
                                   <dt>${t('career-profile-form.field-qualification-view-mode')}</dt>
                                   <dd class="multiline-text">${furtherQualifications}</dd>
+                              `
+                            : ''
+                    }
+                    ${
+                        skills.length
+                            ? html`
+                                  <dt>${t('career-profile-form.field-skills-view-mode')}</dt>
+                                  <dd>${this._renderBulletpointList(skills)}</dd>
                               `
                             : ''
                     }
@@ -813,8 +814,24 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         languages.length
                             ? html`
                                   <dt>${t('career-profile-form.field-languages-view-mode')}</dt>
-                                  <dd>${this._renderList(languages)}</dd>
+                                  <dd>${this._renderBulletpointList(languages)}</dd>
                               `
+                            : ''
+                    }
+                    ${
+                        data.website || data.linkUrl
+                            ? this._renderMetaItem(
+                                  t('career-profile-form.field-website'),
+                                  html`
+                                      <a
+                                          class="web-link"
+                                          href="${data.website || data.linkUrl}"
+                                          target="_blank"
+                                          rel="noopener noreferrer">
+                                          ${data.website || data.linkUrl}
+                                      </a>
+                                  `,
+                              )
                             : ''
                     }
                 </dl>
@@ -1007,6 +1024,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 flex-wrap: wrap;
             }
 
+            .bulletpoints-list {
+                padding-left: 20px;
+            }
+
             .tag {
                 display: inline-block;
                 border: 1px solid var(--dbp-content);
@@ -1016,6 +1037,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 color: var(--dbp-content);
             }
 
+            .web-link {
+                text-decoration: underline;
+                color: var(--dbp-override-primary);
+            }
             .back-navigation {
                 display: inline-block;
                 margin-bottom: 1rem;
