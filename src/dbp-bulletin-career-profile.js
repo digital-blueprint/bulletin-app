@@ -1329,7 +1329,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 align-items: flex-start;
                 justify-content: space-between;
                 border: 1px solid var(--dbp-content);
-                padding: 1.5rem;
+                padding: 1rem;
             }
 
             .contact-email {
