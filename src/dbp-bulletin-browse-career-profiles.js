@@ -236,10 +236,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
 
         return html`
-            <ul>
+            <ul class="studyProgram-list">
                 ${items.map(
                     (item) => html`
-                        <li>${item}</li>
+                        <li class="tag">${item}</li>
                     `,
                 )}
             </ul>
@@ -253,7 +253,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
 
         return this._renderList(
-            studies.map((study) => getLocalizedStudentStudyLabel(study, this.lang)),
+            studies.map(
+                (study) => html`
+                    ${getLocalizedStudentStudyLabel(study, this.lang)}
+                `,
+            ),
         );
     }
 
@@ -264,10 +268,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
 
         return html`
-            <section class="profile-studies">
-                <h3>${this._i18n.t('career-profile-form.field-study-program')}</h3>
-                ${this._renderStudies(profile)}
-            </section>
+            <dt>${this._i18n.t('career-profile-form.field-study-program')}</dt>
+            <dd class="studyProgram-list">${this._renderStudies(profile)}</dd>
         `;
     }
 
@@ -408,10 +410,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
 
         return html`
-            <section>
-                <h3>${this._i18n.t(labelKey)}</h3>
-                ${this._renderList(labels)}
-            </section>
+            <dt>${this._i18n.t(labelKey)}</dt>
+            <dd>${this._renderList(labels)}</dd>
         `;
     }
 
@@ -730,7 +730,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
             <article class="profile-detail">
                 <header>
-                    <h2>${this._getProfileAlias(profile)}</h2>
+                    <h2 class="profile-title">${this._getProfileAlias(profile)}</h2>
                 </header>
 
                 ${
@@ -742,26 +742,22 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 }
 
                 <p class="summary">${this._localized(profile, 'summary', 'summaryEn')}</p>
-
-                ${this._renderStudiesSection(profile)}
-                ${this._renderProfileSelectSection(
-                    profile,
-                    'career-profile-form.field-fields',
-                    data.fields,
-                    getCareerProfileFieldLabels,
-                )}
-                ${
-                    normalizeWorkLocations(data.workLocations).length
-                        ? html`
-                              <section>
-                                  <h3>${t('career-profile-form.field-locations')}</h3>
-                                  ${this._renderList(this._getWorkLocationLabels(profile))}
-                              </section>
-                          `
-                        : ''
-                }
-
-                <dl class="profile-meta">
+                <dl class="profile-meta-data">
+                    ${this._renderStudiesSection(profile)}
+                    ${this._renderProfileSelectSection(
+                        profile,
+                        'career-profile-form.field-fields',
+                        data.fields,
+                        getCareerProfileFieldLabels,
+                    )}
+                    ${
+                        normalizeWorkLocations(data.workLocations).length
+                            ? html`
+                                  <dt>${t('career-profile-form.field-locations')}</dt>
+                                  <dd>${this._renderList(this._getWorkLocationLabels(profile))}</dd>
+                              `
+                            : ''
+                    }
                     ${this._renderMetaItem(
                         t('career-profile-form.field-availability'),
                         data.availability,
@@ -781,58 +777,47 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                               )
                             : ''
                     }
+                    ${
+                        previousExperience
+                            ? html`
+                                  <dt>${t('career-profile-form.field-previous-experience')}</dt>
+                                  <dd>${previousExperience}</dd>
+                              `
+                            : ''
+                    }
+                    ${
+                        skills.length
+                            ? html`
+                                  <dt>${t('career-profile-form.field-skills-view-mode')}</dt>
+                                  <dd>${this._renderList(skills)}</dd>
+                              `
+                            : ''
+                    }
+                    ${
+                        furtherQualifications
+                            ? html`
+                                  <dt>${t('career-profile-form.field-qualification-view-mode')}</dt>
+                                  <dd class="multiline-text">${furtherQualifications}</dd>
+                              `
+                            : ''
+                    }
+                    ${
+                        personalInterests
+                            ? html`
+                                  <dt>${t('career-profile-form.field-personal-interests')}</dt>
+                                  <dd>${personalInterests}</dd>
+                              `
+                            : ''
+                    }
+                    ${
+                        languages.length
+                            ? html`
+                                  <dt>${t('career-profile-form.field-languages-view-mode')}</dt>
+                                  <dd>${this._renderList(languages)}</dd>
+                              `
+                            : ''
+                    }
                 </dl>
-
-                ${
-                    previousExperience
-                        ? html`
-                              <section>
-                                  <h3>${t('career-profile-form.field-previous-experience')}</h3>
-                                  <p>${previousExperience}</p>
-                              </section>
-                          `
-                        : ''
-                }
-                ${
-                    skills.length
-                        ? html`
-                              <section>
-                                  <h3>${t('career-profile-form.field-skills-view-mode')}</h3>
-                                  ${this._renderList(skills)}
-                              </section>
-                          `
-                        : ''
-                }
-                ${
-                    furtherQualifications
-                        ? html`
-                              <section>
-                                  <h3>${t('career-profile-form.field-qualification-view-mode')}</h3>
-                                  <p class="multiline-text">${furtherQualifications}</p>
-                              </section>
-                          `
-                        : ''
-                }
-                ${
-                    personalInterests
-                        ? html`
-                              <section>
-                                  <h3>${t('career-profile-form.field-personal-interests')}</h3>
-                                  <p>${personalInterests}</p>
-                              </section>
-                          `
-                        : ''
-                }
-                ${
-                    languages.length
-                        ? html`
-                              <section>
-                                  <h3>${t('career-profile-form.field-languages-view-mode')}</h3>
-                                  ${this._renderList(languages)}
-                              </section>
-                          `
-                        : ''
-                }
             </article>
 
             <dbp-career-profile-interest-form
@@ -889,16 +874,15 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 margin-top: 0;
             }
 
+            .profile-title {
+                margin: 0px;
+                font-size: 1.25rem;
+                font-weight: 700;
+            }
             .profile-detail {
                 border: var(--dbp-border);
                 border-radius: var(--dbp-border-radius);
                 padding: 1rem;
-            }
-
-            .profile-detail ul {
-                margin: 0.25rem 0 1rem 0;
-                padding-left: 1.5rem;
-                list-style: disc;
             }
 
             .profile-detail li {
@@ -915,8 +899,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 margin: 0 0 0.5rem 0;
             }
 
-            .activity-header p,
-            .summary {
+            .activity-header p {
                 line-height: 1.55;
             }
 
@@ -990,9 +973,9 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
             .profile-teaser {
                 font-size: 1.25rem;
-                font-weight: 700;
+                font-weight: bolder;
                 line-height: 1.5;
-                margin: 0 0 1rem 0;
+                margin: 0.5rem 0;
             }
 
             .profile-meta {
@@ -1002,12 +985,35 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 margin: 1rem 0;
             }
 
-            .profile-meta dt {
+            .profile-meta-data {
+                margin-top: 0.5rem;
+            }
+
+            .profile-meta dt,
+            .profile-meta-data dt {
                 font-weight: bolder;
+                margin-top: 0.5rem;
             }
 
             .profile-meta dd {
                 margin: 0;
+            }
+
+            .studyProgram-list {
+                list-style: none;
+                padding: 0;
+                display: flex;
+                gap: 5px;
+                flex-wrap: wrap;
+            }
+
+            .tag {
+                display: inline-block;
+                border: 1px solid var(--dbp-content);
+                border-radius: 2px;
+                padding: 0 0.4rem;
+                font-size: 1rem;
+                color: var(--dbp-content);
             }
 
             .back-navigation {
