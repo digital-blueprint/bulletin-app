@@ -721,7 +721,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 .options="${this._getTableOptions()}"></dbp-tabulator-table>
         `;
     }
-
+    formatDate(isoDate) {
+        const [year, month, day] = isoDate.split('-');
+        return `${day}.${month}.${year}`;
+    }
     _renderProfileDetail(profile) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const data = profile.additionalData ?? {};
@@ -771,7 +774,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     ${this._renderStudiesSection(profile)}
                     ${this._renderMetaItem(
                         t('career-profile-form.field-availability'),
-                        data.availability,
+                        this.formatDate(data.availability),
                     )}
                     ${
                         normalizeWorkLocations(data.workLocations).length

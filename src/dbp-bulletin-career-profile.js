@@ -618,7 +618,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             </ul>
         `;
     }
-
+    formatDate(isoDate) {
+        const [year, month, day] = isoDate.split('-');
+        return `${day}.${month}.${year}`;
+    }
     _renderProfileCard(profile) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const isOwnProfile = this._isOwnProfile(profile);
@@ -726,7 +729,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       <dt>
                                           ${this._i18n.t('career-profile-form.field-availability')}:
                                       </dt>
-                                      <dd>${data.availability}</dd>
+                                      <dd>${this.formatDate(data.availability)}</dd>
                                   `
                                 : ''
                         }
