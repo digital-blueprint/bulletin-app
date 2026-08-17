@@ -1016,11 +1016,26 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     async submit() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const isEditMode = this.existingForm !== null && this.existingForm !== undefined;
+        const selectedLocations = this._isExternalJob
+            ? normalizeWorkLocations(this._workLocations)
+            : getDefaultInternalWorkLocations();
 
         if (!this._isFormValid) {
             sendNotification({
                 summary: t('create-job-offer.error-title'),
-                body: t('create-job-offer.validation-required'),
+                body:
+                    this._isExternalJob && !this._isExternalJobUrlValid()
+                        ? t('create-job-offer.external-url-invalid')
+                        : t('create-job-offer.validation-required'),
+                type: 'warning',
+                timeout: 0,
+                targetNotificationId: 'edit-form-dialog-notification',
+            });
+            return null;
+        } else if (selectedLocations.length === 0) {
+            sendNotification({
+                summary: t('create-job-offer.error-title'),
+                body: t('create-job-offer.select-work-location'),
                 type: 'warning',
                 timeout: 0,
                 targetNotificationId: 'edit-form-dialog-notification',

@@ -307,6 +307,8 @@
     "create-job-offer": {
         "error-grant-read-access": "The job offer was created, but read access for authenticated users could not be granted.",
         "error-title": "Error",
+        "external-url-invalid": "Your URL must begin with \"https\" or \"www\".",
+        "select-work-location": "Please select at least one preferred work location.",
         "validation-required": "Please fill in all required fields."
     },
     "edit-form": {
@@ -581,7 +583,7 @@
         "work-location-city": "City",
         "work-location-city-placeholder": "Select a city",
         "work-location-country": "Country",
-        "work-location-empty": "No place of employment selected yet.",
+        "work-location-empty": "Please select at least one preferred work location.",
         "work-location-region": "Region",
         "work-location-region-burgenland": "Burgenland",
         "work-location-region-carinthia": "Carinthia",

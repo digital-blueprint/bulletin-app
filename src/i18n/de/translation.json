@@ -307,7 +307,9 @@
     "create-job-offer": {
         "error-grant-read-access": "Das Stellenangebot wurde erstellt, aber der Lesezugriff für authentifizierte Benutzer*innen konnte nicht erteilt werden.",
         "error-title": "Fehler",
-        "validation-required": "Bitte füllen Sie alle Pflichtfelder aus."
+        "external-url-invalid": "Ihre URL muss beispielsweise mit 'https' oder 'www' beginnen.",
+        "select-work-location": "Bitte wählen sie mindestens einen bevorzugten Dienstort aus",
+        "validation-required": "Bitte füllen Sie alle Pflichtfelder korrekt aus."
     },
     "edit-form": {
         "error-update-failed": "Stellenangebot konnte nicht aktualisiert werden. Antwortstatus: {{status}}",
@@ -581,7 +583,7 @@
         "work-location-city": "Stadt",
         "work-location-city-placeholder": "Stadt auswählen",
         "work-location-country": "Land",
-        "work-location-empty": "Es wurde noch kein Dienstort ausgewählt.",
+        "work-location-empty": "Bitte wählen Sie mindestens einen bevorzugten Dienstort aus.",
         "work-location-region": "Bundesland",
         "work-location-region-burgenland": "Burgenland",
         "work-location-region-carinthia": "Kärnten",

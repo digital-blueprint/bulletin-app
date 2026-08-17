@@ -679,6 +679,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         this._city = '';
         this._region = '';
     }
+
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const regionItems = this._getRegionItems(t);
@@ -695,7 +696,10 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
 
                 <div class="selector-stack">
                     <label class="selector-label">
-                        <span>${t('manage-job-offers.work-location-country')}</span>
+                        <span>
+                            ${t('manage-job-offers.work-location-country')}
+                            <span class="required-mark">*</span>
+                        </span>
                         <dbp-country-select
                             lang="${this.lang}"
                             .value="${this._country}"
@@ -816,6 +820,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                             : html`
                                   <p class="empty-selection">
                                       ${t('manage-job-offers.work-location-empty')}
+                                      <span class="required-mark">*</span>
                                   </p>
                               `
                     }
@@ -875,10 +880,6 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 position: relative;
             }
 
-            .selector-label .select2-container--default .select2-selection__clear {
-                margin-top: -3px;
-            }
-
             .selector-label
                 .select2-container--default
                 .select2-selection--single
@@ -897,6 +898,10 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             }
             .disabled {
                 opacity: 0.5;
+            }
+
+            .required-mark {
+                color: var(--dbp-accent);
             }
             .selected-locations {
                 margin-top: 1rem;
