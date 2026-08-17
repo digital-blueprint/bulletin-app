@@ -56,6 +56,20 @@ const parseOptionalNumber = (value) => {
 };
 
 /**
+ * Checks that an optional hours range is ordered from minimum to maximum.
+ *
+ * @param {unknown} min
+ * @param {unknown} max
+ * @returns {boolean}
+ */
+export const isHoursRangeValid = (min, max) => {
+    const minHours = parseOptionalNumber(min);
+    const maxHours = parseOptionalNumber(max);
+
+    return minHours === null || maxHours === null || minHours <= maxHours;
+};
+
+/**
  * Sanitizes an hours value while preserving one optional decimal separator.
  *
  * Examples:
@@ -261,9 +275,7 @@ export class HoursRangeElement extends DBPLitElement {
         const minInput = this.renderRoot?.querySelector('.hours-range-min');
         const maxInput = this.renderRoot?.querySelector('.hours-range-max');
 
-        const min = parseOptionalNumber(this.min);
-        const max = parseOptionalNumber(this.max);
-        const invalid = min !== null && max !== null && min > max;
+        const invalid = !isHoursRangeValid(this.min, this.max);
 
         const message = invalid
             ? this._i18n.t('hours-range.invalid-range', {
@@ -290,11 +302,13 @@ export class HoursRangeElement extends DBPLitElement {
     }
 
     checkValidity() {
+        this._validateRange();
         const inputs = this.renderRoot?.querySelectorAll('input') ?? [];
         return [...inputs].every((input) => input.checkValidity());
     }
 
     reportValidity() {
+        this._validateRange();
         const inputs = this.renderRoot?.querySelectorAll('input') ?? [];
 
         for (const input of inputs) {

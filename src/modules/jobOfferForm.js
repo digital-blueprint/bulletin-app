@@ -30,6 +30,7 @@ import WorkLocationsElement, {
 } from './workLocationsElement.js';
 import HoursRangeElement, {
     formatHoursRange,
+    isHoursRangeValid,
     parseOptionalHours,
     sanitizeHoursValue,
 } from './hoursRangeElement.js';
@@ -743,6 +744,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._publishedAt.trim() !== '' &&
             this._deadline.trim() !== '' &&
             this._jobOfferType.trim() !== '' &&
+            isHoursRangeValid(this._weeklyHoursMin, this._weeklyHoursMax) &&
             hasJobOwner
         );
     }
@@ -1041,6 +1043,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             : getDefaultInternalWorkLocations();
 
         if (!this._isFormValid) {
+            this.shadowRoot?.querySelector('dbp-hours-range-element')?.reportValidity();
             sendNotification({
                 summary: t('create-job-offer.error-title'),
                 body:

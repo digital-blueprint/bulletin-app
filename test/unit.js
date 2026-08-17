@@ -18,6 +18,7 @@ import {
     mergeLocalizedStudentStudies,
 } from '../src/modules/careerProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
+import {isHoursRangeValid} from '../src/modules/hoursRangeElement.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
@@ -323,6 +324,20 @@ suite('jobOfferForm validation', () => {
         element._organization = 'TU Graz';
 
         assert.isTrue(element._isFormValid);
+
+        element._weeklyHoursMin = '40';
+        element._weeklyHoursMax = '20';
+        assert.isFalse(element._isFormValid);
+    });
+});
+
+suite('hours range validation', () => {
+    test('should reject a minimum greater than the maximum', () => {
+        assert.isTrue(isHoursRangeValid('', '20'));
+        assert.isTrue(isHoursRangeValid('20', ''));
+        assert.isTrue(isHoursRangeValid('20', '20'));
+        assert.isTrue(isHoursRangeValid('20', '40'));
+        assert.isFalse(isHoursRangeValid('40', '20'));
     });
 });
 
