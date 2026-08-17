@@ -601,6 +601,20 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             `;
         }
     }
+
+    _renderPartnerCompanyMarker(job, t) {
+        if (job.jobOfferType === 'internal' || !job.isFromPartnerCompany) {
+            return null;
+        }
+
+        return html`
+            <span class="partner-company-marker" title="${t('view-job-offers.partner-company')}">
+                <dbp-icon name="certificate" aria-hidden="true"></dbp-icon>
+                ${t('view-job-offers.partner')}
+            </span>
+        `;
+    }
+
     getOrganizationLabel(job) {
         return job.jobOfferType === 'internal' ? this.universityShortName : (job.companyName ?? '');
     }
@@ -655,6 +669,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   <span class="job-meta-type">
                                                       ${this.getOrganizationLabel(job)}
                                                   </span>
+                                                  ${this._renderPartnerCompanyMarker(job, t)}
                                               </div>
                                               <div class="meta-item">
                                                   <span class="meta-item-label">
@@ -1141,6 +1156,26 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-meta-type {
                 color: var(--dbp-primary);
                 font-weight: bolder;
+            }
+
+            .partner-company-marker {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+                border: 1px solid var(--dbp-accent);
+                border-radius: 999px;
+                color: var(--dbp-accent);
+                font-size: 0.75rem;
+                font-weight: 600;
+                line-height: 1;
+                margin-left: 0.25rem;
+                padding: 0.25rem 0.45rem;
+                white-space: nowrap;
+            }
+
+            .partner-company-marker dbp-icon {
+                font-size: 0.8rem;
+                top: 0;
             }
 
             .meta-item dt {

@@ -176,6 +176,8 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         element._jobOffers = Array.from({length: 13}, (_, index) => ({
             identifier: `job-${index}`,
             title: `Job ${index}`,
+            jobOfferType: 'external',
+            isFromPartnerCompany: true,
             areasOfInterest: [],
             description: '',
             publishedAt: `2026-01-${String(index + 1).padStart(2, '0')}`,
@@ -184,6 +186,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         await element.updateComplete;
 
         assert.lengthOf(element.shadowRoot.querySelectorAll('.job-card'), 12);
+        assert.lengthOf(element.shadowRoot.querySelectorAll('.partner-company-marker'), 12);
         const loadMoreButton = element.shadowRoot.querySelector('.load-more-button');
         assert.isNotNull(loadMoreButton);
 

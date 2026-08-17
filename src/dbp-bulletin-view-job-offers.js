@@ -12,6 +12,7 @@ import JobOfferModule, {
     getAreaOfInterestLabel,
     getAreaOfInterestLabels,
     normalizeAreaOfInterestValues,
+    normalizePartnerCompanyValue,
 } from './modules/jobOfferForm.js';
 import {
     WorkLocationSelectElement,
@@ -185,7 +186,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         // even if the company submission has since been deleted.
                         companyName: extra.companyName ?? '',
                         companyData: extra.companyData ?? {},
-                        isFromPartnerCompany: extra.isFromPartnerCompany === true,
+                        isFromPartnerCompany: normalizePartnerCompanyValue(
+                            extra.isFromPartnerCompany ?? extra.companyData?.partnerunternehmen,
+                        ),
                         externalJobUrl: extra.externalJobUrl ?? '',
                         workLocations: normalizeWorkLocations(extra.workLocations),
                         description: extra.description ?? '',
@@ -531,6 +534,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     aria-label="${t('manage-job-offers.job-type-internal')}" />
             `;
         }
+    }
+
+    _renderPartnerCompanyMarker(job, t) {
+        if (job.jobOfferType === 'internal' || !job.isFromPartnerCompany) {
+            return null;
+        }
+
+        return html`
+            <span class="partner-company-marker" title="${t('view-job-offers.partner-company')}">
+                <dbp-icon name="certificate" aria-hidden="true"></dbp-icon>
+                ${t('view-job-offers.partner')}
+            </span>
+        `;
     }
 
     _clearUnavailableAreaOfInterest() {
@@ -928,7 +944,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               <div class="job-card-body">
                                                   <div class="job-card-header">
                                                       <h3 class="job-title">${job.title}</h3>
-                                                      ${this.getInternalFavicon(job)}
+                                                      <div class="job-source-marker">
+                                                          ${this.getInternalFavicon(job)}
+                                                          ${this._renderPartnerCompanyMarker(job, t)}
+                                                      </div>
                                                   </div>
                                                   <dl class="job-meta-list">
                                                       <span class="job-meta-type">
@@ -1234,6 +1253,32 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-card-header img {
                 max-height: 28px;
                 object-fit: cover;
+            }
+
+            .job-source-marker {
+                display: flex;
+                align-items: flex-start;
+                flex-shrink: 0;
+                margin-left: 0.5rem;
+            }
+
+            .partner-company-marker {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+                border: 1px solid var(--dbp-accent);
+                border-radius: 999px;
+                color: var(--dbp-accent);
+                font-size: 0.75rem;
+                font-weight: 600;
+                line-height: 1;
+                padding: 0.25rem 0.45rem;
+                white-space: nowrap;
+            }
+
+            .partner-company-marker dbp-icon {
+                font-size: 0.8rem;
+                top: 0;
             }
 
             .favicon-visible {

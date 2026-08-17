@@ -624,6 +624,8 @@
         "loading": "Loading job offers…",
         "no-results": "No job offers found.",
         "organizational-unit": "Organisational unit",
+        "partner": "Partner",
+        "partner-company": "Partner company",
         "position-count": "({{total}} total, {{filtered}} filtered)",
         "published-at": "Published on",
         "search-placeholder": "Search job offers",
