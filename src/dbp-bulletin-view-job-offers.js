@@ -185,6 +185,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         // even if the company submission has since been deleted.
                         companyName: extra.companyName ?? '',
                         companyData: extra.companyData ?? {},
+                        isFromPartnerCompany: extra.isFromPartnerCompany === true,
                         externalJobUrl: extra.externalJobUrl ?? '',
                         workLocations: normalizeWorkLocations(extra.workLocations),
                         description: extra.description ?? '',

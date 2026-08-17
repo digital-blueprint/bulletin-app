@@ -46,6 +46,14 @@ const JOB_OFFER_TYPE_INTERNAL = 'internal';
 const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
 
+export function normalizePartnerCompanyValue(value) {
+    if (typeof value === 'string') {
+        return ['1', 'true', 'yes', 'ja', 'y', 'j'].includes(value.trim().toLowerCase());
+    }
+
+    return value === true || value === 1;
+}
+
 /**
  * Grants all authenticated users read access to a job-offer form.
  *
@@ -538,6 +546,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._companyName = '';
         /** @type {object} Snapshot of the selected company submission data */
         this._companyData = {};
+        /** @type {boolean} Whether the selected company was marked as a partner company */
+        this._isFromPartnerCompany = false;
         /** @type {string} URL to the external application page for external jobs */
         this._externalJobUrl = '';
         /** @type {Array<{country: string, region: string, city: string}>} Work locations for external jobs */
@@ -612,6 +622,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _companySubmissionId: {state: true},
             _companyName: {state: true},
             _companyData: {state: true},
+            _isFromPartnerCompany: {state: true},
             _externalJobUrl: {state: true},
             _workLocations: {state: true},
             _startDate: {state: true},
@@ -672,6 +683,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._companySubmissionId = d.companySubmissionId || '';
                 this._companyName = d.companyName || '';
                 this._companyData = d.companyData || {};
+                this._isFromPartnerCompany = normalizePartnerCompanyValue(
+                    d.isFromPartnerCompany ?? this._companyData.partnerunternehmen,
+                );
                 this._externalJobUrl = d.externalJobUrl || '';
                 this._workLocations = normalizeWorkLocations(d.workLocations);
                 this._startDate = d.startDate || '';
@@ -778,6 +792,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._companySubmissionId = '';
         this._companyName = '';
         this._companyData = {};
+        this._isFromPartnerCompany = false;
         this._externalJobUrl = '';
         this._workLocations = [];
         this._startDate = '';
@@ -929,6 +944,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return match ? selectElement.parseDataFeedElement(match.dataFeedElement) : {};
     }
 
+    _setCompanyData(companyData) {
+        this._companyData = companyData;
+        this._isFromPartnerCompany = normalizePartnerCompanyValue(companyData?.partnerunternehmen);
+    }
+
     _parseCompanyDataFeedElement(dataFeedElement) {
         if (!dataFeedElement) {
             return {};
@@ -954,7 +974,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         const submissionId = this._companySubmissionId.trim();
         if (!submissionId) {
             this._companyName = '';
-            this._companyData = {};
+            this._setCompanyData({});
             return;
         }
 
@@ -977,7 +997,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     );
                     const companyName = companyData?.name ?? companyData?.companyName;
 
-                    this._companyData = companyData;
+                    this._setCompanyData(companyData);
                     this._companyName = Array.isArray(companyName)
                         ? companyName.join(', ')
                         : companyName && typeof companyName === 'object'
@@ -1005,7 +1025,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         }
 
         if (Object.keys(companyData).length > 0) {
-            this._companyData = companyData;
+            this._setCompanyData(companyData);
         }
     }
 
@@ -1108,6 +1128,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             companySubmissionId: this._isExternalJob ? this._companySubmissionId.trim() : '',
             companyName: this._isExternalJob ? this._companyName.trim() : '',
             companyData: this._isExternalJob ? this._companyData : {},
+            isFromPartnerCompany: this._isExternalJob ? this._isFromPartnerCompany : false,
             externalJobUrl: this._isExternalJob ? normalizeHttpUrl(this._externalJobUrl) : '',
             workLocations: this._isExternalJob
                 ? this._workLocations
@@ -1292,11 +1313,22 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                           e.target,
                                           e.detail.value,
                                       );
-                                      this._companyData = this._resolveCompanyData(
-                                          e.target,
-                                          e.detail.value,
+                                      this._setCompanyData(
+                                          this._resolveCompanyData(e.target, e.detail.value),
                                       );
                                   }}"></dbp-submission-select-element>
+
+                              ${
+                                  this._isFromPartnerCompany
+                                      ? html`
+                                            <p class="partner-company-status" role="status">
+                                                ${t(
+                                                    'manage-job-offers.selected-company-is-partner',
+                                                )}
+                                            </p>
+                                        `
+                                      : null
+                              }
 
                               <dbp-string-element
                                   name="external-job-url"
@@ -1705,6 +1737,12 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 color: var(--dbp-muted);
                 font-size: 0.875rem;
                 line-height: 1.4;
+                margin: -0.35rem 0 0.75rem;
+            }
+
+            .partner-company-status {
+                color: var(--dbp-success);
+                font-weight: 600;
                 margin: -0.35rem 0 0.75rem;
             }
 

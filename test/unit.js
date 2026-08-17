@@ -8,6 +8,7 @@ import JobOfferModule, {
     grantJobOfferReadAccess,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
+    normalizePartnerCompanyValue,
 } from '../src/modules/jobOfferForm.js';
 import {
     formatStudentStudies as formatCareerProfileStudies,
@@ -264,6 +265,41 @@ suite('jobOfferForm area normalization', () => {
         assert.deepEqual(normalizeAreaOfInterestValues('Science'), ['natural-sciences']);
         assert.deepEqual(normalizeAreaOfInterestValues('Wissenschaft'), ['natural-sciences']);
         assert.deepEqual(normalizeAreaOfInterestValues(['IT', 'Management']), ['it', 'management']);
+    });
+});
+
+suite('jobOfferForm partner company handling', () => {
+    test('should normalize company partner flags', () => {
+        assert.isTrue(normalizePartnerCompanyValue(true));
+        assert.isTrue(normalizePartnerCompanyValue(1));
+        assert.isTrue(normalizePartnerCompanyValue('true'));
+        assert.isTrue(normalizePartnerCompanyValue('ja'));
+        assert.isFalse(normalizePartnerCompanyValue(false));
+        assert.isFalse(normalizePartnerCompanyValue(0));
+        assert.isFalse(normalizePartnerCompanyValue('false'));
+        assert.isFalse(normalizePartnerCompanyValue(undefined));
+    });
+
+    test('should show when selected company data belongs to a partner', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+        const element = document.createElement(tagName);
+        element._jobOfferType = 'external';
+        document.body.appendChild(element);
+
+        element._setCompanyData({name: 'Partner GmbH', partnerunternehmen: 'true'});
+        await element.updateComplete;
+        assert.isTrue(element._isFromPartnerCompany);
+        assert.isNotNull(element.shadowRoot.querySelector('.partner-company-status'));
+
+        element._setCompanyData({name: 'Other GmbH', partnerunternehmen: false});
+        await element.updateComplete;
+        assert.isFalse(element._isFromPartnerCompany);
+        assert.isNull(element.shadowRoot.querySelector('.partner-company-status'));
+        element.remove();
     });
 });
 

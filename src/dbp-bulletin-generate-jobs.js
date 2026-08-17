@@ -198,6 +198,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             companySubmissionId: '',
             companyName: companyName,
             companyData: isExternal ? {name: companyName} : {},
+            isFromPartnerCompany: false,
             externalJobUrl: isExternal
                 ? `https://jobs.example.org/${index + 1}-${Date.now().toString().slice(-5)}`
                 : '',
