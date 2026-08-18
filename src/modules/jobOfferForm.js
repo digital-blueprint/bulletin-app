@@ -1869,6 +1869,13 @@ export class JobOfferFormElement extends BaseFormElement {
         this._emailRef = createRef();
         /** @type {import('lit/directives/ref.js').Ref} Ref to the message field element */
         this._messageRef = createRef();
+
+        /** @type {string} Prefilled given name sourced from login data */
+        this._prefilledGivenName = '';
+        /** @type {string} Prefilled family name sourced from login data */
+        this._prefilledFamilyName = '';
+        /** @type {string} Prefilled person/matriculation identifier */
+        this._prefilledPersonIdentifier = '';
         this._attachmentLimitNotified = false;
         this._applicationDataFeedSchema = '';
 
@@ -1890,6 +1897,9 @@ export class JobOfferFormElement extends BaseFormElement {
             _isSubmitting: {state: true},
             _hasApplied: {state: true},
             _checkingApplied: {state: true},
+            _prefilledGivenName: {state: true},
+            _prefilledFamilyName: {state: true},
+            _prefilledPersonIdentifier: {state: true},
         };
     }
 
@@ -1898,9 +1908,15 @@ export class JobOfferFormElement extends BaseFormElement {
 
         const formIdentifierChanged = changedProperties.has('formIdentifier');
         const jobChanged = changedProperties.has('job');
+        const authChanged = changedProperties.has('auth');
+        const entryPointUrlChanged = changedProperties.has('entryPointUrl');
         const authContextChanged =
-            changedProperties.has('auth') &&
+            authChanged &&
             hasSubmissionCheckContextChanged(changedProperties.get('auth'), this.auth);
+
+        if (authChanged || entryPointUrlChanged) {
+            this._loadLoggedInUserData();
+        }
 
         if (formIdentifierChanged || jobChanged) {
             this._applicationDataFeedSchema = this.job?.dataFeedSchema ?? '';
@@ -2185,6 +2201,88 @@ export class JobOfferFormElement extends BaseFormElement {
     }
 
     /**
+     * Loads user data from login claims and falls back to /base/people when needed.
+     * This keeps non-editable name fields reliably prefilled.
+     */
+    async _loadLoggedInUserData() {
+        this._prefilledGivenName =
+            this.auth?.given_name ??
+            this.auth?.givenName ??
+            this.auth?.first_name ??
+            this.auth?.firstName ??
+            this.auth?.['first-name'] ??
+            '';
+        this._prefilledFamilyName =
+            this.auth?.family_name ??
+            this.auth?.familyName ??
+            this.auth?.last_name ??
+            this.auth?.lastName ??
+            this.auth?.['last-name'] ??
+            '';
+        this._prefilledPersonIdentifier =
+            this.auth?.matriculation_number ??
+            this.auth?.matriculationNumber ??
+            this.auth?.matrikelnummer ??
+            this.auth?.person_id ??
+            this.auth?.personIdentifier ??
+            this.auth?.personId ??
+            this.auth?.['person-id'] ??
+            '';
+
+        if (this._prefilledGivenName && this._prefilledFamilyName) {
+            return;
+        }
+
+        const userId = this.auth?.['user-id'];
+        if (!userId || !this.entryPointUrl || !this.auth?.token) {
+            return;
+        }
+
+        try {
+            const response = await this.apiGetUserDetails(userId);
+            if (!response.ok || this.auth?.['user-id'] !== userId) {
+                return;
+            }
+
+            const userDetails = await response.json();
+            this._prefilledGivenName = this._prefilledGivenName || userDetails?.givenName || '';
+            this._prefilledFamilyName = this._prefilledFamilyName || userDetails?.familyName || '';
+            this._prefilledPersonIdentifier =
+                this._prefilledPersonIdentifier ||
+                userDetails?.matriculationNumber ||
+                userDetails?.localData?.matriculationNumber ||
+                userDetails?.personIdentifier ||
+                '';
+        } catch (error) {
+            console.error('Error loading logged-in user details:', error);
+        }
+    }
+
+    /**
+     * Returns the logged-in user's given name from auth claims.
+     * @returns {string}
+     */
+    _getLoggedInGivenName() {
+        return this._prefilledGivenName ?? this.formData?.givenName ?? '';
+    }
+
+    /**
+     * Returns the logged-in user's family name from auth claims.
+     * @returns {string}
+     */
+    _getLoggedInFamilyName() {
+        return this._prefilledFamilyName ?? this.formData?.familyName ?? '';
+    }
+
+    /**
+     * Returns the logged-in user's matriculation/person identifier.
+     * @returns {string}
+     */
+    _getLoggedInPersonIdentifier() {
+        return this._prefilledPersonIdentifier ?? this.formData?.personIdentifier ?? '';
+    }
+
+    /**
      * Returns the English value when the current language is English and a translation exists.
      * @param {string} primary
      * @param {string} en
@@ -2330,11 +2428,11 @@ export class JobOfferFormElement extends BaseFormElement {
         // Build submission data manually from the ref'd fields since these are
         // custom web-component fields not part of the BaseFormElement form element tree.
         const submissionData = {
-            givenName: this._firstNameRef.value?.value ?? '',
-            familyName: this._lastNameRef.value?.value ?? '',
+            givenName: this._getLoggedInGivenName() || this._firstNameRef.value?.value || '',
+            familyName: this._getLoggedInFamilyName() || this._lastNameRef.value?.value || '',
             email: this._emailRef.value?.value ?? '',
             freeText: this._messageRef.value?.value ?? '',
-            personIdentifier: this.auth.person_id ?? '',
+            personIdentifier: this._getLoggedInPersonIdentifier(),
         };
 
         await this._handleSubmission({formData: submissionData, submissionId: null});
@@ -2454,6 +2552,10 @@ export class JobOfferFormElement extends BaseFormElement {
         const supportsApplicationAttachments = this._supportsApplicationAttachments();
         const attachmentGroup = this._getAttachmentGroupData();
         const attachmentCount = attachmentGroup.filesToSubmit.size;
+        const data = {
+            ...(this.formData ?? {}),
+            matriculationNumber: this._getLoggedInPersonIdentifier(),
+        };
 
         if (this._checkingApplied) {
             return html`
@@ -2477,6 +2579,37 @@ export class JobOfferFormElement extends BaseFormElement {
                 <div class="apply-submit-wrapper">
                     <h3>${t('job-offer-detail.application-title')}</h3>
                     <hr />
+                    <div class="form-row">
+                        <div class="form-column">
+                            <dbp-form-string-element
+                                ${ref(this._firstNameRef)}
+                                subscribe="lang"
+                                name="givenName"
+                                label="${t('job-offer-detail.given-name')}"
+                                .value="${this._getLoggedInGivenName()}"
+                                disabled></dbp-form-string-element>
+                        </div>
+
+                        <div class="form-column">
+                            <dbp-form-string-element
+                                ${ref(this._lastNameRef)}
+                                subscribe="lang"
+                                name="familyName"
+                                label="${t('job-offer-detail.family-name')}"
+                                .value="${this._getLoggedInFamilyName()}"
+                                disabled></dbp-form-string-element>
+                        </div>
+
+                        <div class="form-column">
+                            <dbp-form-string-element
+                                subscribe="lang"
+                                name="personIdentifier"
+                                label="${t('job-offer-detail.matriculation-number')}"
+                                value="${data.matriculationNumber || ''}"
+                                disabled></dbp-form-string-element>
+                        </div>
+                    </div>
+
                     <dbp-form-string-element
                         ${ref(this._messageRef)}
                         subscribe="lang"
@@ -2692,12 +2825,16 @@ export class JobOfferFormElement extends BaseFormElement {
                     color: var(--dbp-content);
                 }
 
-                /* Three-column form row for first name, last name, email */
+                /* Three-column form row for first name, last name, matriculation number */
                 .form-row {
                     display: grid;
-                    grid-template-columns: 1fr 1fr 1fr;
+                    grid-template-rows: repeat(3, minmax(0, 1fr));
                     gap: 1rem;
                     margin-bottom: 0.75rem;
+                }
+
+                .form-column {
+                    width: 100%;
                 }
 
                 @media (max-width: 560px) {
@@ -2711,6 +2848,8 @@ export class JobOfferFormElement extends BaseFormElement {
                 }
 
                 .form-row dbp-form-string-element {
+                    display: block;
+                    width: 100%;
                     margin-bottom: 0;
                 }
 
