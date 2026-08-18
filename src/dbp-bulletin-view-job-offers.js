@@ -1296,7 +1296,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .job-meta-list {
                 display: grid;
-                gap: 2px;
             }
 
             .job-meta-list .button {
@@ -1327,7 +1326,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-tags {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 0.4rem;
+                gap: 0.2rem;
                 margin: 0.3rem 0px;
             }
 
