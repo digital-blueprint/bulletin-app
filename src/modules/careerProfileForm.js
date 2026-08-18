@@ -812,6 +812,10 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         );
     }
 
+    get workLocations() {
+        return normalizeWorkLocations(this._workLocations);
+    }
+
     _setAvailableStudies(studies) {
         const fetchedStudies = normalizeStudentStudies({studies});
         const localizedStudies =
@@ -1191,15 +1195,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     : ''
             }
             ${this._renderStudySelector(studyItems, t)}
-
-            <div class="translation-row">
-                ${this.renderDateField(
-                    'availability',
-                    'career-profile-form.field-availability',
-                    this._availability,
-                    (value) => (this._availability = value),
-                )}
-            </div>
             <dbp-work-locations-element
                 lang="${this.lang}"
                 lang-dir="${this.langDir}"
@@ -1209,6 +1204,15 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (this._workLocations = normalizeWorkLocations(
                         event.detail.value,
                     ))}"></dbp-work-locations-element>
+            <div class="translation-row">
+                ${this.renderDateField(
+                    'availability',
+                    'career-profile-form.field-availability',
+                    this._availability,
+                    (value) => (this._availability = value),
+                )}
+            </div>
+
             <div class="translation-row">
                 ${this.renderMultiSelectField(
                     'fields',

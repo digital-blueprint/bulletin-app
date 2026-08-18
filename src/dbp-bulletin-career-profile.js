@@ -724,16 +724,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <dl>
                         ${this._renderStudiesMeta(profile)}
                         ${
-                            data.availability
-                                ? html`
-                                      <dt>
-                                          ${this._i18n.t('career-profile-form.field-availability')}:
-                                      </dt>
-                                      <dd>${this.formatDate(data.availability)}</dd>
-                                  `
-                                : ''
-                        }
-                        ${
                             workLocationLabels && workLocationLabels.length
                                 ? html`
                                       <dt>
@@ -746,6 +736,16 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               ),
                                           )}
                                       </dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            data.availability
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-availability')}:
+                                      </dt>
+                                      <dd>${this.formatDate(data.availability)}</dd>
                                   `
                                 : ''
                         }
@@ -1147,7 +1147,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     async _saveProfile() {
         const formElement = this._('#career-profile-edit-form');
+
         if (!formElement) {
+            return;
+        }
+
+        if (!formElement.workLocations || formElement.workLocations.length === 0) {
+            this._sendLocationNotification();
             return;
         }
 
@@ -1158,7 +1164,16 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             this._isSubmitting = false;
         }
     }
-
+    _sendLocationNotification() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        sendNotification({
+            summary: t('create-job-offer.error-title'),
+            body: t('create-job-offer.select-work-location'),
+            type: 'warning',
+            timeout: 0,
+            targetNotificationId: 'career-profile-form-notification',
+        });
+    }
     _renderEditModal() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const title = this._editDialogProfile
