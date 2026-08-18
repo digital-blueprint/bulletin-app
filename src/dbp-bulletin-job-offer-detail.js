@@ -971,17 +971,16 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                             `
                                                           : ''
                                                   }
+                                                  ${
+                                                      job.areasOfInterest?.length > 0
+                                                          ? html`
+                                                                <div class="tag">
+                                                                    ${this._renderAreaOfInterestTags(job, t)}
+                                                                </div>
+                                                            `
+                                                          : ''
+                                                  }
                                               </div>
-
-                                              ${
-                                                  job.areasOfInterest?.length > 0
-                                                      ? html`
-                                                            <div class="tag">
-                                                                ${this._renderAreaOfInterestTags(job, t)}
-                                                            </div>
-                                                        `
-                                                      : ''
-                                              }
                                               ${this._renderDescription(job)}
                                               ${
                                                   this._localizedList(
@@ -1227,7 +1226,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-tags {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 0.4rem;
+                gap: 0.2rem;
                 justify-content: flex-start;
             }
 
