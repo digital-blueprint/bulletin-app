@@ -2205,54 +2205,32 @@ export class JobOfferFormElement extends BaseFormElement {
      * This keeps non-editable name fields reliably prefilled.
      */
     async _loadLoggedInUserData() {
-        this._prefilledGivenName =
-            this.auth?.given_name ??
-            this.auth?.givenName ??
-            this.auth?.first_name ??
-            this.auth?.firstName ??
-            this.auth?.['first-name'] ??
-            '';
-        this._prefilledFamilyName =
-            this.auth?.family_name ??
-            this.auth?.familyName ??
-            this.auth?.last_name ??
-            this.auth?.lastName ??
-            this.auth?.['last-name'] ??
-            '';
-        this._prefilledPersonIdentifier =
-            this.auth?.matriculation_number ??
-            this.auth?.matriculationNumber ??
-            this.auth?.matrikelnummer ??
-            this.auth?.person_id ??
-            this.auth?.personIdentifier ??
-            this.auth?.personId ??
-            this.auth?.['person-id'] ??
-            '';
-
-        if (this._prefilledGivenName && this._prefilledFamilyName) {
-            return;
-        }
-
         const userId = this.auth?.['user-id'];
         if (!userId || !this.entryPointUrl || !this.auth?.token) {
             return;
         }
 
-        try {
-            const response = await this.apiGetUserDetails(userId);
-            if (!response.ok || this.auth?.['user-id'] !== userId) {
-                return;
-            }
+        const options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/ld+json',
+                Authorization: 'Bearer ' + this.auth.token,
+            },
+        };
 
+        try {
+            let response = await fetch(
+                this.entryPointUrl +
+                    `/base/people/${encodeURIComponent(userId)}?includeLocal=matriculationNumber`,
+                options,
+            );
+            if (!response.ok) {
+                throw response;
+            }
             const userDetails = await response.json();
-            this._prefilledGivenName = this._prefilledGivenName || userDetails?.givenName || '';
-            this._prefilledFamilyName = this._prefilledFamilyName || userDetails?.familyName || '';
-            this._prefilledPersonIdentifier =
-                this._prefilledPersonIdentifier ||
-                userDetails?.matriculationNumber ||
-                userDetails?.localData?.matriculationNumber ||
-                userDetails?.personIdentifier ||
-                '';
+            this._prefilledGivenName = userDetails.givenName;
+            this._prefilledFamilyName = userDetails.familyName;
+            this._prefilledPersonIdentifier = userDetails.localData.matriculationNumber ?? '';
         } catch (error) {
             console.error('Error loading logged-in user details:', error);
         }
