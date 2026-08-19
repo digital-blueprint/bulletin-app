@@ -1094,6 +1094,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     minLength: 1,
                     description: "Applicant's family (last) name.",
                 },
+                studyField: {
+                    type: 'string',
+                    description: "Applicant's field of study.",
+                },
                 email: {
                     type: 'string',
                     minLength: 1,
@@ -1113,7 +1117,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     description: 'Free-text message or cover letter.',
                 },
             },
-            required: ['givenName', 'familyName', 'personIdentifier', 'email'],
+            required: ['givenName', 'familyName', 'studyField', 'personIdentifier', 'email'],
         });
 
         // All job detail fields are stored in the form's additionalData JSON field
@@ -1874,6 +1878,8 @@ export class JobOfferFormElement extends BaseFormElement {
         this._prefilledGivenName = '';
         /** @type {string} Prefilled family name sourced from login data */
         this._prefilledFamilyName = '';
+        /** @type {string} Prefilled person/study field */
+        this._prefilledStudyField = '';
         /** @type {string} Prefilled person/matriculation identifier */
         this._prefilledPersonIdentifier = '';
         this._attachmentLimitNotified = false;
@@ -2230,6 +2236,7 @@ export class JobOfferFormElement extends BaseFormElement {
             const userDetails = await response.json();
             this._prefilledGivenName = userDetails.givenName;
             this._prefilledFamilyName = userDetails.familyName;
+            this._prefilledStudyField = userDetails.localData.studyField ?? '';
             this._prefilledPersonIdentifier = userDetails.localData.matriculationNumber ?? '';
         } catch (error) {
             console.error('Error loading logged-in user details:', error);
@@ -2258,6 +2265,14 @@ export class JobOfferFormElement extends BaseFormElement {
      */
     _getLoggedInPersonIdentifier() {
         return this._prefilledPersonIdentifier ?? this.formData?.personIdentifier ?? '';
+    }
+
+    /**
+     * Returns the logged-in user's study field from auth claims.
+     * @returns {string}
+     */
+    _getLoggedInStudyField() {
+        return this._prefilledStudyField ?? this.formData?.studyField ?? '';
     }
 
     /**
@@ -2408,6 +2423,7 @@ export class JobOfferFormElement extends BaseFormElement {
         const submissionData = {
             givenName: this._getLoggedInGivenName() || this._firstNameRef.value?.value || '',
             familyName: this._getLoggedInFamilyName() || this._lastNameRef.value?.value || '',
+            studyField: this._getLoggedInStudyField() || this._studyFieldRef.value?.value || '',
             email: this._emailRef.value?.value ?? '',
             freeText: this._messageRef.value?.value ?? '',
             personIdentifier: this._getLoggedInPersonIdentifier(),
@@ -2585,6 +2601,13 @@ export class JobOfferFormElement extends BaseFormElement {
                                 label="${t('job-offer-detail.matriculation-number')}"
                                 value="${data.matriculationNumber || ''}"
                                 disabled></dbp-form-string-element>
+                        </div>
+                        <div class="form-column">
+                            <dbp-form-string-element
+                                subscribe="lang"
+                                name="studyField"
+                                label="${t('job-offer-detail.study-field')}"
+                                value="${data.studyField || ''}"></dbp-form-string-element>
                         </div>
                     </div>
 
@@ -2806,7 +2829,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 /* Three-column form row for first name, last name, matriculation number */
                 .form-row {
                     display: grid;
-                    grid-template-rows: repeat(3, minmax(0, 1fr));
+                    grid-template-rows: repeat(4, minmax(0, 1fr));
                     gap: 1rem;
                     margin-bottom: 0.75rem;
                 }
