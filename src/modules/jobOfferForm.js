@@ -2575,32 +2575,29 @@ export class JobOfferFormElement extends BaseFormElement {
                     <hr />
                     <div class="form-row">
                         <div class="form-column">
-                            <dbp-form-string-element
-                                ${ref(this._firstNameRef)}
-                                subscribe="lang"
-                                name="givenName"
-                                label="${t('job-offer-detail.given-name')}"
-                                .value="${this._getLoggedInGivenName()}"
-                                disabled></dbp-form-string-element>
+                            <span>
+                                <span class="application-view-label">
+                                    ${t('job-offer-detail.given-name')}:
+                                </span>
+                                ${this._getLoggedInGivenName()}
+                            </span>
+                        </div>
+                        <div class="form-column">
+                            <span>
+                                <span class="application-view-label">
+                                    ${t('job-offer-detail.family-name')}:
+                                </span>
+                                ${this._getLoggedInFamilyName()}
+                            </span>
                         </div>
 
                         <div class="form-column">
-                            <dbp-form-string-element
-                                ${ref(this._lastNameRef)}
-                                subscribe="lang"
-                                name="familyName"
-                                label="${t('job-offer-detail.family-name')}"
-                                .value="${this._getLoggedInFamilyName()}"
-                                disabled></dbp-form-string-element>
-                        </div>
-
-                        <div class="form-column">
-                            <dbp-form-string-element
-                                subscribe="lang"
-                                name="personIdentifier"
-                                label="${t('job-offer-detail.matriculation-number')}"
-                                value="${data.matriculationNumber || ''}"
-                                disabled></dbp-form-string-element>
+                            <span>
+                                <span class="application-view-label">
+                                    ${t('job-offer-detail.matriculation-number')}:
+                                </span>
+                                ${data.matriculationNumber || ''}
+                            </span>
                         </div>
                         <div class="form-column">
                             <dbp-form-string-element
@@ -2735,6 +2732,9 @@ export class JobOfferFormElement extends BaseFormElement {
                 .apply-submit-wrapper {
                     margin-top: 2rem;
                 }
+                .application-view-label {
+                    font-weight: bolder;
+                }
                 h3 {
                     margin: 0px;
                     font-size: 1.3rem;
@@ -2828,10 +2828,10 @@ export class JobOfferFormElement extends BaseFormElement {
 
                 /* Three-column form row for first name, last name, matriculation number */
                 .form-row {
-                    display: grid;
-                    grid-template-rows: repeat(4, minmax(0, 1fr));
-                    gap: 1rem;
-                    margin-bottom: 0.75rem;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-end;
+                    gap: 2px;
                 }
 
                 .form-column {
