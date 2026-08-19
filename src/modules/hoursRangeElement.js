@@ -6,7 +6,7 @@ import {createInstance} from '../i18n.js';
 
 export const HOURS_MIN = 0;
 export const HOURS_MAX = 99;
-export const HOURS_STEP = 0.01;
+export const HOURS_STEP = 0.5;
 
 /**
  * Converts a decimal hours value into a comparable number of hours or null.
