@@ -85,7 +85,8 @@ export const isHoursRangeValid = (min, max) => {
 export const sanitizeHoursValue = (rawValue, min = HOURS_MIN, max = HOURS_MAX) => {
     const raw = String(rawValue ?? '')
         .replace(',', '.')
-        .replace(/[^\d.]/g, '');
+        .replace(/[^0-9.]/g, '')
+        .replace(/(\..*?)\..*/g, '$1');
 
     if (raw === '') {
         return '';
@@ -348,7 +349,7 @@ export class HoursRangeElement extends DBPLitElement {
                 <div class="control hours-range">
                     <input
                         id="hours-range-min"
-                        type="number"
+                        type="text"
                         inputmode="decimal"
                         pattern="\\\\d{1,2}(?:[.,]\\\\d{1,2})?"
                         class="input hours-range-min"
@@ -366,9 +367,9 @@ export class HoursRangeElement extends DBPLitElement {
 
                     <input
                         id="hours-range-max"
-                        type="number"
+                        type="text"
                         inputmode="decimal"
-                        pattern="\\d{1,2}(?:[.,]\\d{1,2})?"
+                        pattern="\\\\d{1,2}(?:[.,]\\\\d{1,2})?"
                         class="input hours-range-max"
                         .value=${this.max}
                         min=${this.hoursMin}
