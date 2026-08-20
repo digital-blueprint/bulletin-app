@@ -768,6 +768,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return job.jobOfferType === 'internal' ? this.universityShortName : (job.companyName ?? '');
     }
 
+    _onLoginClicked(e) {
+        this.sendSetPropertyEvent('requested-login-status', 'logged-in');
+        e.preventDefault();
+    }
+
     render() {
         const i18n = this._i18n;
         const t = (key, options) => (i18n ? i18n.t(key, options) : key);
