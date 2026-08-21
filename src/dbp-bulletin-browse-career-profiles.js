@@ -7,7 +7,7 @@ import {
     IconButton,
     MiniSpinner,
     sendNotification,
-    DBPLoginRequired,
+    DBPLoginRequiredWarning,
 } from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
@@ -41,7 +41,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             'dbp-tabulator-table': CustomTabulatorTable,
             'dbp-career-profile-interest-form': CareerProfileInterestFormElement,
             'dbp-work-location-select-element': WorkLocationSelectElement,
-            'dbp-login-required': DBPLoginRequired,
+            'dbp-login-required-warning': DBPLoginRequiredWarning,
         };
     }
 
@@ -861,9 +861,9 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     render() {
         if (!this.isLoggedIn() && !this.isAuthPending()) {
             return html`
-                <dbp-login-required
+                <dbp-login-required-warning
                     subscribe="auth,lang"
-                    @dbp-login-requested=${this._onLoginClicked}></dbp-login-required>
+                    @dbp-login-requested=${this._onLoginClicked}></dbp-login-required-warning>
             `;
         }
 

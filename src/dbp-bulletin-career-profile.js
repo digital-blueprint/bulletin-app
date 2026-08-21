@@ -1,6 +1,12 @@
 import {css, html} from 'lit';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
-import {Button, Icon, MiniSpinner, sendNotification, DBPLoginRequired} from '@dbp-toolkit/common';
+import {
+    Button,
+    Icon,
+    MiniSpinner,
+    sendNotification,
+    DBPLoginRequiredWarning,
+} from '@dbp-toolkit/common';
 import {Modal} from '@dbp-toolkit/common/src/modal.js';
 import {Notification} from '@dbp-toolkit/notification';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
@@ -26,7 +32,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             'dbp-notification': Notification,
             'dbp-career-profile-edit-form': CareerProfileEditFormElement,
             'dbp-career-profile-interest-form': CareerProfileInterestFormElement,
-            'dbp-login-required': DBPLoginRequired,
+            'dbp-login-required-warning': DBPLoginRequiredWarning,
         };
     }
 
@@ -1281,9 +1287,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     render() {
         if (!this.isLoggedIn() && !this.isAuthPending()) {
             return html`
-                <dbp-login-required
+                <dbp-login-required-warning
                     subscribe="auth,lang"
-                    @dbp-login-requested=${this._onLoginClicked}></dbp-login-required>
+                    @dbp-login-requested=${this._onLoginClicked}></dbp-login-required-warning>
             `;
         }
 
