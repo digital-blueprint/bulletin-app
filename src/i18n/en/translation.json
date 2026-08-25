@@ -620,10 +620,18 @@
         "success-title": "Success"
     },
     "view-job-offers": {
+        "active-filters-label": "Active filters",
         "areas-of-interest": "Areas of interest",
         "auth-loading": "Checking login status...",
         "available-positions": "Available positions",
+        "clear-filters": "Clear filters",
+        "dream-job-all": "All",
+        "dream-job-career-entry": "For career starters",
+        "dream-job-label": "My dream job is:",
+        "dream-job-study-accompanying": "Alongside studies",
         "error-load-failed": "Failed to load job offers. Please try again later.",
+        "filter-close": "Close filters",
+        "filter-open": "Open filters",
         "load-more": "Load more",
         "loading": "Loading job offers…",
         "no-results": "No job offers found.",
@@ -632,10 +640,17 @@
         "partner-company": "Partner company",
         "position-count": "({{total}} total, {{filtered}} filtered)",
         "published-at": "Published on",
+        "remote-marker": "Remote",
+        "remote-only": "100% remote",
+        "remove-filter": "Remove filter {{filter}}",
+        "search-marker-label": "Search",
         "search-placeholder": "Search job offers",
         "select-placeholder": "All",
         "view-details": "View",
         "weekly-hours": "Hours per week",
+        "weekly-hours-max-marker": "< {{hours}}h",
+        "weekly-hours-min-marker": "> {{hours}}h",
+        "weekly-hours-range-marker": "{{min}} – {{max}}h",
         "work-location": "Place of employment"
     }
 }

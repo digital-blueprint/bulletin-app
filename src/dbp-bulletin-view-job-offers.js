@@ -18,6 +18,7 @@ import {
     WorkLocationSelectElement,
     getLocationKey,
     getLocationHierarchy,
+    getWorkLocationLabel,
     normalizeWorkLocations,
 } from './modules/workLocationsElement.js';
 import HoursRangeElement, {
@@ -27,6 +28,25 @@ import HoursRangeElement, {
 
 // Number of job cards shown initially and appended each time the user requests more
 const LOAD_MORE_BATCH_SIZE = 12;
+
+// Filter presets applied when a "Mein Traumjob ist:" option is selected.
+// The keys match the option values of the dream job dropdown.
+const DREAM_JOB_PRESETS = {
+    'study-accompanying': {
+        // Steiermark (Styria) as work location, remote allowed, at most 20 hours per week
+        workLocation: 'AT|styria|',
+        remoteOnly: true,
+        weeklyHoursMin: '',
+        weeklyHoursMax: '20',
+    },
+    'career-entry': {
+        // Any work location, remote allowed, at least 20 hours per week
+        workLocation: '',
+        remoteOnly: true,
+        weeklyHoursMin: '20',
+        weeklyHoursMax: '',
+    },
+};
 
 class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -44,11 +64,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
         this.searchQuery = '';
+        this.filterDreamJob = 'all';
         this.filterAreasOfInterest = [];
         this.filterWorkLocation = '';
+        this.filterRemoteOnly = false;
         this.filterWeeklyHoursMin = '';
         this.filterWeeklyHoursMax = '';
         this.sortOrder = 'date-desc';
+        /** @type {boolean} Whether the additional filters row is expanded */
+        this._filtersOpen = false;
         /** @type {number} Number of job cards currently rendered */
         this._visibleCount = LOAD_MORE_BATCH_SIZE;
         /** @type {object|null} Currently selected job offer shown in the detail dialog */
@@ -70,11 +94,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return {
             ...super.properties,
             searchQuery: {type: String, state: true},
+            filterDreamJob: {type: String, state: true},
             filterAreasOfInterest: {type: Array, state: true},
             filterWorkLocation: {type: String, state: true},
+            filterRemoteOnly: {type: Boolean, state: true},
             filterWeeklyHoursMin: {type: String, state: true},
             filterWeeklyHoursMax: {type: String, state: true},
             sortOrder: {type: String, state: true},
+            _filtersOpen: {type: Boolean, state: true},
             _visibleCount: {type: Number, state: true},
             universityShortName: {type: String, attribute: 'university-short-name'},
             _selectedJob: {state: true},
@@ -458,6 +485,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ),
                     );
 
+                const matchesRemote = !this.filterRemoteOnly || this._isRemoteJob(job);
+
                 const matchesHours = isHoursRangeInRange(
                     job.weeklyHoursMin,
                     job.weeklyHoursMax,
@@ -467,10 +496,28 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 );
 
                 return (
-                    matchesSearch && matchesAreaOfInterest && matchesWorkLocation && matchesHours
+                    matchesSearch &&
+                    matchesAreaOfInterest &&
+                    matchesWorkLocation &&
+                    matchesRemote &&
+                    matchesHours
                 );
             })
             .sort((a, b) => this.compareJobsByDate(a, b));
+    }
+
+    /**
+     * Returns true when any of the job's work locations is marked as remote.
+     * A location counts as remote when its country, region or city equals "remote".
+     * @param {object} job
+     * @returns {boolean}
+     */
+    _isRemoteJob(job) {
+        return normalizeWorkLocations(job.workLocations).some((location) =>
+            [location.country, location.region, location.city].some(
+                (part) => String(part).toLowerCase() === 'remote',
+            ),
+        );
     }
 
     getAvailableWorkLocations({includeSelected = false} = {}) {
@@ -732,6 +779,57 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._resetVisibleCount();
     }
 
+    onDreamJobChange(e) {
+        this.filterDreamJob = e.target.value;
+
+        // Apply the preset filters that belong to the selected dream job option.
+        // Selecting "Alle" clears the previously applied preset filters.
+        const preset = DREAM_JOB_PRESETS[this.filterDreamJob] ?? {
+            workLocation: '',
+            remoteOnly: false,
+            weeklyHoursMin: '',
+            weeklyHoursMax: '',
+        };
+        this.filterWorkLocation = preset.workLocation;
+        this.filterRemoteOnly = preset.remoteOnly;
+        this.filterWeeklyHoursMin = preset.weeklyHoursMin;
+        this.filterWeeklyHoursMax = preset.weeklyHoursMax;
+        this._clearUnavailableAreaOfInterest();
+
+        // Reveal the additional filters so the preselected values are visible.
+        if (DREAM_JOB_PRESETS[this.filterDreamJob]) {
+            this._filtersOpen = true;
+        }
+
+        this._resetVisibleCount();
+    }
+
+    onRemoteOnlyChange(e) {
+        this.filterRemoteOnly = e.target.checked;
+        this._resetVisibleCount();
+    }
+
+    /**
+     * Toggles the visibility of the additional filters row.
+     */
+    toggleFilters() {
+        this._filtersOpen = !this._filtersOpen;
+    }
+
+    /**
+     * Resets all filters back to their default (empty) state.
+     */
+    clearFilters() {
+        this.searchQuery = '';
+        this.filterDreamJob = 'all';
+        this.filterAreasOfInterest = [];
+        this.filterWorkLocation = '';
+        this.filterRemoteOnly = false;
+        this.filterWeeklyHoursMin = '';
+        this.filterWeeklyHoursMax = '';
+        this._resetVisibleCount();
+    }
+
     onWeeklyHoursMinChange(e) {
         this.filterWeeklyHoursMin = e.detail?.min ?? '';
         this._clearUnavailableAreaOfInterest();
@@ -755,6 +853,120 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     _resetVisibleCount() {
         this._visibleCount = LOAD_MORE_BATCH_SIZE;
+    }
+
+    /**
+     * Converts a work location key ("country|region|city") into its most specific label,
+     * e.g. "AT|styria|" becomes "Steiermark".
+     * @param {string} locationKey
+     * @param {(key: string) => string} t
+     * @returns {string}
+     */
+    _getWorkLocationMarkerLabel(locationKey, t) {
+        const [country = '', region = '', city = ''] = String(locationKey).split('|');
+        const label = getWorkLocationLabel({country, region, city}, t, this.lang);
+        // getWorkLocationLabel joins city, region and country with commas, ordered from the
+        // most specific to the least specific part, so the first segment is the best marker text.
+        return label.split(',')[0].trim();
+    }
+
+    /**
+     * Formats the weekly hours range for a filter marker, e.g. "< 20h", "> 20h" or "20 – 30h".
+     * @param {string} min
+     * @param {string} max
+     * @param {(key: string, options?: object) => string} t
+     * @returns {string}
+     */
+    _formatHoursMarker(min, max, t) {
+        const hasMin = String(min).trim() !== '';
+        const hasMax = String(max).trim() !== '';
+
+        if (hasMin && !hasMax) {
+            return t('view-job-offers.weekly-hours-min-marker', {hours: min});
+        }
+        if (!hasMin && hasMax) {
+            return t('view-job-offers.weekly-hours-max-marker', {hours: max});
+        }
+        return t('view-job-offers.weekly-hours-range-marker', {min, max});
+    }
+
+    /**
+     * Builds the list of currently active filters shown as removable markers.
+     * @param {(key: string, options?: object) => string} t
+     * @returns {Array<{key: string, category: string, value: string, clear: () => void}>}
+     */
+    _getActiveFilterMarkers(t) {
+        const markers = [];
+
+        if (this.searchQuery.trim()) {
+            markers.push({
+                key: 'search',
+                category: t('view-job-offers.search-marker-label'),
+                value: this.searchQuery.trim(),
+                clear: () => {
+                    this.searchQuery = '';
+                    this._resetVisibleCount();
+                },
+            });
+        }
+
+        // Work location and the "100% remote" checkbox are shown as a single combined marker,
+        // e.g. "Steiermark / Remote", "Steiermark" or "Remote".
+        if (this.filterWorkLocation || this.filterRemoteOnly) {
+            const workLocationValue = [
+                this.filterWorkLocation
+                    ? this._getWorkLocationMarkerLabel(this.filterWorkLocation, t)
+                    : '',
+                this.filterRemoteOnly ? t('view-job-offers.remote-marker') : '',
+            ]
+                .filter(Boolean)
+                .join(' / ');
+            markers.push({
+                key: 'work-location',
+                category: t('view-job-offers.work-location'),
+                value: workLocationValue,
+                clear: () => {
+                    this.filterWorkLocation = '';
+                    this.filterRemoteOnly = false;
+                    this._clearUnavailableAreaOfInterest();
+                    this._resetVisibleCount();
+                },
+            });
+        }
+
+        if (this.filterWeeklyHoursMin || this.filterWeeklyHoursMax) {
+            markers.push({
+                key: 'weekly-hours',
+                category: t('view-job-offers.weekly-hours'),
+                value: this._formatHoursMarker(
+                    this.filterWeeklyHoursMin,
+                    this.filterWeeklyHoursMax,
+                    t,
+                ),
+                clear: () => {
+                    this.filterWeeklyHoursMin = '';
+                    this.filterWeeklyHoursMax = '';
+                    this._clearUnavailableAreaOfInterest();
+                    this._resetVisibleCount();
+                },
+            });
+        }
+
+        this.filterAreasOfInterest.forEach((areaOfInterest) => {
+            markers.push({
+                key: `area-of-interest-${areaOfInterest}`,
+                category: t('view-job-offers.areas-of-interest'),
+                value: getAreaOfInterestLabel(areaOfInterest, t),
+                clear: () => {
+                    this.filterAreasOfInterest = this.filterAreasOfInterest.filter(
+                        (value) => value !== areaOfInterest,
+                    );
+                    this._resetVisibleCount();
+                },
+            });
+        });
+
+        return markers;
     }
 
     /**
@@ -822,6 +1034,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         const availableWorkLocations = this.getAvailableWorkLocations({includeSelected: true});
         const filtered = this.getFilteredJobs();
+        const activeFilterMarkers = this._getActiveFilterMarkers(t);
 
         // Render the first _visibleCount jobs until the user requests another batch.
         const visibleCount = Math.min(this._visibleCount, filtered.length);
@@ -830,7 +1043,34 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="job-board">
+                <!-- Primary filter row: dream job, search and the toggle for the remaining filters -->
                 <div class="search-filter-row">
+                    <div class="field">
+                        <label class="label" for="filter-dream-job">
+                            ${t('view-job-offers.dream-job-label')}
+                        </label>
+                        <div class="control">
+                            <select
+                                id="filter-dream-job"
+                                @change="${this.onDreamJobChange}"
+                                .value="${this.filterDreamJob}">
+                                <option value="all" ?selected="${this.filterDreamJob === 'all'}">
+                                    ${t('view-job-offers.dream-job-all')}
+                                </option>
+                                <option
+                                    value="study-accompanying"
+                                    ?selected="${this.filterDreamJob === 'study-accompanying'}">
+                                    ${t('view-job-offers.dream-job-study-accompanying')}
+                                </option>
+                                <option
+                                    value="career-entry"
+                                    ?selected="${this.filterDreamJob === 'career-entry'}">
+                                    ${t('view-job-offers.dream-job-career-entry')}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Search bar -->
                     <div class="field search-field">
                         <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
@@ -848,55 +1088,149 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         </div>
                     </div>
 
-                    <div class="field">
-                        <dbp-enum-element
-                            name="filter-area-of-interest"
-                            lang="${this.lang}"
-                            label="${t('view-job-offers.areas-of-interest')}"
-                            multiple
-                            display-mode="tags"
-                            .tagPlaceholder="${{
-                                [this.lang]: t('view-job-offers.select-placeholder'),
-                            }}"
-                            .items="${areaOfInterestItems}"
-                            .value="${this.filterAreasOfInterest}"
-                            @change="${this.onAreaOfInterestChange}"></dbp-enum-element>
+                    <!-- Toggle for the additional filters -->
+                    <div class="field toggle-field">
+                        <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
+                        <button
+                            type="button"
+                            class="filter-toggle"
+                            aria-expanded="${this._filtersOpen ? 'true' : 'false'}"
+                            @click="${this.toggleFilters}">
+                            <dbp-icon
+                                name="${this._filtersOpen ? 'chevron-up' : 'chevron-down'}"></dbp-icon>
+                            <span>
+                                ${
+                                    this._filtersOpen
+                                        ? t('view-job-offers.filter-close')
+                                        : t('view-job-offers.filter-open')
+                                }
+                            </span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Filters row -->
-                <div class="filters-row">
-                    <div class="field">
-                        <label class="label" for="filter-work-location">
-                            ${t('view-job-offers.work-location')}
-                        </label>
-                        <div class="control">
-                            <dbp-work-location-select-element
-                                id="filter-work-location"
-                                lang="${this.lang}"
-                                lang-dir="${this.langDir}"
-                                placeholder="${t('view-job-offers.select-placeholder')}"
-                                .locations="${availableWorkLocations}"
-                                .value="${this.filterWorkLocation}"
-                                @change="${
-                                    this.onWorkLocationChange
-                                }"></dbp-work-location-select-element>
-                        </div>
-                    </div>
+                <!-- Additional filters row, only visible once the user opens the filters -->
+                ${
+                    this._filtersOpen
+                        ? html`
+                              <div class="filters-row">
+                                  <div class="field work-location-field">
+                                      <label class="label" for="filter-work-location">
+                                          ${t('view-job-offers.work-location')}
+                                      </label>
+                                      <div class="control work-location-control">
+                                          <dbp-work-location-select-element
+                                              id="filter-work-location"
+                                              lang="${this.lang}"
+                                              lang-dir="${this.langDir}"
+                                              placeholder="${t('view-job-offers.select-placeholder')}"
+                                              .locations="${availableWorkLocations}"
+                                              .value="${this.filterWorkLocation}"
+                                              @change="${
+                                                  this.onWorkLocationChange
+                                              }"></dbp-work-location-select-element>
+                                          <label class="remote-checkbox">
+                                              <input
+                                                  type="checkbox"
+                                                  class="remote-checkbox-input"
+                                                  .checked="${this.filterRemoteOnly}"
+                                                  @change="${this.onRemoteOnlyChange}" />
+                                              <span class="remote-checkbox-label">
+                                                  ${t('view-job-offers.remote-only')}
+                                              </span>
+                                          </label>
+                                      </div>
+                                  </div>
 
-                    <dbp-hours-range-element
-                        lang="${this.lang}"
-                        lang-dir="${this.langDir}"
-                        label="${t('hours-range.label')}"
-                        .min="${this.filterWeeklyHoursMin}"
-                        .max="${this.filterWeeklyHoursMax}"
-                        @change="${(e) => {
-                            this.filterWeeklyHoursMin = e.detail?.min ?? '';
-                            this.filterWeeklyHoursMax = e.detail?.max ?? '';
-                            this._clearUnavailableAreaOfInterest();
-                            this._resetVisibleCount();
-                        }}"></dbp-hours-range-element>
-                </div>
+                                  <dbp-hours-range-element
+                                      lang="${this.lang}"
+                                      lang-dir="${this.langDir}"
+                                      label="${t('hours-range.label')}"
+                                      .min="${this.filterWeeklyHoursMin}"
+                                      .max="${this.filterWeeklyHoursMax}"
+                                      @change="${(e) => {
+                                          this.filterWeeklyHoursMin = e.detail?.min ?? '';
+                                          this.filterWeeklyHoursMax = e.detail?.max ?? '';
+                                          this._clearUnavailableAreaOfInterest();
+                                          this._resetVisibleCount();
+                                      }}"></dbp-hours-range-element>
+
+                                  <div class="field">
+                                      <dbp-enum-element
+                                          name="filter-area-of-interest"
+                                          lang="${this.lang}"
+                                          label="${t('view-job-offers.areas-of-interest')}"
+                                          multiple
+                                          display-mode="tags"
+                                          .tagPlaceholder="${{
+                                              [this.lang]: t('view-job-offers.select-placeholder'),
+                                          }}"
+                                          .items="${areaOfInterestItems}"
+                                          .value="${this.filterAreasOfInterest}"
+                                          @change="${
+                                              this.onAreaOfInterestChange
+                                          }"></dbp-enum-element>
+                                  </div>
+                              </div>
+                          `
+                        : ''
+                }
+
+                <!-- Active filter markers, styled after dbp-cabinet-current-refinements -->
+                ${
+                    activeFilterMarkers.length > 0
+                        ? html`
+                              <div class="ais-CurrentRefinements">
+                                  <ul
+                                      class="ais-CurrentRefinements-list"
+                                      aria-label="${t('view-job-offers.active-filters-label')}">
+                                      ${activeFilterMarkers.map(
+                                          (marker) => html`
+                                              <li class="ais-CurrentRefinements-category">
+                                                  <div class="refinement-title">
+                                                      ${marker.category}
+                                                  </div>
+                                                  <div class="refinement-value">
+                                                      <span
+                                                          class="ais-CurrentRefinements-categoryLabel">
+                                                          ${marker.value}
+                                                      </span>
+                                                      <button
+                                                          type="button"
+                                                          class="ais-CurrentRefinements-delete"
+                                                          aria-label="${marker.category} ${marker.value}"
+                                                          title="${t(
+                                                              'view-job-offers.remove-filter',
+                                                              {filter: marker.value},
+                                                          )}"
+                                                          @click="${marker.clear}">
+                                                          <span class="visually-hidden">
+                                                              ${t('view-job-offers.remove-filter', {
+                                                                  filter: marker.value,
+                                                              })}
+                                                          </span>
+                                                          <span class="filter-close-icon"></span>
+                                                      </button>
+                                                  </div>
+                                              </li>
+                                          `,
+                                      )}
+                                      <li class="ais-CurrentRefinements-clear">
+                                          <button
+                                              type="button"
+                                              class="clear-refinements-button"
+                                              @click="${this.clearFilters}">
+                                              <dbp-icon name="close" aria-hidden="true"></dbp-icon>
+                                              <span class="clear-refinements-button-label">
+                                                  ${t('view-job-offers.clear-filters')}
+                                              </span>
+                                          </button>
+                                      </li>
+                                  </ul>
+                              </div>
+                          `
+                        : ''
+                }
 
                 <!-- Section heading and sort control -->
                 <div class="section-header">
@@ -1029,9 +1363,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             ${commonStyles.getNotificationCSS()}
 
             /* Override: getGeneralCSS background-size of 25% is too large; also ensure enough
-               right padding so the chevron SVG never overlaps the selected option text */
+               right padding so the chevron SVG never overlaps the selected option text.
+               The vertical and left padding match the ".input" fields so the dream job select
+               lines up with the search input and the other filters. */
             select:not(.select) {
                 background-size: 1em !important;
+                padding-top: calc(0.375em - 1px);
+                padding-bottom: calc(0.375em - 1px);
+                padding-left: calc(0.625em - 1px);
                 padding-right: 2em !important;
                 width: 100%;
                 cursor: pointer;
@@ -1070,6 +1409,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 width: 100%;
             }
 
+            /* Align the height of the dream job select, the search input and the filter toggle */
+            .search-filter-row .control select,
+            .search-filter-row .search-control .input,
+            .search-filter-row .filter-toggle {
+                box-sizing: border-box;
+                height: var(--filter-control-height);
+                min-height: var(--filter-control-height);
+            }
+
             .search-icon {
                 position: absolute;
                 right: 0.75rem;
@@ -1085,16 +1433,224 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .filters-row {
                 display: grid;
                 gap: 1rem;
+                --filter-control-height: 2.1rem;
             }
 
-            .search-filter-row,
+            /* Primary row: dream job dropdown, search field and the filter toggle */
+            .search-filter-row {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+                align-items: end;
+            }
+
+            /* Additional filters: work location (+ remote), weekly hours and areas of interest */
             .filters-row {
-                --filter-control-height: 2.1rem;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.4fr);
+                align-items: end;
             }
 
             .filters-row dbp-work-location-select-element {
                 --work-location-select-height: var(--filter-control-height);
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            /* Work location select and the "100% remote" box are attached to each other so they
+               look like a single control with a shared border, mirroring the design mockup. */
+            .work-location-control {
+                display: flex;
+                align-items: stretch;
+            }
+
+            .remote-checkbox {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                white-space: nowrap;
+                cursor: pointer;
+                box-sizing: border-box;
+                height: var(--filter-control-height);
+                padding: 0 0.75rem;
+                border: var(--dbp-border);
+                border-radius: var(--dbp-border-radius);
+                /* Overlap the select's right border so only a single divider line is visible */
+                margin-left: -1px;
+            }
+
+            /* Custom bordered checkbox instead of the default (blue) browser checkbox */
+            .remote-checkbox-input {
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                box-sizing: border-box;
+                margin: 0;
+                width: 1em;
+                height: 1em;
+                border: 1px solid var(--dbp-content);
+                background: var(--dbp-background);
+                cursor: pointer;
+                position: relative;
+                flex: none;
+            }
+
+            .remote-checkbox-input:checked::after {
+                content: '';
+                position: absolute;
+                left: 0.28em;
+                top: 0.08em;
+                width: 0.28em;
+                height: 0.55em;
+                border: solid var(--dbp-content);
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+
+            .remote-checkbox-label {
+                cursor: pointer;
+            }
+
+            /* Filter toggle button in the primary row */
+            .toggle-field {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .filter-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                height: var(--filter-control-height);
+                padding: 0 0.9rem;
+                white-space: nowrap;
+                background: var(--dbp-background);
+                color: var(--dbp-content);
+                border: 1px solid var(--dbp-content);
+                cursor: pointer;
+            }
+
+            .filter-toggle:hover,
+            .filter-toggle:focus {
+                /* Invert to the content surface on hover: dark background needs the matching
+                   light foreground so the label and icon stay readable */
+                background: var(--dbp-content-surface);
+                color: var(--dbp-on-content-surface);
+                border-color: var(--dbp-content-surface);
+            }
+
+            /* Active filter markers, styled after dbp-cabinet-current-refinements */
+            .ais-CurrentRefinements {
+                font-size: 0.8em;
+            }
+
+            .visually-hidden {
+                position: absolute !important;
+                clip: rect(1px, 1px, 1px, 1px);
+                overflow: hidden;
+                height: 1px;
+                width: 1px;
+                word-wrap: normal;
+            }
+
+            .ais-CurrentRefinements-list {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0.5em 1em;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+
+            .ais-CurrentRefinements-category {
+                list-style: none;
+                border: 1px solid var(--dbp-content);
+                display: flex;
+                word-break: keep-all;
+            }
+
+            .ais-CurrentRefinements-delete {
+                position: relative;
+                background: none;
+                border: none 0;
+                cursor: pointer;
+                color: var(--dbp-content);
+                display: flex;
+                align-items: center;
+            }
+
+            .ais-CurrentRefinements-category:hover .filter-close-icon {
+                transform: rotate(90deg);
+            }
+
+            .filter-close-icon {
+                display: block;
+                transition: transform 0.1s ease-in;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3E%3C/svg%3E");
+                width: 10px;
+                height: 10px;
+                background-size: 10px;
+                color: var(--dbp-content);
+                background: var(--dbp-content);
+            }
+
+            .refinement-title {
+                color: var(--dbp-on-primary-surface);
+                background: var(--dbp-primary-surface);
+                padding: 4px 8px;
+                font-weight: bold;
+            }
+
+            .refinement-value {
+                padding: 4px 6px;
+                justify-content: space-between;
+                display: flex;
+                gap: 0.5em;
+                align-items: center;
+            }
+
+            /* Clear all filters button, styled after dbp-cabinet-clear-refinements.
+               Sits on the right of the markers row and stays vertically aligned with them. */
+            .ais-CurrentRefinements-clear {
+                list-style: none;
+                margin-left: auto;
+            }
+
+            .clear-refinements-button {
+                background: transparent;
+                border: 1px solid transparent;
+                color: var(--dbp-content);
+                border-radius: 0;
+                padding: 4px 6px;
+                position: relative;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                white-space: nowrap;
+            }
+
+            .clear-refinements-button dbp-icon {
+                font-size: 1.1em;
+                top: 0;
+            }
+
+            .clear-refinements-button:focus,
+            .clear-refinements-button:hover {
+                background: var(--dbp-hover-background-color);
+                color: var(--dbp-hover-color);
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+
+            /* Rotate the close icon on hover, mirroring the marker delete icons */
+            .clear-refinements-button:focus dbp-icon,
+            .clear-refinements-button:hover dbp-icon {
+                transform: rotate(90deg);
+                transition: transform 0.1s ease-in;
+            }
+
+            .clear-refinements-button-label {
+                white-space: nowrap;
             }
 
             .search-filter-row .field,
@@ -1141,14 +1697,40 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 font-weight: 500;
             }
 
+            @media (max-width: 900px) {
+                .search-filter-row {
+                    grid-template-columns: minmax(0, 1fr) auto;
+                }
+
+                .search-filter-row .search-field {
+                    grid-column: 1 / -1;
+                    order: 3;
+                }
+
+                .filters-row {
+                    grid-template-columns: 1fr;
+                }
+            }
+
             @media (max-width: 600px) {
-                .search-filter-row,
+                .search-filter-row {
+                    grid-template-columns: 1fr;
+                }
+
+                .search-filter-row .search-field {
+                    order: 0;
+                }
+
                 .filters-row {
                     grid-template-columns: 1fr;
                 }
 
                 .search-label-spacer {
                     display: none;
+                }
+
+                .filter-toggle {
+                    width: 100%;
                 }
             }
 

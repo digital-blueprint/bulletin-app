@@ -620,10 +620,18 @@
         "success-title": "Erfolgreich"
     },
     "view-job-offers": {
+        "active-filters-label": "Aktive Filter",
         "areas-of-interest": "Interessensgebiete",
         "auth-loading": "Anmeldestatus wird geprüft...",
         "available-positions": "Verfügbare Stellen",
+        "clear-filters": "Filter löschen",
+        "dream-job-all": "Alle",
+        "dream-job-career-entry": "Für Berufseinsteiger",
+        "dream-job-label": "Mein Traumjob ist:",
+        "dream-job-study-accompanying": "Studienbegleitend",
         "error-load-failed": "Stellenangebote konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+        "filter-close": "Filter schließen",
+        "filter-open": "Filter öffnen",
         "load-more": "Mehr laden",
         "loading": "Stellenangebote werden geladen…",
         "no-results": "Keine Stellenangebote gefunden.",
@@ -632,10 +640,17 @@
         "partner-company": "Partnerunternehmen",
         "position-count": "({{total}} gesamt, {{filtered}} gefiltert)",
         "published-at": "Veröffentlicht am",
+        "remote-marker": "Remote",
+        "remote-only": "100% Remote",
+        "remove-filter": "Filter {{filter}} entfernen",
+        "search-marker-label": "Suche",
         "search-placeholder": "Stellenangebote suchen",
         "select-placeholder": "Alle",
         "view-details": "Anzeigen",
         "weekly-hours": "Wochenstunden",
+        "weekly-hours-max-marker": "< {{hours}}h",
+        "weekly-hours-min-marker": "> {{hours}}h",
+        "weekly-hours-range-marker": "{{min}} – {{max}}h",
         "work-location": "Dienstort"
     }
 }
