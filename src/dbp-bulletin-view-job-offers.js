@@ -909,132 +909,114 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                             })}
                         </span>
                     </h2>
-                    <div class="sort-wrapper">
-                        <label class="label sort-label" for="sort-order">
-                            ${t('view-job-offers.sort-by')}
-                        </label>
-                        <div class="control">
-                            <select
-                                id="sort-order"
-                                @change="${this.onSortChange}"
-                                .value="${this.sortOrder}">
-                                <option
-                                    value="date-asc"
-                                    ?selected="${this.sortOrder === 'date-asc'}">
-                                    ${t('view-job-offers.sort-date-asc')}
-                                </option>
-                                <option
-                                    value="date-desc"
-                                    ?selected="${this.sortOrder === 'date-desc'}">
-                                    ${t('view-job-offers.sort-date-desc')}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
+                       
                 </div>
 
                 <!-- Job cards grid -->
-                ${
-                    filtered.length === 0
-                        ? html`
-                              <p class="no-results">${t('view-job-offers.no-results')}</p>
-                          `
-                        : html`
-                              <div class="job-grid">
-                                  ${repeat(
-                                      visibleJobs,
-                                      (job) => job.identifier,
-                                      (job) => html`
-                                          <div class="job-card">
-                                              <div class="job-card-body">
-                                                  <div class="job-card-header">
-                                                      <h3 class="job-title">${job.title}</h3>
-                                                      <div class="job-source-marker">
-                                                          ${this.getInternalFavicon(job)}
-                                                          ${this._renderPartnerCompanyMarker(job, t)}
+                    ${
+                        filtered.length === 0
+                            ? html`
+                                  <p class="no-results">${t('view-job-offers.no-results')}</p>
+                              `
+                            : html`
+                                  <div class="job-grid">
+                                      ${repeat(
+                                          visibleJobs,
+                                          (job) => job.identifier,
+                                          (job) => html`
+                                              <div class="job-card">
+                                                  <div class="job-card-body">
+                                                      <div class="job-card-header">
+                                                          <h3 class="job-title">${job.title}</h3>
+                                                          <div class="job-source-marker">
+                                                              ${this.getInternalFavicon(job)}
+                                                              ${this._renderPartnerCompanyMarker(job, t)}
+                                                          </div>
                                                       </div>
-                                                  </div>
-                                                  <dl class="job-meta-list">
-                                                      <span class="job-meta-type">
-                                                          ${this.getOrganizationLabel(job)}
-                                                      </span>
-                                                      ${this._renderJobMetaItem(
-                                                          t('view-job-offers.published-at'),
-                                                          this.formatDate(job.publishedAt),
-                                                      )}
-                                                      ${this._renderJobMetaItem(
-                                                          t('view-job-offers.organizational-unit'),
-                                                          this._localized(
-                                                              job.organizationalUnit,
-                                                              job.organizationalUnitEn ?? '',
-                                                          ),
-                                                      )}
-                                                      ${this._renderJobMetaItem(
-                                                          t('view-job-offers.weekly-hours'),
-                                                          this._localized(
-                                                              formatHoursRange(
-                                                                  job.weeklyHoursMin,
-                                                                  job.weeklyHoursMax,
-                                                                  job.weeklyHours,
+                                                      <dl class="job-meta-list">
+                                                          <span class="job-meta-type">
+                                                              ${this.getOrganizationLabel(job)}
+                                                          </span>
+                                                          ${this._renderJobMetaItem(
+                                                              t('view-job-offers.published-at'),
+                                                              this.formatDate(job.publishedAt),
+                                                          )}
+                                                          ${this._renderJobMetaItem(
+                                                              t(
+                                                                  'view-job-offers.organizational-unit',
                                                               ),
-                                                              job.weeklyHoursEn ?? '',
-                                                          ),
-                                                      )}
-                                                  </dl>
-                                                  ${this._renderAreaOfInterestTags(job, t)}
+                                                              this._localized(
+                                                                  job.organizationalUnit,
+                                                                  job.organizationalUnitEn ?? '',
+                                                              ),
+                                                          )}
+                                                          ${this._renderJobMetaItem(
+                                                              t('view-job-offers.weekly-hours'),
+                                                              this._localized(
+                                                                  formatHoursRange(
+                                                                      job.weeklyHoursMin,
+                                                                      job.weeklyHoursMax,
+                                                                      job.weeklyHours,
+                                                                  ),
+                                                                  job.weeklyHoursEn ?? '',
+                                                              ),
+                                                          )}
+                                                      </dl>
+                                                      ${this._renderAreaOfInterestTags(job, t)}
+                                                  </div>
+
+                                                  <div class="job-card-footer">
+                                                      <button
+                                                          class="button is-secondary"
+                                                          @click="${() => this.openJob(job)}"
+                                                          aria-label="${t(
+                                                              'view-job-offers.view-details',
+                                                          )} – ${job.title}">
+                                                          <dbp-icon
+                                                              class="btn-icon"
+                                                              name="keyword-research"
+                                                              aria-hidden="true"></dbp-icon>
+                                                          ${t('view-job-offers.view-details')}
+                                                      </button>
+                                                  </div>
                                               </div>
+                                          `,
+                                      )}
+                                  </div>
+                              `
+                    }
 
-                                              <div class="job-card-footer">
-                                                  <button
-                                                      class="button is-secondary"
-                                                      @click="${() => this.openJob(job)}"
-                                                      aria-label="${t(
-                                                          'view-job-offers.view-details',
-                                                      )} – ${job.title}">
-                                                      <dbp-icon
-                                                          class="btn-icon"
-                                                          name="keyword-research"
-                                                          aria-hidden="true"></dbp-icon>
-                                                      ${t('view-job-offers.view-details')}
-                                                  </button>
-                                              </div>
-                                          </div>
-                                      `,
-                                  )}
-                              </div>
-                          `
-                }
+                    <!-- Load more control -->
+                    ${
+                        hasMore
+                            ? html`
+                                  <div class="load-more-wrapper">
+                                      <button
+                                          type="button"
+                                          class="button is-primary load-more-button"
+                                          @click="${this._loadMore}">
+                                          <dbp-icon
+                                              class="btn-icon"
+                                              name="angle-double-down"
+                                              aria-hidden="true"></dbp-icon>
+                                          ${t('view-job-offers.load-more')}
+                                      </button>
+                                  </div>
+                              `
+                            : ''
+                    }
 
-                <!-- Load more control -->
-                ${
-                    hasMore
-                        ? html`
-                              <div class="load-more-wrapper">
-                                  <button
-                                      type="button"
-                                      class="button is-primary load-more-button"
-                                      @click="${this._loadMore}">
-                                      <dbp-icon
-                                          class="btn-icon"
-                                          name="angle-double-down"
-                                          aria-hidden="true"></dbp-icon>
-                                      ${t('view-job-offers.load-more')}
-                                  </button>
-                              </div>
-                          `
-                        : ''
-                }
-
-                <!-- Job detail dialog — always in the DOM; job property drives its content -->
-                <dbp-bulletin-job-offer-detail
-                    ${ref(this._detailRef)}
-                    .job="${this._selectedJob}"
-                    lang="${this.lang}"
-                    subscribe="university-short-name"
-                    .universityShortName="${this.universityShortName}"
-                    entry-point-url="${this.entryPointUrl}"
-                    .auth="${this.auth}"
-                    @dbp-modal-closed="${this.onDialogClosed}"></dbp-bulletin-job-offer-detail>
+                    <!-- Job detail dialog — always in the DOM; job property drives its content -->
+                    <dbp-bulletin-job-offer-detail
+                        ${ref(this._detailRef)}
+                        .job="${this._selectedJob}"
+                        lang="${this.lang}"
+                        subscribe="university-short-name"
+                        .universityShortName="${this.universityShortName}"
+                        entry-point-url="${this.entryPointUrl}"
+                        .auth="${this.auth}"
+                        @dbp-modal-closed="${this.onDialogClosed}"></dbp-bulletin-job-offer-detail>
+                </div>
             </div>
         `;
     }
