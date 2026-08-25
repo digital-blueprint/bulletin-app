@@ -1528,6 +1528,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 cursor: pointer;
             }
 
+            /* Reset the icon's intrinsic baseline offset so it is vertically centered
+               within the flex-centered button instead of sitting slightly too high */
+            .filter-toggle dbp-icon {
+                top: 0;
+            }
+
             .filter-toggle:hover,
             .filter-toggle:focus {
                 /* Invert to the content surface on hover: dark background needs the matching
