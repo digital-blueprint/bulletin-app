@@ -939,6 +939,103 @@ suite('career profile student studies', () => {
         ]);
         element.remove();
     });
+
+    test('should clear saved profile values before creating another profile', async () => {
+        const element = document.createElement(tagName);
+        element.currentStudentStudies = [{key: 'bachelor', name: 'Computer Science'}];
+        element.existingForm = {
+            additionalData: {
+                summary: 'Saved summary',
+                teaser: 'Saved teaser',
+                workLocations: [{country: 'AT', region: 'styria', city: 'graz'}],
+            },
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        element.resetForCreate();
+
+        assert.equal(element._summary, '');
+        assert.equal(element._teaser, '');
+        assert.deepEqual(element.workLocations, []);
+        assert.deepEqual(element._getDisplayStudies(), element.currentStudentStudies);
+        element.remove();
+    });
+
+    test('should limit the optional teaser to 100 characters without a validation error', async () => {
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+        const teaserField = element.shadowRoot.querySelector('[name="teaser"]');
+        const textarea = teaserField.shadowRoot.querySelector('textarea');
+        textarea.value = 'a'.repeat(101);
+
+        textarea.dispatchEvent(new Event('input', {bubbles: true, composed: true}));
+        await element.updateComplete;
+        await teaserField.updateComplete;
+
+        assert.lengthOf(element._teaser, 100);
+        assert.lengthOf(textarea.value, 100);
+        assert.deepEqual(teaserField.errorMessages, []);
+        element.remove();
+    });
+
+    test('should ignore another submit while profile creation is pending', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        let createRequests = 0;
+        let resolveCreate;
+        element.auth = {token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        element._summary = 'Profile';
+        element._contactEmail = 'student@example.com';
+        globalThis.fetch = async (url) => {
+            if (url.endsWith('/formalize/forms')) {
+                createRequests += 1;
+                return new Promise((resolve) => {
+                    resolveCreate = resolve;
+                });
+            }
+            return {ok: true};
+        };
+
+        try {
+            const firstSubmit = element.submit();
+            const secondSubmit = element.submit();
+            assert.isNull(await secondSubmit);
+            assert.equal(createRequests, 1);
+            resolveCreate({ok: true, json: async () => ({identifier: 'profile-1'})});
+            await firstSubmit;
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('should finish creation when granting read access fails', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        let savedEvent = null;
+        element.auth = {token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        element._summary = 'Profile';
+        element._contactEmail = 'student@example.com';
+        element.addEventListener('dbp-edit-form-saved', (event) => {
+            savedEvent = event.detail;
+        });
+        globalThis.fetch = async (url) =>
+            url.endsWith('/formalize/forms')
+                ? {ok: true, json: async () => ({identifier: 'profile-1'})}
+                : {ok: false, status: 403};
+
+        try {
+            const result = await element.submit();
+            assert.equal(result.identifier, 'profile-1');
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.equal(savedEvent.form.identifier, 'profile-1');
+    });
 });
 
 suite('career profile authorization grants', () => {

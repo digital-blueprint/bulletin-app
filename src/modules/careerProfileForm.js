@@ -665,6 +665,40 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         };
     }
 
+    _resetProfileValues() {
+        this._summary = '';
+        this._summaryEn = '';
+        this._studyProgram = '';
+        this._studies = [];
+        this._availableStudies = [];
+        this._selectedStudyKeys = [];
+        this._previousExperience = '';
+        this._previousExperienceEn = '';
+        this._skillsText = '';
+        this._skillsTextEn = '';
+        this._furtherQualifications = '';
+        this._furtherQualificationsEn = '';
+        this._personalInterests = '';
+        this._personalInterestsEn = '';
+        this._languagesText = '';
+        this._languagesTextEn = '';
+        this._openToAllIndustries = false;
+        this._industries = [];
+        this._fields = [];
+        this._workLocations = [];
+        this._availability = '';
+        this._contactEmail = '';
+        this._studentDataPrefillUserId = '';
+        this._website = '';
+        this._teaser = '';
+    }
+
+    resetForCreate() {
+        this._resetProfileValues();
+        this._setAvailableStudies(this.currentStudentStudies);
+        this._prefillStudentData();
+    }
+
     update(changedProperties) {
         changedProperties.forEach((oldValue, propName) => {
             if (propName === 'lang') {
@@ -675,32 +709,35 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 setOverridesByGlobalCache(this._i18n, this);
             }
 
-            if (propName === 'existingForm' && this.existingForm) {
-                const data = this.existingForm.additionalData || {};
-                this._summary = data.summary || '';
-                this._summaryEn = data.summaryEn || '';
-                this._studies = normalizeStudentStudies(data);
-                this._selectedStudyKeys = this._studies.map(getStudentStudyValue);
-                this._studyProgram =
-                    data.studyProgram || formatStudentStudies({studies: this._studies});
-                this._previousExperience = data.previousExperience || '';
-                this._previousExperienceEn = data.previousExperienceEn || '';
-                this._skillsText = normalizeMultilineValue(data.skills);
-                this._skillsTextEn = normalizeMultilineValue(data.skillsEn);
-                this._furtherQualifications = data.furtherQualifications || '';
-                this._furtherQualificationsEn = data.furtherQualificationsEn || '';
-                this._personalInterests = data.personalInterests || '';
-                this._personalInterestsEn = data.personalInterestsEn || '';
-                this._languagesText = normalizeMultilineValue(data.languages);
-                this._languagesTextEn = normalizeMultilineValue(data.languagesEn);
-                this._openToAllIndustries = Boolean(data.openToAllIndustries);
-                this._industries = normalizeCareerProfileSelectValues(data.industries);
-                this._fields = normalizeCareerProfileSelectValues(data.fields);
-                this._workLocations = normalizeWorkLocations(data.workLocations);
-                this._availability = data.availability || '';
-                this._contactEmail = data.contactEmail || '';
-                this._website = data.website || data.linkUrl || '';
-                this._teaser = normalizeTeaserValue(data.teaser);
+            if (propName === 'existingForm') {
+                this._resetProfileValues();
+                if (this.existingForm) {
+                    const data = this.existingForm.additionalData || {};
+                    this._summary = data.summary || '';
+                    this._summaryEn = data.summaryEn || '';
+                    this._studies = normalizeStudentStudies(data);
+                    this._selectedStudyKeys = this._studies.map(getStudentStudyValue);
+                    this._studyProgram =
+                        data.studyProgram || formatStudentStudies({studies: this._studies});
+                    this._previousExperience = data.previousExperience || '';
+                    this._previousExperienceEn = data.previousExperienceEn || '';
+                    this._skillsText = normalizeMultilineValue(data.skills);
+                    this._skillsTextEn = normalizeMultilineValue(data.skillsEn);
+                    this._furtherQualifications = data.furtherQualifications || '';
+                    this._furtherQualificationsEn = data.furtherQualificationsEn || '';
+                    this._personalInterests = data.personalInterests || '';
+                    this._personalInterestsEn = data.personalInterestsEn || '';
+                    this._languagesText = normalizeMultilineValue(data.languages);
+                    this._languagesTextEn = normalizeMultilineValue(data.languagesEn);
+                    this._openToAllIndustries = Boolean(data.openToAllIndustries);
+                    this._industries = normalizeCareerProfileSelectValues(data.industries);
+                    this._fields = normalizeCareerProfileSelectValues(data.fields);
+                    this._workLocations = normalizeWorkLocations(data.workLocations);
+                    this._availability = data.availability || '';
+                    this._contactEmail = data.contactEmail || '';
+                    this._website = data.website || data.linkUrl || '';
+                    this._teaser = normalizeTeaserValue(data.teaser);
+                }
             }
         });
 
@@ -888,6 +925,10 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     }
 
     async submit() {
+        if (this._isSubmitting) {
+            return null;
+        }
+
         const t = (key, opts) => this._i18n.t(key, opts);
         const isEditMode = Boolean(this.existingForm?.formId);
         const studies = this._getDisplayStudies();
@@ -1001,11 +1042,11 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 isEditMode ? this.existingForm.formId : null,
             );
 
-            if (
-                result &&
-                !isEditMode &&
-                !(await grantCareerProfileReadAccess(host, result.identifier))
-            ) {
+            const accessGranted =
+                !result ||
+                isEditMode ||
+                (await grantCareerProfileReadAccess(host, result.identifier));
+            if (!accessGranted) {
                 sendNotification({
                     summary: t('career-profile-form.create-error-title'),
                     body: t('career-profile-form.error-grant-read-access'),
@@ -1013,16 +1054,17 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     timeout: 0,
                     targetNotificationId: 'career-profile-form-notification',
                 });
-                return null;
             }
 
             if (result) {
-                sendNotification({
-                    summary: t('career-profile-form.interest-success'),
-                    body: t('career-profile-form.create-success'),
-                    type: 'success',
-                    timeout: 5,
-                });
+                if (accessGranted) {
+                    sendNotification({
+                        summary: t('career-profile-form.interest-success'),
+                        body: t('career-profile-form.create-success'),
+                        type: 'success',
+                        timeout: 5,
+                    });
+                }
                 this.dispatchEvent(
                     new CustomEvent('dbp-edit-form-saved', {
                         detail: {form: result},
@@ -1374,7 +1416,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 (value) => (this._teaser = normalizeTeaserValue(value)),
                 {
                     rows: 4,
-                    maxlength: CAREER_PROFILE_TEASER_MAX_LENGTH,
                     placeholderKey: 'career-profile-form.field-teaser-placeholder',
                     descriptionKey: 'career-profile-form.field-teaser-description',
                 },

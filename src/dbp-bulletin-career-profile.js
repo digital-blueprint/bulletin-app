@@ -361,7 +361,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         await this._fetchCurrentStudentStudies();
         this._editDialogProfile = profile;
-        this.updateComplete.then(() => this._('#career-profile-edit-modal')?.open());
+        await this.updateComplete;
+        if (!profile) {
+            this._('#career-profile-edit-form')?.resetForCreate();
+        }
+        this._('#career-profile-edit-modal')?.open();
     }
 
     async _handleProfileSaved() {
@@ -1152,6 +1156,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     async _saveProfile() {
+        if (this._isSubmitting) {
+            return;
+        }
+
         const formElement = this._('#career-profile-edit-form');
 
         if (!formElement) {
