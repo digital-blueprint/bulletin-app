@@ -405,6 +405,7 @@ export class HoursRangeElement extends DBPLitElement {
 
             .label {
                 font-weight: bolder;
+                margin-bottom: 0.25em;
             }
 
             .hours-range {

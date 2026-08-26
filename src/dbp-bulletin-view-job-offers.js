@@ -1689,11 +1689,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                filter fields */
             .search-filter-row dbp-enum-element,
             .filters-row dbp-enum-element {
-                --dbp-label-font-weight: 600;
-                --dbp-label-margin-bottom: 0.5em;
+                --dbp-label-font-weight: bolder;
+                --dbp-label-margin-bottom: 0.25em;
                 display: block;
                 /* Compensates the 10px fieldset margin of the toolkit form element */
                 margin: -10px 0;
+            }
+            .label {
+                font-weight: bolder;
+                margin-bottom: 0.25em;
             }
 
             /* Weekly hours range — two number inputs with a separator */
