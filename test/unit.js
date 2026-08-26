@@ -953,7 +953,8 @@ suite('career profile student studies', () => {
         document.body.appendChild(element);
         await element.updateComplete;
 
-        element.resetForCreate();
+        element.existingForm = null;
+        await element.updateComplete;
 
         assert.equal(element._summary, '');
         assert.equal(element._teaser, '');
@@ -1134,5 +1135,22 @@ suite('dbp-bulletin-career-profile routing', () => {
         await node.updateComplete;
         assert.isNull(node.shadowRoot.querySelector('.submissions-view'));
         assert.isNotNull(node.shadowRoot.querySelector('.profile-list'));
+    });
+
+    test('should create a fresh form each time the create dialog opens', async () => {
+        node.auth = {};
+        node._profiles = [];
+        await node.updateComplete;
+
+        await node._openEditDialog();
+        const previousForm = node.shadowRoot.querySelector('#career-profile-edit-form');
+        previousForm._summary = 'Previous profile summary';
+        await previousForm.updateComplete;
+
+        await node._openEditDialog();
+        const newForm = node.shadowRoot.querySelector('#career-profile-edit-form');
+
+        assert.notEqual(newForm, previousForm);
+        assert.equal(newForm._summary, '');
     });
 });

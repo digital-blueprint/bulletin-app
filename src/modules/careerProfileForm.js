@@ -693,12 +693,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._teaser = '';
     }
 
-    resetForCreate() {
-        this._resetProfileValues();
-        this._setAvailableStudies(this.currentStudentStudies);
-        this._prefillStudentData();
-    }
-
     update(changedProperties) {
         changedProperties.forEach((oldValue, propName) => {
             if (propName === 'lang') {
