@@ -431,13 +431,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <span class="meta-item-label">${t('manage-job-offers.field-work-locations')}:</span>
-            <ul class="work-location-list">
-                ${labels.map(
-                    (label) => html`
-                        <li class="work-location-list-item">${label}</li>
-                    `,
-                )}
-            </ul>
+            ${labels.map(
+                (label) => html`
+                    <span class="work-location-list-item">${label}</span>
+                `,
+            )}
         `;
     }
 
@@ -701,21 +699,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       : ''
                                               }
                                               <div class="meta-item work-location">
-                                                  ${
-                                                      isExternalJob
-                                                          ? html`
-                                                                ${this._renderWorkLocationList(
-                                                                    workLocationLabels.map(
-                                                                        (label) =>
-                                                                            label
-                                                                                .split(', ')
-                                                                                .slice(0, 2)
-                                                                                .join(', '),
-                                                                    ),
-                                                                )}
-                                                            `
-                                                          : ''
-                                                  }
+                                                  ${this._renderWorkLocationList(
+                                                      workLocationLabels.map((label) =>
+                                                          label.split(', ').slice(0, 2).join(', '),
+                                                      ),
+                                                  )}
                                               </div>
                                           </dl>
 
