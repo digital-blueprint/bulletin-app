@@ -35,14 +35,14 @@ const DREAM_JOB_PRESETS = {
     'study-accompanying': {
         // Steiermark (Styria) as work location, remote allowed, at most 20 hours per week
         workLocation: 'AT|styria|',
-        remoteOnly: true,
+        includeRemote: true,
         weeklyHoursMin: '',
         weeklyHoursMax: '20',
     },
     'career-entry': {
         // Any work location, remote allowed, at least 20 hours per week
         workLocation: '',
-        remoteOnly: true,
+        includeRemote: true,
         weeklyHoursMin: '20',
         weeklyHoursMax: '',
     },
@@ -67,7 +67,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.filterDreamJob = 'all';
         this.filterAreasOfInterest = [];
         this.filterWorkLocation = '';
-        this.filterRemoteOnly = false;
+        this.filterIncludeRemote = false;
         this.filterWeeklyHoursMin = '';
         this.filterWeeklyHoursMax = '';
         this.sortOrder = 'date-desc';
@@ -97,7 +97,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             filterDreamJob: {type: String, state: true},
             filterAreasOfInterest: {type: Array, state: true},
             filterWorkLocation: {type: String, state: true},
-            filterRemoteOnly: {type: Boolean, state: true},
+            filterIncludeRemote: {type: Boolean, state: true},
             filterWeeklyHoursMin: {type: String, state: true},
             filterWeeklyHoursMax: {type: String, state: true},
             sortOrder: {type: String, state: true},
@@ -218,6 +218,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ),
                         externalJobUrl: extra.externalJobUrl ?? '',
                         workLocations: normalizeWorkLocations(extra.workLocations),
+                        remote: extra.remote === true,
                         description: extra.description ?? '',
                         requirements: Array.isArray(extra.requirements) ? extra.requirements : [],
                         responsibilities: Array.isArray(extra.responsibilities)
@@ -485,7 +486,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ),
                     );
 
-                const matchesRemote = !this.filterRemoteOnly || this._isRemoteJob(job);
+                const matchesRemote = this.filterIncludeRemote || !this._isRemoteJob(job);
 
                 const matchesHours = isHoursRangeInRange(
                     job.weeklyHoursMin,
@@ -507,16 +508,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
-     * Returns true when any of the job's work locations is marked as remote.
-     * A location counts as remote when its country, region or city equals "remote".
+     * Returns true when the job is remote. Legacy remote location values remain supported.
      * @param {object} job
      * @returns {boolean}
      */
     _isRemoteJob(job) {
-        return normalizeWorkLocations(job.workLocations).some((location) =>
-            [location.country, location.region, location.city].some(
-                (part) => String(part).toLowerCase() === 'remote',
-            ),
+        return (
+            job.remote === true ||
+            normalizeWorkLocations(job.workLocations).some((location) =>
+                [location.country, location.region, location.city].some(
+                    (part) => String(part).toLowerCase() === 'remote',
+                ),
+            )
         );
     }
 
@@ -805,12 +808,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         // Selecting "Alle" clears the previously applied preset filters.
         const preset = DREAM_JOB_PRESETS[this.filterDreamJob] ?? {
             workLocation: '',
-            remoteOnly: false,
+            includeRemote: false,
             weeklyHoursMin: '',
             weeklyHoursMax: '',
         };
         this.filterWorkLocation = preset.workLocation;
-        this.filterRemoteOnly = preset.remoteOnly;
+        this.filterIncludeRemote = preset.includeRemote;
         this.filterWeeklyHoursMin = preset.weeklyHoursMin;
         this.filterWeeklyHoursMax = preset.weeklyHoursMax;
         this._clearUnavailableAreaOfInterest();
@@ -823,8 +826,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._resetVisibleCount();
     }
 
-    onRemoteOnlyChange(e) {
-        this.filterRemoteOnly = e.target.checked;
+    onIncludeRemoteChange(e) {
+        this.filterIncludeRemote = e.target.checked;
         this._resetVisibleCount();
     }
 
@@ -843,7 +846,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.filterDreamJob = 'all';
         this.filterAreasOfInterest = [];
         this.filterWorkLocation = '';
-        this.filterRemoteOnly = false;
+        this.filterIncludeRemote = false;
         this.filterWeeklyHoursMin = '';
         this.filterWeeklyHoursMax = '';
         this._resetVisibleCount();
@@ -929,14 +932,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             });
         }
 
-        // Work location and the "100% remote" checkbox are shown as a single combined marker,
+        // Work location and the "include remote" checkbox are shown as a single combined marker,
         // e.g. "Steiermark / Remote", "Steiermark" or "Remote".
-        if (this.filterWorkLocation || this.filterRemoteOnly) {
+        if (this.filterWorkLocation || this.filterIncludeRemote) {
             const workLocationValue = [
                 this.filterWorkLocation
                     ? this._getWorkLocationMarkerLabel(this.filterWorkLocation, t)
                     : '',
-                this.filterRemoteOnly ? t('view-job-offers.remote-marker') : '',
+                this.filterIncludeRemote ? t('view-job-offers.remote-marker') : '',
             ]
                 .filter(Boolean)
                 .join(' / ');
@@ -946,7 +949,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 value: workLocationValue,
                 clear: () => {
                     this.filterWorkLocation = '';
-                    this.filterRemoteOnly = false;
+                    this.filterIncludeRemote = false;
                     this._clearUnavailableAreaOfInterest();
                     this._resetVisibleCount();
                 },
@@ -1152,10 +1155,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               <input
                                                   type="checkbox"
                                                   class="remote-checkbox-input"
-                                                  .checked="${this.filterRemoteOnly}"
-                                                  @change="${this.onRemoteOnlyChange}" />
+                                                  .checked="${this.filterIncludeRemote}"
+                                                  @change="${this.onIncludeRemoteChange}" />
                                               <span class="remote-checkbox-label">
-                                                  ${t('view-job-offers.remote-only')}
+                                                  ${t('view-job-offers.include-remote')}
                                               </span>
                                           </label>
                                       </div>

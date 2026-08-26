@@ -453,6 +453,7 @@
         "organization": "Organisational unit",
         "published-at": "Published on",
         "qualifications": "Required qualification",
+        "remote": "Remote",
         "requirements": "Requirements",
         "responsibilities": "Responsibilities",
         "share": "Share job offer",
@@ -467,7 +468,8 @@
         "study-field": "Study field",
         "submit": "Submit application",
         "we-offer": "We offer",
-        "weekly-hours": "Hours per week"
+        "weekly-hours": "Hours per week",
+        "yes": "Yes"
     },
     "loading-message": "Loading...",
     "manage-job-offers": {
@@ -561,6 +563,8 @@
         "field-list-items-hint": "Please write each list item in a new line",
         "field-organization": "Organisational unit",
         "field-published-at": "Publication date",
+        "field-remote": "Remote",
+        "field-remote-notice": "As a place of employment for remote positions, please select the place where the company is based, if nothing else applies.",
         "field-required-qualification": "Required qualification",
         "field-required-qualification-en": "Required qualification (en)",
         "field-requirements": "Admission requirements",
@@ -632,6 +636,7 @@
         "error-load-failed": "Failed to load job offers. Please try again later.",
         "filter-close": "Close filters",
         "filter-open": "Open filters",
+        "include-remote": "include remote positions",
         "load-more": "Load more",
         "loading": "Loading job offers…",
         "no-results": "No job offers found.",
@@ -640,7 +645,6 @@
         "partner-company": "Partner company",
         "position-count": "({{total}} total, {{filtered}} filtered)",
         "remote-marker": "Remote",
-        "remote-only": "100% remote",
         "remove-filter": "Remove filter {{filter}}",
         "search-marker-label": "Search",
         "search-placeholder": "Search job offers",

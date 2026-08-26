@@ -2,6 +2,7 @@ import {assert} from 'chai';
 
 import '../src/dbp-bulletin-view-job-offers';
 import '../src/dbp-bulletin-career-profile.js';
+import '../src/dbp-bulletin-job-offer-detail.js';
 import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
@@ -103,6 +104,42 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             node.getFilteredJobs().map((job) => job.identifier),
             ['other-job', 'matching-job'],
         );
+    });
+
+    test('should include remote jobs only when requested', () => {
+        node._i18n = {t: (key) => key};
+        node.clearFilters();
+        node._jobOffers = [
+            {
+                identifier: 'on-site-job',
+                title: 'On-site job',
+                areasOfInterest: [],
+                description: '',
+                remote: false,
+                publishedAt: '2026-01-01',
+            },
+            {
+                identifier: 'remote-job',
+                title: 'Remote job',
+                areasOfInterest: [],
+                description: '',
+                remote: true,
+                publishedAt: '2026-01-02',
+            },
+        ];
+
+        node.filterIncludeRemote = false;
+        assert.deepEqual(
+            node.getFilteredJobs().map((job) => job.identifier),
+            ['on-site-job'],
+        );
+
+        node.filterIncludeRemote = true;
+        assert.deepEqual(
+            node.getFilteredJobs().map((job) => job.identifier),
+            ['remote-job', 'on-site-job'],
+        );
+        node.clearFilters();
     });
 
     test('should preserve selected filters when a search has no results', () => {
@@ -234,6 +271,29 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             element.shadowRoot.querySelector('.section-header h2').textContent,
             '(2 total, 1 filtered)',
         );
+        element.remove();
+    });
+});
+
+suite('dbp-bulletin-job-offer-detail basics', () => {
+    test('should show remote status in the job description', async () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        element.job = {
+            title: 'Remote job',
+            description: 'Job description',
+            remote: true,
+            areasOfInterest: [],
+            publishedAt: '2026-01-01',
+            deadline: '2026-12-31',
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const descriptionText =
+            element.shadowRoot.querySelector('.apply-submit-wrapper').textContent;
+        assert.include(descriptionText, element._i18n.t('job-offer-detail.remote'));
+        assert.include(descriptionText, element._i18n.t('job-offer-detail.yes'));
+
         element.remove();
     });
 });

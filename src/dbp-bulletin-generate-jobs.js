@@ -205,6 +205,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             workLocations: isExternal
                 ? [randomItem(SAMPLE_EXTERNAL_WORK_LOCATIONS)]
                 : getDefaultInternalWorkLocations(),
+            remote: isExternal && Math.random() < 0.25,
             startDate: startDate,
             weeklyHours: '',
             weeklyHoursMin: String(randomInt(10, 20)),

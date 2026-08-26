@@ -553,6 +553,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._externalJobUrl = '';
         /** @type {Array<{country: string, region: string, city: string}>} Work locations for external jobs */
         this._workLocations = [];
+        /** @type {boolean} Whether the position can be performed remotely */
+        this._remote = false;
 
         // Optional job detail fields
         this._startDate = '';
@@ -626,6 +628,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _isFromPartnerCompany: {state: true},
             _externalJobUrl: {state: true},
             _workLocations: {state: true},
+            _remote: {state: true},
             _startDate: {state: true},
             _weeklyHours: {state: true},
             _weeklyHoursMin: {state: true},
@@ -689,6 +692,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 );
                 this._externalJobUrl = d.externalJobUrl || '';
                 this._workLocations = normalizeWorkLocations(d.workLocations);
+                this._remote = d.remote === true;
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
                 const savedWeeklyHours = parseOptionalHours(d.weeklyHours);
@@ -797,6 +801,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._isFromPartnerCompany = false;
         this._externalJobUrl = '';
         this._workLocations = [];
+        this._remote = false;
         this._startDate = '';
         this._weeklyHours = '';
         this._weeklyHoursMin = '';
@@ -1140,6 +1145,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             workLocations: this._isExternalJob
                 ? this._workLocations
                 : getDefaultInternalWorkLocations(),
+            remote: this._isExternalJob ? this._remote : false,
             startDate: this._startDate.trim(),
             weeklyHours: this._weeklyHours.trim(),
             weeklyHoursMin: this._weeklyHoursMin.trim(),
@@ -1410,6 +1416,20 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                       (this._workLocations = normalizeWorkLocations(
                                           e.detail.value,
                                       ))}"></dbp-work-locations-element>
+                              <div class="remote-field">
+                                  <label class="checkbox-field">
+                                      <input
+                                          type="checkbox"
+                                          name="remote"
+                                          .checked="${this._remote}"
+                                          @change="${(event) =>
+                                              (this._remote = event.target.checked)}" />
+                                      <span>${t('manage-job-offers.field-remote')}</span>
+                                  </label>
+                                  <p class="remote-notice">
+                                      ${t('manage-job-offers.field-remote-notice')}
+                                  </p>
+                              </div>
                           `
                 }
                 <div class="translation-row">
@@ -1751,6 +1771,27 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 color: var(--dbp-success);
                 font-weight: 600;
                 margin: -0.35rem 0 0.75rem;
+            }
+
+            .remote-field {
+                margin-bottom: 1rem;
+            }
+
+            .checkbox-field {
+                align-items: flex-start;
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .checkbox-field input {
+                margin-top: 0.2rem;
+            }
+
+            .remote-notice {
+                color: var(--dbp-muted);
+                font-size: 0.875rem;
+                line-height: 1.4;
+                margin: 0.35rem 0 0;
             }
 
             .translation-row dbp-string-element {

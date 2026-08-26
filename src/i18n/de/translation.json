@@ -453,6 +453,7 @@
         "organization": "Organisationseinheit",
         "published-at": "Veröffentlicht am",
         "qualifications": "Gewünschte Qualifikationen",
+        "remote": "Ortsunabhängig (remote)",
         "requirements": "Anforderungen",
         "responsibilities": "Aufgaben",
         "share": "Stellenanzeige teilen",
@@ -467,7 +468,8 @@
         "study-field": "Studium",
         "submit": "Bewerbung abschicken",
         "we-offer": "Wir bieten",
-        "weekly-hours": "Wochenstunden"
+        "weekly-hours": "Wochenstunden",
+        "yes": "Ja"
     },
     "loading-message": "Laden...",
     "manage-job-offers": {
@@ -561,6 +563,8 @@
         "field-list-items-hint": "Bitte schreiben Sie jeden Listeneintrag in eine neue Zeile",
         "field-organization": "Organisationseinheit",
         "field-published-at": "Datum der Veröffentlichung",
+        "field-remote": "Ortsunabhängig (remote)",
+        "field-remote-notice": "Als Dienstort für ortsunabhängige Stellen, wählen Sie bitte den Firmensitz, falls nichts anderes zutrifft.",
         "field-required-qualification": "Gewünschte Qualifikationen",
         "field-required-qualification-en": "Gewünschte Qualifikationen (en)",
         "field-requirements": "Aufnahmebedingungen",
@@ -632,6 +636,7 @@
         "error-load-failed": "Stellenangebote konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
         "filter-close": "Filter schließen",
         "filter-open": "Filter öffnen",
+        "include-remote": "Remote-Job einbeziehen",
         "load-more": "Mehr laden",
         "loading": "Stellenangebote werden geladen…",
         "no-results": "Keine Stellenangebote gefunden.",
@@ -640,7 +645,6 @@
         "partner-company": "Partnerunternehmen",
         "position-count": "({{total}} gesamt, {{filtered}} gefiltert)",
         "remote-marker": "Remote",
-        "remote-only": "100% Remote",
         "remove-filter": "Filter {{filter}} entfernen",
         "search-marker-label": "Suche",
         "search-placeholder": "Stellenangebote suchen",
