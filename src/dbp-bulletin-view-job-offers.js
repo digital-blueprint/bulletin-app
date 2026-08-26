@@ -643,7 +643,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <div class="job-tags-wrapper">
+            <div class="job-tags-wrapper area-wrapper">
                 <span class="job-card-label">${t('view-job-offers.areas-of-interest')}:</span>
                 <div class="job-tags">
                     ${areaOfInterestLabels.map(
@@ -1919,12 +1919,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 line-height: 1.35;
             }
 
-            /* Outlined badge matching the design */
             .job-tags-wrapper {
                 display: flex;
-                flex-wrap: wrap;
             }
 
+            .area-wrapper {
+                display: initial;
+            }
             .job-tags-wrapper .job-card-label {
                 display: block;
                 margin-right: 0.15rem;
