@@ -709,7 +709,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 setOverridesByGlobalCache(this._i18n, this);
             }
 
-            if (propName === 'existingForm') {
+            if (propName === 'existingForm' && (this.existingForm || oldValue)) {
                 this._resetProfileValues();
                 if (this.existingForm) {
                     const data = this.existingForm.additionalData || {};
@@ -862,6 +862,16 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 
     get workLocations() {
         return normalizeWorkLocations(this._workLocations);
+    }
+
+    _setTeaser(value) {
+        const teaser = normalizeTeaserValue(value);
+        this._teaser = teaser;
+
+        const teaserField = this.shadowRoot?.querySelector('[name="teaser"]');
+        if (teaserField && teaserField.value !== teaser) {
+            teaserField.value = teaser;
+        }
     }
 
     _setAvailableStudies(studies) {
@@ -1413,7 +1423,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 'teaser',
                 'career-profile-form.field-teaser-title',
                 this._teaser,
-                (value) => (this._teaser = normalizeTeaserValue(value)),
+                (value) => this._setTeaser(value),
                 {
                     rows: 4,
                     placeholderKey: 'career-profile-form.field-teaser-placeholder',
