@@ -611,6 +611,24 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
     }
 
+    _renderWorkLocationTags(job, t) {
+        const locations = normalizeWorkLocations(job.workLocations);
+        if (locations.length === 0) {
+            return '';
+        }
+
+        const labels = locations.map((loc) => getWorkLocationLabel(loc, t, this.lang));
+
+        return html`
+            <div class="job-tags-wrapper">
+                <span class="job-card-label">${t('view-job-offers.work-location')}:</span>
+                <span>
+                    ${labels.map((label) => label.split(', ').slice(0, 2).join(', ')).join('; ')}
+                </span>
+            </div>
+        `;
+    }
+
     _renderAreaOfInterestTags(job, t) {
         const areaOfInterestLabels = getAreaOfInterestLabels(
             job.areasOfInterest ?? job.areaOfInterest,
@@ -622,12 +640,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <div class="job-tags">
-                ${areaOfInterestLabels.map(
-                    (label) => html`
-                        <span class="job-tag">${label}</span>
-                    `,
-                )}
+            <div class="job-tags-wrapper">
+                <span class="job-card-label">${t('view-job-offers.areas-of-interest')}:</span>
+                <div class="job-tags">
+                    ${areaOfInterestLabels.map(
+                        (label) => html`
+                            <span class="job-tag">${label}</span>
+                        `,
+                    )}
+                </div>
             </div>
         `;
     }
@@ -687,10 +708,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="job-meta-item">
-                <span>
-                    <span class="job-card-label">${label}:</span>
-                    &thinsp; ${value}
-                </span>
+                <span class="job-card-label">${label}:</span>
+                &thinsp; ${value}
             </div>
         `;
     }
@@ -1271,10 +1290,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                           <span class="job-meta-type">
                                                               ${this.getOrganizationLabel(job)}
                                                           </span>
-                                                          ${this._renderJobMetaItem(
-                                                              t('view-job-offers.published-at'),
-                                                              this.formatDate(job.publishedAt),
-                                                          )}
+                                                          ${this._renderWorkLocationTags(job, t)}
                                                           ${this._renderJobMetaItem(
                                                               t(
                                                                   'view-job-offers.organizational-unit',
@@ -1879,7 +1895,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .job-meta-item {
                 display: flex;
-                gap: 5px;
             }
 
             .job-meta-item dt,
@@ -1898,11 +1913,21 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             /* Outlined badge matching the design */
+            .job-tags-wrapper {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .job-tags-wrapper .job-card-label {
+                display: block;
+                margin-right: 0.15rem;
+            }
+
             .job-tags {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 0.2rem;
-                margin: 0.3rem 0px;
+                margin: 0.3rem 0;
             }
 
             .job-tag {

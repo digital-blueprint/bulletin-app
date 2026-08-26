@@ -639,7 +639,6 @@
         "partner": "Partner",
         "partner-company": "Partnerunternehmen",
         "position-count": "({{total}} gesamt, {{filtered}} gefiltert)",
-        "published-at": "Veröffentlicht am",
         "remote-marker": "Remote",
         "remote-only": "100% Remote",
         "remove-filter": "Filter {{filter}} entfernen",
