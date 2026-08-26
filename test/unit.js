@@ -785,6 +785,45 @@ suite('career profile student studies', () => {
         );
     });
 
+    test('should display an invalid website error in the field and notification', async () => {
+        const element = document.createElement(tagName);
+        let notificationDetail = null;
+        const notificationHandler = (event) => {
+            notificationDetail = event.detail;
+            event.preventDefault();
+        };
+        element.lang = 'de';
+        element._summary = 'Profil';
+        element._contactEmail = 'student@example.com';
+        element._website = 'example.invalid';
+        document.body.appendChild(element);
+        await element.updateComplete;
+        window.addEventListener('dbp-notification-send', notificationHandler, {capture: true});
+
+        try {
+            assert.isNull(await element.submit());
+        } finally {
+            window.removeEventListener('dbp-notification-send', notificationHandler, {
+                capture: true,
+            });
+        }
+
+        const websiteField = element.shadowRoot.querySelector('[name="website"]');
+        await websiteField.updateComplete;
+        assert.deepEqual(websiteField.errorMessages, [
+            'Bitte geben Sie eine gültige Website-URL ein.',
+        ]);
+        assert.equal(
+            websiteField.shadowRoot.querySelector('.validation-errors')?.textContent.trim(),
+            'Bitte geben Sie eine gültige Website-URL ein.',
+        );
+        assert.equal(notificationDetail?.summary, 'Fehler');
+        assert.equal(notificationDetail?.body, 'Bitte geben Sie eine gültige Website-URL ein.');
+        assert.equal(notificationDetail?.targetNotificationId, 'career-profile-form-notification');
+        assert.equal(notificationDetail?.type, 'warning');
+        element.remove();
+    });
+
     test('should preserve multiple saved studies when editing a profile', async () => {
         const element = document.createElement(tagName);
         element.currentStudentStudies = [

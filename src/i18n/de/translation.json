@@ -166,7 +166,7 @@
         "required-field-note": "kennzeichnet ein Pflichtfeld",
         "save-profile": "Speichern",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus.",
-        "validation-url": ""
+        "validation-url": "Bitte geben Sie eine gültige Website-URL ein."
     },
     "company-form": {
         "country-1": "Österreich",

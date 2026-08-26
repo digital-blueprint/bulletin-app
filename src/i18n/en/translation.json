@@ -166,7 +166,7 @@
         "required-field-note": "marks a required field",
         "save-profile": "Save",
         "validation-required": "Please fill in all required fields.",
-        "validation-url": "career-profile-form.validation-url"
+        "validation-url": "Please enter a valid website URL."
     },
     "company-form": {
         "country-1": "Austria",
