@@ -351,7 +351,7 @@ export class HoursRangeElement extends DBPLitElement {
                         id="hours-range-min"
                         type="text"
                         inputmode="decimal"
-                        pattern="\\\\d{1,2}(?:[.,]\\\\d{1,2})?"
+                        pattern="\\d{1,2}(?:[.,]\\d{1,2})?"
                         class="input hours-range-min"
                         .value=${this.min}
                         min=${this.hoursMin}
@@ -369,7 +369,7 @@ export class HoursRangeElement extends DBPLitElement {
                         id="hours-range-max"
                         type="text"
                         inputmode="decimal"
-                        pattern="\\\\d{1,2}(?:[.,]\\\\d{1,2})?"
+                        pattern="\\d{1,2}(?:[.,]\\d{1,2})?"
                         class="input hours-range-max"
                         .value=${this.max}
                         min=${this.hoursMin}
