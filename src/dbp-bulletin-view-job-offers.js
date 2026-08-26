@@ -592,9 +592,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <span class="partner-company-marker" title="${t('view-job-offers.partner-company')}">
-                <dbp-icon name="certificate" aria-hidden="true"></dbp-icon>
-                ${t('view-job-offers.partner')}
+            <span title="${t('view-job-offers.partner-company')}">
+                <dbp-icon name="star" aria-hidden="true"></dbp-icon>
             </span>
         `;
     }
@@ -999,7 +998,25 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     getOrganizationLabel(job) {
-        return job.jobOfferType === 'internal' ? this.universityShortName : (job.companyName ?? '');
+        if (job.jobOfferType === 'internal') {
+            // Interner Job
+            if (job.isFromPartnerCompany) {
+                return job.companyName ?? '';
+            } else {
+                return this.universityShortName;
+            }
+        } else if (job.jobOfferType === 'external') {
+            // Externer Job
+            if (!job.isFromPartnerCompany) {
+                return html`
+                    <a href="${this.externalJobUrl} target="_blank">${job.companyName}</a>
+                `;
+            } else {
+                return job.companyName ?? '';
+            }
+        }
+
+        return '';
     }
 
     _onLoginClicked(e) {
@@ -1286,11 +1303,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                           <h3 class="job-title">${job.title}</h3>
                                                           <div class="job-source-marker">
                                                               ${this.getInternalFavicon(job)}
-                                                              ${this._renderPartnerCompanyMarker(job, t)}
                                                           </div>
                                                       </div>
                                                       <dl class="job-meta-list">
                                                           <span class="job-meta-type">
+                                                              ${this._renderPartnerCompanyMarker(job, t)}
                                                               ${this.getOrganizationLabel(job)}
                                                           </span>
                                                           ${this._renderWorkLocationTags(job, t)}
