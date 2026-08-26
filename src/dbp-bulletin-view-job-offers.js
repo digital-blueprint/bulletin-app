@@ -1905,7 +1905,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .job-meta-item {
-                display: flex;
+                display: inline;
             }
 
             .job-meta-item dt,
