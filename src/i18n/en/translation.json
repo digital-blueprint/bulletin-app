@@ -307,7 +307,7 @@
     "create-job-offer": {
         "error-grant-read-access": "The job offer was created, but read access for authenticated users could not be granted.",
         "error-title": "Error",
-        "external-url-invalid": "Your URL must begin with \"https\" or \"www\".",
+        "external-url-invalid": "The external job URL must begin with \"http://\" or \"https://\".",
         "select-work-location": "Please select at least one preferred work location.",
         "validation-required": "Please fill in all required fields."
     },

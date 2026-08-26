@@ -368,6 +368,24 @@ suite('jobOfferForm partner company handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
+    test('should require an absolute HTTP(S) external job URL', () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+        const element = document.createElement(tagName);
+
+        element._externalJobUrl = 'www.test.at';
+        assert.isFalse(element._isExternalJobUrlValid());
+
+        element._externalJobUrl = 'https://www.test.at';
+        assert.isTrue(element._isExternalJobUrlValid());
+
+        element._externalJobUrl = 'http://www.test.at';
+        assert.isTrue(element._isExternalJobUrlValid());
+    });
+
     test('should allow an empty application deadline', () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
