@@ -625,8 +625,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <div class="job-tags-wrapper">
                 <span class="job-card-label">${t('view-job-offers.work-location')}:</span>
-                <span>
-                    ${labels.map((label) => label.split(', ').slice(0, 2).join(', ')).join('; ')}
+                <span class="job-locations">
+                    ${labels.map((label) => label.split(', ').slice(0, 1, 2).join(', ')).join('; ')}
                 </span>
             </div>
         `;
@@ -1405,6 +1405,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 font-weight: bolder;
             }
 
+            .job-locations {
+                word-break: break-all;
+            }
+
             /* Loading state wrapper */
             .loading-wrapper {
                 display: flex;
@@ -1920,14 +1924,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .job-tags-wrapper {
-                display: flex;
+                display: inline;
             }
 
             .area-wrapper {
                 display: initial;
             }
             .job-tags-wrapper .job-card-label {
-                display: block;
                 margin-right: 0.15rem;
             }
 
