@@ -20,6 +20,7 @@ import {
 } from '../src/modules/careerProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 import HoursRangeElement, {isHoursRangeValid} from '../src/modules/hoursRangeElement.js';
+import {COMPANY_FIELDS, pickCompanyData} from '../src/modules/companyForm.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
@@ -296,6 +297,38 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
 
         element.remove();
     });
+
+    test('should show company sectors and employee information', async () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        element.job = {
+            title: 'External job',
+            description: 'Job description',
+            jobOfferType: 'external',
+            companyName: 'Example Ltd',
+            companyData: {
+                name: 'Example Ltd',
+                branchen: ['19', '20'],
+                mitarbeiter_national: '2750',
+                mitarbeiter_gesamt: '6200',
+                fe_beschaeftigte: '2000',
+            },
+            areasOfInterest: [],
+            publishedAt: '2026-01-01',
+            deadline: '2026-12-31',
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const companyInformation =
+            element.shadowRoot.querySelector('.company-info-list').textContent;
+        assert.include(companyInformation, element._i18n.t('company-form.industry-19'));
+        assert.include(companyInformation, element._i18n.t('company-form.industry-20'));
+        assert.include(companyInformation, '2750');
+        assert.include(companyInformation, '6200');
+        assert.include(companyInformation, '2000');
+
+        element.remove();
+    });
 });
 
 suite('dbp-bulletin app shell', () => {
@@ -364,6 +397,28 @@ suite('jobOfferForm partner company handling', () => {
         assert.isFalse(element._isFromPartnerCompany);
         assert.isNull(element.shadowRoot.querySelector('.partner-company-status'));
         element.remove();
+    });
+});
+
+suite('company data handling', () => {
+    test('should retain only supported company fields', () => {
+        const companyData = Object.fromEntries(COMPANY_FIELDS.map((field) => [field, field]));
+        companyData.sort_order = 1;
+
+        assert.deepEqual(Object.keys(pickCompanyData(companyData)), COMPANY_FIELDS);
+        assert.notProperty(pickCompanyData(companyData), 'sort_order');
+    });
+
+    test('should canonicalize supported legacy company fields', () => {
+        assert.deepEqual(
+            pickCompanyData({
+                companyName: 'Example Ltd',
+                department: 'Research',
+                relation_partner_branchen: ['19', '20'],
+                country: 'AT',
+            }),
+            {name: 'Example Ltd', abteilung: 'Research', branchen: ['19', '20']},
+        );
     });
 });
 

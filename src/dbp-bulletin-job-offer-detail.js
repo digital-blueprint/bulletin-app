@@ -345,6 +345,17 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const description = this._getCompanyValue(companyData, 'beschreibung', ['description']);
         const products = this._getCompanyValue(companyData, 'produkte', ['products']);
         const locations = this._getCompanyValue(companyData, 'standorte', ['locations']);
+        const employeesNational = this._getCompanyValue(companyData, 'mitarbeiter_national');
+        const employeesTotal = this._getCompanyValue(companyData, 'mitarbeiter_gesamt');
+        const rdEmployees = this._getCompanyValue(companyData, 'fe_beschaeftigte');
+        const sectorValues = companyData.branchen ?? companyData.relation_partner_branchen ?? [];
+        const sectors = (
+            Array.isArray(sectorValues) ? sectorValues : String(sectorValues).split(/[,;|]/)
+        )
+            .map((value) => String(value).trim())
+            .filter(Boolean)
+            .map((value) => t(`company-form.industry-${value}`, {defaultValue: value}))
+            .join(', ');
         const location = [postalCode, city].filter(Boolean).join(' ');
 
         if (
@@ -352,6 +363,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             !department &&
             !address &&
             !location &&
+            !sectors &&
+            !employeesNational &&
+            !employeesTotal &&
+            !rdEmployees &&
             !email &&
             !website &&
             !description
@@ -368,6 +383,19 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     ${this._renderCompanyMetaItem(t('company-form.field-department'), department)}
                     ${this._renderCompanyMetaItem(t('company-form.field-address'), address)}
                     ${this._renderCompanyMetaItem(t('company-form.field-city'), location)}
+                    ${this._renderCompanyMetaItem(t('company-form.field-industries'), sectors)}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-employees-national'),
+                        employeesNational,
+                    )}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-employees-total'),
+                        employeesTotal,
+                    )}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-rd-employees'),
+                        rdEmployees,
+                    )}
                     ${this._renderCompanyMetaItem(
                         t('company-form.field-contact-person'),
                         contactPerson,
@@ -620,7 +648,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     render() {
         const job = this.job;
         const i18n = this._i18n;
-        const t = (key) => (i18n ? i18n.t(key) : key);
+        const t = (key, options) => (i18n ? i18n.t(key, options) : key);
         const isExternalJob = this._isExternalJob(job);
         const workLocationLabels = getWorkLocationLabels(job?.workLocations, t, this.lang);
         const localizedContractDuration = job ? this._getLocalizedContractDuration(job) : '';

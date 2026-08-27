@@ -34,6 +34,7 @@ import HoursRangeElement, {
     parseOptionalHours,
     sanitizeHoursValue,
 } from './hoursRangeElement.js';
+import {pickCompanyData} from './companyForm.js';
 
 const i18n = createInstance();
 
@@ -1139,7 +1140,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             organizationId: this._isInternalJob ? this._organizationId.trim() : '',
             companySubmissionId: this._isExternalJob ? this._companySubmissionId.trim() : '',
             companyName: this._isExternalJob ? this._companyName.trim() : '',
-            companyData: this._isExternalJob ? this._companyData : {},
+            companyData: this._isExternalJob ? pickCompanyData(this._companyData) : {},
             isFromPartnerCompany: this._isExternalJob ? this._isFromPartnerCompany : false,
             externalJobUrl: this._isExternalJob ? normalizeHttpUrl(this._externalJobUrl) : '',
             workLocations: this._isExternalJob
