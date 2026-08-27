@@ -1,5 +1,4 @@
 import {css, html} from 'lit';
-import {keyed} from 'lit/directives/keyed.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
 import {
     Button,
@@ -47,7 +46,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loadError = false;
         this._submissionsLoadError = false;
         this._editDialogProfile = null;
-        this._editFormKey = 0;
         this._deleteDialogProfile = null;
         this._isDeletingProfile = false;
         this._profilesLoaded = false;
@@ -69,7 +67,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             _loadError: {state: true},
             _submissionsLoadError: {state: true},
             _editDialogProfile: {state: true},
-            _editFormKey: {state: true},
             _deleteDialogProfile: {state: true},
             _isDeletingProfile: {state: true},
             _currentStudentStudies: {state: true},
@@ -364,8 +361,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         await this._fetchCurrentStudentStudies();
         this._editDialogProfile = profile;
-        this._editFormKey += 1;
         await this.updateComplete;
+        if (!profile) {
+            this._('#career-profile-edit-form')?.resetForCreate();
+        }
         this._('#career-profile-edit-modal')?.open();
     }
 
@@ -1230,22 +1229,17 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <dbp-notification
                         id="career-profile-form-notification"
                         lang="${this.lang}"></dbp-notification>
-                    ${keyed(
-                        this._editFormKey,
-                        html`
-                            <dbp-career-profile-edit-form
-                                id="career-profile-edit-form"
-                                lang="${this.lang}"
-                                lang-dir="${this.langDir}"
-                                .auth="${this.auth}"
-                                entry-point-url="${this.entryPointUrl}"
-                                .existingForm="${this._editDialogProfile}"
-                                .currentStudentStudies="${this._currentStudentStudies}"
-                                @dbp-edit-form-saved="${
-                                    this._handleProfileSaved
-                                }"></dbp-career-profile-edit-form>
-                        `,
-                    )}
+                    <dbp-career-profile-edit-form
+                        id="career-profile-edit-form"
+                        lang="${this.lang}"
+                        lang-dir="${this.langDir}"
+                        .auth="${this.auth}"
+                        entry-point-url="${this.entryPointUrl}"
+                        .existingForm="${this._editDialogProfile}"
+                        .currentStudentStudies="${this._currentStudentStudies}"
+                        @dbp-edit-form-saved="${
+                            this._handleProfileSaved
+                        }"></dbp-career-profile-edit-form>
                 </div>
             </dbp-modal>
         `;
