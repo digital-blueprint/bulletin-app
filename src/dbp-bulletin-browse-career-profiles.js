@@ -780,7 +780,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         normalizeWorkLocations(data.workLocations).length
                             ? html`
                                   <dt>${t('career-profile-form.field-preferred-work-location')}</dt>
-                                  <dd>${this._renderList(this._getWorkLocationLabels(profile))}</dd>
+                                  <dd>
+                                      ${this._renderList(
+                                          this._getWorkLocationLabels(profile).map((label) =>
+                                              label.split(', ').slice(0, 2).join(', '),
+                                          ),
+                                      )}
+                                  </dd>
                               `
                             : ''
                     }
