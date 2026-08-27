@@ -1,0 +1,47 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "plugins": ["jsdoc"],
+    "categories": {
+        "correctness": "error"
+    },
+    "env": {
+        "browser": true,
+        "mocha": true
+    },
+    "ignorePatterns": ["dist/", "vendor/"],
+    "rules": {
+        "no-empty": "error",
+        "no-fallthrough": "error",
+        "no-prototype-builtins": "error",
+        "no-redeclare": "error",
+        "no-regex-spaces": "error",
+        "no-unexpected-multiline": "error",
+        "no-unused-vars": [
+            "error",
+            {
+                "args": "none"
+            }
+        ],
+        "preserve-caught-error": "error",
+        "jsdoc/check-access": "warn",
+        "jsdoc/check-property-names": "warn",
+        "jsdoc/check-tag-names": "warn",
+        "jsdoc/empty-tags": "warn",
+        "jsdoc/implements-on-classes": "warn",
+        "jsdoc/no-defaults": "warn",
+        "jsdoc/require-param": "off",
+        "jsdoc/require-param-description": "off",
+        "jsdoc/require-param-name": "warn",
+        "jsdoc/require-param-type": "off",
+        "jsdoc/require-property": "warn",
+        "jsdoc/require-property-description": "off",
+        "jsdoc/require-property-name": "warn",
+        "jsdoc/require-property-type": "warn",
+        "jsdoc/require-returns": "off",
+        "jsdoc/require-returns-description": "off",
+        "jsdoc/require-throws-type": "warn",
+        "jsdoc/require-yields": "warn",
+        "jsdoc/require-yields-type": "warn",
+        "no-array-constructor": "error"
+    }
+}
