@@ -60,6 +60,8 @@ const CSV_HEADER_MAP = {
     standorte: 'standorte',
     telefonnummer: 'telefonnummer',
     teaser: 'teaser',
+    // Legacy partner types use 0 for non-partners and positive values for partner categories.
+    typ: 'partnerunternehmen',
     url: 'url',
     website: 'url',
     status: 'status',
