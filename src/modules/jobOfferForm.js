@@ -1412,6 +1412,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                               <dbp-work-locations-element
                                   lang="${this.lang}"
                                   lang-dir="${this.langDir}"
+                                  .required="${true}"
                                   .value="${this._workLocations}"
                                   @change="${(e) =>
                                       (this._workLocations = normalizeWorkLocations(

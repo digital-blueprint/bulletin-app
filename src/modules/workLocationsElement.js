@@ -220,6 +220,7 @@ export class WorkLocationSelectElement extends DBPLitElement {
         this.value = '';
         this.locations = [];
         this.disabled = false;
+        this.required = true;
         this.placeholder = '';
         this._selectId = `work-location-filter-${commonUtils.makeId(24)}`;
 
@@ -234,6 +235,7 @@ export class WorkLocationSelectElement extends DBPLitElement {
             value: {type: String},
             locations: {type: Array},
             disabled: {type: Boolean, reflect: true},
+            required: {type: Boolean, reflect: true},
             placeholder: {type: String},
         };
     }
@@ -473,6 +475,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         this.label = '';
         this.disabled = false;
         this.disabledButton = false;
+        this.required = true;
         this._country = AUSTRIA_COUNTRY_CODE;
         this._region = '';
         this._city = '';
@@ -491,6 +494,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             label: {type: String},
             disabled: {type: Boolean, reflect: true},
             disabledButton: {type: Boolean},
+            required: {type: Boolean, reflect: true},
             _country: {state: true},
             _region: {state: true},
             _city: {state: true},
@@ -698,7 +702,13 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                     <label class="selector-label">
                         <span>
                             ${t('manage-job-offers.work-location-country')}
-                            <span class="required-mark">*</span>
+                            ${
+                                this.required
+                                    ? html`
+                                          <span class="required-mark">*</span>
+                                      `
+                                    : ''
+                            }
                         </span>
                         <dbp-country-select
                             lang="${this.lang}"
@@ -820,7 +830,13 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                             : html`
                                   <p class="empty-selection">
                                       ${t('manage-job-offers.work-location-empty')}
-                                      <span class="required-mark">*</span>
+                                      ${
+                                          this.required
+                                              ? html`
+                                                    <span class="required-mark">*</span>
+                                                `
+                                              : ''
+                                      }
                                   </p>
                               `
                     }

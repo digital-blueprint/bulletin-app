@@ -1263,6 +1263,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 lang="${this.lang}"
                 lang-dir="${this.langDir}"
                 label="${t('career-profile-form.field-preferred-work-location')}"
+                .required="${false}"
                 .value="${this._workLocations}"
                 @change="${(event) =>
                     (this._workLocations = normalizeWorkLocations(
