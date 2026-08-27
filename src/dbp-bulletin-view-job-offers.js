@@ -592,7 +592,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <span title="${t('view-job-offers.partner-company')}">
+            <span class="partner-company-marker" title="${t('view-job-offers.partner-company')}">
                 <dbp-icon name="star" aria-hidden="true"></dbp-icon>
             </span>
         `;
@@ -999,24 +999,33 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     getOrganizationLabel(job) {
         if (job.jobOfferType === 'internal') {
-            // Interner Job
-            if (job.isFromPartnerCompany) {
-                return job.companyName ?? '';
-            } else {
-                return this.universityShortName;
-            }
-        } else if (job.jobOfferType === 'external') {
-            // Externer Job
-            if (!job.isFromPartnerCompany) {
-                return html`
-                    <a href="${this.externalJobUrl} target="_blank">${job.companyName}</a>
-                `;
-            } else {
-                return job.companyName ?? '';
-            }
+            return this.universityShortName;
         }
 
-        return '';
+        const companyName = job.companyName ?? '';
+        if (job.jobOfferType !== 'external' || !job.isFromPartnerCompany) {
+            return companyName;
+        }
+
+        const website = job.companyData?.url ?? job.companyData?.website ?? '';
+        try {
+            const companyUrl = new URL(String(website).trim());
+            if (['http:', 'https:'].includes(companyUrl.protocol)) {
+                return html`
+                    <a
+                        class="partner-company-link"
+                        href="${companyUrl.href}"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        ${companyName}
+                    </a>
+                `;
+            }
+        } catch {
+            // Fall back to the company name when no valid website is available.
+        }
+
+        return companyName;
     }
 
     _onLoginClicked(e) {
@@ -1884,20 +1893,17 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .partner-company-marker {
                 display: inline-flex;
                 align-items: center;
-                gap: 0.25rem;
-                border: 1px solid var(--dbp-accent);
-                border-radius: 999px;
                 color: var(--dbp-accent);
-                font-size: 0.75rem;
-                font-weight: 600;
                 line-height: 1;
-                padding: 0.25rem 0.45rem;
-                white-space: nowrap;
             }
 
             .partner-company-marker dbp-icon {
-                font-size: 0.8rem;
+                font-size: 1rem;
                 top: 0;
+            }
+
+            .partner-company-link {
+                color: var(--dbp-accent);
             }
 
             .favicon-visible {

@@ -237,6 +237,56 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         element.remove();
     });
 
+    test('should mark and link premium companies in job cards', async () => {
+        const element = document.createElement('dbp-bulletin-view-job-offers');
+        element._i18n = {t: (key) => key, changeLanguage: () => {}};
+        element.isAuthPending = () => false;
+        element.isLoggedIn = () => true;
+        element._jobOffers = [
+            {
+                identifier: 'premium-job',
+                title: 'Premium job',
+                jobOfferType: 'external',
+                companyName: 'Premium Company',
+                companyData: {url: 'https://company.example/profile'},
+                isFromPartnerCompany: true,
+                areasOfInterest: [],
+                description: '',
+                publishedAt: '2026-02-01',
+            },
+            {
+                identifier: 'regular-job',
+                title: 'Regular job',
+                jobOfferType: 'external',
+                companyName: 'Regular Company',
+                companyData: {url: 'https://regular.example/profile'},
+                isFromPartnerCompany: false,
+                areasOfInterest: [],
+                description: '',
+                publishedAt: '2026-01-01',
+            },
+        ];
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const cards = [...element.shadowRoot.querySelectorAll('.job-card')];
+        const premiumCard = cards.find((card) => card.textContent.includes('Premium job'));
+        const regularCard = cards.find((card) => card.textContent.includes('Regular job'));
+        const companyLink = premiumCard.querySelector('.partner-company-link');
+
+        assert.isNotNull(
+            premiumCard.querySelector('.partner-company-marker dbp-icon[name="star"]'),
+        );
+        assert.equal(companyLink.textContent.trim(), 'Premium Company');
+        assert.equal(companyLink.href, 'https://company.example/profile');
+        assert.equal(companyLink.target, '_blank');
+        assert.isNull(regularCard.querySelector('.partner-company-marker'));
+        assert.isNull(regularCard.querySelector('.partner-company-link'));
+        assert.include(regularCard.textContent, 'Regular Company');
+
+        element.remove();
+    });
+
     test('should show total and filtered job counts', async () => {
         const element = document.createElement('dbp-bulletin-view-job-offers');
         element._i18n = {
