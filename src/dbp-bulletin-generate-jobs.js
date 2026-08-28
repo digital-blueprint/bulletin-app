@@ -382,7 +382,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     if (this._generateApplications) {
                         await this._createRandomApplications(formIdentifier, index);
                     }
-                    report.created.push(formData.name);
+                    report.created.push({name: formData.name, identifier: formIdentifier});
                 } else {
                     report.errors.push(formData.name);
                 }
@@ -424,6 +424,11 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             value,
             label: this._i18n.t(`generate-jobs.job-type-${value}`),
         }));
+    }
+
+    _getActivityUrl(route, path) {
+        const basePath = this.basePath.endsWith('/') ? this.basePath : `${this.basePath}/`;
+        return `${basePath}${this.lang}/${route}/${path}`;
     }
 
     // Determines the job offer type for a single generated job based on the
@@ -570,8 +575,45 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                 </h3>
                                                 <ul>
                                                     ${this._report.created.map(
-                                                        (name) => html`
-                                                            <li>${name}</li>
+                                                        (jobOffer) => html`
+                                                            <li>
+                                                                <strong>${jobOffer.name}</strong>
+                                                                <span class="report-links">
+                                                                    <a
+                                                                        href="${this._getActivityUrl(
+                                                                            'view-job-offers',
+                                                                            `job/${encodeURIComponent(
+                                                                                jobOffer.identifier,
+                                                                            )}`,
+                                                                        )}">
+                                                                        ${t(
+                                                                            'generate-jobs.view-job-offer-link',
+                                                                        )}
+                                                                    </a>
+                                                                    <a
+                                                                        href="${this._getActivityUrl(
+                                                                            'manage-job-offers',
+                                                                            `${encodeURIComponent(
+                                                                                jobOffer.identifier,
+                                                                            )}/edit`,
+                                                                        )}">
+                                                                        ${t(
+                                                                            'generate-jobs.edit-job-offer-link',
+                                                                        )}
+                                                                    </a>
+                                                                    <a
+                                                                        href="${this._getActivityUrl(
+                                                                            'manage-job-offers',
+                                                                            encodeURIComponent(
+                                                                                jobOffer.identifier,
+                                                                            ),
+                                                                        )}">
+                                                                        ${t(
+                                                                            'generate-jobs.show-submissions-link',
+                                                                        )}
+                                                                    </a>
+                                                                </span>
+                                                            </li>
                                                         `,
                                                     )}
                                                 </ul>
@@ -670,6 +712,12 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 .report-section li {
                     margin-bottom: 0.35rem;
+                }
+
+                .report-links {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.25rem 1rem;
                 }
 
                 @media (max-width: 768px) {

@@ -282,6 +282,7 @@
         "created-title_one": "Created job offer ({{count}})",
         "created-title_other": "Created job offers ({{count}})",
         "description": "Creates random job offers so that more entries are shown on the view job offers page.",
+        "edit-job-offer-link": "Edit job offer",
         "error-not-authorized": "Only administrators can generate job offers.",
         "error-not-ready": "Generation cannot start until login and API configuration are available.",
         "error-title": "Error",
@@ -296,9 +297,11 @@
         "job-type-mixed": "Mixed (TU Graz and external)",
         "not-authorized": "This activity is only visible for administrators.",
         "report-title": "Generation report",
+        "show-submissions-link": "Show job offer submissions",
         "summary-created": "Created",
         "summary-errors": "Errors",
-        "title": "Generate job offers"
+        "title": "Generate job offers",
+        "view-job-offer-link": "View job offer"
     },
     "hours-range": {
         "invalid-range": "Minimum hours must not exceed maximum hours.",

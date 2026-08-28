@@ -282,6 +282,7 @@
         "created-title_one": "Erstelltes Stellenangebot ({{count}})",
         "created-title_other": "Erstellte Stellenangebote ({{count}})",
         "description": "Erstellt zufällige Stellenangebote, damit mehr Einträge auf der Seite „Stellenangebote anzeigen“ angezeigt werden.",
+        "edit-job-offer-link": "Stellenangebot bearbeiten",
         "error-not-authorized": "Nur Administratoren können Stellenangebote generieren.",
         "error-not-ready": "Die Generierung kann erst starten, wenn Login und API-Konfiguration verfügbar sind.",
         "error-title": "Fehler",
@@ -296,9 +297,11 @@
         "job-type-mixed": "Gemischt (TU Graz und extern)",
         "not-authorized": "Diese Aktivität ist nur für Administratoren sichtbar.",
         "report-title": "Generierungsbericht",
+        "show-submissions-link": "Bewerbungen zum Stellenangebot anzeigen",
         "summary-created": "Erstellt",
         "summary-errors": "Fehler",
-        "title": "Stellenangebote generieren"
+        "title": "Stellenangebote generieren",
+        "view-job-offer-link": "Stellenangebot anzeigen"
     },
     "hours-range": {
         "invalid-range": "Die Mindeststunden dürfen die Höchststunden nicht überschreiten.",
