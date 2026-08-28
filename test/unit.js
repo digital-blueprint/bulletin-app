@@ -188,9 +188,13 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         await element.updateComplete;
 
         const areaOfInterestField = element.shadowRoot.querySelector('.area-of-interest-field');
+        const hoursInput = element.shadowRoot
+            .querySelector('dbp-hours-range-element')
+            .shadowRoot.querySelector('.input');
         assert.isNotNull(areaOfInterestField);
         assert.equal(getComputedStyle(areaOfInterestField).gridColumnStart, '1');
         assert.equal(getComputedStyle(areaOfInterestField).gridColumnEnd, '-1');
+        assert.equal(getComputedStyle(hoursInput).maxWidth, '100px');
         element.remove();
     });
 

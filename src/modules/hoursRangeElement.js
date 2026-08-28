@@ -424,6 +424,7 @@ export class HoursRangeElement extends DBPLitElement {
                 flex: 1 1 0;
                 width: 0;
                 min-width: 0;
+                max-width: var(--hours-range-input-max-width, none);
                 box-sizing: border-box;
                 min-height: 2rem;
                 font-size: 1rem;

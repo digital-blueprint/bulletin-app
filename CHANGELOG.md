@@ -9,7 +9,7 @@
 - View job offers: the additional filters (work location, weekly hours, areas of interest) are now hidden behind a "Filter öffnen" toggle so only the "Mein Traumjob ist:" dropdown, the search field and the toggle are shown initially
 - View job offers: added a "Mein Traumjob ist:" dropdown (Alle / Studienbegleitend / Für Berufseinsteiger) and a "100% Remote" checkbox next to the work location filter; selecting "Studienbegleitend" preselects Steiermark, 100% Remote and max 20h, "Für Berufseinsteiger" preselects any location, 100% Remote and min 20h
 - View job offers: added removable filter markers below the filters that show the active filters (styled after the cabinet-app current refinements), plus a "Filter löschen" action to clear all filters at once. The "Mein Traumjob ist" selection is not shown as a marker
-- View job offers: selecting a "Mein Traumjob ist" preset now keeps the additional filters collapsed while showing its active filter markers, and the areas of interest filter now uses its own row
+- View job offers: selecting a "Mein Traumjob ist" preset now keeps the additional filters collapsed while showing its active filter markers; the areas of interest filter now uses its own row and the weekly-hours fields are more compact
 - View job offers: unified the styling and position of the filter field labels
 - View job offers: unified the placeholder texts of the search and filter fields with the browse career profiles activity
 - View job offers: removed the "External application" section from the detail dialog of external job offers, the "Apply" button now leads to the company website directly

@@ -1496,6 +1496,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 grid-column: 1 / -1;
             }
 
+            .filters-row dbp-hours-range-element {
+                --hours-range-input-max-width: 100px;
+            }
+
             .filters-row dbp-work-location-select-element {
                 --work-location-select-height: var(--filter-control-height);
                 flex: 1 1 auto;
