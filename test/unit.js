@@ -170,6 +170,30 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         });
     });
 
+    test('should keep filters collapsed and show markers after selecting a dream job', async () => {
+        const element = document.createElement('dbp-bulletin-view-job-offers');
+        element._i18n = {t: (key) => key, changeLanguage: () => {}};
+        element.isAuthPending = () => false;
+        element.isLoggedIn = () => true;
+
+        element.onDreamJobChange({target: {value: 'study-accompanying'}});
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isFalse(element._filtersOpen);
+        assert.isNull(element.shadowRoot.querySelector('.filters-row'));
+        assert.lengthOf(element.shadowRoot.querySelectorAll('.ais-CurrentRefinements-category'), 2);
+
+        element.toggleFilters();
+        await element.updateComplete;
+
+        const areaOfInterestField = element.shadowRoot.querySelector('.area-of-interest-field');
+        assert.isNotNull(areaOfInterestField);
+        assert.equal(getComputedStyle(areaOfInterestField).gridColumnStart, '1');
+        assert.equal(getComputedStyle(areaOfInterestField).gridColumnEnd, '-1');
+        element.remove();
+    });
+
     test('should open a deep-linked job after loading job offers', async () => {
         const element = document.createElement('dbp-bulletin-view-job-offers');
         const originalFetch = globalThis.fetch;

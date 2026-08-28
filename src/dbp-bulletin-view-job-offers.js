@@ -817,11 +817,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.filterWeeklyHoursMax = preset.weeklyHoursMax;
         this._clearUnavailableAreaOfInterest();
 
-        // Reveal the additional filters so the preselected values are visible.
-        if (DREAM_JOB_PRESETS[this.filterDreamJob]) {
-            this._filtersOpen = true;
-        }
-
         this._resetVisibleCount();
     }
 
@@ -1203,7 +1198,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           this._resetVisibleCount();
                                       }}"></dbp-hours-range-element>
 
-                                  <div class="field">
+                                  <div class="field area-of-interest-field">
                                       <dbp-enum-element
                                           name="filter-area-of-interest"
                                           lang="${this.lang}"
@@ -1491,10 +1486,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 align-items: end;
             }
 
-            /* Additional filters: work location (+ remote), weekly hours and areas of interest */
+            /* Additional filters: work location (+ remote) and weekly hours */
             .filters-row {
-                grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.4fr);
+                grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
                 align-items: end;
+            }
+
+            .area-of-interest-field {
+                grid-column: 1 / -1;
             }
 
             .filters-row dbp-work-location-select-element {
