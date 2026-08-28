@@ -273,6 +273,10 @@
         "title": "Karriereprofile generieren"
     },
     "generate-jobs": {
+        "application-count-description": "Wählen Sie, wie viele Bewerbungen für jedes generierte Stellenangebot erstellt werden sollen.",
+        "application-count-label": "Anzahl der zu generierenden Bewerbungen",
+        "applications-description": "Erstellt Bewerbungen für jedes generierte Stellenangebot.",
+        "applications-label": "Bewerbungen generieren",
         "count-description": "Wählen Sie, wie viele zufällige Stellenangebote erstellt werden sollen.",
         "count-label": "Anzahl der zu generierenden Stellenangebote",
         "created-title_one": "Erstelltes Stellenangebot ({{count}})",

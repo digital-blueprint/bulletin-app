@@ -11,9 +11,14 @@ import JobOfferModule, {
     grantJobOfferReadAccess,
 } from './modules/jobOfferForm.js';
 import {getDefaultInternalWorkLocations} from './modules/workLocationsElement.js';
+import {SUBMISSION_STATES_BINARY} from '../vendor/formalize/src/utils.js';
 
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const JOB_COUNT_OPTIONS = ['5', '10', '20', '50', '100'];
+// Formalize stores this value in a signed SMALLINT column.
+const APPLICATION_COUNT_MIN = 1;
+const APPLICATION_COUNT_MAX = 32767;
+const APPLICATION_COUNT_STEP = 1;
 const JOB_OFFER_TYPE_INTERNAL = 'internal';
 const JOB_OFFER_TYPE_EXTERNAL = 'external';
 // Selectable generation modes: only internal, only external, or a random mix of both.
@@ -118,6 +123,16 @@ const SAMPLE_WE_OFFER = [
     'A modern workplace',
 ];
 
+const SAMPLE_APPLICANT_GIVEN_NAMES = ['Anna', 'David', 'Elena', 'Jonas', 'Lea', 'Michael'];
+const SAMPLE_APPLICANT_FAMILY_NAMES = ['Bauer', 'Gruber', 'Hofer', 'Mayer', 'Schmidt', 'Wagner'];
+const SAMPLE_STUDY_FIELDS = [
+    'Computer Science',
+    'Electrical Engineering',
+    'Mechanical Engineering',
+    'Physics',
+    'Software Engineering',
+];
+
 // Returns a random integer in the inclusive range [min, max].
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -147,6 +162,8 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._isGenerating = false;
         this._jobCount = '10';
         this._jobTypeMode = JOB_TYPE_MODE_MIXED;
+        this._generateApplications = false;
+        this._applicationCount = '10';
         this._report = null;
     }
 
@@ -156,6 +173,8 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             _isGenerating: {state: true},
             _jobCount: {state: true},
             _jobTypeMode: {state: true},
+            _generateApplications: {state: true},
+            _applicationCount: {state: true},
             _report: {state: true},
         };
     }
@@ -248,6 +267,9 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             frontendKey: new JobOfferModule().getFormFrontendKey(),
             additionalData: additionalData,
             dataFeedSchema: dataFeedSchema,
+            maxNumSubmissionsPerCreator: this._generateApplications
+                ? this._getApplicationCount()
+                : undefined,
         };
     }
 
@@ -261,6 +283,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             frontendKey: formData.frontendKey,
             additionalData: formData.additionalData,
             dataFeedSchema: formData.dataFeedSchema,
+            maxNumSubmissionsPerCreator: formData.maxNumSubmissionsPerCreator,
         };
 
         const response = await fetch(this.entryPointUrl + '/formalize/forms', {
@@ -277,7 +300,46 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         const createdForm = await response.json();
-        return grantJobOfferReadAccess(this, createdForm.identifier);
+        const accessGranted = await grantJobOfferReadAccess(this, createdForm.identifier);
+        return accessGranted ? createdForm.identifier : false;
+    }
+
+    async _createRandomApplications(formIdentifier, jobIndex) {
+        const applicationCount = this._getApplicationCount();
+
+        await commonUtils.asyncArrayForEach(
+            Array.from({length: applicationCount}),
+            async (_value, applicationIndex) => {
+                const givenName = randomItem(SAMPLE_APPLICANT_GIVEN_NAMES);
+                const familyName = randomItem(SAMPLE_APPLICANT_FAMILY_NAMES);
+                const uniqueId = `${Date.now()}-${jobIndex + 1}-${applicationIndex + 1}`;
+                const submissionData = {
+                    givenName,
+                    familyName,
+                    studyField: randomItem(SAMPLE_STUDY_FIELDS),
+                    email: `${givenName}.${familyName}.${uniqueId}@example.org`.toLowerCase(),
+                    title: '',
+                    personIdentifier: `generated-${uniqueId}`,
+                    freeText: randomItem(SAMPLE_DESCRIPTIONS),
+                };
+                const postFormData = new FormData();
+                postFormData.append('form', `/formalize/forms/${formIdentifier}`);
+                postFormData.append('dataFeedElement', JSON.stringify(submissionData));
+                postFormData.append('submissionState', String(SUBMISSION_STATES_BINARY.SUBMITTED));
+
+                const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${this.auth.token}`,
+                    },
+                    body: postFormData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+            },
+        );
     }
 
     async _handleGenerate() {
@@ -315,8 +377,11 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             const jobOfferType = this._resolveJobOfferType();
             const formData = this._buildRandomJobOffer(index, jobOfferType);
             try {
-                const created = await this._createJobOfferForm(formData);
-                if (created) {
+                const formIdentifier = await this._createJobOfferForm(formData);
+                if (formIdentifier) {
+                    if (this._generateApplications) {
+                        await this._createRandomApplications(formIdentifier, index);
+                    }
                     report.created.push(formData.name);
                 } else {
                     report.errors.push(formData.name);
@@ -343,6 +408,15 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _getJobCountOptions() {
         return JOB_COUNT_OPTIONS.map((value) => ({value, label: value}));
+    }
+
+    _getApplicationCount(inputValue = this._applicationCount) {
+        const value = Number(inputValue);
+        const boundedValue = Math.min(
+            APPLICATION_COUNT_MAX,
+            Math.max(APPLICATION_COUNT_MIN, Number.isFinite(value) ? value : APPLICATION_COUNT_MIN),
+        );
+        return Math.round(boundedValue / APPLICATION_COUNT_STEP) * APPLICATION_COUNT_STEP;
     }
 
     _getJobTypeModeOptions() {
@@ -413,6 +487,52 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             this._jobTypeMode = event.detail.value;
                         }}"></dbp-select>
                 </div>
+                <div class="checkbox-option">
+                    <label for="generate-applications">
+                        ${t('generate-jobs.applications-label')}
+                    </label>
+                    <p id="generate-applications-description">
+                        ${t('generate-jobs.applications-description')}
+                    </p>
+                    <input
+                        id="generate-applications"
+                        type="checkbox"
+                        aria-describedby="generate-applications-description"
+                        .checked="${this._generateApplications}"
+                        ?disabled="${this._isGenerating}"
+                        @change="${(event) => {
+                            this._generateApplications = event.target.checked;
+                        }}" />
+                </div>
+                ${
+                    this._generateApplications
+                        ? html`
+                              <div class="select-option">
+                                  <label for="application-count">
+                                      ${t('generate-jobs.application-count-label')}
+                                  </label>
+                                  <p id="application-count-description">
+                                      ${t('generate-jobs.application-count-description')}
+                                  </p>
+                                  <input
+                                      id="application-count"
+                                      type="number"
+                                      min="${APPLICATION_COUNT_MIN}"
+                                      max="${APPLICATION_COUNT_MAX}"
+                                      step="${APPLICATION_COUNT_STEP}"
+                                      aria-describedby="application-count-description"
+                                      .value="${this._applicationCount}"
+                                      ?disabled="${this._isGenerating}"
+                                      @change="${(event) => {
+                                          this._applicationCount = String(
+                                              this._getApplicationCount(event.target.value),
+                                          );
+                                          event.target.value = this._applicationCount;
+                                      }}" />
+                              </div>
+                          `
+                        : ''
+                }
                 <dbp-button
                     type="is-primary"
                     value="${
@@ -495,17 +615,20 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     background: var(--dbp-override-secondary-surface, #fff);
                 }
 
-                .select-option {
+                .select-option,
+                .checkbox-option {
                     max-width: 42rem;
                     margin-bottom: 1.25rem;
                 }
 
-                .select-option label {
+                .select-option label,
+                .checkbox-option label {
                     display: block;
                     font-weight: bold;
                 }
 
-                .select-option p {
+                .select-option p,
+                .checkbox-option p {
                     margin: 0 0 0.5rem;
                 }
 

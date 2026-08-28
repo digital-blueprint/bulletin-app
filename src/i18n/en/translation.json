@@ -273,6 +273,10 @@
         "title": "Generate career profiles"
     },
     "generate-jobs": {
+        "application-count-description": "Choose how many applications should be created for each generated job offer.",
+        "application-count-label": "Number of applications to generate",
+        "applications-description": "Create applications for each generated job offer.",
+        "applications-label": "Generate applications",
         "count-description": "Choose how many random job offers should be created.",
         "count-label": "Number of job offers to generate",
         "created-title_one": "Created job offer ({{count}})",
