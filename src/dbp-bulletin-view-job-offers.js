@@ -1588,13 +1588,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 top: 0;
             }
 
-            .filter-toggle:hover,
-            .filter-toggle:focus {
-                /* Invert to the content surface on hover: dark background needs the matching
-                   light foreground so the label and icon stay readable */
-                background: var(--dbp-content-surface);
-                color: var(--dbp-on-content-surface);
-                border-color: var(--dbp-content-surface);
+            .filter-toggle:focus-visible {
+                outline: 2px solid var(--dbp-content);
+                outline-offset: 2px;
             }
 
             /* Active filter markers, styled after dbp-cabinet-current-refinements */
