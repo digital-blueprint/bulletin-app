@@ -440,8 +440,6 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
                 .activity-header h2,
                 .report-card h2 {
                     margin-top: 0;
-                    font-weight: bolder;
-                    font-size: 1.25rem;
                 }
 
                 .generate-card,

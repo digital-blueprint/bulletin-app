@@ -1832,8 +1832,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .section-header h2 {
                 margin: 0;
-                font-size: 1.25rem;
-                font-weight: bolder;
+                font-weight: 300;
             }
 
             .position-count {

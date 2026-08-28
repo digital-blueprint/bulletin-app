@@ -648,6 +648,8 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .activity-header h2,
                 .report-card h2 {
                     margin-top: 0;
+                    font-weight: 300;
+                    font-size: 1.5em;
                 }
 
                 .generate-card,
