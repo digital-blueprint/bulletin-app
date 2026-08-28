@@ -1795,8 +1795,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             @media (max-width: 600px) {
                 .search-filter-row {
                     grid-template-columns: 1fr;
-                    border-bottom: 3px solid var(--dbp-accent);
-                    padding-bottom: 20px;
+                    padding-bottom: 10px;
                 }
 
                 .search-filter-row .search-field {
@@ -1805,6 +1804,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 .filters-row {
                     grid-template-columns: 1fr;
+                    border-top: 3px solid var(--dbp-accent);
+                    padding-top: 10px;
                 }
 
                 .search-label-spacer {
