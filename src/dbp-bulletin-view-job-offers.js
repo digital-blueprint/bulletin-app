@@ -1187,6 +1187,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                                   <dbp-hours-range-element
                                       lang="${this.lang}"
+                                      class="weekly-hours-range-view-job-offer"
                                       lang-dir="${this.langDir}"
                                       label="${t('hours-range.label')}"
                                       .min="${this.filterWeeklyHoursMin}"
@@ -1732,29 +1733,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 /* Compensates the 10px fieldset margin of the toolkit form element */
                 margin: -10px 0;
             }
+
             .label {
                 font-weight: bolder;
                 margin-bottom: 0.25em;
             }
 
-            /* Weekly hours range — two number inputs with a separator */
-            .weekly-hours-range {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
+            .weekly-hours-range-view-job-offer {
+                --hours-range-input-min-height: 2.1rem;
+                --hours-range-fieldset-margin-top: 0.7rem;
+                --hours-range-placeholder-font-weight: 100;
             }
 
-            .weekly-hours-range .input {
-                box-sizing: border-box;
-                height: var(--filter-control-height);
-                min-height: var(--filter-control-height);
-                width: 100%;
-            }
-
-            .range-separator {
-                flex-shrink: 0;
-                color: var(--dbp-muted);
-            }
             .job-meta-type {
                 color: var(--dbp-primary);
                 font-weight: 500;

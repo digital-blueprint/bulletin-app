@@ -1765,7 +1765,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             .weekly-hours-job-form {
                 --hours-range-label-font-weight: 100;
-                --hours-range-fieldset-margin-top: 0.6rem;
+                --hours-range-fieldset-margin-top: 0.59rem;
                 --hours-range-placeholder-font-family: inherit;
                 --hours-range-placeholder-font-size: 0.9rem;
                 --hours-range-placeholder-font-weight: 450;

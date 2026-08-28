@@ -409,7 +409,7 @@ export class HoursRangeElement extends DBPLitElement {
             .label {
                 font-size: var(--hours-range-label-font-size, 1rem);
                 font-weight: var(--hours-range-label-font-weight, normal);
-                margin-bottom: var(--hours-range-label-margin-bottom, 0.25rem);
+                margin-bottom: var(--hours-range-label-margin-bottom, 0.25em);
             }
 
             .hours-range {
@@ -426,7 +426,7 @@ export class HoursRangeElement extends DBPLitElement {
                 min-width: 0;
                 max-width: var(--hours-range-input-max-width, none);
                 box-sizing: border-box;
-                min-height: 2rem;
+                min-height: var(--hours-range-input-min-height, 2rem);
                 font-size: 1rem;
                 border: var(--dbp-border);
             }
