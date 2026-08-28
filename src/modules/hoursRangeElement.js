@@ -398,20 +398,24 @@ export class HoursRangeElement extends DBPLitElement {
 
             fieldset {
                 min-width: 0;
-                margin: 0;
                 padding: 0;
                 border: 0;
+                margin-top: var(--hours-range-fieldset-margin-top, 0);
+                margin-right: var(--hours-range-fieldset-margin-right, 0);
+                margin-bottom: var(--hours-range-fieldset-margin-bottom, 0);
+                margin-left: var(--hours-range-fieldset-margin-left, 0);
             }
 
             .label {
-                font-weight: bolder;
-                margin-bottom: 0.25em;
+                font-size: var(--hours-range-label-font-size, 1rem);
+                font-weight: var(--hours-range-label-font-weight, normal);
+                margin-bottom: var(--hours-range-label-margin-bottom, 0.25rem);
             }
 
             .hours-range {
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
+                gap: var(--hours-range-gap, 0.5rem);
                 width: 100%;
                 min-width: 0;
             }
@@ -421,6 +425,16 @@ export class HoursRangeElement extends DBPLitElement {
                 width: 0;
                 min-width: 0;
                 box-sizing: border-box;
+                min-height: 2rem;
+                font-size: 1rem;
+                border: var(--dbp-border);
+            }
+
+            .hours-range .input::placeholder {
+                font-family: var(--hours-range-placeholder-font-family, inherit);
+                font-size: var(--hours-range-placeholder-font-size, inherit);
+                font-weight: var(--hours-range-placeholder-font-weight, normal);
+                color: var(--hours-range-placholder-color, var(--dbp-muted));
             }
 
             .range-separator {

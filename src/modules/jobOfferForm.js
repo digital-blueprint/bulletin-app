@@ -1453,6 +1453,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
                     <dbp-hours-range-element
                         name="weekly-hours"
+                        class="weekly-hours-job-form"
                         lang="${this.lang}"
                         lang-dir="${this.langDir}"
                         label="${t('hours-range.label')}"
@@ -1760,6 +1761,16 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             .field-with-note {
                 min-width: 0;
+            }
+
+            .weekly-hours-job-form {
+                --hours-range-label-font-weight: 100;
+                --hours-range-fieldset-margin-top: 0.6rem;
+                --hours-range-placeholder-font-family: inherit;
+                --hours-range-placeholder-font-size: 0.9rem;
+                --hours-range-placeholder-font-weight: 450;
+                --hours-range-placholder-color: var(--dbp-content);
+                --hours-range-label-margin-bottom: 0;
             }
 
             .field-note {
