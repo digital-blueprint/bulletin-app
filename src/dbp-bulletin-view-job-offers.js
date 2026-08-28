@@ -1488,7 +1488,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             /* Additional filters: work location (+ remote) and weekly hours */
             .filters-row {
-                grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+                grid-template-columns: minmax(0, 1fr) auto;
                 align-items: end;
             }
 
@@ -1498,6 +1498,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .filters-row dbp-hours-range-element {
                 --hours-range-input-max-width: 100px;
+                width: fit-content;
             }
 
             .filters-row dbp-work-location-select-element {
