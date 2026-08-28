@@ -28,7 +28,7 @@
         "delete-profile": "Profil löschen",
         "delete-success-body": "Das Karriereprofil wurde gelöscht.",
         "delete-success-title": "Profil gelöscht",
-        "description": "Hier können Sie Ihr Karriereprofil erstellen. Bei uns registrierte Arbeitgeber können dann Ihr anonymes Profil ansehen und unverbindliches Interesse vermitteln. In diesem Fall erhalten Sie eine Benachrichtigung per E-Mail und können sich persönlich an den potentiellen Arbeitgeber wenden.",
+        "description": "Bei uns registrierte Arbeitgeberinnen können Ihr anonymes Profil ansehen und unverbindliches Interesse vermitteln. In diesem Fall erhalten Sie eine Benachrichtigung per E-Mail und können sich persönlich an die potenziellen Arbeitgeberinnen wenden.",
         "edit-profile": "Profil bearbeiten",
         "load-error": "Die Karriereprofile konnten nicht geladen werden.",
         "no-profiles": "Es sind noch keine Karriereprofile verfügbar.",
@@ -39,7 +39,7 @@
         "own-profile-title": "Mein Karriereprofil",
         "submissions-load-error": "Die Einreichungen für dieses Profil konnten nicht geladen werden.",
         "submissions-title": "Einreichungen mit Firmeninteresse",
-        "title": "Eigenes Karriereprofil verwalten",
+        "title": "Hier können Sie Ihr Karriereprofil erstellen",
         "unknown-company": "Unbekannte Firma",
         "view-profile": "Profil anzeigen",
         "view-submissions": "Einreichungen anzeigen"
