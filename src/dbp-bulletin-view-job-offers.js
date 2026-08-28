@@ -1087,310 +1087,321 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <div class="job-board">
                 <!-- Primary filter row: dream job, search and the toggle for the remaining filters -->
-                <div class="search-filter-row">
-                    <div class="field">
-                        <label class="label" for="filter-dream-job">
-                            ${t('view-job-offers.dream-job-label')}
-                        </label>
-                        <div class="control">
-                            <select
-                                id="filter-dream-job"
-                                @change="${this.onDreamJobChange}"
-                                .value="${this.filterDreamJob}">
-                                <option value="all" ?selected="${this.filterDreamJob === 'all'}">
-                                    ${t('view-job-offers.dream-job-all')}
-                                </option>
-                                <option
-                                    value="study-accompanying"
-                                    ?selected="${this.filterDreamJob === 'study-accompanying'}">
-                                    ${t('view-job-offers.dream-job-study-accompanying')}
-                                </option>
-                                <option
-                                    value="career-entry"
-                                    ?selected="${this.filterDreamJob === 'career-entry'}">
-                                    ${t('view-job-offers.dream-job-career-entry')}
-                                </option>
-                            </select>
+                <div class="search-filter-wrapper">
+                    <div class="search-filter-row">
+                        <div class="field">
+                            <label class="label" for="filter-dream-job">
+                                ${t('view-job-offers.dream-job-label')}
+                            </label>
+                            <div class="control">
+                                <select
+                                    id="filter-dream-job"
+                                    @change="${this.onDreamJobChange}"
+                                    .value="${this.filterDreamJob}">
+                                    <option
+                                        value="all"
+                                        ?selected="${this.filterDreamJob === 'all'}">
+                                        ${t('view-job-offers.dream-job-all')}
+                                    </option>
+                                    <option
+                                        value="study-accompanying"
+                                        ?selected="${this.filterDreamJob === 'study-accompanying'}">
+                                        ${t('view-job-offers.dream-job-study-accompanying')}
+                                    </option>
+                                    <option
+                                        value="career-entry"
+                                        ?selected="${this.filterDreamJob === 'career-entry'}">
+                                        ${t('view-job-offers.dream-job-career-entry')}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Search bar -->
+                        <div class="field search-field">
+                            <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
+                            <div class="control search-control">
+                                <input
+                                    type="text"
+                                    class="input"
+                                    placeholder="${t('view-job-offers.search-placeholder')}"
+                                    .value="${this.searchQuery}"
+                                    @input="${this.onSearchInput}"
+                                    aria-label="${t('view-job-offers.search-placeholder')}" />
+                                <span class="search-icon" aria-hidden="true">
+                                    <dbp-icon name="search"></dbp-icon>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Toggle for the additional filters -->
+                        <div class="field toggle-field">
+                            <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
+                            <button
+                                type="button"
+                                class="filter-toggle"
+                                aria-expanded="${this._filtersOpen ? 'true' : 'false'}"
+                                @click="${this.toggleFilters}">
+                                <dbp-icon
+                                    name="${this._filtersOpen ? 'chevron-up' : 'chevron-down'}"></dbp-icon>
+                                <span>
+                                    ${
+                                        this._filtersOpen
+                                            ? t('view-job-offers.filter-close')
+                                            : t('view-job-offers.filter-open')
+                                    }
+                                </span>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Search bar -->
-                    <div class="field search-field">
-                        <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
-                        <div class="control search-control">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder="${t('view-job-offers.search-placeholder')}"
-                                .value="${this.searchQuery}"
-                                @input="${this.onSearchInput}"
-                                aria-label="${t('view-job-offers.search-placeholder')}" />
-                            <span class="search-icon" aria-hidden="true">
-                                <dbp-icon name="search"></dbp-icon>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Toggle for the additional filters -->
-                    <div class="field toggle-field">
-                        <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
-                        <button
-                            type="button"
-                            class="filter-toggle"
-                            aria-expanded="${this._filtersOpen ? 'true' : 'false'}"
-                            @click="${this.toggleFilters}">
-                            <dbp-icon
-                                name="${this._filtersOpen ? 'chevron-up' : 'chevron-down'}"></dbp-icon>
-                            <span>
-                                ${
-                                    this._filtersOpen
-                                        ? t('view-job-offers.filter-close')
-                                        : t('view-job-offers.filter-open')
-                                }
-                            </span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Additional filters row, only visible once the user opens the filters -->
-                ${
-                    this._filtersOpen
-                        ? html`
-                              <div class="filters-row">
-                                  <div class="field work-location-field">
-                                      <label class="label" for="filter-work-location">
-                                          ${t('view-job-offers.work-location')}
-                                      </label>
-                                      <div class="control work-location-control">
-                                          <dbp-work-location-select-element
-                                              id="filter-work-location"
-                                              lang="${this.lang}"
-                                              lang-dir="${this.langDir}"
-                                              placeholder="${t('view-job-offers.select-placeholder')}"
-                                              .locations="${availableWorkLocations}"
-                                              .value="${this.filterWorkLocation}"
-                                              @change="${
-                                                  this.onWorkLocationChange
-                                              }"></dbp-work-location-select-element>
-                                          <label class="remote-checkbox">
-                                              <input
-                                                  type="checkbox"
-                                                  class="remote-checkbox-input"
-                                                  .checked="${this.filterIncludeRemote}"
-                                                  @change="${this.onIncludeRemoteChange}" />
-                                              <span class="remote-checkbox-label">
-                                                  ${t('view-job-offers.include-remote')}
-                                              </span>
+                    <!-- Additional filters row, only visible once the user opens the filters -->
+                    ${
+                        this._filtersOpen
+                            ? html`
+                                  <div class="filters-row">
+                                      <div class="field work-location-field">
+                                          <label class="label" for="filter-work-location">
+                                              ${t('view-job-offers.work-location')}
                                           </label>
+                                          <div class="control work-location-control">
+                                              <dbp-work-location-select-element
+                                                  id="filter-work-location"
+                                                  lang="${this.lang}"
+                                                  lang-dir="${this.langDir}"
+                                                  placeholder="${t('view-job-offers.select-placeholder')}"
+                                                  .locations="${availableWorkLocations}"
+                                                  .value="${this.filterWorkLocation}"
+                                                  @change="${
+                                                      this.onWorkLocationChange
+                                                  }"></dbp-work-location-select-element>
+                                              <label class="remote-checkbox">
+                                                  <input
+                                                      type="checkbox"
+                                                      class="remote-checkbox-input"
+                                                      .checked="${this.filterIncludeRemote}"
+                                                      @change="${this.onIncludeRemoteChange}" />
+                                                  <span class="remote-checkbox-label">
+                                                      ${t('view-job-offers.include-remote')}
+                                                  </span>
+                                              </label>
+                                          </div>
                                       </div>
-                                  </div>
 
-                                  <dbp-hours-range-element
-                                      lang="${this.lang}"
-                                      class="weekly-hours-range-view-job-offer"
-                                      lang-dir="${this.langDir}"
-                                      label="${t('hours-range.label')}"
-                                      .min="${this.filterWeeklyHoursMin}"
-                                      .max="${this.filterWeeklyHoursMax}"
-                                      @change="${(e) => {
-                                          this.filterWeeklyHoursMin = e.detail?.min ?? '';
-                                          this.filterWeeklyHoursMax = e.detail?.max ?? '';
-                                          this._clearUnavailableAreaOfInterest();
-                                          this._resetVisibleCount();
-                                      }}"></dbp-hours-range-element>
-
-                                  <div class="field area-of-interest-field">
-                                      <dbp-enum-element
-                                          name="filter-area-of-interest"
+                                      <dbp-hours-range-element
                                           lang="${this.lang}"
-                                          label="${t('view-job-offers.areas-of-interest')}"
-                                          multiple
-                                          display-mode="tags"
-                                          .tagPlaceholder="${{
-                                              [this.lang]: t('view-job-offers.select-placeholder'),
-                                          }}"
-                                          .items="${areaOfInterestItems}"
-                                          .value="${this.filterAreasOfInterest}"
-                                          @change="${
-                                              this.onAreaOfInterestChange
-                                          }"></dbp-enum-element>
-                                  </div>
-                              </div>
-                          `
-                        : ''
-                }
+                                          class="weekly-hours-range-view-job-offer"
+                                          lang-dir="${this.langDir}"
+                                          label="${t('hours-range.label')}"
+                                          .min="${this.filterWeeklyHoursMin}"
+                                          .max="${this.filterWeeklyHoursMax}"
+                                          @change="${(e) => {
+                                              this.filterWeeklyHoursMin = e.detail?.min ?? '';
+                                              this.filterWeeklyHoursMax = e.detail?.max ?? '';
+                                              this._clearUnavailableAreaOfInterest();
+                                              this._resetVisibleCount();
+                                          }}"></dbp-hours-range-element>
 
-                <!-- Active filter markers, styled after dbp-cabinet-current-refinements -->
-                ${
-                    activeFilterMarkers.length > 0
-                        ? html`
-                              <div class="ais-CurrentRefinements">
-                                  <ul
-                                      class="ais-CurrentRefinements-list"
-                                      aria-label="${t('view-job-offers.active-filters-label')}">
-                                      ${activeFilterMarkers.map(
-                                          (marker) => html`
-                                              <li class="ais-CurrentRefinements-category">
-                                                  <div class="refinement-title">
-                                                      ${marker.category}
-                                                  </div>
-                                                  <div class="refinement-value">
-                                                      <span
-                                                          class="ais-CurrentRefinements-categoryLabel">
-                                                          ${marker.value}
-                                                      </span>
-                                                      <button
-                                                          type="button"
-                                                          class="ais-CurrentRefinements-delete"
-                                                          aria-label="${marker.category} ${marker.value}"
-                                                          title="${t(
-                                                              'view-job-offers.remove-filter',
-                                                              {filter: marker.value},
-                                                          )}"
-                                                          @click="${marker.clear}">
-                                                          <span class="visually-hidden">
-                                                              ${t('view-job-offers.remove-filter', {
-                                                                  filter: marker.value,
-                                                              })}
-                                                          </span>
-                                                          <span class="filter-close-icon"></span>
-                                                      </button>
-                                                  </div>
-                                              </li>
-                                          `,
-                                      )}
-                                      <li class="ais-CurrentRefinements-clear">
-                                          <button
-                                              type="button"
-                                              class="clear-refinements-button"
-                                              @click="${this.clearFilters}">
-                                              <dbp-icon name="close" aria-hidden="true"></dbp-icon>
-                                              <span class="clear-refinements-button-label">
-                                                  ${t('view-job-offers.clear-filters')}
-                                              </span>
-                                          </button>
-                                      </li>
-                                  </ul>
-                              </div>
-                          `
-                        : ''
-                }
-
-                <!-- Section heading and sort control -->
-                <div class="section-header">
-                    <h2>
-                        ${t('view-job-offers.available-positions')}
-                        <span class="position-count">
-                            ${t('view-job-offers.position-count', {
-                                total: this._jobOffers.length,
-                                filtered: filtered.length,
-                            })}
-                        </span>
-                    </h2>
-                       
-                </div>
-
-                <!-- Job cards grid -->
-                    ${
-                        filtered.length === 0
-                            ? html`
-                                  <p class="no-results">${t('view-job-offers.no-results')}</p>
-                              `
-                            : html`
-                                  <div class="job-grid">
-                                      ${repeat(
-                                          visibleJobs,
-                                          (job) => job.identifier,
-                                          (job) => html`
-                                              <div class="job-card">
-                                                  <div class="job-card-body">
-                                                      <div class="job-card-header">
-                                                          <h3 class="job-title">${job.title}</h3>
-                                                          <div class="job-source-marker">
-                                                              ${this.getInternalFavicon(job)}
-                                                          </div>
-                                                      </div>
-                                                      <dl class="job-meta-list">
-                                                          <span class="job-meta-type">
-                                                              ${this._renderPartnerCompanyMarker(job, t)}
-                                                              ${this.getOrganizationLabel(job)}
-                                                          </span>
-                                                          ${this._renderWorkLocationTags(job, t)}
-                                                          ${this._renderJobMetaItem(
-                                                              t(
-                                                                  'view-job-offers.organizational-unit',
-                                                              ),
-                                                              this._localized(
-                                                                  job.organizationalUnit,
-                                                                  job.organizationalUnitEn ?? '',
-                                                              ),
-                                                          )}
-                                                          ${this._renderJobMetaItem(
-                                                              t('view-job-offers.weekly-hours'),
-                                                              this._localized(
-                                                                  formatHoursRange(
-                                                                      job.weeklyHoursMin,
-                                                                      job.weeklyHoursMax,
-                                                                      job.weeklyHours,
-                                                                  ),
-                                                                  job.weeklyHoursEn ?? '',
-                                                              ),
-                                                          )}
-                                                      </dl>
-                                                      ${this._renderAreaOfInterestTags(job, t)}
-                                                  </div>
-
-                                                  <div class="job-card-footer">
-                                                      <button
-                                                          class="button is-secondary"
-                                                          @click="${() => this.openJob(job)}"
-                                                          aria-label="${t(
-                                                              'view-job-offers.view-details',
-                                                          )} – ${job.title}">
-                                                          <dbp-icon
-                                                              class="btn-icon"
-                                                              name="keyword-research"
-                                                              aria-hidden="true"></dbp-icon>
-                                                          ${t('view-job-offers.view-details')}
-                                                      </button>
-                                                  </div>
-                                              </div>
-                                          `,
-                                      )}
-                                  </div>
-                              `
-                    }
-
-                    <!-- Load more control -->
-                    ${
-                        hasMore
-                            ? html`
-                                  <div class="load-more-wrapper">
-                                      <button
-                                          type="button"
-                                          class="button is-primary load-more-button"
-                                          @click="${this._loadMore}">
-                                          <dbp-icon
-                                              class="btn-icon"
-                                              name="angle-double-down"
-                                              aria-hidden="true"></dbp-icon>
-                                          ${t('view-job-offers.load-more')}
-                                      </button>
+                                      <div class="field area-of-interest-field">
+                                          <dbp-enum-element
+                                              name="filter-area-of-interest"
+                                              lang="${this.lang}"
+                                              label="${t('view-job-offers.areas-of-interest')}"
+                                              multiple
+                                              display-mode="tags"
+                                              .tagPlaceholder="${{
+                                                  [this.lang]: t(
+                                                      'view-job-offers.select-placeholder',
+                                                  ),
+                                              }}"
+                                              .items="${areaOfInterestItems}"
+                                              .value="${this.filterAreasOfInterest}"
+                                              @change="${
+                                                  this.onAreaOfInterestChange
+                                              }"></dbp-enum-element>
+                                      </div>
                                   </div>
                               `
                             : ''
                     }
 
-                    <!-- Job detail dialog — always in the DOM; job property drives its content -->
-                    <dbp-bulletin-job-offer-detail
-                        ${ref(this._detailRef)}
-                        .job="${this._selectedJob}"
-                        lang="${this.lang}"
-                        subscribe="university-short-name"
-                        .universityShortName="${this.universityShortName}"
-                        entry-point-url="${this.entryPointUrl}"
-                        .auth="${this.auth}"
-                        @dbp-modal-closed="${this.onDialogClosed}"></dbp-bulletin-job-offer-detail>
+                    <!-- Active filter markers, styled after dbp-cabinet-current-refinements -->
+                    ${
+                        activeFilterMarkers.length > 0
+                            ? html`
+                                  <div class="ais-CurrentRefinements">
+                                      <ul
+                                          class="ais-CurrentRefinements-list"
+                                          aria-label="${t('view-job-offers.active-filters-label')}">
+                                          ${activeFilterMarkers.map(
+                                              (marker) => html`
+                                                  <li class="ais-CurrentRefinements-category">
+                                                      <div class="refinement-title">
+                                                          ${marker.category}
+                                                      </div>
+                                                      <div class="refinement-value">
+                                                          <span
+                                                              class="ais-CurrentRefinements-categoryLabel">
+                                                              ${marker.value}
+                                                          </span>
+                                                          <button
+                                                              type="button"
+                                                              class="ais-CurrentRefinements-delete"
+                                                              aria-label="${marker.category} ${marker.value}"
+                                                              title="${t(
+                                                                  'view-job-offers.remove-filter',
+                                                                  {filter: marker.value},
+                                                              )}"
+                                                              @click="${marker.clear}">
+                                                              <span class="visually-hidden">
+                                                                  ${t(
+                                                                      'view-job-offers.remove-filter',
+                                                                      {
+                                                                          filter: marker.value,
+                                                                      },
+                                                                  )}
+                                                              </span>
+                                                              <span
+                                                                  class="filter-close-icon"></span>
+                                                          </button>
+                                                      </div>
+                                                  </li>
+                                              `,
+                                          )}
+                                      </ul>
+                                      <button
+                                          type="button"
+                                          class="clear-refinements-button"
+                                          @click="${this.clearFilters}">
+                                          <dbp-icon name="close" aria-hidden="true"></dbp-icon>
+                                          <span class="clear-refinements-button-label">
+                                              ${t('view-job-offers.clear-filters')}
+                                          </span>
+                                      </button>
+                                  </div>
+                              `
+                            : ''
+                    }
+                </div>
+                    <!-- Section heading and sort control -->
+                    <div class="job-offer-wrapper">
+                        <div class="section-header">
+                            <h2>
+                                ${t('view-job-offers.available-positions')}
+                                <span class="position-count">
+                                    ${t('view-job-offers.position-count', {
+                                        total: this._jobOffers.length,
+                                        filtered: filtered.length,
+                                    })}
+                                </span>
+                            </h2>
+                        </div>
+
+                        <!-- Job cards grid -->
+                        ${
+                            filtered.length === 0
+                                ? html`
+                                      <p class="no-results">${t('view-job-offers.no-results')}</p>
+                                  `
+                                : html`
+                                      <div class="job-grid">
+                                          ${repeat(
+                                              visibleJobs,
+                                              (job) => job.identifier,
+                                              (job) => html`
+                                                  <div class="job-card">
+                                                      <div class="job-card-body">
+                                                          <div class="job-card-header">
+                                                              <h3 class="job-title">
+                                                                  ${job.title}
+                                                              </h3>
+                                                              <div class="job-source-marker">
+                                                                  ${this.getInternalFavicon(job)}
+                                                              </div>
+                                                          </div>
+                                                          <dl class="job-meta-list">
+                                                              <span class="job-meta-type">
+                                                                  ${this._renderPartnerCompanyMarker(job, t)}
+                                                                  ${this.getOrganizationLabel(job)}
+                                                              </span>
+                                                              ${this._renderWorkLocationTags(job, t)}
+                                                              ${this._renderJobMetaItem(
+                                                                  t(
+                                                                      'view-job-offers.organizational-unit',
+                                                                  ),
+                                                                  this._localized(
+                                                                      job.organizationalUnit,
+                                                                      job.organizationalUnitEn ??
+                                                                          '',
+                                                                  ),
+                                                              )}
+                                                              ${this._renderJobMetaItem(
+                                                                  t('view-job-offers.weekly-hours'),
+                                                                  this._localized(
+                                                                      formatHoursRange(
+                                                                          job.weeklyHoursMin,
+                                                                          job.weeklyHoursMax,
+                                                                          job.weeklyHours,
+                                                                      ),
+                                                                      job.weeklyHoursEn ?? '',
+                                                                  ),
+                                                              )}
+                                                          </dl>
+                                                          ${this._renderAreaOfInterestTags(job, t)}
+                                                      </div>
+
+                                                      <div class="job-card-footer">
+                                                          <button
+                                                              class="button is-secondary"
+                                                              @click="${() => this.openJob(job)}"
+                                                              aria-label="${t(
+                                                                  'view-job-offers.view-details',
+                                                              )} – ${job.title}">
+                                                              <dbp-icon
+                                                                  class="btn-icon"
+                                                                  name="keyword-research"
+                                                                  aria-hidden="true"></dbp-icon>
+                                                              ${t('view-job-offers.view-details')}
+                                                          </button>
+                                                      </div>
+                                                  </div>
+                                              `,
+                                          )}
+                                      </div>
+                                  `
+                        }
+
+                        <!-- Load more control -->
+                        ${
+                            hasMore
+                                ? html`
+                                      <div class="load-more-wrapper">
+                                          <button
+                                              type="button"
+                                              class="button is-primary load-more-button"
+                                              @click="${this._loadMore}">
+                                              <dbp-icon
+                                                  class="btn-icon"
+                                                  name="angle-double-down"
+                                                  aria-hidden="true"></dbp-icon>
+                                              ${t('view-job-offers.load-more')}
+                                          </button>
+                                      </div>
+                                  `
+                                : ''
+                        }
+
+                        <!-- Job detail dialog — always in the DOM; job property drives its content -->
+                        <dbp-bulletin-job-offer-detail
+                            ${ref(this._detailRef)}
+                            .job="${this._selectedJob}"
+                            lang="${this.lang}"
+                            subscribe="university-short-name"
+                            .universityShortName="${this.universityShortName}"
+                            entry-point-url="${this.entryPointUrl}"
+                            .auth="${this.auth}"
+                            @dbp-modal-closed="${this.onDialogClosed}"></dbp-bulletin-job-offer-detail>
+                    </div>
                 </div>
             </div>
         `;
@@ -1420,7 +1431,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-board {
                 display: flex;
                 flex-direction: column;
-                gap: 1.25rem;
+                gap: 2rem;
             }
 
             .job-card-label {
@@ -1438,6 +1449,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 gap: 0.75rem;
                 padding: 2rem;
                 color: var(--dbp-muted);
+            }
+
+            .search-filter-wrapper {
+                display: grid;
             }
 
             /* Search bar — extends the .input with a search icon overlay */
@@ -1477,7 +1492,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .search-filter-row,
             .filters-row {
                 display: grid;
-                gap: 1rem;
+                gap: 0.5rem;
                 --filter-control-height: 2.1rem;
             }
 
@@ -1596,7 +1611,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             /* Active filter markers, styled after dbp-cabinet-current-refinements */
             .ais-CurrentRefinements {
-                font-size: 0.8em;
+                font-size: 1em;
+                margin-top: 1.3em;
+                display: flex;
+                align-items: start;
             }
 
             .visually-hidden {
@@ -1654,7 +1672,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 color: var(--dbp-on-primary-surface);
                 background: var(--dbp-primary-surface);
                 padding: 4px 8px;
-                font-weight: bold;
+                font-weight: bolder;
             }
 
             .refinement-value {
@@ -1684,6 +1702,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 align-items: center;
                 gap: 4px;
                 white-space: nowrap;
+                margin-left: auto;
             }
 
             .clear-refinements-button dbp-icon {
@@ -1750,6 +1769,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             @media (max-width: 900px) {
                 .search-filter-row {
                     grid-template-columns: minmax(0, 1fr) auto;
+                    gap: 1em;
                 }
 
                 .search-filter-row .search-field {
@@ -1760,11 +1780,23 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .filters-row {
                     grid-template-columns: 1fr;
                 }
+                .weekly-hours-range-view-job-offer {
+                    --hours-range-fieldset-margin-top: 0;
+                }
+
+                .search-label-spacer {
+                    display: none;
+                }
+                .search-filter-wrapper {
+                    gap: 0.5em;
+                }
             }
 
             @media (max-width: 600px) {
                 .search-filter-row {
                     grid-template-columns: 1fr;
+                    border-bottom: 3px solid var(--dbp-accent);
+                    padding-bottom: 20px;
                 }
 
                 .search-filter-row .search-field {
@@ -1783,7 +1815,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     width: 100%;
                 }
             }
-
+            .job-offer-wrapper {
+                display: grid;
+                gap: 0.5em;
+            }
             /* Section heading aligned with the sort control */
             .section-header {
                 display: flex;
@@ -1797,7 +1832,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .section-header h2 {
                 margin: 0;
                 font-size: 1.4rem;
-                font-weight: 700;
+                font-weight: bolder;
             }
 
             .position-count {
@@ -1839,6 +1874,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             @media (max-width: 560px) {
                 .job-grid {
                     grid-template-columns: 1fr;
+                }
+                .work-location-control {
+                    flex-direction: column;
+                }
+
+                .remote-checkbox {
+                    border-top: 0;
+                    margin-left: 0;
                 }
             }
 
@@ -2001,6 +2044,17 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: inline-flex;
                 align-items: center;
                 gap: 0.5rem;
+            }
+
+            @media (max-width: 440px) {
+                .ais-CurrentRefinements {
+                    flex-wrap: wrap;
+                    justify-content: flex-end;
+                }
+                .clear-refinements-button {
+                    margin-left: unset;
+                    margin-top: 10px;
+                }
             }
         `;
     }
