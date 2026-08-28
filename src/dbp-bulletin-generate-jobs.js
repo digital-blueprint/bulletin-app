@@ -7,6 +7,7 @@ import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import JobOfferModule, {
     JOB_CATEGORIES,
     AREAS_OF_INTEREST,
+    getJobApplicationDataFeedSchema,
     grantJobOfferReadAccess,
 } from './modules/jobOfferForm.js';
 import {getDefaultInternalWorkLocations} from './modules/workLocationsElement.js';
@@ -236,19 +237,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             weOfferEn: randomSubset(SAMPLE_WE_OFFER, 3),
         };
 
-        // Minimal JSON Schema for validating applications (mirrors jobOfferForm.js).
-        const dataFeedSchema = JSON.stringify({
-            title: 'JobApplication',
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-                givenName: {type: 'string', minLength: 1},
-                familyName: {type: 'string', minLength: 1},
-                email: {type: 'string', minLength: 1, format: 'email'},
-                personIdentifier: {type: 'string'},
-            },
-            required: ['givenName', 'familyName', 'personIdentifier', 'email'],
-        });
+        const dataFeedSchema = getJobApplicationDataFeedSchema();
 
         return {
             name: title,

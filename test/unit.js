@@ -6,6 +6,7 @@ import '../src/dbp-bulletin-job-offer-detail.js';
 import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
+    getJobApplicationDataFeedSchema,
     grantJobOfferReadAccess,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
@@ -646,6 +647,88 @@ suite('jobOfferForm authorization grants', () => {
             action: 'read',
             dynamicGroupIdentifier: 'everybody',
         });
+    });
+});
+
+suite('jobOfferForm application submission', () => {
+    test('should define all fields submitted by the application form', () => {
+        const schema = JSON.parse(getJobApplicationDataFeedSchema());
+
+        assert.hasAllKeys(schema.properties, [
+            'givenName',
+            'familyName',
+            'studyField',
+            'email',
+            'title',
+            'personIdentifier',
+            'freeText',
+        ]);
+    });
+
+    test('should request only supported applicant local data', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        let requestUrl;
+        globalThis.fetch = async (url) => {
+            requestUrl = url;
+            return {
+                ok: true,
+                json: async () => ({
+                    givenName: 'Ada',
+                    familyName: 'Lovelace',
+                    localData: {
+                        email: 'applicant@example.com',
+                        matriculationNumber: '12345678',
+                    },
+                }),
+            };
+        };
+
+        try {
+            element.entryPointUrl = 'https://example.invalid';
+            element.auth = {'user-id': 'user-1', token: 'token'};
+            await element._loadLoggedInUserData();
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.equal(
+            requestUrl,
+            'https://example.invalid/base/people/user-1?includeLocal=email,matriculationNumber',
+        );
+        assert.equal(element._getLoggedInEmail(), 'applicant@example.com');
+    });
+
+    test('should submit study field and free text', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        let submittedData;
+        element.entryPointUrl = 'https://example.invalid';
+        element.formIdentifier = 'job-1';
+        element.auth = {token: 'token'};
+        element._prefilledEmail = 'applicant@example.com';
+        element._applicationDataFeedSchema = getJobApplicationDataFeedSchema();
+        element._studyFieldRef = {value: {value: 'Computer Science'}};
+        element._messageRef = {value: {value: 'Application message'}};
+        element._validateApplicationForm = () => true;
+        element._handleSubmission = async ({formData}) => {
+            submittedData = formData;
+        };
+
+        await element._onApplySubmit({preventDefault() {}});
+
+        assert.equal(submittedData.email, 'applicant@example.com');
+        assert.equal(submittedData.studyField, 'Computer Science');
+        assert.equal(submittedData.freeText, 'Application message');
     });
 });
 

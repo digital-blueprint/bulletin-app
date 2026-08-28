@@ -48,6 +48,57 @@ const JOB_OFFER_TYPE_INTERNAL = 'internal';
 const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
 
+export function getJobApplicationDataFeedSchema() {
+    return JSON.stringify({
+        title: 'JobApplication',
+        type: 'object',
+        additionalProperties: false,
+        files: {
+            [JOB_APPLICATION_ATTACHMENT_GROUP]: {
+                minNumber: 0,
+                maxNumber: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                maxSizeMb: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                allowedMimeTypes: JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES,
+            },
+        },
+        properties: {
+            givenName: {
+                type: 'string',
+                minLength: 1,
+                description: "Applicant's given (first) name.",
+            },
+            familyName: {
+                type: 'string',
+                minLength: 1,
+                description: "Applicant's family (last) name.",
+            },
+            studyField: {
+                type: 'string',
+                description: "Applicant's field of study.",
+            },
+            email: {
+                type: 'string',
+                minLength: 1,
+                format: 'email',
+                description: "Applicant's email address.",
+            },
+            title: {
+                type: 'string',
+                description: "Applicant's title.",
+            },
+            personIdentifier: {
+                type: 'string',
+                description: 'The UID of the person',
+            },
+            freeText: {
+                type: 'string',
+                description: 'Free-text message or cover letter.',
+            },
+        },
+        required: ['givenName', 'familyName', 'studyField', 'personIdentifier', 'email'],
+    });
+}
+
 export function normalizePartnerCompanyValue(value) {
     if (typeof value === 'string') {
         return ['1', 'true', 'yes', 'ja', 'y', 'j'].includes(value.trim().toLowerCase());
@@ -1076,55 +1127,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
         await this._refreshSelectedCompany();
 
-        // JSON Schema for validating job application submissions
-        const dataFeedSchema = JSON.stringify({
-            title: 'JobApplication',
-            type: 'object',
-            additionalProperties: false,
-            files: {
-                [JOB_APPLICATION_ATTACHMENT_GROUP]: {
-                    minNumber: 0,
-                    maxNumber: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                    maxSizeMb: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
-                    allowedMimeTypes: JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES,
-                },
-            },
-            properties: {
-                givenName: {
-                    type: 'string',
-                    minLength: 1,
-                    description: "Applicant's given (first) name.",
-                },
-                familyName: {
-                    type: 'string',
-                    minLength: 1,
-                    description: "Applicant's family (last) name.",
-                },
-                studyField: {
-                    type: 'string',
-                    description: "Applicant's field of study.",
-                },
-                email: {
-                    type: 'string',
-                    minLength: 1,
-                    format: 'email',
-                    description: "Applicant's email address.",
-                },
-                title: {
-                    type: 'string',
-                    description: "Applicant's title.",
-                },
-                personIdentifier: {
-                    type: 'string',
-                    description: 'The UID of the person',
-                },
-                freeText: {
-                    type: 'string',
-                    description: 'Free-text message or cover letter.',
-                },
-            },
-            required: ['givenName', 'familyName', 'studyField', 'personIdentifier', 'email'],
-        });
+        const dataFeedSchema = getJobApplicationDataFeedSchema();
 
         // All job detail fields are stored in the form's additionalData JSON field
         // so the public view can read them back via GET /formalize/forms.
@@ -1923,6 +1926,8 @@ export class JobOfferFormElement extends BaseFormElement {
         this._firstNameRef = createRef();
         /** @type {import('lit/directives/ref.js').Ref} Ref to the last-name field element */
         this._lastNameRef = createRef();
+        /** @type {import('lit/directives/ref.js').Ref} Ref to the study-field element */
+        this._studyFieldRef = createRef();
         /** @type {import('lit/directives/ref.js').Ref} Ref to the email field element */
         this._emailRef = createRef();
         /** @type {import('lit/directives/ref.js').Ref} Ref to the message field element */
@@ -1934,6 +1939,8 @@ export class JobOfferFormElement extends BaseFormElement {
         this._prefilledFamilyName = '';
         /** @type {string} Prefilled person/study field */
         this._prefilledStudyField = '';
+        /** @type {string} Prefilled email address */
+        this._prefilledEmail = '';
         /** @type {string} Prefilled person/matriculation identifier */
         this._prefilledPersonIdentifier = '';
         this._attachmentLimitNotified = false;
@@ -1959,6 +1966,8 @@ export class JobOfferFormElement extends BaseFormElement {
             _checkingApplied: {state: true},
             _prefilledGivenName: {state: true},
             _prefilledFamilyName: {state: true},
+            _prefilledStudyField: {state: true},
+            _prefilledEmail: {state: true},
             _prefilledPersonIdentifier: {state: true},
         };
     }
@@ -2124,22 +2133,27 @@ export class JobOfferFormElement extends BaseFormElement {
     }
 
     _supportsApplicationAttachments() {
+        const schema = this._getApplicationSchema();
+
+        return Boolean(schema?.files?.[JOB_APPLICATION_ATTACHMENT_GROUP]);
+    }
+
+    _getApplicationSchema() {
         const dataFeedSchema =
-            this._applicationDataFeedSchema ??
-            this.job?.dataFeedSchema ??
-            this.formProperties?.dataFeedSchema ??
+            this._applicationDataFeedSchema ||
+            this.job?.dataFeedSchema ||
+            this.formProperties?.dataFeedSchema ||
             '';
 
         if (!dataFeedSchema) {
-            return false;
+            return null;
         }
 
         try {
-            const schema = JSON.parse(dataFeedSchema);
-            return Boolean(schema?.files?.[JOB_APPLICATION_ATTACHMENT_GROUP]);
+            return typeof dataFeedSchema === 'string' ? JSON.parse(dataFeedSchema) : dataFeedSchema;
         } catch (error) {
-            console.error('Failed to parse job application file schema:', error);
-            return false;
+            console.error('Failed to parse job application schema:', error);
+            return null;
         }
     }
 
@@ -2265,6 +2279,8 @@ export class JobOfferFormElement extends BaseFormElement {
      * This keeps non-editable name fields reliably prefilled.
      */
     async _loadLoggedInUserData() {
+        this._prefilledEmail = this.auth?.email ?? '';
+
         const userId = this.auth?.['user-id'];
         if (!userId || !this.entryPointUrl || !this.auth?.token) {
             return;
@@ -2281,17 +2297,21 @@ export class JobOfferFormElement extends BaseFormElement {
         try {
             let response = await fetch(
                 this.entryPointUrl +
-                    `/base/people/${encodeURIComponent(userId)}?includeLocal=matriculationNumber`,
+                    `/base/people/${encodeURIComponent(
+                        userId,
+                    )}?includeLocal=email,matriculationNumber`,
                 options,
             );
             if (!response.ok) {
                 throw response;
             }
             const userDetails = await response.json();
+            const localData = userDetails.localData ?? {};
             this._prefilledGivenName = userDetails.givenName;
             this._prefilledFamilyName = userDetails.familyName;
-            this._prefilledStudyField = userDetails.localData.studyField ?? '';
-            this._prefilledPersonIdentifier = userDetails.localData.matriculationNumber ?? '';
+            this._prefilledStudyField = localData.studyField ?? '';
+            this._prefilledEmail = localData.email ?? this._prefilledEmail;
+            this._prefilledPersonIdentifier = localData.matriculationNumber ?? '';
         } catch (error) {
             console.error('Error loading logged-in user details:', error);
         }
@@ -2327,6 +2347,14 @@ export class JobOfferFormElement extends BaseFormElement {
      */
     _getLoggedInStudyField() {
         return this._prefilledStudyField ?? this.formData?.studyField ?? '';
+    }
+
+    /**
+     * Returns the logged-in user's email address.
+     * @returns {string}
+     */
+    _getLoggedInEmail() {
+        return this._prefilledEmail || this.formData?.email || '';
     }
 
     /**
@@ -2463,6 +2491,10 @@ export class JobOfferFormElement extends BaseFormElement {
             return;
         }
 
+        if (!this._getApplicationSchema()) {
+            await this._loadApplicationFormSchema();
+        }
+
         if (!this._validateApplicationForm()) {
             return;
         }
@@ -2478,7 +2510,7 @@ export class JobOfferFormElement extends BaseFormElement {
             givenName: this._getLoggedInGivenName() || this._firstNameRef.value?.value || '',
             familyName: this._getLoggedInFamilyName() || this._lastNameRef.value?.value || '',
             studyField: this._getLoggedInStudyField() || this._studyFieldRef.value?.value || '',
-            email: this._emailRef.value?.value ?? '',
+            email: this._getLoggedInEmail(),
             freeText: this._messageRef.value?.value ?? '',
             personIdentifier: this._getLoggedInPersonIdentifier(),
         };
@@ -2654,7 +2686,16 @@ export class JobOfferFormElement extends BaseFormElement {
                             </span>
                         </div>
                         <div class="form-column">
+                            <span>
+                                <span class="application-view-label">
+                                    ${t('job-offer-detail.email')}:
+                                </span>
+                                ${this._getLoggedInEmail()}
+                            </span>
+                        </div>
+                        <div class="form-column">
                             <dbp-form-string-element
+                                ${ref(this._studyFieldRef)}
                                 subscribe="lang"
                                 name="studyField"
                                 label="${t('job-offer-detail.study-field')}"
@@ -2670,7 +2711,6 @@ export class JobOfferFormElement extends BaseFormElement {
                         .value="${this.formData?.freeText ?? ''}"
                         .customValidator="${this._messageValidator}"
                         rows="4"></dbp-form-string-element>
-
                     ${
                         supportsApplicationAttachments
                             ? html`

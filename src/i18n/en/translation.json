@@ -365,6 +365,7 @@
         "contact-information": "Contact information",
         "contract-duration": "Contract duration",
         "deadline": "Application deadline",
+        "email": "Email address",
         "email-invalid": "Please enter a valid email address.",
         "family-name": "Last name",
         "given-name": "Name",
