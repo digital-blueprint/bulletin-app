@@ -1434,7 +1434,17 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                               </div>
                           `
                 }
-                <div class="translation-row">
+                <div class="translation-row row-three">
+                    <dbp-hours-range-element
+                        name="weekly-hours"
+                        class="weekly-hours-job-form"
+                        lang="${this.lang}"
+                        lang-dir="${this.langDir}"
+                        label="${t('hours-range.label')}"
+                        .min="${this._weeklyHoursMin}"
+                        .max="${this._weeklyHoursMax}"
+                        required
+                        @change="${this._handleWeeklyHoursRangeChange}"></dbp-hours-range-element>
                     <dbp-date-element
                         name="published-at"
                         lang="${this.lang}"
@@ -1450,27 +1460,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         .value="${this._deadline}"
                         required
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
-
-                    <dbp-hours-range-element
-                        name="weekly-hours"
-                        class="weekly-hours-job-form"
-                        lang="${this.lang}"
-                        lang-dir="${this.langDir}"
-                        label="${t('hours-range.label')}"
-                        .min="${this._weeklyHoursMin}"
-                        .max="${this._weeklyHoursMax}"
-                        required
-                        @change="${this._handleWeeklyHoursRangeChange}"></dbp-hours-range-element>
                     
-                    <dbp-date-element
-                        name="application-deadline"
-                        lang="${this.lang}"
-                        required
-                        label="${t('manage-job-offers.field-application-deadline')}"
-                        .value="${this._applicationDeadline}"
-                        @change="${(e) =>
-                            (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
-
             </div>
                         
             </div>
@@ -1496,7 +1486,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     class="content
                     ${this.optionalContent ? 'optional-data-visible' : 'optional-data-hidden'}">
                    
-                    <div class="half-col">
+                    <div class="translation-row">
+                        <dbp-date-element
+                            name="application-deadline"
+                            lang="${this.lang}"
+                            label="${t('manage-job-offers.field-application-deadline')}"
+                            .value="${this._applicationDeadline}"
+                            @change="${(e) =>
+                                (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
                         <dbp-date-element
                             name="start-date"
                             lang="${this.lang}"
@@ -1841,6 +1838,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 margin-top: 25px;
             }
 
+            .row-three {
+                grid-template-columns: repeat(3, minmax(0px, 1fr));
+            }
             .optional-button {
                 background-color: var(--dbp-background);
                 border: none;
