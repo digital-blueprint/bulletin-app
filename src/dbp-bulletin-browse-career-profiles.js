@@ -907,6 +907,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             .activity-header h2,
             .profile-detail h2 {
                 margin-top: 0;
+                font-weight: bolder;
+                font-size: 1.25rem;
             }
 
             .profile-title {
