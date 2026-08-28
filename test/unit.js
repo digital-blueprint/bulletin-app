@@ -195,7 +195,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         assert.isNotNull(areaOfInterestField);
         assert.equal(getComputedStyle(areaOfInterestField).gridColumnStart, '1');
         assert.equal(getComputedStyle(areaOfInterestField).gridColumnEnd, '-1');
-        assert.equal(getComputedStyle(hoursInput).maxWidth, '100px');
+        assert.equal(getComputedStyle(hoursInput).maxWidth, '150px');
         element.remove();
     });
 
