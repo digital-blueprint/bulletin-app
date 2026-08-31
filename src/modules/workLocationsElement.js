@@ -434,14 +434,13 @@ export class WorkLocationSelectElement extends DBPLitElement {
                 line-height: 1;
                 margin-right: 0;
                 padding-right: 0;
-                font-size: 1.3em;
+                font-size: 1em;
                 font-weight: 300;
                 position: absolute;
                 right: 1.75rem;
                 top: 50%;
                 transform: translateY(-50%);
                 z-index: 1;
-                margin-top: -3px;
             }
 
             .select2-container--default .select2-selection--single .select2-selection__arrow {
