@@ -171,6 +171,17 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         });
     });
 
+    test('should not show the search query as an active filter marker', () => {
+        node.clearFilters();
+        node.searchQuery = 'matching job';
+
+        assert.deepEqual(
+            node._getActiveFilterMarkers((key) => key),
+            [],
+        );
+        node.clearFilters();
+    });
+
     test('should keep filters collapsed and show markers after selecting a dream job', async () => {
         const element = document.createElement('dbp-bulletin-view-job-offers');
         element._i18n = {t: (key) => key, changeLanguage: () => {}};

@@ -589,7 +589,6 @@
         "position-count": "({{total}} gesamt, {{filtered}} gefiltert)",
         "remote-marker": "Remote",
         "remove-filter": "Filter {{filter}} entfernen",
-        "search-marker-label": "Suche",
         "search-placeholder": "Stellenangebote suchen",
         "select-placeholder": "Alle",
         "view-details": "Anzeigen",

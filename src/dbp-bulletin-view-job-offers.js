@@ -914,18 +914,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     _getActiveFilterMarkers(t) {
         const markers = [];
 
-        if (this.searchQuery.trim()) {
-            markers.push({
-                key: 'search',
-                category: t('view-job-offers.search-marker-label'),
-                value: this.searchQuery.trim(),
-                clear: () => {
-                    this.searchQuery = '';
-                    this._resetVisibleCount();
-                },
-            });
-        }
-
         // Work location and the "include remote" checkbox are shown as a single combined marker,
         // e.g. "Steiermark / Remote", "Steiermark" or "Remote".
         if (this.filterWorkLocation || this.filterIncludeRemote) {
