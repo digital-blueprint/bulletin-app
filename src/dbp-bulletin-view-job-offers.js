@@ -1664,8 +1664,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 width: 10px;
                 height: 10px;
                 background-size: 10px;
-                color: var(--dbp-content);
-                background: var(--dbp-content);
+                color: var(--dbp-muted);
+                background: var(--dbp-muted);
             }
 
             .refinement-title {
@@ -1703,10 +1703,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 gap: 4px;
                 white-space: nowrap;
                 margin-left: auto;
+                font-size: 0.9em;
             }
 
             .clear-refinements-button dbp-icon {
-                font-size: 1.1em;
+                font-size: 0.9em;
                 top: 0;
             }
 
@@ -1716,13 +1717,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 color: var(--dbp-hover-color);
                 text-decoration: underline;
                 text-underline-offset: 3px;
-            }
-
-            /* Rotate the close icon on hover, mirroring the marker delete icons */
-            .clear-refinements-button:focus dbp-icon,
-            .clear-refinements-button:hover dbp-icon {
-                transform: rotate(90deg);
-                transition: transform 0.1s ease-in;
             }
 
             .clear-refinements-button-label {
