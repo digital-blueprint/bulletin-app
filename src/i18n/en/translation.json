@@ -491,7 +491,7 @@
         "field-description-en": "Job description (en)",
         "field-description-max-length": "Maximum 5000 characters",
         "field-description-placeholder": "",
-        "field-external-job-url": "External job URL",
+        "field-external-job-url": "URL to application",
         "field-external-job-url-placeholder": "https://...",
         "field-job-category": "Job category",
         "field-job-title": "Position title",

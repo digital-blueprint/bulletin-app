@@ -491,7 +491,7 @@
         "field-description-en": "Beschreibung der Stelleanzeige (en)",
         "field-description-max-length": "Maximal 5000 Zeichen",
         "field-description-placeholder": "",
-        "field-external-job-url": "Externe Stellen-URL",
+        "field-external-job-url": "URL zur Bewerbung",
         "field-external-job-url-placeholder": "https://...",
         "field-job-category": "Stellenart",
         "field-job-title": "Stellenbezeichnung",
