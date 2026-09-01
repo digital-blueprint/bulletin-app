@@ -108,36 +108,52 @@ export function normalizePartnerCompanyValue(value) {
 }
 
 /**
- * Grants all authenticated users read access to a job-offer form.
+ * Grants public read access and creator manage access to a job-offer form.
  *
  * @param {object} host
  * @param {string} formIdentifier
  * @returns {Promise<boolean>}
  */
-export async function grantJobOfferReadAccess(host, formIdentifier) {
-    if (!formIdentifier) {
+export async function grantJobOfferAccess(host, formIdentifier) {
+    const creatorIdentifier = host.auth?.['user-id'];
+    if (!formIdentifier || !creatorIdentifier) {
         return false;
     }
 
-    const response = await fetch(host.entryPointUrl + '/authorization/resource-action-grants', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/ld+json',
-            Authorization: 'Bearer ' + host.auth.token,
-        },
-        body: JSON.stringify({
+    const grantUrl = host.entryPointUrl + '/authorization/resource-action-grants';
+    const grantBodies = [
+        {
             resourceClass: 'DbpRelayFormalizeForm',
             resourceIdentifier: formIdentifier,
             action: 'read',
             dynamicGroupIdentifier: 'everybody',
-        }),
-    });
+        },
+        {
+            resourceClass: 'DbpRelayFormalizeForm',
+            resourceIdentifier: formIdentifier,
+            action: 'manage',
+            userIdentifier: creatorIdentifier,
+        },
+    ];
+    const responses = await Promise.all(
+        grantBodies.map((body) =>
+            fetch(grantUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/ld+json',
+                    Authorization: 'Bearer ' + host.auth.token,
+                },
+                body: JSON.stringify(body),
+            }),
+        ),
+    );
+    const failedResponse = responses.find((response) => !response.ok);
 
-    if (!response.ok) {
-        console.error('Failed to grant read access to job offer:', response.status);
+    if (failedResponse) {
+        console.error('Failed to grant access to job offer:', failedResponse.status);
     }
 
-    return response.ok;
+    return !failedResponse;
 }
 
 const keepJobOfferAttachmentTranslations = (t) => {
@@ -1214,10 +1230,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 );
             } else {
                 result = await apiCreateForm(host, formData, notificationOptions);
-                if (result && !(await grantJobOfferReadAccess(host, result.identifier))) {
+                if (result && !(await grantJobOfferAccess(host, result.identifier))) {
                     sendNotification({
                         summary: t('create-job-offer.error-title'),
-                        body: t('create-job-offer.error-grant-read-access'),
+                        body: t('create-job-offer.error-grant-access'),
                         type: 'danger',
                         timeout: 0,
                         targetNotificationId: 'edit-form-dialog-notification',

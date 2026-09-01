@@ -8,7 +8,7 @@ import JobOfferModule, {
     JOB_CATEGORIES,
     AREAS_OF_INTEREST,
     getJobApplicationDataFeedSchema,
-    grantJobOfferReadAccess,
+    grantJobOfferAccess,
 } from './modules/jobOfferForm.js';
 import {getDefaultInternalWorkLocations} from './modules/workLocationsElement.js';
 import {SUBMISSION_STATES_BINARY} from '../vendor/formalize/src/utils.js';
@@ -300,7 +300,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         const createdForm = await response.json();
-        const accessGranted = await grantJobOfferReadAccess(this, createdForm.identifier);
+        const accessGranted = await grantJobOfferAccess(this, createdForm.identifier);
         return accessGranted ? createdForm.identifier : false;
     }
 

@@ -240,7 +240,7 @@
         "success-created": "Job offer published successfully"
     },
     "create-job-offer": {
-        "error-grant-read-access": "The job offer was created, but read access for authenticated users could not be granted.",
+        "error-grant-access": "The job offer was created, but its access permissions could not be granted.",
         "error-title": "Error",
         "external-url-invalid": "The external job URL must begin with \"http://\" or \"https://\".",
         "select-work-location": "Please select at least one preferred work location.",

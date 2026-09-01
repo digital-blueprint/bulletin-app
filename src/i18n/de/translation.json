@@ -240,7 +240,7 @@
         "success-created": "Stellenangebot erfolgreich veröffentlicht"
     },
     "create-job-offer": {
-        "error-grant-read-access": "Das Stellenangebot wurde erstellt, aber der Lesezugriff für authentifizierte Benutzer*innen konnte nicht erteilt werden.",
+        "error-grant-access": "Das Stellenangebot wurde erstellt, aber die Zugriffsberechtigungen konnten nicht erteilt werden.",
         "error-title": "Fehler",
         "external-url-invalid": "Die externe Stellen-URL muss mit 'http://' oder 'https://' beginnen.",
         "select-work-location": "Bitte wählen sie mindestens einen bevorzugten Dienstort aus",

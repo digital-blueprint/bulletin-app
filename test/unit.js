@@ -7,7 +7,7 @@ import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
     getJobApplicationDataFeedSchema,
-    grantJobOfferReadAccess,
+    grantJobOfferAccess,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
     normalizePartnerCompanyValue,
@@ -623,21 +623,19 @@ suite('jobOfferForm error notifications', () => {
 });
 
 suite('jobOfferForm authorization grants', () => {
-    test('should grant everybody read access to a newly created form', async () => {
+    test('should grant public read and creator manage access to a new form', async () => {
         const originalFetch = globalThis.fetch;
-        let requestUrl;
-        let requestOptions;
+        const requests = [];
 
         globalThis.fetch = async (url, options) => {
-            requestUrl = url;
-            requestOptions = options;
+            requests.push({url, options});
             return {ok: true};
         };
 
         try {
-            const granted = await grantJobOfferReadAccess(
+            const granted = await grantJobOfferAccess(
                 {
-                    auth: {token: 'token'},
+                    auth: {token: 'token', 'user-id': 'creator-identifier'},
                     entryPointUrl: 'https://example.invalid',
                 },
                 'form-identifier',
@@ -648,16 +646,30 @@ suite('jobOfferForm authorization grants', () => {
             globalThis.fetch = originalFetch;
         }
 
-        assert.equal(requestUrl, 'https://example.invalid/authorization/resource-action-grants');
-        assert.equal(requestOptions.method, 'POST');
-        assert.equal(requestOptions.headers['Content-Type'], 'application/ld+json');
-        assert.equal(requestOptions.headers.Authorization, 'Bearer token');
-        assert.deepEqual(JSON.parse(requestOptions.body), {
-            resourceClass: 'DbpRelayFormalizeForm',
-            resourceIdentifier: 'form-identifier',
-            action: 'read',
-            dynamicGroupIdentifier: 'everybody',
+        assert.lengthOf(requests, 2);
+        requests.forEach(({url, options}) => {
+            assert.equal(url, 'https://example.invalid/authorization/resource-action-grants');
+            assert.equal(options.method, 'POST');
+            assert.equal(options.headers['Content-Type'], 'application/ld+json');
+            assert.equal(options.headers.Authorization, 'Bearer token');
         });
+        assert.deepEqual(
+            requests.map(({options}) => JSON.parse(options.body)),
+            [
+                {
+                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceIdentifier: 'form-identifier',
+                    action: 'read',
+                    dynamicGroupIdentifier: 'everybody',
+                },
+                {
+                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceIdentifier: 'form-identifier',
+                    action: 'manage',
+                    userIdentifier: 'creator-identifier',
+                },
+            ],
+        );
     });
 });
 
