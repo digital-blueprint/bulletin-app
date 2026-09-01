@@ -383,19 +383,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     ${this._renderCompanyMetaItem(t('company-form.field-department'), department)}
                     ${this._renderCompanyMetaItem(t('company-form.field-address'), address)}
                     ${this._renderCompanyMetaItem(t('company-form.field-city'), location)}
-                    ${this._renderCompanyMetaItem(t('company-form.field-industries'), sectors)}
-                    ${this._renderCompanyMetaItem(
-                        t('company-form.field-employees-national'),
-                        employeesNational,
-                    )}
-                    ${this._renderCompanyMetaItem(
-                        t('company-form.field-employees-total'),
-                        employeesTotal,
-                    )}
-                    ${this._renderCompanyMetaItem(
-                        t('company-form.field-rd-employees'),
-                        rdEmployees,
-                    )}
                     ${this._renderCompanyMetaItem(
                         t('company-form.field-contact-person'),
                         contactPerson,
@@ -427,6 +414,19 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   </a>
                               `
                             : '',
+                    )}
+                    ${this._renderCompanyMetaItem(t('company-form.field-industries'), sectors)}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-employees-national'),
+                        employeesNational,
+                    )}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-employees-total'),
+                        employeesTotal,
+                    )}
+                    ${this._renderCompanyMetaItem(
+                        t('company-form.field-rd-employees'),
+                        rdEmployees,
                     )}
                 </dl>
                 ${this._renderCompanyTextBlock(t('company-form.field-teaser'), teaser)}
@@ -1379,6 +1379,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .company-info-item {
                 display: grid;
+                align-content: start;
             }
 
             .company-info-item dd,

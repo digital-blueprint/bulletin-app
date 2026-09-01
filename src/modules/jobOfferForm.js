@@ -1365,6 +1365,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
                               <dbp-string-element
                                   name="external-job-url"
+                                  class="fieldset-external"
                                   lang="${this.lang}"
                                   label="${t('manage-job-offers.field-external-job-url')}"
                                   placeholder="${t(
@@ -1847,6 +1848,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 font-weight: 300;
             }
 
+            .fieldset-external {
+                margin-top: 10px;
+            }
             h3 {
                 margin: 0px;
                 font-size: 1.3rem;
