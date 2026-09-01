@@ -635,7 +635,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <span class="partner-company-marker" title="${t('view-job-offers.partner-company')}">
-                <dbp-icon name="certificate" aria-hidden="true"></dbp-icon>
+                <dbp-icon name="star" aria-hidden="true"></dbp-icon>
                 ${t('view-job-offers.partner')}
             </span>
         `;
@@ -690,12 +690,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   <div class="content-wrapper">
                                       <div class="meta-row">
                                           <dl class="meta-list">
+                                              ${this._renderPartnerCompanyMarker(job, t)}
                                               <div class="meta-item favicon">
                                                   ${this.getInternalFavicon(job)}
                                                   <span class="job-meta-type">
                                                       ${this.getOrganizationLabel(job)}
                                                   </span>
-                                                  ${this._renderPartnerCompanyMarker(job, t)}
                                               </div>
                                               <div class="meta-item">
                                                   <span class="meta-item-label">
@@ -1189,23 +1189,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .partner-company-marker {
-                display: inline-flex;
-                align-items: center;
+                display: flex;
                 gap: 0.25rem;
-                border: 1px solid var(--dbp-accent);
-                border-radius: 999px;
-                color: var(--dbp-accent);
-                font-size: 0.75rem;
-                font-weight: 600;
-                line-height: 1;
-                margin-left: 0.25rem;
-                padding: 0.25rem 0.45rem;
+                color: var(--dbp-primary);
+                font-size: 1rem;
+                font-weight: bolder;
                 white-space: nowrap;
-            }
-
-            .partner-company-marker dbp-icon {
-                font-size: 0.8rem;
-                top: 0;
             }
 
             .meta-item dt {

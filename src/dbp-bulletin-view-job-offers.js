@@ -1308,7 +1308,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                               </div>
                                                           </div>
                                                           <dl class="job-meta-list">
-                                                              <span class="job-meta-type">
+                                                              <span
+                                                                  class="job-meta-type job-type-marker">
                                                                   ${this._renderPartnerCompanyMarker(job, t)}
                                                                   ${this.getOrganizationLabel(job)}
                                                               </span>
@@ -1909,7 +1910,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .partner-company-marker {
                 display: inline-flex;
                 align-items: center;
-                color: var(--dbp-accent);
+                color: var(--dbp-primary);
                 line-height: 1;
             }
 
@@ -1919,9 +1920,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .partner-company-link {
-                color: var(--dbp-accent);
+                color: var(--dbp-primary);
             }
 
+            .job-type-marker {
+                display: flex;
+                align-content: center;
+                gap: 5px;
+            }
             .favicon-visible {
                 display: block;
             }
