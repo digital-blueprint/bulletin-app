@@ -1316,7 +1316,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             h2 {
                 margin: 0;
-                font-size: 1.25rem;
+                font-weight: 300;
             }
 
             .profile-card-header {
