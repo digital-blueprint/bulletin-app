@@ -1238,6 +1238,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             <dbp-modal
                 id="career-profile-delete-modal"
                 modal-id="career-profile-delete-modal"
+                style="--dbp-modal-min-width: min(95vw, 900px); --dbp-modal-max-width: min(95vw, 900px); --dbp-modal-max-height: 90vh; --dbp-modal-content-overflow-y: auto;">
                 subscribe="lang">
                 <div slot="title">
                     <h2 class="modal-title">${t('career-profile.delete-dialog-title')}</h2>
