@@ -1663,7 +1663,7 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
                 summary: t('career-profile-form.interest-success'),
                 body: t('career-profile-form.interest-success-body'),
                 type: 'success',
-                timeout: 5,
+                timeout: 0,
             });
         } catch (error) {
             console.error('Error submitting career profile interest:', error);
