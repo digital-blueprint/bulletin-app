@@ -485,6 +485,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <p id="job-type-mode-description">${t('generate-jobs.job-type-description')}</p>
                     <dbp-select
                         id="job-type-mode"
+                        responsive
                         align="left"
                         aria-describedby="job-type-mode-description"
                         label="${t(`generate-jobs.job-type-${this._jobTypeMode}`)}"
