@@ -81,11 +81,11 @@
     "shared": {
       "flake": false,
       "locked": {
-        "lastModified": 1787839164,
-        "narHash": "sha256-bBFICrUCedeBu4sPABkDjQ3KsznoBkk4l85WQHPdEGI=",
+        "lastModified": 1788339552,
+        "narHash": "sha256-bzqYaiJgwDKicAwBiwRvuuEnfMR1n5Ls8hK38SvKAbM=",
         "owner": "digital-blueprint",
         "repo": "shared",
-        "rev": "c01487da550cb3dad85582c14df2cf1f3d737e80",
+        "rev": "1926a22b1b6b3f844e49495709f109939a4be227",
         "type": "github"
       },
       "original": {
