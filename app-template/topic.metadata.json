@@ -18,5 +18,5 @@
         {"path": "/app/dbp-bulletin-import-companies.metadata.json", "visible": true},
         {"path": "/app/dbp-bulletin-generate-career-profiles.metadata.json", "visible": true}
     ],
-    "attributes": ["hide-create-submission-button"]
+    "attributes": ["hide-create-submission-button", "enable-submission-permission-editing"]
 }
