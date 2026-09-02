@@ -1069,10 +1069,10 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             if (result) {
                 if (accessGranted) {
                     sendNotification({
-                        summary: t('career-profile-form.interest-success'),
+                        summary: t('career-profile-form.create-success-title'),
                         body: t('career-profile-form.create-success'),
                         type: 'success',
-                        timeout: 5,
+                        timeout: 0,
                     });
                 }
                 this.dispatchEvent(
