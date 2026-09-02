@@ -157,7 +157,7 @@
         "interest-contact-email": "Contact email",
         "interest-contact-name": "Contact person",
         "interest-description": "If this profile matches a job position that you offer, you can contact the student using this form. They will receive an e-mail with your stated information and contact you if they are interested.",
-        "interest-error": "The company interest could not be submitted.",
+        "interest-error": "The company interest could not be submitted. Please check your entries and try again.",
         "interest-message": "Message to the student",
         "interest-submit": "Send",
         "interest-success": "Express interest",

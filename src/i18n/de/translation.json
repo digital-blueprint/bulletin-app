@@ -157,7 +157,7 @@
         "interest-contact-email": "Kontakt-E-Mail",
         "interest-contact-name": "Kontaktperson",
         "interest-description": "Falls dieses Profil einer Stellenbeschreibung Ihrer Organisation entspricht, können Sie die/den Studierende*n über dieses Formular kontaktieren. Die Person erhält eine E-Mail mit den von Ihnen angegebenen Informationen und wird Sie bei Bedarf kontaktieren.",
-        "interest-error": "Das Firmeninteresse konnte nicht übermittelt werden.",
+        "interest-error": "Das Firmeninteresse konnte nicht übermittelt werden. Bitte prüfen Sie Ihre Angaben und versuchen Sie es erneut.",
         "interest-message": "Nachricht an die/den Studierende*n",
         "interest-submit": "Versenden",
         "interest-success": "Interesse übermittelt",
