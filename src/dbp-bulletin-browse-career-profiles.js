@@ -722,7 +722,15 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         `;
     }
     formatDate(isoDate) {
+        if (!isoDate) {
+            return '';
+        }
+
         const [year, month, day] = isoDate.split('-');
+        if (!year || !month || !day) {
+            return '';
+        }
+
         return `${day}.${month}.${year}`;
     }
     _renderProfileDetail(profile) {
