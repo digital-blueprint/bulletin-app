@@ -1138,7 +1138,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     )}
                     ${this._renderMetaItem(
                         t('career-profile-form.interest-contact-email'),
-                        data.contactEmail,
+                        data.contactEmail
+                            ? html`
+                                  <a href="mailto:${data.contactEmail}">${data.contactEmail}</a>
+                              `
+                            : '',
                     )}
                 </dl>
                 ${
@@ -1368,6 +1372,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin-bottom: 0.25rem;
             }
 
+            .submission-card a {
+                color: var(--dbp-override-primary);
+            }
             .profile-detail section {
                 margin-bottom: 0.75rem;
             }
