@@ -47,6 +47,7 @@ const JOB_DESCRIPTION_MAX_LENGTH = 5000;
 const JOB_OFFER_TYPE_INTERNAL = 'internal';
 const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
+export const JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION = true;
 
 export function getJobApplicationDataFeedSchema() {
     return JSON.stringify({
@@ -1205,6 +1206,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 {languageTag: 'en', name: titleEn},
             ],
             frontendKey: new JobOfferModule().getFormFrontendKey(),
+            grantBasedSubmissionAuthorization: JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION,
             additionalData,
             dataFeedSchema,
         };
