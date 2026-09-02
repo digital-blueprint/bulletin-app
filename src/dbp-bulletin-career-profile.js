@@ -1091,7 +1091,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             <section class="submissions-view">
                 <h2>${t('career-profile.submissions-title')}</h2>
-                <p>${this._localized(profile, 'headline', 'headlineEn') || profile.formName}</p>
 
                 ${
                     this._loadingSubmissions
@@ -1323,6 +1322,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 font-weight: 300;
             }
 
+            .submissions-view h2 {
+                margin-bottom: 20px;
+            }
             .profile-card-header {
                 display: flex;
                 justify-content: space-between;
