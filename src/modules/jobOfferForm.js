@@ -1689,24 +1689,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
                     <div class="translation-row">
                         <dbp-string-element
-                            name="link-name"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-link-name')}"
-                            .value="${this._linkName}"
-                            @change="${(e) =>
-                                (this._linkName = e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="link-name-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-link-name-en')}"
-                            .value="${this._linkNameEn}"
-                            @change="${(e) =>
-                                (this._linkNameEn = e.detail.value)}"></dbp-string-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
                             name="link-url"
                             lang="${this.lang}"
                             label="${t('manage-job-offers.field-link-url')}"
@@ -1723,6 +1705,24 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             .value="${this._linkUrlEn}"
                             @change="${(e) =>
                                 (this._linkUrlEn = e.detail.value)}"></dbp-string-element>
+                    </div>
+                    
+                    <div class="translation-row">
+                        <dbp-string-element
+                            name="link-name"
+                            lang="${this.lang}"
+                            label="${t('manage-job-offers.field-link-name')}"
+                            .value="${this._linkName}"
+                            @change="${(e) =>
+                                (this._linkName = e.detail.value)}"></dbp-string-element>
+
+                        <dbp-string-element
+                            name="link-name-en"
+                            lang="${this.lang}"
+                            label="${t('manage-job-offers.field-link-name-en')}"
+                            .value="${this._linkNameEn}"
+                            @change="${(e) =>
+                                (this._linkNameEn = e.detail.value)}"></dbp-string-element>
                     </div>
 
                     <div class="translation-row">
