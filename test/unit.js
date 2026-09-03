@@ -1250,7 +1250,7 @@ suite('career profile student studies', () => {
         }
     });
 
-    test('should finish creation when granting read access fails', async () => {
+    test('should keep profile input open when granting read access fails', async () => {
         const element = document.createElement(tagName);
         const originalFetch = globalThis.fetch;
         let savedEvent = null;
@@ -1268,12 +1268,12 @@ suite('career profile student studies', () => {
 
         try {
             const result = await element.submit();
-            assert.equal(result.identifier, 'profile-1');
+            assert.isNull(result);
         } finally {
             globalThis.fetch = originalFetch;
         }
 
-        assert.equal(savedEvent.form.identifier, 'profile-1');
+        assert.isNull(savedEvent);
     });
 });
 

@@ -1064,17 +1064,16 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     timeout: 0,
                     targetNotificationId: 'career-profile-form-notification',
                 });
+                return null;
             }
 
             if (result) {
-                if (accessGranted) {
-                    sendNotification({
-                        summary: t('career-profile-form.create-success-title'),
-                        body: t('career-profile-form.create-success'),
-                        type: 'success',
-                        timeout: 0,
-                    });
-                }
+                sendNotification({
+                    summary: t('career-profile-form.create-success-title'),
+                    body: t('career-profile-form.create-success'),
+                    type: 'success',
+                    timeout: 0,
+                });
                 this.dispatchEvent(
                     new CustomEvent('dbp-edit-form-saved', {
                         detail: {form: result},
