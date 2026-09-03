@@ -565,14 +565,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const text = title + '\n' + description.slice(0, 100) + '\n';
         window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
     }
-    // Shares the job offer on Facebook.
-    shareOnFacebook() {
-        const url = this.getShareUrl();
-        window.open(
-            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-            '_blank',
-        );
-    }
     // Shares the job offer on LinkedIn.
     shareOnLinkedIn() {
         const url = this.getShareUrl();
@@ -582,16 +574,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
             '_blank',
         );
-    }
-    // Shares the job offer on Instagram by opening Instagram and keeping the URL ready to paste.
-    async shareOnInstagram() {
-        await this.shareCopy();
-        window.open('https://www.instagram.com/', '_blank');
-    }
-    // Shares the job offer on Discord by opening Discord and keeping the URL ready to paste.
-    async shareOnDiscord() {
-        await this.shareCopy();
-        window.open('https://discord.com/channels/@me', '_blank');
     }
 
     _handleDocumentPointerDown(event) {
@@ -798,44 +780,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                 class="btn-icon"></dbp-icon>
                                                                             ${t(
                                                                                 'job-offer-detail.share-linkedin',
-                                                                            )}
-                                                                        </button>
-                                                                        <button
-                                                                            class="button"
-                                                                            @click="${
-                                                                                this.shareOnFacebook
-                                                                            }">
-                                                                            <dbp-icon
-                                                                                name="facebook-original"
-                                                                                aria-hidden="true"
-                                                                                class="btn-icon"></dbp-icon>
-                                                                            ${t(
-                                                                                'job-offer-detail.share-facebook',
-                                                                            )}
-                                                                        </button>
-                                                                        <button
-                                                                            class="button"
-                                                                            @click="${
-                                                                                this
-                                                                                    .shareOnInstagram
-                                                                            }">
-                                                                            <dbp-icon
-                                                                                name="instagram-original"
-                                                                                aria-hidden="true"
-                                                                                class="btn-icon"></dbp-icon>
-                                                                            ${t(
-                                                                                'job-offer-detail.share-instagram',
-                                                                            )}
-                                                                        </button>
-                                                                        <button
-                                                                            class="button"
-                                                                            @click="${this.shareOnDiscord}">
-                                                                            <dbp-icon
-                                                                                name="share2"
-                                                                                aria-hidden="true"
-                                                                                class="btn-icon"></dbp-icon>
-                                                                            ${t(
-                                                                                'job-offer-detail.share-discord',
                                                                             )}
                                                                         </button>
                                                                     </div>
