@@ -586,6 +586,24 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
     }
 
+    getInternalLogo(job) {
+        const i18n = this._i18n;
+        const t = (key) => (i18n ? i18n.t(key) : key);
+        const logoUrl = commonUtils.getAssetURL('@digital-blueprint/bulletin-app', 'icon/logo.svg');
+
+        // Only for internal TU Graz jobs (no externalJobUrl)
+        if (!job.externalJobUrl) {
+            return html`
+                <img
+                    src="${logoUrl}"
+                    alt="${t('manage-job-offers.job-type-internal')}"
+                    class="internal-logo"
+                    loading="lazy" />
+            `;
+        }
+        return '';
+    }
+
     _renderPartnerCompanyMarker(job, t) {
         if (job.jobOfferType === 'internal' || !job.isFromPartnerCompany) {
             return null;
@@ -1304,7 +1322,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                   ${job.title}
                                                               </h3>
                                                               <div class="job-source-marker">
-                                                                  ${this.getInternalFavicon(job)}
+                                                                  ${this.getInternalLogo(job)}
                                                               </div>
                                                           </div>
                                                           <dl class="job-meta-list">
@@ -1898,6 +1916,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .job-card-header img {
                 max-height: 28px;
                 object-fit: cover;
+            }
+
+            .internal-logo {
+                height: 28px;
+                width: auto;
+                object-fit: contain;
             }
 
             .job-source-marker {
