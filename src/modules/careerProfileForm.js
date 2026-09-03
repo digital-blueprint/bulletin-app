@@ -1688,74 +1688,78 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
             `;
         }
 
-        if (this._hasSubmittedInterest) {
-            return html`
-                <div class="submitted-notice">
-                    <dbp-icon name="checkmark-circle" aria-hidden="true"></dbp-icon>
-                    <p>${t('career-profile-form.interest-already-submitted')}</p>
-                </div>
-            `;
-        }
-
         return html`
             <form class="interest-form" @submit="${this.submitInterest}" novalidate>
                 <h3>${t('career-profile-form.interest-title')}</h3>
                 <p class="interest-description">${t('career-profile-form.interest-description')}</p>
 
-                <dbp-string-element
-                    name="companyName"
-                    lang="${this.lang}"
-                    label="${t('career-profile-form.interest-company')}"
-                    .value="${this._companyName}"
-                    required
-                    @change="${(event) =>
-                        (this._companyName = event.detail.value)}"></dbp-string-element>
+                ${
+                    this._hasSubmittedInterest
+                        ? html`
+                              <div class="submitted-notice">
+                                  <dbp-icon name="checkmark-circle" aria-hidden="true"></dbp-icon>
+                                  <p>${t('career-profile-form.interest-already-submitted')}</p>
+                              </div>
+                          `
+                        : html`
+                              <dbp-string-element
+                                  name="companyName"
+                                  lang="${this.lang}"
+                                  label="${t('career-profile-form.interest-company')}"
+                                  .value="${this._companyName}"
+                                  required
+                                  @change="${(event) => (this._companyName = event.detail.value)}"></dbp-string-element>
 
-                <div class="two-column-row">
-                    <dbp-string-element
-                        name="contactName"
-                        lang="${this.lang}"
-                        label="${t('career-profile-form.interest-contact-name')}"
-                        .value="${this._contactName}"
-                        required
-                        @change="${(event) =>
-                            (this._contactName = event.detail.value)}"></dbp-string-element>
-                    <dbp-string-element
-                        name="contactEmail"
-                        lang="${this.lang}"
-                        label="${t('career-profile-form.interest-contact-email')}"
-                        .value="${this._contactEmail}"
-                        required
-                        @change="${(event) =>
-                            (this._contactEmail = event.detail.value)}"></dbp-string-element>
-                </div>
+                              <div class="two-column-row">
+                                  <dbp-string-element
+                                      name="contactName"
+                                      lang="${this.lang}"
+                                      label="${t('career-profile-form.interest-contact-name')}"
+                                      .value="${this._contactName}"
+                                      required
+                                      @change="${(event) =>
+                                          (this._contactName =
+                                              event.detail.value)}"></dbp-string-element>
+                                  <dbp-string-element
+                                      name="contactEmail"
+                                      lang="${this.lang}"
+                                      label="${t('career-profile-form.interest-contact-email')}"
+                                      .value="${this._contactEmail}"
+                                      required
+                                      @change="${(event) =>
+                                          (this._contactEmail =
+                                              event.detail.value)}"></dbp-string-element>
+                              </div>
 
-                <dbp-string-element
-                    name="message"
-                    lang="${this.lang}"
-                    label="${t('career-profile-form.interest-message')}"
-                    .value="${this._message}"
-                    rows="4"
-                    @change="${(event) =>
-                        (this._message = event.detail.value)}"></dbp-string-element>
+                              <dbp-string-element
+                                  name="message"
+                                  lang="${this.lang}"
+                                  label="${t('career-profile-form.interest-message')}"
+                                  .value="${this._message}"
+                                  rows="4"
+                                  @change="${(event) => (this._message = event.detail.value)}"></dbp-string-element>
 
-                <div class="form-footer">
-                    <button
-                        class="button is-primary"
-                        type="submit"
-                        ?disabled="${this._isSubmitting}">
-                        ${
-                            this._isSubmitting
-                                ? html`
-                                      <dbp-mini-spinner></dbp-mini-spinner>
-                                  `
-                                : html`
-                                      <dbp-icon name="send-diagonal" aria-hidden="true"></dbp-icon>
-                                  `
-                        }
-                        ${t('career-profile-form.interest-submit')}
-                    </button>
-                </div>
+                              <div class="form-footer">
+                                  <button
+                                      class="button is-primary"
+                                      type="submit"
+                                      ?disabled="${this._isSubmitting}">
+                                      ${
+                                          this._isSubmitting
+                                              ? html`
+                                                    <dbp-mini-spinner></dbp-mini-spinner>
+                                                `
+                                              : html`
+                                                    <dbp-icon
+                                                        name="send-diagonal"
+                                                        aria-hidden="true"></dbp-icon>
+                                                `
+                                      }
+                                      ${t('career-profile-form.interest-submit')}
+                                  </button>
+                              </div>
+                          `
+                }
             </form>
         `;
     }
@@ -1796,7 +1800,6 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
                 .button,
                 .submitted-notice {
                     display: inline-flex;
-                    align-items: center;
                     gap: 0.35rem;
                 }
 
