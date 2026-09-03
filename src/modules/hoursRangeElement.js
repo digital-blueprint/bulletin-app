@@ -6,7 +6,7 @@ import {createInstance} from '../i18n.js';
 
 export const HOURS_MIN = 0;
 export const HOURS_MAX = 99;
-export const HOURS_STEP = 0.5;
+export const HOURS_STEP = 1;
 
 /**
  * Converts a decimal hours value into a comparable number of hours or null.
@@ -92,13 +92,12 @@ export const sanitizeHoursValue = (rawValue, min = HOURS_MIN, max = HOURS_MAX) =
         return '';
     }
 
-    const [rawHours = '', ...decimalParts] = raw.split('.');
+    const [rawHours = ''] = raw.split('.');
     const hours = rawHours.slice(0, String(Math.trunc(max)).length);
-    const decimals = decimalParts.join('').slice(0, 2);
 
     // Preserve intermediate input such as "12."
-    if (raw.includes('.') && decimals === '') {
-        return `${hours}.`;
+    if (raw.includes('.')) {
+        return `${hours}`;
     }
 
     if (!raw.includes('.')) {
@@ -111,7 +110,7 @@ export const sanitizeHoursValue = (rawValue, min = HOURS_MIN, max = HOURS_MAX) =
         return String(Math.min(max, Math.max(min, numericHours)));
     }
 
-    const value = Number(`${hours}.${decimals}`);
+    const value = Number(`${hours}`);
 
     return String(Math.min(max, Math.max(min, value)));
 };
