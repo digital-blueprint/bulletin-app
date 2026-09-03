@@ -25,6 +25,7 @@ import HoursRangeElement, {
     formatHoursRange,
     isHoursRangeInRange,
 } from './modules/hoursRangeElement.js';
+import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from './featureFlags.js';
 
 // Number of job cards shown initially and appended each time the user requests more
 const LOAD_MORE_BATCH_SIZE = 12;
@@ -399,7 +400,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         // Expected URL pattern: job/<identifier>
         if (pathSegments[0] === 'job' && pathSegments[1]) {
             const identifier = pathSegments[1];
-            const job = this._jobOffers.find((j) => j.identifier === identifier) ?? null;
+            const job =
+                this._getFeatureVisibleJobs().find((j) => j.identifier === identifier) ?? null;
             if (job) {
                 this.openJobDialog(job);
             }
@@ -453,7 +455,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     getFilteredJobs({includeAreaOfInterest = true, includeWorkLocation = true} = {}) {
         const query = this.searchQuery.toLowerCase().trim();
-        return this._jobOffers
+        return this._getFeatureVisibleJobs()
             .filter((job) => {
                 const areaOfInterestLabels = getAreaOfInterestLabels(
                     job.areasOfInterest ?? job.areaOfInterest,
@@ -507,6 +509,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .sort((a, b) => this.compareJobsByDate(a, b));
     }
 
+    _getFeatureVisibleJobs() {
+        return isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
+            ? this._jobOffers
+            : this._jobOffers.filter((job) => job.jobOfferType === 'internal');
+    }
+
     /**
      * Returns true when the job is remote. Legacy remote location values remain supported.
      * @param {object} job
@@ -540,7 +548,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             return availableLocations;
         }
 
-        const selectedLocation = this._jobOffers
+        const selectedLocation = this._getFeatureVisibleJobs()
             .flatMap((job) =>
                 normalizeWorkLocations(job.workLocations ?? []).flatMap((location) =>
                     getLocationHierarchy(location),
@@ -1114,11 +1122,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                         ?selected="${this.filterDreamJob === 'study-accompanying'}">
                                         ${t('view-job-offers.dream-job-study-accompanying')}
                                     </option>
-                                    <option
-                                        value="career-entry"
-                                        ?selected="${this.filterDreamJob === 'career-entry'}">
-                                        ${t('view-job-offers.dream-job-career-entry')}
-                                    </option>
+                                    ${
+                                        isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
+                                            ? html`
+                                                  <option
+                                                      value="career-entry"
+                                                      ?selected="${
+                                                          this.filterDreamJob === 'career-entry'
+                                                      }">
+                                                      ${t('view-job-offers.dream-job-career-entry')}
+                                                  </option>
+                                              `
+                                            : ''
+                                    }
                                 </select>
                             </div>
                         </div>
@@ -1296,7 +1312,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 ${t('view-job-offers.available-positions')}
                                 <span class="position-count">
                                     ${t('view-job-offers.position-count', {
-                                        total: this._jobOffers.length,
+                                        total: this._getFeatureVisibleJobs().length,
                                         filtered: filtered.length,
                                     })}
                                 </span>

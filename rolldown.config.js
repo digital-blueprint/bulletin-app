@@ -20,6 +20,14 @@ const pkg = require('./package.json');
 const appEnv = typeof process.env.APP_ENV !== 'undefined' ? process.env.APP_ENV : 'local';
 const watch = process.env.ROLLUP_WATCH === 'true';
 const buildFull = (!watch && appEnv !== 'test') || process.env.FORCE_FULL !== undefined;
+const defaultEnabledFeatureFlags = [
+    'local',
+    'localCustom',
+    'development',
+    'developmentCustom',
+].includes(appEnv)
+    ? ['career-profiles', 'external-jobs']
+    : [];
 let doMinify = buildFull;
 let transform = buildFull;
 let checkLicenses = buildFull;
@@ -194,6 +202,7 @@ export default (async () => {
                         nextcloudBaseURL: config.nextcloudBaseURL,
                         nextcloudFileURL: config.nextcloudFileURL,
                         nextcloudName: config.nextcloudName,
+                        defaultEnabledFeatureFlags,
                     },
                 }),
             whitelabel &&
@@ -225,6 +234,7 @@ export default (async () => {
                         nextcloudBaseURL: config.nextcloudBaseURL,
                         nextcloudFileURL: config.nextcloudFileURL,
                         nextcloudName: config.nextcloudName,
+                        defaultEnabledFeatureFlags,
                     },
                 }),
             checkLicenses &&

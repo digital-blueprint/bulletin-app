@@ -23,11 +23,14 @@ import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 import HoursRangeElement, {isHoursRangeValid} from '../src/modules/hoursRangeElement.js';
 import {COMPANY_FIELDS, pickCompanyData} from '../src/modules/companyForm.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
+import {setFeatureFlag} from '@dbp-toolkit/common';
+import {CAREER_PROFILES_FEATURE_FLAG, EXTERNAL_JOBS_FEATURE_FLAG} from '../src/featureFlags.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
 
     suiteSetup(async () => {
+        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, true);
         node = document.createElement('dbp-bulletin-view-job-offers');
         document.body.appendChild(node);
         await node.updateComplete;
@@ -35,10 +38,46 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 
     suiteTeardown(() => {
         node.remove();
+        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
     });
 
     test('should render', () => {
         assert(!!node.shadowRoot);
+    });
+
+    test('should hide external jobs and the career starter preset when disabled', async () => {
+        const element = document.createElement('dbp-bulletin-view-job-offers');
+        element._i18n = {t: (key) => key, changeLanguage: () => {}};
+        element.isAuthPending = () => false;
+        element.isLoggedIn = () => true;
+        element._jobOffers = [
+            {
+                identifier: 'internal-job',
+                title: 'Internal job',
+                jobOfferType: 'internal',
+                areasOfInterest: [],
+                description: '',
+            },
+            {
+                identifier: 'external-job',
+                title: 'External job',
+                jobOfferType: 'external',
+                areasOfInterest: [],
+                description: '',
+            },
+        ];
+        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.deepEqual(
+            element.getFilteredJobs().map((job) => job.identifier),
+            ['internal-job'],
+        );
+        assert.isNull(element.shadowRoot.querySelector('option[value="career-entry"]'));
+
+        element.remove();
+        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, true);
     });
 
     test('should sort equal deadlines by publication date', () => {
@@ -444,6 +483,56 @@ suite('dbp-bulletin app shell', () => {
         element._roles = ['ROLE_BULLETIN_CAREER_PROFILE_USER'];
         element._updateVisibleRoutes();
         assert.deepEqual(element.visibleRoutes, []);
+    });
+
+    test('should hide activities whose feature flag is disabled', () => {
+        const element = new BulletinAppShell();
+        element.routes = [
+            'career-profile',
+            'generate-career-profiles',
+            'manage-fields',
+            'import-companies',
+        ];
+        element.metadata = {
+            'career-profile': {
+                visible: true,
+                disabled: false,
+                required_roles: [],
+                feature_flag: CAREER_PROFILES_FEATURE_FLAG,
+            },
+            'generate-career-profiles': {
+                visible: true,
+                disabled: false,
+                required_roles: [],
+                feature_flag: CAREER_PROFILES_FEATURE_FLAG,
+            },
+            'manage-fields': {
+                visible: true,
+                disabled: false,
+                required_roles: [],
+                feature_flag: EXTERNAL_JOBS_FEATURE_FLAG,
+            },
+            'import-companies': {
+                visible: true,
+                disabled: false,
+                required_roles: [],
+                feature_flag: EXTERNAL_JOBS_FEATURE_FLAG,
+            },
+        };
+
+        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, false);
+        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
+        element._updateVisibleRoutes();
+        assert.deepEqual(element.visibleRoutes, []);
+
+        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, true);
+        element._updateVisibleRoutes();
+        assert.deepEqual(element.visibleRoutes, [
+            {name: 'career-profile', disabled: false},
+            {name: 'generate-career-profiles', disabled: false},
+        ]);
+
+        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, false);
     });
 });
 
