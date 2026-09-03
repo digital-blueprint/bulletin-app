@@ -231,6 +231,7 @@ export const JOB_CATEGORIES = {
         'manage-job-offers.job-category-non-scientific-part-time-position',
     'seasonal-position': 'manage-job-offers.job-category-seasonal-position',
     internship: 'manage-job-offers.job-category-internship',
+    fulltime: 'manage-job-offers.job-category-fulltime',
 };
 
 export const AREAS_OF_INTEREST = {
