@@ -26,7 +26,7 @@ const defaultEnabledFeatureFlags = [
     'development',
     'developmentCustom',
 ].includes(appEnv)
-    ? ['career-profiles', 'external-jobs']
+    ? ['career-profiles', 'external-jobs', 'admin-tools']
     : [];
 let doMinify = buildFull;
 let transform = buildFull;

@@ -2,6 +2,7 @@
     "element": "dbp-bulletin-generate-jobs",
     "module_src": "dbp-bulletin-generate-jobs.js",
     "routing_name": "generate-jobs",
+    "feature_flag": "admin-tools",
     "required_roles": ["ROLE_BULLETIN_ADMIN"],
     "name": {
         "de": "Stellenangebote generieren",

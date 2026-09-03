@@ -24,7 +24,11 @@ import HoursRangeElement, {isHoursRangeValid} from '../src/modules/hoursRangeEle
 import {COMPANY_FIELDS, pickCompanyData} from '../src/modules/companyForm.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
 import {setFeatureFlag} from '@dbp-toolkit/common';
-import {CAREER_PROFILES_FEATURE_FLAG, EXTERNAL_JOBS_FEATURE_FLAG} from '../src/featureFlags.js';
+import {
+    ADMIN_TOOLS_FEATURE_FLAG,
+    CAREER_PROFILES_FEATURE_FLAG,
+    EXTERNAL_JOBS_FEATURE_FLAG,
+} from '../src/featureFlags.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
@@ -490,6 +494,7 @@ suite('dbp-bulletin app shell', () => {
         element.routes = [
             'career-profile',
             'generate-career-profiles',
+            'generate-jobs',
             'manage-fields',
             'import-companies',
         ];
@@ -504,7 +509,13 @@ suite('dbp-bulletin app shell', () => {
                 visible: true,
                 disabled: false,
                 required_roles: [],
-                feature_flag: CAREER_PROFILES_FEATURE_FLAG,
+                feature_flag: ADMIN_TOOLS_FEATURE_FLAG,
+            },
+            'generate-jobs': {
+                visible: true,
+                disabled: false,
+                required_roles: [],
+                feature_flag: ADMIN_TOOLS_FEATURE_FLAG,
             },
             'manage-fields': {
                 visible: true,
@@ -516,23 +527,31 @@ suite('dbp-bulletin app shell', () => {
                 visible: true,
                 disabled: false,
                 required_roles: [],
-                feature_flag: EXTERNAL_JOBS_FEATURE_FLAG,
+                feature_flag: ADMIN_TOOLS_FEATURE_FLAG,
             },
         };
 
         setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, false);
         setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, false);
         element._updateVisibleRoutes();
         assert.deepEqual(element.visibleRoutes, []);
 
         setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, true);
         element._updateVisibleRoutes();
+        assert.deepEqual(element.visibleRoutes, [{name: 'career-profile', disabled: false}]);
+
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
+        element._updateVisibleRoutes();
         assert.deepEqual(element.visibleRoutes, [
             {name: 'career-profile', disabled: false},
             {name: 'generate-career-profiles', disabled: false},
+            {name: 'generate-jobs', disabled: false},
+            {name: 'import-companies', disabled: false},
         ]);
 
         setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, false);
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, false);
     });
 });
 

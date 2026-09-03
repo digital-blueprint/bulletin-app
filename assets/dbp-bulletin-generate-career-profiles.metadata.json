@@ -2,7 +2,7 @@
     "element": "dbp-bulletin-generate-career-profiles",
     "module_src": "dbp-bulletin-generate-career-profiles.js",
     "routing_name": "generate-career-profiles",
-    "feature_flag": "career-profiles",
+    "feature_flag": "admin-tools",
     "required_roles": ["ROLE_BULLETIN_ADMIN"],
     "name": {
         "de": "Karriereprofile generieren",

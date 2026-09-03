@@ -2,7 +2,12 @@ import {getFeatureFlag, registerFeatureFlag, setFeatureFlag} from '@dbp-toolkit/
 
 export const CAREER_PROFILES_FEATURE_FLAG = 'career-profiles';
 export const EXTERNAL_JOBS_FEATURE_FLAG = 'external-jobs';
-export const FEATURE_FLAGS = [CAREER_PROFILES_FEATURE_FLAG, EXTERNAL_JOBS_FEATURE_FLAG];
+export const ADMIN_TOOLS_FEATURE_FLAG = 'admin-tools';
+export const FEATURE_FLAGS = [
+    CAREER_PROFILES_FEATURE_FLAG,
+    EXTERNAL_JOBS_FEATURE_FLAG,
+    ADMIN_TOOLS_FEATURE_FLAG,
+];
 
 for (const featureFlag of FEATURE_FLAGS) {
     registerFeatureFlag(featureFlag);
