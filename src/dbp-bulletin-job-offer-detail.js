@@ -1373,7 +1373,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .additional-info {
                 display: grid;
-                grid-template-columns: repeat(2, minmax(0px, 1fr));
+                grid-template-columns: 1fr;
                 gap: 10px 1rem;
             }
 
@@ -1463,9 +1463,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 .action-buttons {
                     justify-content: start;
-                }
-                .additional-info {
-                    grid-template-columns: 1fr;
                 }
             }
 
