@@ -1692,7 +1692,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             name="link-name"
                             lang="${this.lang}"
                             label="${t('manage-job-offers.field-link-name')}"
-                            placeholder="${t('manage-job-offers.field-link-name-placeholder')}"
                             .value="${this._linkName}"
                             @change="${(e) =>
                                 (this._linkName = e.detail.value)}"></dbp-string-element>
