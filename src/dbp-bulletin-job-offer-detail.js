@@ -651,6 +651,23 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
     }
 
+    getInternalLogo(job) {
+        const i18n = this._i18n;
+        const t = (key) => (i18n ? i18n.t(key) : key);
+        const logoUrl = commonUtils.getAssetURL('@digital-blueprint/bulletin-app', 'icon/logo.svg');
+
+        if (!job.externalJobUrl) {
+            return html`
+                <img
+                    src="${logoUrl}"
+                    alt="${t('manage-job-offers.job-type-internal')}"
+                    class="internal-logo"
+                    loading="lazy" />
+            `;
+        }
+        return '';
+    }
+
     _renderPartnerCompanyMarker(job, t) {
         if (job.jobOfferType === 'internal' || !job.isFromPartnerCompany) {
             return null;
@@ -665,7 +682,34 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     getOrganizationLabel(job) {
-        return job.jobOfferType === 'internal' ? this.universityShortName : (job.companyName ?? '');
+        if (job.jobOfferType === 'internal') {
+            return this.universityShortName;
+        }
+
+        const companyName = job.companyName ?? '';
+        if (job.jobOfferType !== 'external' || !job.isFromPartnerCompany) {
+            return companyName;
+        }
+
+        const website = job.companyData?.url ?? job.companyData?.website ?? '';
+        try {
+            const companyUrl = new URL(String(website).trim());
+            if (['http:', 'https:'].includes(companyUrl.protocol)) {
+                return html`
+                    <a
+                        class="partner-company-link"
+                        href="${companyUrl.href}"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        ${companyName}
+                    </a>
+                `;
+            }
+        } catch {
+            // Fall back to plain name when no valid website is available.
+        }
+
+        return companyName;
     }
 
     render() {
@@ -715,10 +759,15 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           <dl class="meta-list">
                                               ${this._renderPartnerCompanyMarker(job, t)}
                                               <div class="meta-item favicon">
-                                                  ${this.getInternalFavicon(job)}
-                                                  <span class="job-meta-type">
-                                                      ${this.getOrganizationLabel(job)}
-                                                  </span>
+                                                  ${
+                                                      isExternalJob
+                                                          ? html`
+                                                                <span class="job-meta-type">
+                                                                    ${this.getOrganizationLabel(job)}
+                                                                </span>
+                                                            `
+                                                          : this.getInternalLogo(job)
+                                                  }
                                               </div>
                                               <div class="meta-item">
                                                   <span class="meta-item-label">
@@ -1165,7 +1214,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .meta-item img {
-                width: 33px;
+                width: 100px;
+            }
+
+            .internal-logo {
+                width: auto;
+                object-fit: contain;
             }
 
             .job-meta-type {
@@ -1180,6 +1234,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 font-size: 1rem;
                 font-weight: bolder;
                 white-space: nowrap;
+            }
+
+            .partner-company-link {
+                color: var(--dbp-primary);
             }
 
             .meta-item dt {
