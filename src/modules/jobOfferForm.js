@@ -35,6 +35,7 @@ import HoursRangeElement, {
     sanitizeHoursValue,
 } from './hoursRangeElement.js';
 import {pickCompanyData} from './companyForm.js';
+import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from '../featureFlags.js';
 
 const i18n = createInstance();
 
@@ -854,6 +855,18 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             : JOB_OFFER_TYPE_INTERNAL;
     }
 
+    _getJobTypeItems(t) {
+        const jobTypeItems = {
+            [JOB_OFFER_TYPE_INTERNAL]: t('manage-job-offers.job-type-internal'),
+        };
+
+        if (isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG) || this._isExternalJob) {
+            jobTypeItems[JOB_OFFER_TYPE_EXTERNAL] = t('manage-job-offers.job-type-external');
+        }
+
+        return jobTypeItems;
+    }
+
     /** Resets all form fields to empty defaults. */
     resetForm() {
         this._title = '';
@@ -1112,6 +1125,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     async submit() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const isEditMode = this.existingForm !== null && this.existingForm !== undefined;
+
+        if (!isEditMode && !isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)) {
+            this._jobOfferType = JOB_OFFER_TYPE_INTERNAL;
+        }
+
         const selectedLocations = this._isExternalJob
             ? normalizeWorkLocations(this._workLocations)
             : getDefaultInternalWorkLocations();
@@ -1272,10 +1290,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     render() {
         const t = (key, opts) => this._i18n.t(key, opts);
         keepJobOfferAttachmentTranslations(t);
-        const jobTypeItems = {
-            [JOB_OFFER_TYPE_INTERNAL]: t('manage-job-offers.job-type-internal'),
-            [JOB_OFFER_TYPE_EXTERNAL]: t('manage-job-offers.job-type-external'),
-        };
+        const jobTypeItems = this._getJobTypeItems(t);
         const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
         const multilineHint = t('manage-job-offers.field-list-items-hint');
         const descriptionMaxLengthNote = t('manage-job-offers.field-description-max-length');
