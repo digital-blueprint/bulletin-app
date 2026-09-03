@@ -1507,8 +1507,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 top: 50%;
                 transform: translateY(-50%);
                 color: var(--dbp-muted);
-                display: flex;
-                align-items: center;
                 pointer-events: none;
             }
 

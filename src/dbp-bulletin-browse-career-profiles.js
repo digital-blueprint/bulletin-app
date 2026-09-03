@@ -977,8 +977,6 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 top: 50%;
                 transform: translateY(-50%);
                 color: var(--dbp-muted);
-                display: flex;
-                align-items: center;
                 pointer-events: none;
             }
 
