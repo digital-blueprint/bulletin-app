@@ -660,7 +660,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             return html`
                 <img
                     src="${logoUrl}"
-                    alt="${t('manage-job-offers.job-type-internal')}"
+                    alt="${t('manage-job-offers.job-type-internal')} Job"
                     class="internal-logo"
                     loading="lazy" />
             `;
