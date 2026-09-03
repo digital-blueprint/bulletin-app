@@ -483,17 +483,62 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
+     * Returns a truncated description for sharing (personalizable length, word-boundary safe).
+     * @param {object} job
+     * @param {number} maxLen
+     * @returns {string}
+     */
+    _getShareDescription(job = this.job, maxLen = 180) {
+        const raw = this._getLocalizedDescription(job).trim().replace(/\s+/g, ' ');
+        if (raw.length <= maxLen) {
+            return raw;
+        }
+        const sliced = raw.slice(0, maxLen);
+        const lastSpace = sliced.lastIndexOf(' ');
+        return (lastSpace > 40 ? sliced.slice(0, lastSpace) : sliced).trim() + '…';
+    }
+
+    /**
+     * Builds the i18n-personalizable e-mail/share payload (same text for both channels).
+     * All wording is defined via i18n so the final copy can be confirmed without code changes.
+     * @returns {{subject: string, body: string, url: string}}
+     */
+    _getShareEmailData() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const title = this._getLocalizedTitle(this.job);
+        const url = this.getShareUrl();
+        const description = this._getShareDescription(this.job, 180);
+        const organization = this.getOrganizationLabel(this.job) || '';
+        const organizationSuffix = organization
+            ? t('job-offer-detail.share-email-body-organization-suffix', {organization})
+            : '';
+        const subject = t('job-offer-detail.share-email-subject', {
+            title,
+            organization,
+            organizationSuffix,
+        });
+        const body = t('job-offer-detail.share-email-body', {
+            title,
+            organization,
+            organizationSuffix,
+            description,
+            url,
+        });
+        return {subject, body, url, title, description, organization, organizationSuffix};
+    }
+
+    /**
      * Handles the share button — uses native share if available, otherwise toggles the custom share dropdown.
+     * Uses the same i18n template as mailto for consistency.
      */
     async onShare() {
         if ('share' in navigator) {
             try {
-                const title = this._getLocalizedTitle(this.job);
-                const description = this._getLocalizedDescription(this.job);
+                const {subject, body, url} = this._getShareEmailData();
                 await navigator.share({
-                    title,
-                    text: description.slice(0, 100),
-                    url: this.getShareUrl(),
+                    title: subject,
+                    text: body,
+                    url,
                 });
             } catch (error) {
                 if (error.name !== 'AbortError') {
@@ -547,11 +592,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
     // Shares the job offer via email
     shareViaEmail() {
-        const url = this.getShareUrl();
-        const title = this._getLocalizedTitle(this.job);
-        const description = this._getLocalizedDescription(this.job);
-        const subject = title;
-        const body = title + '\n\n' + description.slice(0, 100) + '\n\n' + url;
+        const {subject, body} = this._getShareEmailData();
         window.open(
             `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
             '_self',
