@@ -74,10 +74,6 @@ export function getJobApplicationDataFeedSchema() {
                 minLength: 1,
                 description: "Applicant's family (last) name.",
             },
-            studyField: {
-                type: 'string',
-                description: "Applicant's field of study.",
-            },
             email: {
                 type: 'string',
                 minLength: 1,
@@ -97,7 +93,7 @@ export function getJobApplicationDataFeedSchema() {
                 description: 'Free-text message or cover letter.',
             },
         },
-        required: ['givenName', 'familyName', 'studyField', 'personIdentifier', 'email'],
+        required: ['givenName', 'familyName', 'personIdentifier', 'email'],
     });
 }
 
@@ -1974,8 +1970,6 @@ export class JobOfferFormElement extends BaseFormElement {
         this._prefilledGivenName = '';
         /** @type {string} Prefilled family name sourced from login data */
         this._prefilledFamilyName = '';
-        /** @type {string} Prefilled person/study field */
-        this._prefilledStudyField = '';
         /** @type {string} Prefilled email address */
         this._prefilledEmail = '';
         /** @type {string} Prefilled person/matriculation identifier */
@@ -2368,9 +2362,6 @@ export class JobOfferFormElement extends BaseFormElement {
      * Returns the logged-in user's study field from auth claims.
      * @returns {string}
      */
-    _getLoggedInStudyField() {
-        return this._prefilledStudyField ?? this.formData?.studyField ?? '';
-    }
 
     /**
      * Returns the logged-in user's email address.
@@ -2532,7 +2523,6 @@ export class JobOfferFormElement extends BaseFormElement {
         const submissionData = {
             givenName: this._getLoggedInGivenName() || this._firstNameRef.value?.value || '',
             familyName: this._getLoggedInFamilyName() || this._lastNameRef.value?.value || '',
-            studyField: this._getLoggedInStudyField() || this._studyFieldRef.value?.value || '',
             email: this._getLoggedInEmail(),
             freeText: this._messageRef.value?.value ?? '',
             personIdentifier: this._getLoggedInPersonIdentifier(),
