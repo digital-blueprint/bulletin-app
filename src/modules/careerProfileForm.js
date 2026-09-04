@@ -23,7 +23,7 @@ const CAREER_PROFILE_TEASER_MAX_LENGTH = 100;
 const CAREER_PROFILE_READER_GROUP = '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df';
 
 /**
- * Grants staff and the career-profile reader group access to a new profile.
+ * Grants staff and the career-profile reader group read and submission access.
  *
  * @param {object} host
  * @param {string} formIdentifier
@@ -45,7 +45,19 @@ export async function grantCareerProfileReadAccess(host, formIdentifier) {
         {
             resourceClass: 'DbpRelayFormalizeForm',
             resourceIdentifier: formIdentifier,
+            action: 'create_submissions',
+            dynamicGroupIdentifier: 'staff',
+        },
+        {
+            resourceClass: 'DbpRelayFormalizeForm',
+            resourceIdentifier: formIdentifier,
             action: 'read',
+            groupIdentifier: CAREER_PROFILE_READER_GROUP,
+        },
+        {
+            resourceClass: 'DbpRelayFormalizeForm',
+            resourceIdentifier: formIdentifier,
+            action: 'create_submissions',
             groupIdentifier: CAREER_PROFILE_READER_GROUP,
         },
     ];

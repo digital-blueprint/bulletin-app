@@ -2,7 +2,6 @@
     "element": "dbp-bulletin-view-job-offers",
     "module_src": "dbp-bulletin-view-job-offers.js",
     "routing_name": "view-job-offers",
-    "required_any_roles": ["ROLE_BULLETIN_JOB_OFFER_USER", "ROLE_BULLETIN_JOB_OFFER_MANAGER"],
     "visible_when_logged_out": true,
     "name": {
         "de": "Stellenangebote anzeigen",

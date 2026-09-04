@@ -106,7 +106,7 @@ export function normalizePartnerCompanyValue(value) {
 }
 
 /**
- * Grants public read access and creator manage access to a job-offer form.
+ * Grants authenticated read access, student submission access, and creator management.
  *
  * @param {object} host
  * @param {string} formIdentifier
@@ -125,6 +125,12 @@ export async function grantJobOfferAccess(host, formIdentifier) {
             resourceIdentifier: formIdentifier,
             action: 'read',
             dynamicGroupIdentifier: 'everybody',
+        },
+        {
+            resourceClass: 'DbpRelayFormalizeForm',
+            resourceIdentifier: formIdentifier,
+            action: 'create_submissions',
+            dynamicGroupIdentifier: 'students',
         },
         {
             resourceClass: 'DbpRelayFormalizeForm',

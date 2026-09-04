@@ -14,6 +14,8 @@ import {
 import {getWorkLocationLabels} from './modules/workLocationsElement.js';
 import {formatHoursRange} from './modules/hoursRangeElement.js';
 
+const JOB_OFFER_USER_ROLE = 'ROLE_BULLETIN_JOB_OFFER_USER';
+
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
@@ -468,6 +470,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _handleApply() {
+        if (!this._canApply()) {
+            return;
+        }
+
         if (this._isExternalJob()) {
             const externalJobUrl = this._getExternalJobUrl();
             if (externalJobUrl) {
@@ -480,6 +486,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         if (formEl) {
             formEl.scrollIntoView({behavior: 'smooth'});
         }
+    }
+
+    _canApply() {
+        return (this.auth?._roles ?? []).includes(JOB_OFFER_USER_ROLE);
     }
 
     /**
@@ -881,7 +891,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       // For external job offers the button leads to
                                                       // the company website, so it is only useful
                                                       // when a valid link is available.
-                                                      isExternalJob && !this._getExternalJobUrl(job)
+                                                      !this._canApply() ||
+                                                      (isExternalJob &&
+                                                          !this._getExternalJobUrl(job))
                                                           ? ''
                                                           : html`
                                                                 <button
@@ -1145,7 +1157,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                            External job offers are applied for on the company website,
                                            so no application form is shown for them. -->
                                       ${
-                                          isExternalJob
+                                          isExternalJob || !this._canApply()
                                               ? ''
                                               : html`
                                                     <dbp-bulletin-job-offer-form

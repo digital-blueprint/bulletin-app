@@ -567,6 +567,16 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 });
 
 suite('dbp-bulletin-job-offer-detail basics', () => {
+    test('should only allow users with the job-offer user role to apply', () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+
+        element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_MANAGER']};
+        assert.isFalse(element._canApply());
+
+        element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_USER']};
+        assert.isTrue(element._canApply());
+    });
+
     test('should show remote status in the job description', async () => {
         const element = document.createElement('dbp-bulletin-job-offer-detail');
         element.job = {
@@ -906,7 +916,7 @@ suite('jobOfferForm error notifications', () => {
 });
 
 suite('jobOfferForm authorization grants', () => {
-    test('should grant public read and creator manage access to a new form', async () => {
+    test('should grant read, student submission, and creator manage access', async () => {
         const originalFetch = globalThis.fetch;
         const requests = [];
 
@@ -929,7 +939,7 @@ suite('jobOfferForm authorization grants', () => {
             globalThis.fetch = originalFetch;
         }
 
-        assert.lengthOf(requests, 2);
+        assert.lengthOf(requests, 3);
         requests.forEach(({url, options}) => {
             assert.equal(url, 'https://example.invalid/authorization/resource-action-grants');
             assert.equal(options.method, 'POST');
@@ -944,6 +954,12 @@ suite('jobOfferForm authorization grants', () => {
                     resourceIdentifier: 'form-identifier',
                     action: 'read',
                     dynamicGroupIdentifier: 'everybody',
+                },
+                {
+                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceIdentifier: 'form-identifier',
+                    action: 'create_submissions',
+                    dynamicGroupIdentifier: 'students',
                 },
                 {
                     resourceClass: 'DbpRelayFormalizeForm',
@@ -1612,7 +1628,7 @@ suite('career profile student studies', () => {
 });
 
 suite('career profile authorization grants', () => {
-    test('should grant read access to staff and the career-profile reader group', async () => {
+    test('should grant read and submission access to staff and the reader group', async () => {
         const originalFetch = globalThis.fetch;
         const requests = [];
 
@@ -1635,7 +1651,7 @@ suite('career profile authorization grants', () => {
             globalThis.fetch = originalFetch;
         }
 
-        assert.lengthOf(requests, 2);
+        assert.lengthOf(requests, 4);
         for (const request of requests) {
             assert.equal(
                 request.url,
@@ -1657,7 +1673,19 @@ suite('career profile authorization grants', () => {
                 {
                     resourceClass: 'DbpRelayFormalizeForm',
                     resourceIdentifier: 'profile-identifier',
+                    action: 'create_submissions',
+                    dynamicGroupIdentifier: 'staff',
+                },
+                {
+                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceIdentifier: 'profile-identifier',
                     action: 'read',
+                    groupIdentifier: '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df',
+                },
+                {
+                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceIdentifier: 'profile-identifier',
+                    action: 'create_submissions',
                     groupIdentifier: '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df',
                 },
             ],
