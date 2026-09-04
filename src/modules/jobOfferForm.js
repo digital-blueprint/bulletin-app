@@ -2169,12 +2169,6 @@ export class JobOfferFormElement extends BaseFormElement {
         }
     }
 
-    _supportsApplicationAttachments() {
-        const schema = this._getApplicationSchema();
-
-        return Boolean(schema?.files?.[JOB_APPLICATION_ATTACHMENT_GROUP]);
-    }
-
     _getApplicationSchema() {
         const dataFeedSchema =
             this._applicationDataFeedSchema ||
@@ -2196,10 +2190,6 @@ export class JobOfferFormElement extends BaseFormElement {
 
     _openAttachmentPicker(event) {
         event.preventDefault();
-
-        if (!this._supportsApplicationAttachments()) {
-            return;
-        }
 
         this.currentUploadGroup = JOB_APPLICATION_ATTACHMENT_GROUP;
         this._attachmentLimitNotified = false;
@@ -2229,10 +2219,6 @@ export class JobOfferFormElement extends BaseFormElement {
     }
 
     _handleAttachmentFilesSelected(event) {
-        if (!this._supportsApplicationAttachments()) {
-            return;
-        }
-
         const groupData = this._getAttachmentGroupData();
 
         if (groupData.filesToSubmit.size >= JOB_APPLICATION_ATTACHMENT_LIMIT) {
@@ -2565,18 +2551,15 @@ export class JobOfferFormElement extends BaseFormElement {
         const t = (key, opts) => this._i18n.t(key, opts);
         const {formData} = detail;
         const attachmentGroup = this._getAttachmentGroupData();
-        const supportsApplicationAttachments = this._supportsApplicationAttachments();
 
         const postFormData = new FormData();
         postFormData.append('form', '/formalize/forms/' + this.formIdentifier);
         postFormData.append('dataFeedElement', JSON.stringify(formData));
         postFormData.append('submissionState', String(SUBMISSION_STATES_BINARY.SUBMITTED));
 
-        if (supportsApplicationAttachments) {
-            attachmentGroup.filesToSubmit.forEach((file) => {
-                postFormData.append(`${JOB_APPLICATION_ATTACHMENT_GROUP}[]`, file, file.name);
-            });
-        }
+        attachmentGroup.filesToSubmit.forEach((file) => {
+            postFormData.append(`${JOB_APPLICATION_ATTACHMENT_GROUP}[]`, file, file.name);
+        });
 
         try {
             const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
@@ -2666,7 +2649,6 @@ export class JobOfferFormElement extends BaseFormElement {
             return html``;
         }
 
-        const supportsApplicationAttachments = this._supportsApplicationAttachments();
         const attachmentGroup = this._getAttachmentGroupData();
         const attachmentCount = attachmentGroup.filesToSubmit.size;
         const data = {
@@ -2748,46 +2730,35 @@ export class JobOfferFormElement extends BaseFormElement {
                         .value="${this.formData?.freeText ?? ''}"
                         .customValidator="${this._messageValidator}"
                         rows="4"></dbp-form-string-element>
-                    ${
-                        supportsApplicationAttachments
-                            ? html`
-                                  <div class="file-upload-container">
-                                      <div class="file-upload-title-container">
-                                          <h5 class="attachments-title">
-                                              ${t('job-offer-detail.attachments')}
-                                          </h5>
-                                          <span class="file-upload-limit-warning">
-                                              ${t('job-offer-detail.attachments-help', {
-                                                  count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                                  size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
-                                              })}
-                                          </span>
-                                      </div>
+                    <div class="file-upload-container">
+                        <div class="file-upload-title-container">
+                            <h5 class="attachments-title">${t('job-offer-detail.attachments')}</h5>
+                            <span class="file-upload-limit-warning">
+                                ${t('job-offer-detail.attachments-help', {
+                                    count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                    size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                                })}
+                            </span>
+                        </div>
 
-                                      <div class="uploaded-files">
-                                          ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
-                                      </div>
+                        <div class="uploaded-files">
+                            ${this.renderAttachedFilesHtml(JOB_APPLICATION_ATTACHMENT_GROUP)}
+                        </div>
 
-                                      <button
-                                          class="button is-secondary upload-button upload-button--attachment"
-                                          type="button"
-                                          ?disabled="${
-                                              this._isSubmitting ||
-                                              attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT
-                                          }"
-                                          @click="${this._openAttachmentPicker}">
-                                          <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
-                                          ${t(
-                                              'render-form.download-widget.upload-file-button-label',
-                                              {
-                                                  count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                              },
-                                          )}
-                                      </button>
-                                  </div>
-                              `
-                            : ''
-                    }
+                        <button
+                            class="button is-secondary upload-button upload-button--attachment"
+                            type="button"
+                            ?disabled="${
+                                this._isSubmitting ||
+                                attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT
+                            }"
+                            @click="${this._openAttachmentPicker}">
+                            <dbp-icon name="upload" aria-hidden="true"></dbp-icon>
+                            ${t('render-form.download-widget.upload-file-button-label', {
+                                count: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                            })}
+                        </button>
+                    </div>
 
                     <div class="form-footer">
                         <button

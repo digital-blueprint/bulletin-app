@@ -814,6 +814,60 @@ suite('jobOfferForm application submission', () => {
         ]);
     });
 
+    test('should define PDF attachments in the application schema', () => {
+        const schema = JSON.parse(getJobApplicationDataFeedSchema());
+
+        assert.deepEqual(schema.files.attachments, {
+            minNumber: 0,
+            maxNumber: 5,
+            maxSizeMb: 10,
+            allowedMimeTypes: ['application/pdf'],
+        });
+    });
+
+    test('should render the attachment upload without a loaded schema', () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        const template = element.render();
+
+        assert.include(template.strings.join(''), 'class="file-upload-container"');
+    });
+
+    test('should submit selected attachments without a loaded schema', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        const attachment = new File(['application'], 'application.pdf', {
+            type: 'application/pdf',
+        });
+        element.entryPointUrl = 'https://example.invalid';
+        element.formIdentifier = 'job-1';
+        element.auth = {token: 'token'};
+        element._getAttachmentGroupData().filesToSubmit.set('attachment-1', attachment);
+
+        const originalFetch = globalThis.fetch;
+        let requestBody;
+        globalThis.fetch = async (_url, options) => {
+            requestBody = options.body;
+            return {ok: true};
+        };
+
+        try {
+            await element._handleSubmission({formData: {}, submissionId: null});
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.deepEqual(requestBody.getAll('attachments[]'), [attachment]);
+    });
+
     test('should request only supported applicant local data', async () => {
         const tagName = 'test-job-offer-form-element';
         if (!customElements.get(tagName)) {
