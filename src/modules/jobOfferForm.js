@@ -127,7 +127,7 @@ export async function grantJobOfferAccess(host, formIdentifier) {
             dynamicGroupIdentifier: 'everybody',
         },
         {
-            resourceClass: 'DbpRelayFormalizeForm',
+            resourceClass: 'DbpRelayFormalizeSubmissionCollection',
             resourceIdentifier: formIdentifier,
             action: 'create_submissions',
             dynamicGroupIdentifier: 'students',

@@ -43,7 +43,7 @@ export async function grantCareerProfileReadAccess(host, formIdentifier) {
             dynamicGroupIdentifier: 'staff',
         },
         {
-            resourceClass: 'DbpRelayFormalizeForm',
+            resourceClass: 'DbpRelayFormalizeSubmissionCollection',
             resourceIdentifier: formIdentifier,
             action: 'create_submissions',
             dynamicGroupIdentifier: 'staff',
@@ -55,7 +55,7 @@ export async function grantCareerProfileReadAccess(host, formIdentifier) {
             groupIdentifier: CAREER_PROFILE_READER_GROUP,
         },
         {
-            resourceClass: 'DbpRelayFormalizeForm',
+            resourceClass: 'DbpRelayFormalizeSubmissionCollection',
             resourceIdentifier: formIdentifier,
             action: 'create_submissions',
             groupIdentifier: CAREER_PROFILE_READER_GROUP,

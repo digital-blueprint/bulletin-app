@@ -956,7 +956,7 @@ suite('jobOfferForm authorization grants', () => {
                     dynamicGroupIdentifier: 'everybody',
                 },
                 {
-                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceClass: 'DbpRelayFormalizeSubmissionCollection',
                     resourceIdentifier: 'form-identifier',
                     action: 'create_submissions',
                     dynamicGroupIdentifier: 'students',
@@ -1698,7 +1698,7 @@ suite('career profile authorization grants', () => {
                     dynamicGroupIdentifier: 'staff',
                 },
                 {
-                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceClass: 'DbpRelayFormalizeSubmissionCollection',
                     resourceIdentifier: 'profile-identifier',
                     action: 'create_submissions',
                     dynamicGroupIdentifier: 'staff',
@@ -1710,7 +1710,7 @@ suite('career profile authorization grants', () => {
                     groupIdentifier: '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df',
                 },
                 {
-                    resourceClass: 'DbpRelayFormalizeForm',
+                    resourceClass: 'DbpRelayFormalizeSubmissionCollection',
                     resourceIdentifier: 'profile-identifier',
                     action: 'create_submissions',
                     groupIdentifier: '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df',
