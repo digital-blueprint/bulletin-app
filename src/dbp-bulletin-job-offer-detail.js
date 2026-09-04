@@ -769,18 +769,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                           : this.getInternalLogo(job)
                                                   }
                                               </div>
-                                              <div class="meta-item">
-                                                  <span class="meta-item-label">
-                                                      ${t('job-offer-detail.published-at')}:
-                                                  </span>
-                                                  ${this.formatDate(job.publishedAt)}
-                                              </div>
-                                              <div class="meta-item">
-                                                  <span class="meta-item-label">
-                                                      ${t('job-offer-detail.deadline')}:
-                                                  </span>
-                                                  ${this.formatDate(job.deadline)}
-                                              </div>
 
                                               ${
                                                   !isExternalJob
@@ -798,6 +786,18 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                         `
                                                       : ''
                                               }
+                                              <div class="meta-item">
+                                                  <span class="meta-item-label">
+                                                      ${t('job-offer-detail.published-at')}:
+                                                  </span>
+                                                  ${this.formatDate(job.publishedAt)}
+                                              </div>
+                                              <div class="meta-item">
+                                                  <span class="meta-item-label">
+                                                      ${t('job-offer-detail.deadline')}:
+                                                  </span>
+                                                  ${this.formatDate(job.deadline)}
+                                              </div>
                                               <div class="meta-item work-location">
                                                   ${this._renderWorkLocationList(
                                                       workLocationLabels.map((label) =>
@@ -1283,6 +1283,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .meta-job-link {
                 text-decoration: underline;
+                color: var(--dbp-primary);
             }
 
             /* Outlined area-of-interest badge */
