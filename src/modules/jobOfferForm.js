@@ -2712,14 +2712,6 @@ export class JobOfferFormElement extends BaseFormElement {
                                 ${this._getLoggedInEmail()}
                             </span>
                         </div>
-                        <div class="form-column">
-                            <dbp-form-string-element
-                                ${ref(this._studyFieldRef)}
-                                subscribe="lang"
-                                name="studyField"
-                                label="${t('job-offer-detail.study-field')}"
-                                value="${data.studyField || ''}"></dbp-form-string-element>
-                        </div>
                     </div>
 
                     <dbp-form-string-element
