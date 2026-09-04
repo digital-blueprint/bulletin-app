@@ -963,7 +963,6 @@ suite('jobOfferForm application submission', () => {
         assert.hasAllKeys(schema.properties, [
             'givenName',
             'familyName',
-            'studyField',
             'email',
             'title',
             'personIdentifier',
@@ -1077,7 +1076,6 @@ suite('jobOfferForm application submission', () => {
         element.auth = {token: 'token'};
         element._prefilledEmail = 'applicant@example.com';
         element._applicationDataFeedSchema = getJobApplicationDataFeedSchema();
-        element._studyFieldRef = {value: {value: 'Computer Science'}};
         element._messageRef = {value: {value: 'Application message'}};
         element._validateApplicationForm = () => true;
         element._handleSubmission = async ({formData}) => {
@@ -1087,7 +1085,6 @@ suite('jobOfferForm application submission', () => {
         await element._onApplySubmit({preventDefault() {}});
 
         assert.equal(submittedData.email, 'applicant@example.com');
-        assert.equal(submittedData.studyField, 'Computer Science');
         assert.equal(submittedData.freeText, 'Application message');
     });
 });
