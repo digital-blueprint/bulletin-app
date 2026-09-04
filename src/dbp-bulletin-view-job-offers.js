@@ -11,6 +11,7 @@ import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
     getAreaOfInterestLabel,
     getAreaOfInterestLabels,
+    getJobCategoryLabel,
     normalizeAreaOfInterestValues,
     normalizePartnerCompanyValue,
 } from './modules/jobOfferForm.js';
@@ -451,7 +452,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /**
      * Returns the loaded job offers filtered by search query and dropdowns, then sorted.
-     * @returns {Array}
+     * @returns {Array<object>}
      */
     getFilteredJobs({includeAreaOfInterest = true, includeWorkLocation = true} = {}) {
         const query = this.searchQuery.toLowerCase().trim();
@@ -461,17 +462,40 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     job.areasOfInterest ?? job.areaOfInterest,
                     this._i18n.t.bind(this._i18n),
                 );
+                const organizationName =
+                    job.jobOfferType === 'internal'
+                        ? this.universityShortName
+                        : (job.companyName ?? '');
+                const jobCategoryLabel = job.jobCategory
+                    ? getJobCategoryLabel(job.jobCategory, this._i18n.t.bind(this._i18n))
+                    : '';
+                const workLocationLabels = normalizeWorkLocations(job.workLocations).map(
+                    (location) =>
+                        getWorkLocationLabel(location, this._i18n.t.bind(this._i18n), this.lang),
+                );
+                const searchableValues = [
+                    this._localized(job.title ?? '', job.titleEn ?? ''),
+                    organizationName,
+                    this._getLocalizedDescription(job),
+                    jobCategoryLabel,
+                    this._localized(job.organizationalUnit ?? '', job.organizationalUnitEn ?? ''),
+                    ...this._localizedList(job.requirements, job.requirementsEn),
+                    ...this._localizedList(job.requiredQualification, job.requiredQualificationEn),
+                    ...this._localizedList(job.responsibilities, job.responsibilitiesEn),
+                    ...this._localizedList(job.weOffer, job.weOfferEn),
+                    ...areaOfInterestLabels,
+                    ...workLocationLabels,
+                    formatHoursRange(job.weeklyHoursMin, job.weeklyHoursMax, job.weeklyHours),
+                    job.weeklyHoursEn ?? '',
+                ];
+                const searchableText = searchableValues
+                    .map((value) => String(value ?? '').toLowerCase())
+                    .join(' ');
+
+                // Split the search query into words and require that all words are present in the searchable text.
                 const matchesSearch =
-                    !query ||
-                    job.title.toLowerCase().includes(query) ||
-                    areaOfInterestLabels.some((label) => label.toLowerCase().includes(query)) ||
-                    this._getLocalizedDescription(job).toLowerCase().includes(query) ||
-                    formatHoursRange(job.weeklyHoursMin, job.weeklyHoursMax, job.weeklyHours)
-                        .toLowerCase()
-                        .includes(query) ||
-                    String(job.weeklyHoursEn ?? '')
-                        .toLowerCase()
-                        .includes(query);
+                    !query || query.split(/\s+/).every((word) => searchableText.includes(word));
+
                 const jobAreasOfInterest = normalizeAreaOfInterestValues(
                     job.areasOfInterest ?? job.areaOfInterest,
                 );
@@ -690,6 +714,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     _localized(primary, en) {
         return this.lang === 'en' && en ? en : primary;
+    }
+
+    /**
+     * Returns the English list when available in English, otherwise returns the primary list.
+     * @param {Array<string>|null|undefined} primary
+     * @param {Array<string>|null|undefined} en
+     * @returns {Array<string>}
+     */
+    _localizedList(primary, en) {
+        const primaryItems = Array.isArray(primary) ? primary : [];
+        const enItems = Array.isArray(en) ? en : [];
+
+        return this.lang === 'en' && enItems.length > 0 ? enItems : primaryItems;
     }
 
     /**

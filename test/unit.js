@@ -151,6 +151,163 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         );
     });
 
+    test('should search all full-text job fields', () => {
+        node.clearFilters();
+        node.universityShortName = 'TU Graz';
+        node._i18n = {
+            t: (key) =>
+                ({
+                    'manage-job-offers.job-category-internship': 'Unique Internship Category',
+                    'manage-job-offers.area-of-interest-engineering': 'Engineering',
+                })[key] ?? key,
+            changeLanguage: () => {},
+        };
+        node.lang = 'de';
+        node._jobOffers = [
+            {
+                identifier: 'external-job',
+                title: 'Unique Position Title',
+                jobOfferType: 'external',
+                companyName: 'Unique Company',
+                description: 'Unique Job Description',
+                jobCategory: 'internship',
+                organizationalUnit: 'Unique Organizational Unit',
+                requirements: ['First requirement', 'Unique Admission Requirement'],
+                requiredQualification: ['Unique Required Qualification'],
+                responsibilities: ['Unique Responsibility'],
+                weOffer: ['Unique Employee Benefit'],
+                workLocations: [{country: 'AT', region: 'styria', city: 'leoben'}],
+                areasOfInterest: [],
+                publishedAt: '2026-01-02',
+            },
+            {
+                identifier: 'internal-job',
+                title: 'Internal Position',
+                jobOfferType: 'internal',
+                description: '',
+                workLocations: [{country: 'AT', region: 'vienna', city: 'vienna-city'}],
+                areasOfInterest: ['engineering'],
+                publishedAt: '2026-01-01',
+            },
+        ];
+
+        const searches = [
+            ['position title', 'external-job'],
+            ['company', 'external-job'],
+            ['job description', 'external-job'],
+            ['internship category', 'external-job'],
+            ['organizational unit', 'external-job'],
+            ['admission requirement', 'external-job'],
+            ['required qualification', 'external-job'],
+            ['responsibility', 'external-job'],
+            ['employee benefit', 'external-job'],
+            ['leoben', 'external-job'],
+            ['tu graz', 'internal-job'],
+        ];
+
+        for (const [query, expectedIdentifier] of searches) {
+            node.searchQuery = query;
+            assert.deepEqual(
+                node.getFilteredJobs().map((job) => job.identifier),
+                [expectedIdentifier],
+                `Expected "${query}" to match ${expectedIdentifier}`,
+            );
+        }
+
+        node.searchQuery = 'TU Graz engineering Wien';
+        assert.deepEqual(
+            node.getFilteredJobs().map((job) => job.identifier),
+            ['internal-job'],
+        );
+
+        node.searchQuery = 'TU Graz engineering Wien missing';
+        assert.lengthOf(node.getFilteredJobs(), 0);
+
+        node.searchQuery = '  UNIQUE REQUIRED QUALIFICATION  ';
+        assert.deepEqual(
+            node.getFilteredJobs().map((job) => job.identifier),
+            ['external-job'],
+        );
+        node.clearFilters();
+    });
+
+    test('should search fields in the current language with primary-language fallback', () => {
+        node.clearFilters();
+        node._i18n = {t: (key) => key, changeLanguage: () => {}};
+        node.lang = 'en';
+        node._jobOffers = [
+            {
+                identifier: 'localized-job',
+                title: 'Primary Position',
+                titleEn: 'English Position',
+                jobOfferType: 'internal',
+                description: 'Primary Description',
+                descriptionEn: 'English Description',
+                organizationalUnit: 'Fallback Organizational Unit',
+                organizationalUnitEn: '',
+                requirements: ['Primary Requirement'],
+                requirementsEn: ['English Requirement'],
+                requiredQualification: ['Fallback Qualification'],
+                requiredQualificationEn: [],
+                responsibilities: [],
+                weOffer: [],
+                areasOfInterest: [],
+                publishedAt: '2026-01-01',
+            },
+        ];
+
+        for (const query of [
+            'english position',
+            'english description',
+            'english requirement',
+            'fallback organizational unit',
+            'fallback qualification',
+        ]) {
+            node.searchQuery = query;
+            assert.lengthOf(node.getFilteredJobs(), 1, `Expected "${query}" to match`);
+        }
+
+        for (const query of ['primary position', 'primary description', 'primary requirement']) {
+            node.searchQuery = query;
+            assert.lengthOf(node.getFilteredJobs(), 0, `Expected "${query}" not to match`);
+        }
+
+        node.lang = 'de';
+        node.clearFilters();
+    });
+
+    test('should combine full-text search with the selected work location', () => {
+        node.clearFilters();
+        node._i18n = {t: (key) => key, changeLanguage: () => {}};
+        node.lang = 'de';
+        node._jobOffers = [
+            {
+                identifier: 'vienna-job',
+                title: 'Vienna Position',
+                description: 'Collaboration with the Graz office',
+                workLocations: [{country: 'AT', region: 'wien', city: 'wien'}],
+                areasOfInterest: [],
+                publishedAt: '2026-01-02',
+            },
+            {
+                identifier: 'graz-job',
+                title: 'Graz Position',
+                description: 'Based in Graz',
+                workLocations: [{country: 'AT', region: 'styria', city: 'graz'}],
+                areasOfInterest: [],
+                publishedAt: '2026-01-01',
+            },
+        ];
+        node.filterWorkLocation = 'AT|wien|wien';
+        node.searchQuery = 'graz';
+
+        assert.deepEqual(
+            node.getFilteredJobs().map((job) => job.identifier),
+            ['vienna-job'],
+        );
+        node.clearFilters();
+    });
+
     test('should include remote jobs only when requested', () => {
         node._i18n = {t: (key) => key};
         node.clearFilters();
