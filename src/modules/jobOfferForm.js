@@ -2247,6 +2247,10 @@ export class JobOfferFormElement extends BaseFormElement {
         event.stopPropagation();
     }
 
+    _handleAttachmentDownloadClosed(event) {
+        event.stopPropagation();
+    }
+
     /**
      * Calls handleErrors() on every form field to reveal inline validation messages.
      * Returns true only when all fields pass validation.
@@ -2780,6 +2784,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 lang="${this.lang}"
                 allowed-mime-types="application/pdf,.pdf"
                 enabled-targets="local,clipboard,nextcloud"
+                @dbp-modal-closed="${this._handleAttachmentDownloadClosed}"
                 subscribe="nextcloud-auth-url,nextcloud-web-dav-url,nextcloud-name,nextcloud-file-url"></dbp-file-sink>
 
             <dbp-modal

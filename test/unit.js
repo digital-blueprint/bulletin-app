@@ -1009,6 +1009,33 @@ suite('jobOfferForm application submission', () => {
         assert.include(template.strings.join(''), 'class="file-upload-container"');
     });
 
+    test('should not propagate attachment download modal close events', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        let closeEventPropagated = false;
+        element.addEventListener('dbp-modal-closed', () => {
+            closeEventPropagated = true;
+        });
+
+        const fileSink = element.shadowRoot.querySelector('#file-sink');
+        fileSink.dispatchEvent(
+            new CustomEvent('dbp-modal-closed', {
+                detail: {id: 'modal-picker-dialog'},
+                bubbles: true,
+                composed: true,
+            }),
+        );
+
+        assert.isFalse(closeEventPropagated);
+    });
+
     test('should submit selected attachments without a loaded schema', async () => {
         const tagName = 'test-job-offer-form-element';
         if (!customElements.get(tagName)) {
