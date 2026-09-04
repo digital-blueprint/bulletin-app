@@ -1384,7 +1384,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                   ${this._renderPartnerCompanyMarker(job, t)}
                                                                   ${this.getOrganizationLabel(job)}
                                                               </span>
-                                                              ${this._renderWorkLocationTags(job, t)}
+
                                                               ${this._renderJobMetaItem(
                                                                   t(
                                                                       'view-job-offers.organizational-unit',
@@ -1395,6 +1395,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                           '',
                                                                   ),
                                                               )}
+                                                              ${this._renderWorkLocationTags(job, t)}
                                                               ${this._renderJobMetaItem(
                                                                   t('view-job-offers.weekly-hours'),
                                                                   this._localized(
