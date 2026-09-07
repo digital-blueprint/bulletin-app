@@ -381,8 +381,8 @@
         "job-description": "Beschreibung der Stellenanzeige",
         "link": "Link",
         "matriculation-number": "Matrikelnummer",
+        "max-characters": "Maximal 2000 Zeichen",
         "message": "Warum haben Sie Interesse an diesem Stellenangebot?",
-        "message-min-length": "Ihre Begründung muss mindestens 50 Zeichen enthalten (aktuell: {{current}}).",
         "monthly-salary": "Gehalt",
         "notification": {
             "attachment-limit-body_one": "Sie können maximal {{count}} PDF-Datei hochladen.",

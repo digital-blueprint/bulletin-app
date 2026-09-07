@@ -381,8 +381,8 @@
         "job-description": "Job description",
         "link": "Link",
         "matriculation-number": "Immatriculation number",
+        "max-characters": "Maximum 2000 characters",
         "message": "Why are you interested in this job offer?",
-        "message-min-length": "Your response must contain at least 50 characters (currently: {{current}}).",
         "monthly-salary": "Salary",
         "notification": {
             "attachment-limit-body_one": "You can upload at most {{count}} PDF file.",

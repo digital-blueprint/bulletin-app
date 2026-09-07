@@ -2287,15 +2287,6 @@ export class JobOfferFormElement extends BaseFormElement {
      * Returns a customValidator function for the message field that enforces a 50-character minimum.
      * @returns {(value: string) => string[]}
      */
-    get _messageValidator() {
-        const i18n = this._i18n;
-        return (value) => {
-            if (value && value.length < 50) {
-                return [i18n.t('job-offer-detail.message-min-length', {current: value.length})];
-            }
-            return [];
-        };
-    }
 
     get _isExternalJobOffer() {
         return this.job?.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
@@ -2713,15 +2704,19 @@ export class JobOfferFormElement extends BaseFormElement {
                             </span>
                         </div>
                     </div>
-
-                    <dbp-form-string-element
-                        ${ref(this._messageRef)}
-                        subscribe="lang"
-                        name="freeText"
-                        label="${t('job-offer-detail.message')}"
-                        .value="${this.formData?.freeText ?? ''}"
-                        .customValidator="${this._messageValidator}"
-                        rows="4"></dbp-form-string-element>
+                    <div class="form-row-free">
+                        <dbp-form-string-element
+                            ${ref(this._messageRef)}
+                            subscribe="lang"
+                            name="freeText"
+                            label="${t('job-offer-detail.message')}"
+                            .value="${this.formData?.freeText ?? ''}"
+                            rows="4"
+                            maxlength="2000"></dbp-form-string-element>
+                        <div class="job-offer-character-limit">
+                            ${t('job-offer-detail.max-characters')}
+                        </div>
+                    </div>
                     <div class="file-upload-container">
                         <div class="file-upload-title-container">
                             <h5 class="attachments-title">${t('job-offer-detail.attachments')}</h5>
@@ -2959,6 +2954,17 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: flex;
                     justify-content: flex-end;
                     margin-top: 1rem;
+                }
+
+                .form-row-free {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .job-offer-character-limit {
+                    color: var(--dbp-muted);
+                    font-size: 0.875rem;
+                    line-height: 1.4;
+                    margin: -0.35rem 0 0.75rem;
                 }
 
                 .file-upload-container {
