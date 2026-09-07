@@ -126,13 +126,6 @@ const SAMPLE_WE_OFFER = [
 
 const SAMPLE_APPLICANT_GIVEN_NAMES = ['Anna', 'David', 'Elena', 'Jonas', 'Lea', 'Michael'];
 const SAMPLE_APPLICANT_FAMILY_NAMES = ['Bauer', 'Gruber', 'Hofer', 'Mayer', 'Schmidt', 'Wagner'];
-const SAMPLE_STUDY_FIELDS = [
-    'Computer Science',
-    'Electrical Engineering',
-    'Mechanical Engineering',
-    'Physics',
-    'Software Engineering',
-];
 
 // Returns a random integer in the inclusive range [min, max].
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -319,7 +312,6 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 const submissionData = {
                     givenName,
                     familyName,
-                    studyField: randomItem(SAMPLE_STUDY_FIELDS),
                     email: `${givenName}.${familyName}.${uniqueId}@example.org`.toLowerCase(),
                     title: '',
                     personIdentifier: `generated-${uniqueId}`,
