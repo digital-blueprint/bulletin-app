@@ -875,12 +875,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         // Selecting "Alle" clears the previously applied preset filters.
         const preset = DREAM_JOB_PRESETS[this.filterDreamJob] ?? {
             workLocation: '',
-            includeRemote: false,
             weeklyHoursMin: '',
             weeklyHoursMax: '',
         };
         this.filterWorkLocation = preset.workLocation;
-        this.filterIncludeRemote = preset.includeRemote;
         this.filterWeeklyHoursMin = preset.weeklyHoursMin;
         this.filterWeeklyHoursMax = preset.weeklyHoursMax;
         this._clearUnavailableAreaOfInterest();
