@@ -244,6 +244,7 @@
         "error-title": "Error",
         "external-url-invalid": "The URL to application must begin with \"http://\" or \"https://\".",
         "select-work-location": "Please select at least one preferred work location.",
+        "validation-deadline-before-published": "The end of publication cannot be before the publication date.",
         "validation-required": "Please fill in all required fields."
     },
     "edit-form": {

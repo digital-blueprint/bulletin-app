@@ -244,6 +244,7 @@
         "error-title": "Fehler",
         "external-url-invalid": "Die URL zur Bewerbung muss mit 'http://' oder 'https://' beginnen.",
         "select-work-location": "Bitte wählen sie mindestens einen bevorzugten Dienstort aus",
+        "validation-deadline-before-published": "Das Ende der Veröffentlichung darf nicht vor dem Datum der Veröffentlichung liegen.",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder korrekt aus."
     },
     "edit-form": {

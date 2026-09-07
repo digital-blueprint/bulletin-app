@@ -563,6 +563,14 @@ const normalizeHttpUrl = (value) => {
     }
 };
 
+export const isDeadlineBeforePublishedAt = (publishedAt, deadline) => {
+    if (!publishedAt?.trim() || !deadline?.trim()) {
+        return false;
+    }
+
+    return deadline.trim() < publishedAt.trim();
+};
+
 /**
  * Web component for editing a job-offer form (create or update).
  *
@@ -820,6 +828,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._description.trim() !== '' &&
             this._publishedAt.trim() !== '' &&
             this._deadline.trim() !== '' &&
+            !isDeadlineBeforePublishedAt(this._publishedAt, this._deadline) &&
             this._jobOfferType.trim() !== '' &&
             isHoursRangeValid(this._weeklyHoursMin, this._weeklyHoursMax) &&
             hasJobOwner
@@ -1139,12 +1148,18 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
         if (!this._isFormValid) {
             this.shadowRoot?.querySelector('dbp-hours-range-element')?.reportValidity();
+            if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
+                this.shadowRoot?.querySelector('dbp-date-element[name="deadline"]')?.handleErrors();
+            }
+            let body = t('create-job-offer.validation-required');
+            if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
+                body = t('create-job-offer.validation-deadline-before-published');
+            } else if (this._isExternalJob && !this._isExternalJobUrlValid()) {
+                body = t('create-job-offer.external-url-invalid');
+            }
             sendNotification({
                 summary: t('create-job-offer.error-title'),
-                body:
-                    this._isExternalJob && !this._isExternalJobUrlValid()
-                        ? t('create-job-offer.external-url-invalid')
-                        : t('create-job-offer.validation-required'),
+                body,
                 type: 'warning',
                 timeout: 0,
                 targetNotificationId: 'edit-form-dialog-notification',
@@ -1491,13 +1506,23 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         label="${t('manage-job-offers.field-published-at')}"
                         .value="${this._publishedAt}"
                         required
-                        @change="${(e) => (this._publishedAt = e.detail.value)}"></dbp-date-element>
+                        @change="${(e) => {
+                            this._publishedAt = e.detail.value;
+                            this.shadowRoot
+                                ?.querySelector('dbp-date-element[name="deadline"]')
+                                ?.handleErrorsIfAny();
+                        }}"></dbp-date-element>
 
                     <dbp-date-element
                         name="deadline"
                         lang="${this.lang}"
                         label="${t('manage-job-offers.field-deadline')}"
                         .value="${this._deadline}"
+                        min="${this._publishedAt}"
+                        .customValidator="${(value) =>
+                            isDeadlineBeforePublishedAt(this._publishedAt, value)
+                                ? [t('create-job-offer.validation-deadline-before-published')]
+                                : []}"
                         required
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
                     
