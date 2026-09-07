@@ -1250,6 +1250,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .partner-company-link {
                 color: var(--dbp-primary);
+                text-decoration: underline;
             }
 
             .meta-item dt {
