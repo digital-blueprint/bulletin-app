@@ -859,6 +859,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     onWorkLocationChange(e) {
         this.filterWorkLocation = e.detail?.value ?? '';
+
+        if (this.filterWorkLocation) {
+            this.filterIncludeRemote = true;
+        }
+
         this._clearUnavailableAreaOfInterest();
         this._resetVisibleCount();
     }
