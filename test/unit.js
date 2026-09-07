@@ -610,7 +610,6 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
                 branchen: ['19', '20'],
                 mitarbeiter_national: '2750',
                 mitarbeiter_gesamt: '6200',
-                fe_beschaeftigte: '2000',
             },
             areasOfInterest: [],
             publishedAt: '2026-01-01',
@@ -625,7 +624,6 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
         assert.include(companyInformation, element._i18n.t('company-form.industry-20'));
         assert.include(companyInformation, '2750');
         assert.include(companyInformation, '6200');
-        assert.include(companyInformation, '2000');
 
         element.remove();
     });

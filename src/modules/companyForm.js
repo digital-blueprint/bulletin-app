@@ -41,7 +41,6 @@ export const COMPANY_FIELDS = [
     'standorte',
     'mitarbeiter_national',
     'mitarbeiter_gesamt',
-    'fe_beschaeftigte',
     'branchen',
 ];
 
@@ -69,7 +68,6 @@ const keepCompanyFormTranslations = (t) => {
     t('company-form.field-phone-number');
     t('company-form.field-postal-code');
     t('company-form.field-products');
-    t('company-form.field-rd-employees');
     t('company-form.field-show-partner-company');
     t('company-form.field-teaser');
     t('company-form.field-url');
@@ -287,7 +285,6 @@ class CompanyFormElement extends BaseFormElement {
                             'company-form.field-employees-total',
                         )}
                     </div>
-                    ${this.renderStringField('fe_beschaeftigte', 'company-form.field-rd-employees')}
                 </section>
 
                 <section class="form-section">

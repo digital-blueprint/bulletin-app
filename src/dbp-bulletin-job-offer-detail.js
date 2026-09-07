@@ -349,7 +349,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const locations = this._getCompanyValue(companyData, 'standorte', ['locations']);
         const employeesNational = this._getCompanyValue(companyData, 'mitarbeiter_national');
         const employeesTotal = this._getCompanyValue(companyData, 'mitarbeiter_gesamt');
-        const rdEmployees = this._getCompanyValue(companyData, 'fe_beschaeftigte');
         const sectorValues = companyData.branchen ?? companyData.relation_partner_branchen ?? [];
         const sectors = (
             Array.isArray(sectorValues) ? sectorValues : String(sectorValues).split(/[,;|]/)
@@ -368,7 +367,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             !sectors &&
             !employeesNational &&
             !employeesTotal &&
-            !rdEmployees &&
             !email &&
             !website &&
             !description
@@ -425,10 +423,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     ${this._renderCompanyMetaItem(
                         t('company-form.field-employees-total'),
                         employeesTotal,
-                    )}
-                    ${this._renderCompanyMetaItem(
-                        t('company-form.field-rd-employees'),
-                        rdEmployees,
                     )}
                 </dl>
                 ${this._renderCompanyTextBlock(t('company-form.field-teaser'), teaser)}
