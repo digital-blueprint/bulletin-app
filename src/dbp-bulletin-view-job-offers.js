@@ -1155,7 +1155,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                     <option
                                         value="all"
                                         ?selected="${this.filterDreamJob === 'all'}">
-                                        ${t('view-job-offers.dream-job-all')}
+                                        ${t('view-job-offers.dream-job-placeholder')}
                                     </option>
                                     <option
                                         value="study-accompanying"
