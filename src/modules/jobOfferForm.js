@@ -41,8 +41,7 @@ const i18n = createInstance();
 
 const JOB_APPLICATION_ATTACHMENT_GROUP = 'attachments';
 const JOB_APPLICATION_ATTACHMENT_LIMIT = 5;
-const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB = 10000;
-const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
+const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB = 9.3;
 const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
 const JOB_DESCRIPTION_MAX_LENGTH = 5000;
 const JOB_OFFER_TYPE_INTERNAL = 'internal';
@@ -59,7 +58,7 @@ export function getJobApplicationDataFeedSchema() {
             [JOB_APPLICATION_ATTACHMENT_GROUP]: {
                 minNumber: 0,
                 maxNumber: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                maxSizeMb: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                maxSizeKb: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB,
                 allowedMimeTypes: JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES,
             },
         },
@@ -117,7 +116,7 @@ const keepJobOfferAttachmentTranslations = (t) => {
     t('success.success-title', 'Success');
     t('job-offer-detail.attachments-help', {
         count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-        size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+        size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB,
     });
     t('job-offer-detail.notification.attachment-limit-body', {
         count: JOB_APPLICATION_ATTACHMENT_LIMIT,
@@ -2683,7 +2682,7 @@ export class JobOfferFormElement extends BaseFormElement {
                             <span class="file-upload-limit-warning">
                                 ${t('job-offer-detail.attachments-help', {
                                     count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                    size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                                    size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_KB,
                                 })}
                             </span>
                         </div>
