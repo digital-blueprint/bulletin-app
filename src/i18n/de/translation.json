@@ -184,7 +184,7 @@
         "field-phone-number": "Telefonnummer",
         "field-postal-code": "PLZ",
         "field-products": "Produkte/Dienstleistungen",
-        "field-show-partner-company": "Anzeige Partnerunternehmen",
+        "field-show-partner-company": "Anzeige als Partnerunternehmen",
         "field-teaser": "Teaser",
         "field-url": "Arbeitgeberprofil-URL",
         "field-url-placeholder": "https://...",
@@ -232,8 +232,7 @@
         "required-field-note-text": "kennzeichnet ein Pflichtfeld",
         "section-address-contact": "Adresse und Kontakt",
         "section-basic-data": "Basisdaten",
-        "section-company-profile": "Firmenprofil",
-        "section-partner-company": "Partnerunternehmen"
+        "section-company-profile": "Firmenprofil"
     },
     "create-form": {
         "error-create-failed": "Stellenangebot konnte nicht veröffentlicht werden. Antwortstatus: {{status}}",

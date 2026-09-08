@@ -237,6 +237,10 @@ class CompanyFormElement extends BaseFormElement {
                     ${this.renderStringField('abteilung', 'company-form.field-department', {
                         rows: 2,
                     })}
+                    ${this.renderBooleanField(
+                        'partnerunternehmen',
+                        'company-form.field-show-partner-company',
+                    )}
                 </section>
 
                 <section class="form-section">
@@ -285,15 +289,6 @@ class CompanyFormElement extends BaseFormElement {
                             'company-form.field-employees-total',
                         )}
                     </div>
-                </section>
-
-                <section class="form-section">
-                    <h3>${t('company-form.section-partner-company')}</h3>
-                    <hr />
-                    ${this.renderBooleanField(
-                        'partnerunternehmen',
-                        'company-form.field-show-partner-company',
-                    )}
                 </section>
             </form>
         `;

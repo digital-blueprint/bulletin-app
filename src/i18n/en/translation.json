@@ -184,7 +184,7 @@
         "field-phone-number": "Phone number",
         "field-postal-code": "Postal code",
         "field-products": "Products/services",
-        "field-show-partner-company": "Show partner company",
+        "field-show-partner-company": "Show as partner company",
         "field-teaser": "Teaser",
         "field-url": "Company Profile URL",
         "field-url-placeholder": "https://...",
@@ -232,8 +232,7 @@
         "required-field-note-text": "indicates a required field",
         "section-address-contact": "Address and contact",
         "section-basic-data": "Basic data",
-        "section-company-profile": "Company profile",
-        "section-partner-company": "Partner company"
+        "section-company-profile": "Company profile"
     },
     "create-form": {
         "error-create-failed": "Failed to publish job offer. Response status: {{status}}",
