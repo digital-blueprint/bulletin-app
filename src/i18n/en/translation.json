@@ -400,7 +400,7 @@
         "share": "Share job offer",
         "share-copy": "Copy link",
         "share-email": "Send via email",
-        "share-email-body": "Hey,\n\ncheck out this cool job: \"{{title}}\"{{organizationSuffix}}\n\n{{description}}\n\nView & apply here: {{url}}\n\n[PLACEHOLDER – final wording to be confirmed]",
+        "share-email-body": "Hey,\ncheck out this cool job: \"{{title}}\"{{organizationSuffix}}\n\n{{description}}\n\nApply here: ",
         "share-email-body-organization-suffix": " at {{organization}}",
         "share-email-subject": "Recommendation: {{title}}{{organizationSuffix}}",
         "share-linkedin": "Share on LinkedIn",
