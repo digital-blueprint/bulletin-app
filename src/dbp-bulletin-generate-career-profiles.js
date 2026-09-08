@@ -7,7 +7,6 @@ import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CareerProfileModule, {
     CAREER_PROFILE_FIELDS,
     CAREER_PROFILE_INDUSTRIES,
-    grantCareerProfileReadAccess,
 } from './modules/careerProfileForm.js';
 
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
@@ -263,8 +262,7 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             return false;
         }
 
-        const createdForm = await response.json();
-        return grantCareerProfileReadAccess(this, createdForm.identifier);
+        return true;
     }
 
     async _handleGenerate() {

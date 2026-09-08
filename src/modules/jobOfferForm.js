@@ -105,61 +105,6 @@ export function normalizePartnerCompanyValue(value) {
     return value === true || value === 1;
 }
 
-/**
- * Grants authenticated read access, student submission access, and creator management.
- *
- * @param {object} host
- * @param {string} formIdentifier
- * @returns {Promise<boolean>}
- */
-export async function grantJobOfferAccess(host, formIdentifier) {
-    const creatorIdentifier = host.auth?.['user-id'];
-    if (!formIdentifier || !creatorIdentifier) {
-        return false;
-    }
-
-    const grantUrl = host.entryPointUrl + '/authorization/resource-action-grants';
-    const grantBodies = [
-        {
-            resourceClass: 'DbpRelayFormalizeForm',
-            resourceIdentifier: formIdentifier,
-            action: 'read',
-            dynamicGroupIdentifier: 'everybody',
-        },
-        {
-            resourceClass: 'DbpRelayFormalizeSubmissionCollection',
-            resourceIdentifier: formIdentifier,
-            action: 'create_submissions',
-            dynamicGroupIdentifier: 'students',
-        },
-        {
-            resourceClass: 'DbpRelayFormalizeForm',
-            resourceIdentifier: formIdentifier,
-            action: 'manage',
-            userIdentifier: creatorIdentifier,
-        },
-    ];
-    const responses = await Promise.all(
-        grantBodies.map((body) =>
-            fetch(grantUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/ld+json',
-                    Authorization: 'Bearer ' + host.auth.token,
-                },
-                body: JSON.stringify(body),
-            }),
-        ),
-    );
-    const failedResponse = responses.find((response) => !response.ok);
-
-    if (failedResponse) {
-        console.error('Failed to grant access to job offer:', failedResponse.status);
-    }
-
-    return !failedResponse;
-}
-
 const keepJobOfferAttachmentTranslations = (t) => {
     t(
         'create-form.error-create-failed',
@@ -1268,16 +1213,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 );
             } else {
                 result = await apiCreateForm(host, formData, notificationOptions);
-                if (result && !(await grantJobOfferAccess(host, result.identifier))) {
-                    sendNotification({
-                        summary: t('create-job-offer.error-title'),
-                        body: t('create-job-offer.error-grant-access'),
-                        type: 'danger',
-                        timeout: 0,
-                        targetNotificationId: 'edit-form-dialog-notification',
-                    });
-                    return null;
-                }
             }
 
             if (result) {

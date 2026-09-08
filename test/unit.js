@@ -7,14 +7,12 @@ import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
     getJobApplicationDataFeedSchema,
-    grantJobOfferAccess,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
     normalizePartnerCompanyValue,
 } from '../src/modules/jobOfferForm.js';
 import {
     formatStudentStudies as formatCareerProfileStudies,
-    grantCareerProfileReadAccess,
     getLocalizedStudentStudyLabel,
     CareerProfileEditFormElement,
     mergeLocalizedStudentStudies,
@@ -913,63 +911,6 @@ suite('jobOfferForm error notifications', () => {
     });
 });
 
-suite('jobOfferForm authorization grants', () => {
-    test('should grant read, student submission, and creator manage access', async () => {
-        const originalFetch = globalThis.fetch;
-        const requests = [];
-
-        globalThis.fetch = async (url, options) => {
-            requests.push({url, options});
-            return {ok: true};
-        };
-
-        try {
-            const granted = await grantJobOfferAccess(
-                {
-                    auth: {token: 'token', 'user-id': 'creator-identifier'},
-                    entryPointUrl: 'https://example.invalid',
-                },
-                'form-identifier',
-            );
-
-            assert.isTrue(granted);
-        } finally {
-            globalThis.fetch = originalFetch;
-        }
-
-        assert.lengthOf(requests, 3);
-        requests.forEach(({url, options}) => {
-            assert.equal(url, 'https://example.invalid/authorization/resource-action-grants');
-            assert.equal(options.method, 'POST');
-            assert.equal(options.headers['Content-Type'], 'application/ld+json');
-            assert.equal(options.headers.Authorization, 'Bearer token');
-        });
-        assert.deepEqual(
-            requests.map(({options}) => JSON.parse(options.body)),
-            [
-                {
-                    resourceClass: 'DbpRelayFormalizeForm',
-                    resourceIdentifier: 'form-identifier',
-                    action: 'read',
-                    dynamicGroupIdentifier: 'everybody',
-                },
-                {
-                    resourceClass: 'DbpRelayFormalizeSubmissionCollection',
-                    resourceIdentifier: 'form-identifier',
-                    action: 'create_submissions',
-                    dynamicGroupIdentifier: 'students',
-                },
-                {
-                    resourceClass: 'DbpRelayFormalizeForm',
-                    resourceIdentifier: 'form-identifier',
-                    action: 'manage',
-                    userIdentifier: 'creator-identifier',
-                },
-            ],
-        );
-    });
-});
-
 suite('jobOfferForm application submission', () => {
     test('should define all fields submitted by the application form', () => {
         const schema = JSON.parse(getJobApplicationDataFeedSchema());
@@ -1623,98 +1564,6 @@ suite('career profile student studies', () => {
         } finally {
             globalThis.fetch = originalFetch;
         }
-    });
-
-    test('should keep profile input open when granting read access fails', async () => {
-        const element = document.createElement(tagName);
-        const originalFetch = globalThis.fetch;
-        let savedEvent = null;
-        element.auth = {token: 'token'};
-        element.entryPointUrl = 'https://example.invalid';
-        element._summary = 'Profile';
-        element._contactEmail = 'student@example.com';
-        element.addEventListener('dbp-edit-form-saved', (event) => {
-            savedEvent = event.detail;
-        });
-        globalThis.fetch = async (url) =>
-            url.endsWith('/formalize/forms')
-                ? {ok: true, json: async () => ({identifier: 'profile-1'})}
-                : {ok: false, status: 403};
-
-        try {
-            const result = await element.submit();
-            assert.isNull(result);
-        } finally {
-            globalThis.fetch = originalFetch;
-        }
-
-        assert.isNull(savedEvent);
-    });
-});
-
-suite('career profile authorization grants', () => {
-    test('should grant read and submission access to staff and the reader group', async () => {
-        const originalFetch = globalThis.fetch;
-        const requests = [];
-
-        globalThis.fetch = async (url, options) => {
-            requests.push({url, options});
-            return {ok: true};
-        };
-
-        try {
-            const granted = await grantCareerProfileReadAccess(
-                {
-                    auth: {token: 'token'},
-                    entryPointUrl: 'https://example.invalid',
-                },
-                'profile-identifier',
-            );
-
-            assert.isTrue(granted);
-        } finally {
-            globalThis.fetch = originalFetch;
-        }
-
-        assert.lengthOf(requests, 4);
-        for (const request of requests) {
-            assert.equal(
-                request.url,
-                'https://example.invalid/authorization/resource-action-grants',
-            );
-            assert.equal(request.options.method, 'POST');
-            assert.equal(request.options.headers['Content-Type'], 'application/ld+json');
-            assert.equal(request.options.headers.Authorization, 'Bearer token');
-        }
-        assert.deepEqual(
-            requests.map(({options}) => JSON.parse(options.body)),
-            [
-                {
-                    resourceClass: 'DbpRelayFormalizeForm',
-                    resourceIdentifier: 'profile-identifier',
-                    action: 'read',
-                    dynamicGroupIdentifier: 'staff',
-                },
-                {
-                    resourceClass: 'DbpRelayFormalizeSubmissionCollection',
-                    resourceIdentifier: 'profile-identifier',
-                    action: 'create_submissions',
-                    dynamicGroupIdentifier: 'staff',
-                },
-                {
-                    resourceClass: 'DbpRelayFormalizeForm',
-                    resourceIdentifier: 'profile-identifier',
-                    action: 'read',
-                    groupIdentifier: '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df',
-                },
-                {
-                    resourceClass: 'DbpRelayFormalizeSubmissionCollection',
-                    resourceIdentifier: 'profile-identifier',
-                    action: 'create_submissions',
-                    groupIdentifier: '/authorization/groups/019fa767-6f5d-7216-b92c-d82218ec38df',
-                },
-            ],
-        );
     });
 });
 
