@@ -42,6 +42,7 @@ const i18n = createInstance();
 const JOB_APPLICATION_ATTACHMENT_GROUP = 'attachments';
 const JOB_APPLICATION_ATTACHMENT_LIMIT = 5;
 const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
+const KILOBYTES_PER_MEGABYTE = 1000;
 const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
 const JOB_DESCRIPTION_MAX_LENGTH = 5000;
 const JOB_TITLE_MAX_LENGTH = 100;
@@ -2730,7 +2731,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 lang="${this.lang}"
                 notification-target-id="${this.notificationTargetId}"
                 allowed-mime-types="application/pdf"
-                max-file-size="${JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB}"
+                max-file-size="${JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB * KILOBYTES_PER_MEGABYTE}"
                 number-of-files="${JOB_APPLICATION_ATTACHMENT_LIMIT}"
                 enabled-targets="local,clipboard,nextcloud"
                 @dbp-modal-closed="${this._handleAttachmentPickerClosed}"
