@@ -546,11 +546,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     async onShare() {
         if ('share' in navigator) {
             try {
-                const {subject, body, url} = this._getShareEmailData();
+                const {subject, body} = this._getShareEmailData();
+                // Don't pass `url` separately — body already contains `Apply here: {{url}}`.
+                // Passing url additionally would append it again (e.g. after "Viel Erfolg!").
                 await navigator.share({
                     title: subject,
                     text: body,
-                    url,
                 });
             } catch (error) {
                 if (error.name !== 'AbortError') {
@@ -612,14 +613,14 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
     // Shares the job offer on WhatsApp — reuses the same i18n text as e-mail / native share.
     shareOnWhatsApp() {
-        const {body} = this._getShareEmailData();
-        const text = `${body}`;
+        const {subject, body} = this._getShareEmailData();
+        const text = `${subject}\n\n${body}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
     // Shares the job offer on LinkedIn — reuses the same i18n text as e-mail / native share.
     shareOnLinkedIn() {
-        const {body} = this._getShareEmailData();
-        const text = `${body}`;
+        const {subject, body} = this._getShareEmailData();
+        const text = `${subject}\n\n${body}`;
         window.open(
             `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
             '_blank',
