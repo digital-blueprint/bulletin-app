@@ -610,19 +610,16 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             '_self',
         );
     }
-    // Shares the job offer on WhatsApp.
+    // Shares the job offer on WhatsApp — reuses the same i18n text as e-mail / native share.
     shareOnWhatsApp() {
-        const url = this.getShareUrl();
-        const title = this._getLocalizedTitle(this.job);
-        const description = this._getLocalizedDescription(this.job);
-        const text = title + '\n' + description.slice(0, 100) + '\n';
-        window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+        const {body} = this._getShareEmailData();
+        const text = `${body}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
-    // Shares the job offer on LinkedIn.
+    // Shares the job offer on LinkedIn — reuses the same i18n text as e-mail / native share.
     shareOnLinkedIn() {
-        const url = this.getShareUrl();
-        const title = this._getLocalizedTitle(this.job);
-        const text = title + '\n' + url;
+        const {body} = this._getShareEmailData();
+        const text = `${body}`;
         window.open(
             `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
             '_blank',
