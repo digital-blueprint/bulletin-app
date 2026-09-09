@@ -1184,7 +1184,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 id="career-profile-edit-modal"
                 modal-id="career-profile-edit-modal"
                 subscribe="lang"
-                style="--dbp-modal-min-width: min(95vw, 900px); --dbp-modal-max-width: min(95vw, 900px); --dbp-modal-max-height: 90vh; --dbp-modal-content-overflow-y: auto;">
+                class="modal-width">
                 <div slot="title">
                     <h2 class="modal-title">${title}</h2>
                 </div>
@@ -1241,8 +1241,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             <dbp-modal
                 id="career-profile-delete-modal"
                 modal-id="career-profile-delete-modal"
-                style="--dbp-modal-min-width: min(95vw, 900px); --dbp-modal-max-width: min(95vw, 900px); --dbp-modal-max-height: 90vh; --dbp-modal-content-overflow-y: auto;">
-                subscribe="lang">
+                subscribe="lang"
+                class="modal-width">
                 <div slot="title">
                     <h2 class="modal-title">${t('career-profile.delete-dialog-title')}</h2>
                 </div>
@@ -1576,6 +1576,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 gap: 0.35rem;
             }
 
+            .modal-width {
+                --dbp-modal-min-width: min(95vw, 900px);
+                --dbp-modal-max-width: min(95vw, 900px);
+                --dbp-modal-max-height: 90vh;
+                --dbp-modal-content-overflow-y: auto;
+            }
+
             @media (max-width: 720px) {
                 .activity-header,
                 .profile-card {
@@ -1608,6 +1615,15 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .contact-wrapper {
                     display: flex;
                     flex-direction: column;
+                }
+            }
+
+            @media (max-width: 560px) {
+                .modal-width {
+                    --dbp-modal-min-width: unset;
+                    --dbp-modal-max-width: unset;
+                    --dbp-modal-max-height: 90vh;
+                    --dbp-modal-content-overflow-y: auto;
                 }
             }
         `;

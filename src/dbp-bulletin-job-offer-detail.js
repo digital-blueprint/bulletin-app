@@ -743,7 +743,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 modal-id="job-offer-detail-dialog"
                 lang="${this.lang}"
                 @dbp-modal-closed="${this._handleModalClosed}"
-                style="--dbp-modal-min-width: min(95vw, 700px); --dbp-modal-max-width: min(95vw, 700px); --dbp-modal-max-height: 90vh; --dbp-modal-content-overflow-y: auto;">
+                class="modal-width">
                 <div slot="header">
                     <dbp-notification
                         id="dbp-notification-copy"
@@ -1183,10 +1183,18 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             ${commonStyles.getThemeCSS()}
             ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
+            
+            .modal-width {
+                --dbp-modal-min-width: min(95vw, 700px);
+                --dbp-modal-max-width: min(95vw, 700px);
+                --dbp-modal-max-height: 90vh;
+                --dbp-modal-content-overflow-y: auto;
+            }
 
             .content-wrapper {
                 padding-right: 8px;
             }
+
             /* Meta section: info on the left, tag+actions on the right */
             .meta-row {
                 display: grid;
@@ -1477,6 +1485,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 .action-buttons {
                     justify-content: start;
+                }
+
+                .modal-width {
+                    --dbp-modal-min-width: unset;
+                    --dbp-modal-max-width: unset;
+                    --dbp-modal-max-height: 90vh;
+                    --dbp-modal-content-overflow-y: auto;
                 }
             }
 
