@@ -614,13 +614,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     // Shares the job offer on WhatsApp — reuses the same i18n text as e-mail / native share.
     shareOnWhatsApp() {
         const {body} = this._getShareEmailData();
-        const text = `\n\n${body}`;
+        const text = `${body}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
     // Shares the job offer on LinkedIn — reuses the same i18n text as e-mail / native share.
     shareOnLinkedIn() {
         const {body} = this._getShareEmailData();
-        const text = `\n\n${body}`;
+        const text = `${body}`;
         window.open(
             `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
             '_blank',
