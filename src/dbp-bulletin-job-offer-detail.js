@@ -526,7 +526,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const title = this._getLocalizedTitle(this.job);
         const url = this.getShareUrl();
-        const description = this._getShareDescription(this.job, 180);
+        const description = this._getShareDescription(this.job, 100);
         const organization = this._getPlainOrganizationLabel(this.job) || '';
         const organizationSuffix = organization
             ? t('job-offer-detail.share-email-body-organization-suffix', {organization})
