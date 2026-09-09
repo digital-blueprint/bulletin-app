@@ -950,6 +950,22 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 color: var(--dbp-muted);
                 margin: 0;
             }
+
+            @media (max-width: 650px) {
+                .selector-stack {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+
+                .selector-label {
+                    max-width: 100%;
+                }
+
+                .selector-stack button {
+                    margin-left: 0;
+                    align-self: flex-start;
+                }
+            }
         `;
     }
 }
