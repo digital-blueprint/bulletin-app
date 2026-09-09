@@ -512,22 +512,14 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
      * @param {object} job
      * @returns {string}
      */
-    _getPlainOrganizationLabel(job = this.job) {
-        if (!job) {
-            return '';
-        }
-        if (job.jobOfferType === 'internal') {
-            return String(this.universityShortName ?? '').trim();
-        }
-        return String(job.companyName ?? '').trim();
-    }
 
     _getShareEmailData() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const title = this._getLocalizedTitle(this.job);
         const url = this.getShareUrl();
         const description = this._getShareDescription(this.job, 100);
-        const organization = this._getPlainOrganizationLabel(this.job) || '';
+        const organization = String(t('job-offer-detail.share-TuGraz-job-hub') ?? '').trim();
+        const goodLuck = String(t('job-offer-detail.share-good-luck') ?? '').trim() || '';
         const organizationSuffix = organization
             ? t('job-offer-detail.share-email-body-organization-suffix', {organization})
             : '';
@@ -542,8 +534,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             organizationSuffix,
             description,
             url,
+            goodLuck,
         });
-        return {subject, body, url, title, description, organization, organizationSuffix};
+        return {subject, body, url, title, description, organization, organizationSuffix, goodLuck};
     }
 
     /**
