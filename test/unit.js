@@ -1597,7 +1597,7 @@ suite('dbp-bulletin-career-profile routing', () => {
         await node.updateComplete;
         assert.isNotNull(node.shadowRoot.querySelector('.profile-detail'));
 
-        node.routingUrl = 'profile/abc/submissions';
+        node.routingUrl = 'submissions';
         await node.updateComplete;
         await node.updateComplete;
         assert.isNull(node.shadowRoot.querySelector('.profile-detail'));
@@ -1609,5 +1609,46 @@ suite('dbp-bulletin-career-profile routing', () => {
         await node.updateComplete;
         assert.isNull(node.shadowRoot.querySelector('.submissions-view'));
         assert.isNotNull(node.shadowRoot.querySelector('.profile-list'));
+    });
+
+    test('should not resolve the submissions route to another student profile', async () => {
+        node.auth = {token: 'token', 'user-id': 'me', person_id: 'me'};
+        node._profilesLoaded = true;
+        node._profiles = [
+            {
+                identifier: 'other-profile',
+                formName: 'Other profile',
+                additionalData: {studentCreatorId: 'someone-else'},
+            },
+        ];
+        node.routingUrl = 'submissions';
+        await node.updateComplete;
+        await node.updateComplete;
+
+        assert.isNull(node._selectedProfile);
+        assert.isNull(node.shadowRoot.querySelector('.submissions-view'));
+        assert.isNotNull(node.shadowRoot.querySelector('.profile-list'));
+    });
+
+    test('should resolve a direct submissions route after profiles load', async () => {
+        node.auth = {token: 'token', 'user-id': 'me', person_id: 'me'};
+        node._profilesLoaded = false;
+        node._profiles = [];
+        node.routingUrl = 'submissions';
+        await node.updateComplete;
+
+        node._profiles = [
+            {
+                identifier: 'own-profile',
+                formName: 'Own profile',
+                additionalData: {studentCreatorId: 'me'},
+            },
+        ];
+        node._profilesLoaded = true;
+        node._handleRoutingUrlChange();
+        await node.updateComplete;
+
+        assert.equal(node._selectedProfile.identifier, 'own-profile');
+        assert.isNotNull(node.shadowRoot.querySelector('.submissions-view'));
     });
 });

@@ -247,7 +247,20 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _handleRoutingUrlChange() {
         const {pathSegments} = this.getRoutingData();
-        // Supported routes are: /, profile/<id>, and profile/<id>/submissions.
+        // Supported routes are: /, profile/<id>, and submissions.
+        if (pathSegments[0] === 'submissions') {
+            const profile = this._getOwnProfiles()[0] ?? null;
+            this._selectedProfile = profile;
+            this._submissions = [];
+
+            if (profile) {
+                this._fetchSubmissions(profile.identifier);
+            } else if (this._profilesLoaded) {
+                this._backToOverview();
+            }
+            return;
+        }
+
         const profileId = pathSegments[0] === 'profile' ? pathSegments[1] : '';
 
         if (!profileId) {
@@ -266,17 +279,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         this._selectedProfile = profile;
 
-        if (profile && pathSegments[2] === 'submissions') {
-            // Companies may inspect public profile details, but only the owning student can view interest submissions.
-            if (!this._isOwnProfile(profile)) {
-                this._submissions = [];
-                this._backToOverview();
-                return;
-            }
-            this._fetchSubmissions(profile.identifier);
-        } else {
-            this._submissions = [];
-        }
+        this._submissions = [];
     }
 
     async _fetchSubmissions(formIdentifier) {
@@ -337,7 +340,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             return;
         }
 
-        this.sendSetPropertyEvent('routing-url', `profile/${profile.identifier}/submissions`, true);
+        this.sendSetPropertyEvent('routing-url', 'submissions', true);
     }
 
     _backToOverview() {
@@ -1288,8 +1291,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         const {pathSegments} = this.getRoutingData();
-        const isSubmissionsRoute =
-            pathSegments[0] === 'profile' && pathSegments[2] === 'submissions';
+        const isSubmissionsRoute = pathSegments[0] === 'submissions';
 
         return html`
             ${
