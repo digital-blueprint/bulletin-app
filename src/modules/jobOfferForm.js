@@ -2725,6 +2725,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 id="file-source"
                 class="file-source"
                 lang="${this.lang}"
+                notification-target-id="${this.notificationTargetId}"
                 allowed-mime-types="application/pdf"
                 max-file-size="${JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB}"
                 number-of-files="${JOB_APPLICATION_ATTACHMENT_LIMIT}"
