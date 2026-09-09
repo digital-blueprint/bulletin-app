@@ -507,12 +507,27 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
      * All wording is defined via i18n so the final copy can be confirmed without code changes.
      * @returns {{subject: string, body: string, url: string}}
      */
+    /**
+     * Returns the organization label as plain string for sharing (no TemplateResult).
+     * @param {object} job
+     * @returns {string}
+     */
+    _getPlainOrganizationLabel(job = this.job) {
+        if (!job) {
+            return '';
+        }
+        if (job.jobOfferType === 'internal') {
+            return String(this.universityShortName ?? '').trim();
+        }
+        return String(job.companyName ?? '').trim();
+    }
+
     _getShareEmailData() {
         const t = (key, opts) => this._i18n.t(key, opts);
         const title = this._getLocalizedTitle(this.job);
         const url = this.getShareUrl();
         const description = this._getShareDescription(this.job, 180);
-        const organization = this.getOrganizationLabel(this.job) || '';
+        const organization = this._getPlainOrganizationLabel(this.job) || '';
         const organizationSuffix = organization
             ? t('job-offer-detail.share-email-body-organization-suffix', {organization})
             : '';
