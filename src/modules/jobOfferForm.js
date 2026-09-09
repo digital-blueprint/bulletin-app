@@ -44,6 +44,7 @@ const JOB_APPLICATION_ATTACHMENT_LIMIT = 5;
 const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
 const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
 const JOB_DESCRIPTION_MAX_LENGTH = 5000;
+const JOB_TITLE_MAX_LENGTH = 100;
 const JOB_OFFER_TYPE_INTERNAL = 'internal';
 const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
@@ -1353,7 +1354,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         name="title"
                         lang="${this.lang}"
                         label="${t('manage-job-offers.field-job-title')}"
-                        .value="${this._title}"
+                        .value="${this._title}" JOB_TITLE_MAX_LENGTH
+                        maxlength="${JOB_TITLE_MAX_LENGTH}"
                         required
                         @change="${(e) => (this._title = e.detail.value)}"></dbp-string-element>
 
@@ -1362,6 +1364,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         lang="${this.lang}"
                         label="${t('manage-job-offers.field-job-title-en')}"
                         .value="${this._titleEn}"
+                        maxlength="${JOB_TITLE_MAX_LENGTH}"
                         @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
                 </div>
 
