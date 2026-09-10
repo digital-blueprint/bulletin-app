@@ -20,6 +20,7 @@ import {
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 import HoursRangeElement, {isHoursRangeValid} from '../src/modules/hoursRangeElement.js';
 import {COMPANY_FIELDS, pickCompanyData} from '../src/modules/companyForm.js';
+import {buildRandomCompany} from '../src/dbp-bulletin-generate-companies.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
 import {setFeatureFlag} from '@dbp-toolkit/common';
 import {
@@ -762,6 +763,51 @@ suite('jobOfferForm partner company handling', () => {
 });
 
 suite('company data handling', () => {
+    test('should create the shared company form when it is missing', async () => {
+        const element = document.createElement('dbp-bulletin-generate-companies');
+        element.entryPointUrl = 'https://api.example.org';
+        element.auth = {token: 'token'};
+        const originalFetch = globalThis.fetch;
+        const requests = [];
+        globalThis.fetch = async (url, options = {}) => {
+            requests.push({url, options});
+            if (!options.method) {
+                return {ok: true, json: async () => ({'hydra:member': []})};
+            }
+            return {ok: true, json: async () => ({identifier: 'company-form-id'})};
+        };
+
+        try {
+            assert.equal(await element._getOrCreateCompanyFormIdentifier(), 'company-form-id');
+            assert.lengthOf(requests, 2);
+            assert.equal(requests[1].options.method, 'POST');
+            assert.equal(JSON.parse(requests[1].options.body).frontendKey, 'bulletin-company');
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('should build a company edit URL', () => {
+        const element = document.createElement('dbp-bulletin-generate-companies');
+        element.basePath = '/app/';
+        element.lang = 'en';
+
+        assert.equal(
+            element._getActivityUrl('manage-fields', 'form-id/submission-id/edit'),
+            '/app/en/manage-fields/form-id/submission-id/edit',
+        );
+    });
+
+    test('should build generated companies with supported company fields', () => {
+        const company = buildRandomCompany(2, 1234567890);
+
+        assert.deepEqual(Object.keys(company), COMPANY_FIELDS);
+        assert.match(company.name, /#67890-3$/);
+        assert.equal(company.email, 'contact-1234567890-3@example.org');
+        assert.isArray(company.branchen);
+        assert.isAtLeast(company.branchen.length, 1);
+    });
+
     test('should retain only supported company fields', () => {
         const companyData = Object.fromEntries(COMPANY_FIELDS.map((field) => [field, field]));
         companyData.sort_order = 1;

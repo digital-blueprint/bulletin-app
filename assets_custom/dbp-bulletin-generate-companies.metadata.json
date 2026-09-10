@@ -1,0 +1,20 @@
+{
+    "element": "dbp-bulletin-generate-companies",
+    "module_src": "dbp-bulletin-generate-companies.js",
+    "routing_name": "generate-companies",
+    "feature_flag": "admin-tools",
+    "required_roles": ["ROLE_BULLETIN_ADMIN"],
+    "name": {
+        "de": "Firmen generieren",
+        "en": "Generate companies"
+    },
+    "short_name": {
+        "de": "Firmen generieren",
+        "en": "Generate companies"
+    },
+    "description": {
+        "de": "Erzeugt zufällige Firmen zu Testzwecken.",
+        "en": "Generates random companies for testing purposes."
+    },
+    "subscribe": "lang,entry-point-url,auth,base-path"
+}
