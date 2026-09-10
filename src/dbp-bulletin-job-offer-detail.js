@@ -1468,10 +1468,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .meta-row {
                     display: flex;
                     flex-direction: column;
+                    gap: 10px;
                 }
 
                 .meta-actions {
-                    align-items: flex-start;
+                    width: 100%;
                 }
 
                 .job-tags {
@@ -1496,6 +1497,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     --dbp-modal-max-width: unset;
                     --dbp-modal-max-height: 90vh;
                     --dbp-modal-content-overflow-y: auto;
+                }
+                .apply-submit-wrapper {
+                    margin-top: 1rem;
                 }
             }
 

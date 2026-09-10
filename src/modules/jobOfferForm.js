@@ -2719,7 +2719,7 @@ export class JobOfferFormElement extends BaseFormElement {
                                 class="btn-icon"
                                 name="send-diagonal"
                                 aria-hidden="true"></dbp-icon>
-                            <span class="button-label">${t('job-offer-detail.submit')}</span>
+                            <span class="">${t('job-offer-detail.submit')}</span>
                         </button>
                     </div>
                 </div>
@@ -3052,6 +3052,9 @@ export class JobOfferFormElement extends BaseFormElement {
                 .applied-message {
                     margin: 0;
                     font-size: 1rem;
+                }
+                .file-upload-container {
+                    margin-top: unset;
                 }
             `,
         ];
