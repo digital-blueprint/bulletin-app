@@ -25,6 +25,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._shareDropdownOpen = false;
         this._onDocumentPointerDown = this._handleDocumentPointerDown.bind(this);
         this.universityShortName = '';
+        this._hasApplied = false;
     }
 
     static get scopedElements() {
@@ -41,6 +42,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             ...super.properties,
             job: {type: Object},
             _shareDropdownOpen: {state: true},
+            _hasApplied: {state: true},
             universityShortName: {type: String, attribute: 'university-short-name'},
         };
     }
@@ -48,11 +50,29 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     connectedCallback() {
         super.connectedCallback();
         document.addEventListener('pointerdown', this._onDocumentPointerDown);
+        this.addEventListener('dbp-job-offer-applied', this._onJobOfferApplied);
     }
 
     disconnectedCallback() {
         document.removeEventListener('pointerdown', this._onDocumentPointerDown);
+        this.removeEventListener('dbp-job-offer-applied', this._onJobOfferApplied);
         super.disconnectedCallback();
+    }
+
+    _onJobOfferApplied() {
+        this._hasApplied = true;
+    }
+
+    updated(changedProperties) {
+        super.updated(changedProperties);
+        if (changedProperties.has('job')) {
+            this._hasApplied = false;
+        }
+        // Keep primary apply button in sync with the form's already-applied state
+        const formEl = this.shadowRoot?.querySelector('dbp-bulletin-job-offer-form');
+        if (formEl && formEl._hasApplied && !this._hasApplied) {
+            this._hasApplied = true;
+        }
     }
 
     /** Opens the modal dialog. */
@@ -464,7 +484,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _handleApply() {
-        if (!this._canApply()) {
+        if (!this._canApply() || this._hasApplied) {
             return;
         }
 
@@ -901,6 +921,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                 <button
                                                                     class="button is-primary apply-anchor-btn"
                                                                     type="button"
+                                                                    ?disabled="${this._hasApplied}"
                                                                     @click="${() =>
                                                                         this._handleApply()}">
                                                                     <dbp-icon

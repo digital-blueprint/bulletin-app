@@ -2045,7 +2045,16 @@ export class JobOfferFormElement extends BaseFormElement {
                 const data = await response.json();
                 const members = data['hydra:member'] ?? [];
                 if (this.formIdentifier === formIdentifier && this.auth?.['user-id'] === userId) {
-                    this._hasApplied = members.length > 0;
+                    const hasApplied = members.length > 0;
+                    this._hasApplied = hasApplied;
+                    if (hasApplied) {
+                        this.dispatchEvent(
+                            new CustomEvent('dbp-job-offer-applied', {
+                                bubbles: true,
+                                composed: true,
+                            }),
+                        );
+                    }
                 }
             }
         } catch (error) {
@@ -2714,7 +2723,7 @@ export class JobOfferFormElement extends BaseFormElement {
                         <button
                             class="button is-primary"
                             type="submit"
-                            ?disabled="${this._isSubmitting}">
+                            ?disabled="${this._isSubmitting || this._hasApplied}">
                             <dbp-icon
                                 class="btn-icon"
                                 name="send-diagonal"
