@@ -1855,7 +1855,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 }
 
                 .search-filter-row .search-field {
-                    order: 0;
+                    order: -1;
+                    margin-bottom: 10px;
                 }
 
                 .filters-row {
@@ -1870,6 +1871,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 .filter-toggle {
                     width: 100%;
+                }
+                .job-board {
+                    gap: 1rem;
                 }
             }
             .job-offer-wrapper {
@@ -2117,11 +2121,23 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             @media (max-width: 440px) {
                 .ais-CurrentRefinements {
                     flex-wrap: wrap;
-                    justify-content: flex-end;
+                    justify-content: space-between;
+                    margin-top: unset;
                 }
                 .clear-refinements-button {
                     margin-left: unset;
                     margin-top: 10px;
+                    width: 100%;
+                    display: flex;
+                    justify-content: end;
+                }
+                .section-header {
+                    margin-top: unset;
+                }
+
+                .section-header h2 {
+                    display: flex;
+                    flex-direction: column;
                 }
             }
         `;
