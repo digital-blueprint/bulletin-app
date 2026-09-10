@@ -1505,8 +1505,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 }
 
                 .share-dropdown {
-                    left: 0;
-                    right: initial;
+                    left: auto;
+                    right: 0;
                 }
 
                 .action-buttons {
