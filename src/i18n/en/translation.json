@@ -19,7 +19,6 @@
         "back-to-profile": "Back to profile",
         "back-to-profiles": "Back to career profiles",
         "create-profile": "Create career profile",
-        "delete-dialog-cancel": "Cancel",
         "delete-dialog-confirm": "Delete profile",
         "delete-dialog-message": "Do you really want to delete the profile \"{{name}}\"? This also deletes the form and its submissions.",
         "delete-dialog-title": "Delete career profile",

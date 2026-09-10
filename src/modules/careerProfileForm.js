@@ -1690,7 +1690,9 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
                                                         aria-hidden="true"></dbp-icon>
                                                 `
                                       }
-                                      ${t('career-profile-form.interest-submit')}
+                                      <span class="button-label">
+                                          ${t('career-profile-form.interest-submit')}
+                                      </span>
                                   </button>
                               </div>
                           `

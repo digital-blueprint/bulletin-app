@@ -681,21 +681,27 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           type="button"
                                           @click="${() => this._openEditDialog(profile)}">
                                           <dbp-icon name="pencil" aria-hidden="true"></dbp-icon>
-                                          ${this._i18n.t('career-profile.edit-profile')}
+                                          <span class="button-label">
+                                              ${this._i18n.t('career-profile.edit-profile')}
+                                          </span>
                                       </button>
                                       <button
                                           class="button is-secondary"
                                           type="button"
                                           @click="${() => this._openDeleteDialog(profile)}">
                                           <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
-                                          ${this._i18n.t('career-profile.delete-profile')}
+                                          <span class="button-label">
+                                              ${this._i18n.t('career-profile.delete-profile')}
+                                          </span>
                                       </button>
                                       <button
                                           class="button is-primary"
                                           type="button"
                                           @click="${() => this._openSubmissions(profile)}">
                                           <dbp-icon name="list" aria-hidden="true"></dbp-icon>
-                                          ${this._i18n.t('career-profile.view-submissions')}
+                                          <span class="button-label">
+                                              ${this._i18n.t('career-profile.view-submissions')}
+                                          </span>
                                       </button>
                                   `
                                 : ''
@@ -1210,7 +1216,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       <dbp-icon name="save" aria-hidden="true"></dbp-icon>
                                   `
                         }
-                        ${t('career-profile-form.save-profile')}
+                        <span class="button-label">${t('career-profile-form.save-profile')}</span>
                     </button>
                 </div>
                 <div slot="content">
@@ -1253,13 +1259,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <p>${t('career-profile.delete-dialog-message', {name: profileName})}</p>
                     <div class="delete-dialog-actions">
                         <button
-                            class="button is-secondary"
-                            type="button"
-                            ?disabled="${this._isDeletingProfile}"
-                            @click="${() => this._('#career-profile-delete-modal')?.close()}">
-                            ${t('career-profile.delete-dialog-cancel')}
-                        </button>
-                        <button
                             class="button is-primary"
                             type="button"
                             ?disabled="${this._isDeletingProfile}"
@@ -1273,7 +1272,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
                                       `
                             }
-                            ${t('career-profile.delete-dialog-confirm')}
+                            <span class="button-label">
+                                ${t('career-profile.delete-dialog-confirm')}
+                            </span>
                         </button>
                     </div>
                 </div>

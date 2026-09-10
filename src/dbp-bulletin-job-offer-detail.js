@@ -828,7 +828,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                               class="btn-icon"
                                                               name="share2"
                                                               aria-hidden="true"></dbp-icon>
-                                                          ${t('job-offer-detail.share')}
+                                                          <span class="button-label">
+                                                              ${t('job-offer-detail.share')}
+                                                          </span>
                                                       </button>
                                                       ${
                                                           this._shareDropdownOpen
@@ -905,7 +907,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                         class="btn-icon"
                                                                         name="send-diagonal"
                                                                         aria-hidden="true"></dbp-icon>
-                                                                    ${t('job-offer-detail.apply')}
+                                                                    <span class="button-label">
+                                                                        ${t('job-offer-detail.apply')}
+                                                                    </span>
                                                                 </button>
                                                             `
                                                   }

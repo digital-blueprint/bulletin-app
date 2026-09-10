@@ -794,7 +794,9 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                             this.disabledButton = true;
                         }}">
                         <dbp-icon name="plus" aria-hidden="true"></dbp-icon>
-                        ${t('manage-job-offers.work-location-add')}
+                        <span class="button-label">
+                            ${t('manage-job-offers.work-location-add')}
+                        </span>
                     </button>
                 </div>
 

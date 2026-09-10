@@ -2719,7 +2719,7 @@ export class JobOfferFormElement extends BaseFormElement {
                                 class="btn-icon"
                                 name="send-diagonal"
                                 aria-hidden="true"></dbp-icon>
-                            ${t('job-offer-detail.submit')}
+                            <span class="button-label">${t('job-offer-detail.submit')}</span>
                         </button>
                     </div>
                 </div>

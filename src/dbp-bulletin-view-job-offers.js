@@ -1425,7 +1425,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                   class="btn-icon"
                                                                   name="keyword-research"
                                                                   aria-hidden="true"></dbp-icon>
-                                                              ${t('view-job-offers.view-details')}
+                                                              <span class="button-label">
+                                                                  ${t('view-job-offers.view-details')}
+                                                              </span>
                                                           </button>
                                                       </div>
                                                   </div>
