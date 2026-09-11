@@ -442,6 +442,7 @@ const keepCareerProfileTranslations = (t) => {
     t('career-profile-form.field-study-program-description');
     t('career-profile-form.field-teaser-description');
     t('career-profile-form.field-teaser-placeholder');
+    t('career-profile-form.field-teaser-placeholder-en');
     t('career-profile-form.field-teaser-title');
     t('career-profile-form.field-teaser-title-en');
     t('career-profile-form.field-text-placeholder');
@@ -1389,7 +1390,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 (value) => this._setTeaserEn(value),
                 {
                     rows: 4,
-                    placeholderKey: 'career-profile-form.field-teaser-placeholder',
+                    placeholderKey: 'career-profile-form.field-teaser-placeholder-en',
                     descriptionKey: 'career-profile-form.field-teaser-description',
                 },
             )}

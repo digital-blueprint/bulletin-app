@@ -1714,10 +1714,17 @@ suite('career profile student studies', () => {
 
     test('should limit the optional teasers to 100 characters without a validation error', async () => {
         const element = document.createElement(tagName);
+        element.lang = 'en';
         document.body.appendChild(element);
         await element.updateComplete;
         const teaserField = element.shadowRoot.querySelector('[name="teaser"]');
         const textarea = teaserField.shadowRoot.querySelector('textarea');
+        const teaserEnField = element.shadowRoot.querySelector('[name="teaserEn"]');
+        const teaserEnTextarea = teaserEnField.shadowRoot.querySelector('textarea');
+
+        assert.match(textarea.placeholder, /^z\. B\./);
+        assert.match(teaserEnTextarea.placeholder, /^e\.g\./);
+
         textarea.value = 'a'.repeat(101);
 
         textarea.dispatchEvent(new Event('input', {bubbles: true, composed: true}));
@@ -1728,8 +1735,6 @@ suite('career profile student studies', () => {
         assert.lengthOf(textarea.value, 100);
         assert.deepEqual(teaserField.errorMessages, []);
 
-        const teaserEnField = element.shadowRoot.querySelector('[name="teaserEn"]');
-        const teaserEnTextarea = teaserEnField.shadowRoot.querySelector('textarea');
         teaserEnTextarea.value = 'b'.repeat(101);
 
         teaserEnTextarea.dispatchEvent(new Event('input', {bubbles: true, composed: true}));
