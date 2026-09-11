@@ -677,7 +677,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             isOwnProfile
                                 ? html`
                                       <button
-                                          class="button is-secondary"
+                                          class="button is-secondar"
                                           type="button"
                                           @click="${() => this._openEditDialog(profile)}">
                                           <dbp-icon name="pencil" aria-hidden="true"></dbp-icon>
@@ -685,8 +685,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               ${this._i18n.t('career-profile.edit-profile')}
                                           </span>
                                       </button>
+
                                       <button
-                                          class="button is-secondary"
+                                          class="button is-secondary btn-delete"
                                           type="button"
                                           @click="${() => this._openDeleteDialog(profile)}">
                                           <dbp-icon name="trash" aria-hidden="true"></dbp-icon>
@@ -694,12 +695,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               ${this._i18n.t('career-profile.delete-profile')}
                                           </span>
                                       </button>
+
                                       <button
                                           class="button is-primary"
                                           type="button"
                                           @click="${() => this._openSubmissions(profile)}">
                                           <dbp-icon name="list" aria-hidden="true"></dbp-icon>
-                                          <span class="button-label">
+                                          <span>
                                               ${this._i18n.t('career-profile.view-submissions')}
                                           </span>
                                       </button>
@@ -854,7 +856,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <section class="activity-header">
                 <div>
-                    <h2>${t('career-profile.title')}</h2>
+                    <h2
+                        class="career-profile-h2"
+                        style="display: ${ownProfiles.length > 0 ? 'none' : 'block'}">
+                        ${t('career-profile.title')}
+                    </h2>
                     <p>${t('career-profile.description')}</p>
                 </div>
                 <button
@@ -1316,7 +1322,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin: 0;
                 font-weight: 300;
             }
-
+            .career-profile-h2 {
+                display: block;
+            }
             .submissions-view h2 {
                 margin-bottom: 20px;
             }
@@ -1597,16 +1605,20 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .profile-card-header {
                     flex-direction: column;
                 }
+
                 .profile-card-actions {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
+                    display: flex;
+                    margin-top: 0.5rem;
                 }
 
-                .profile-card-actions .button.is-primary {
-                    grid-column: 1 / -1;
+                .btn-delete {
+                    order: -1;
+                    margin-right: auto;
                 }
-            }
-            @media (max-width: 540px) {
+
+                .profile-card {
+                    padding: 0.6rem;
+                }
                 .contact-wrapper {
                     display: flex;
                     flex-direction: column;
@@ -1619,6 +1631,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     --dbp-modal-max-width: unset;
                     --dbp-modal-max-height: 90vh;
                     --dbp-modal-content-overflow-y: auto;
+                }
+            }
+            @media (max-width: 350px) {
+                .btn-delete {
+                    margin-right: unset;
                 }
             }
         `;
