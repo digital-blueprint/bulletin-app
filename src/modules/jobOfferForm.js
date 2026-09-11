@@ -2134,6 +2134,11 @@ export class JobOfferFormElement extends BaseFormElement {
 
             const data = await response.json();
             if (this.formIdentifier === formIdentifier) {
+                console.log('Job offer form grants:', {
+                    grantedFormActions: data.grantedFormActions ?? [],
+                    grantedSubmissionCollectionActions:
+                        data.grantedSubmissionCollectionActions ?? [],
+                });
                 this._applicationDataFeedSchema = data.dataFeedSchema ?? '';
             }
         } catch (error) {
