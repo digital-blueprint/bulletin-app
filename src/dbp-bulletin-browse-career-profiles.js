@@ -558,6 +558,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         return userId ? `bulletin-career-profiles-${userId}` : '';
     }
 
+    _getPaginationSizeStorageKey() {
+        const userId = this.auth?.['user-id'];
+        return userId ? `bulletin-browse-career-profiles-${userId}` : '';
+    }
+
     async _syncProfileTable(changedProperties = new Map()) {
         const table = this.renderRoot?.querySelector('#career-profiles-table');
         if (!table || this._selectedProfile) {
@@ -714,6 +719,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 identifier="career-profiles-table"
                 pagination-enabled
                 pagination-size="10"
+                .paginationSizeStorageKey=${this._getPaginationSizeStorageKey()}
                 column-configuration-enabled
                 column-configuration-in-header
                 .columnConfigurationExcludedFields=${['actions']}
