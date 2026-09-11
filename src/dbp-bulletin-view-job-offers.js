@@ -1608,7 +1608,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 white-space: nowrap;
                 cursor: pointer;
                 box-sizing: border-box;
-                height: var(--filter-control-height);
                 padding: 0 0.75rem;
                 border: var(--dbp-border);
                 border-radius: var(--dbp-border-radius);
@@ -1950,6 +1949,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .remote-checkbox {
                     border-top: 0;
                     margin-left: 0;
+                    height: var(--filter-control-height);
                 }
             }
 
