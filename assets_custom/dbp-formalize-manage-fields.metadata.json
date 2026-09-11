@@ -3,7 +3,7 @@
     "module_src": "dbp-formalize-manage-fields.js",
     "routing_name": "manage-fields",
     "feature_flag": "external-jobs",
-    "required_roles": ["ROLE_BULLETIN_JOB_OFFER_MANAGER"],
+    "required_roles": ["ROLE_BULLETIN_USER_DEFINED_FIELDS_MANAGER"],
     "name": {
         "de": "Nutzerdefinierte Felder verwalten",
         "en": "Manage user-defined fields"
