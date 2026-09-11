@@ -42,9 +42,9 @@ const DREAM_JOB_PRESETS = {
         weeklyHoursMax: '20',
     },
     'career-entry': {
-        // Any work location, remote allowed, at least 20 hours per week
+        // Any work location, on-site only, at least 20 hours per week
         workLocation: '',
-        includeRemote: true,
+        includeRemote: false,
         weeklyHoursMin: '20',
         weeklyHoursMax: '',
     },
@@ -512,8 +512,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ),
                     );
 
+                // Career-entry explicitly excludes remote jobs even without a location filter;
+                // the default view keeps the existing behaviour of showing all job types.
+                const shouldFilterRemote =
+                    Boolean(this.filterWorkLocation) || this.filterDreamJob === 'career-entry';
                 const matchesRemote =
-                    !this.filterWorkLocation || this.filterIncludeRemote || !this._isRemoteJob(job);
+                    !shouldFilterRemote || this.filterIncludeRemote || !this._isRemoteJob(job);
 
                 const matchesHours = isHoursRangeInRange(
                     job.weeklyHoursMin,
@@ -878,10 +882,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             workLocation: '',
             weeklyHoursMin: '',
             weeklyHoursMax: '',
-            includeRemote: false,
         };
         this.filterWorkLocation = preset.workLocation;
-        this.filterIncludeRemote = preset.includeRemote;
+        this.filterIncludeRemote = preset.includeRemote ?? false;
         this.filterWeeklyHoursMin = preset.weeklyHoursMin;
         this.filterWeeklyHoursMax = preset.weeklyHoursMax;
         this._clearUnavailableAreaOfInterest();
