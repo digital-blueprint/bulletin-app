@@ -878,8 +878,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             workLocation: '',
             weeklyHoursMin: '',
             weeklyHoursMax: '',
+            includeRemote: false,
         };
         this.filterWorkLocation = preset.workLocation;
+        this.filterIncludeRemote = preset.includeRemote;
         this.filterWeeklyHoursMin = preset.weeklyHoursMin;
         this.filterWeeklyHoursMax = preset.weeklyHoursMax;
         this._clearUnavailableAreaOfInterest();
