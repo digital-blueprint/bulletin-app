@@ -1430,6 +1430,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 @media (max-width: 720px) {
                     .translation-row {
                         grid-template-columns: 1fr;
+                        gap: unset;
                     }
                 }
             `,

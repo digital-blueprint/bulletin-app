@@ -965,7 +965,10 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
 
                 .selector-stack button {
                     margin-left: 0;
-                    align-self: flex-start;
+                    align-self: flex-end;
+                }
+                .work-locations {
+                    margin-top: 1rem;
                 }
             }
         `;
