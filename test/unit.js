@@ -986,6 +986,35 @@ suite('jobOfferForm application submission', () => {
         ]);
     });
 
+    test('should define localized names for all application fields', () => {
+        const schema = JSON.parse(getJobApplicationDataFeedSchema());
+
+        assert.deepEqual(schema.properties.givenName.localizedName, {
+            de: 'Vorname',
+            en: 'First name',
+        });
+        assert.deepEqual(schema.properties.familyName.localizedName, {
+            de: 'Nachname',
+            en: 'Family name',
+        });
+        assert.deepEqual(schema.properties.email.localizedName, {
+            de: 'E-Mail-Adresse',
+            en: 'Email address',
+        });
+        assert.deepEqual(schema.properties.title.localizedName, {
+            de: 'Titel',
+            en: 'Title',
+        });
+        assert.deepEqual(schema.properties.personIdentifier.localizedName, {
+            de: 'Matrikelnummer',
+            en: 'Matriculation number',
+        });
+        assert.deepEqual(schema.properties.freeText.localizedName, {
+            de: 'Warum haben Sie Interesse an diesem Stellenangebot?',
+            en: 'Why are you interested in this job offer?',
+        });
+    });
+
     test('should define PDF attachments in the application schema', () => {
         const schema = JSON.parse(getJobApplicationDataFeedSchema());
 
@@ -994,7 +1023,17 @@ suite('jobOfferForm application submission', () => {
             maxNumber: 5,
             maxSizeMb: 10,
             allowedMimeTypes: ['application/pdf'],
+            localizedName: {
+                de: 'Anhänge',
+                en: 'Attachments',
+            },
         });
+    });
+
+    test('should expose the current application schema through the job-offer module', () => {
+        const schema = JSON.parse(new JobOfferModule().getDataFeedSchema());
+
+        assert.equal(schema.properties.givenName.localizedName.en, 'First name');
     });
 
     test('should render the attachment upload without a loaded schema', () => {

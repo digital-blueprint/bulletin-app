@@ -62,6 +62,10 @@ export function getJobApplicationDataFeedSchema() {
                 maxNumber: JOB_APPLICATION_ATTACHMENT_LIMIT,
                 maxSizeMb: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
                 allowedMimeTypes: JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES,
+                localizedName: {
+                    de: i18n.t('job-offer-detail.attachments', {lng: 'de'}),
+                    en: i18n.t('job-offer-detail.attachments', {lng: 'en'}),
+                },
             },
         },
         properties: {
@@ -69,29 +73,53 @@ export function getJobApplicationDataFeedSchema() {
                 type: 'string',
                 minLength: 1,
                 description: "Applicant's given (first) name.",
+                localizedName: {
+                    de: i18n.t('job-offer-detail.given-name', {lng: 'de'}),
+                    en: i18n.t('job-offer-detail.given-name', {lng: 'en'}),
+                },
             },
             familyName: {
                 type: 'string',
                 minLength: 1,
                 description: "Applicant's family (last) name.",
+                localizedName: {
+                    de: i18n.t('job-offer-detail.family-name', {lng: 'de'}),
+                    en: i18n.t('job-offer-detail.family-name', {lng: 'en'}),
+                },
             },
             email: {
                 type: 'string',
                 minLength: 1,
                 format: 'email',
                 description: "Applicant's email address.",
+                localizedName: {
+                    de: i18n.t('job-offer-detail.email', {lng: 'de'}),
+                    en: i18n.t('job-offer-detail.email', {lng: 'en'}),
+                },
             },
             title: {
                 type: 'string',
                 description: "Applicant's title.",
+                localizedName: {
+                    de: i18n.t('job-offer-detail.title', {lng: 'de'}),
+                    en: i18n.t('job-offer-detail.title', {lng: 'en'}),
+                },
             },
             personIdentifier: {
                 type: 'string',
                 description: 'The UID of the person',
+                localizedName: {
+                    de: i18n.t('job-offer-detail.matriculation-number', {lng: 'de'}),
+                    en: i18n.t('job-offer-detail.matriculation-number', {lng: 'en'}),
+                },
             },
             freeText: {
                 type: 'string',
                 description: 'Free-text message or cover letter.',
+                localizedName: {
+                    de: i18n.t('job-offer-detail.message', {lng: 'de'}),
+                    en: i18n.t('job-offer-detail.message', {lng: 'en'}),
+                },
             },
         },
         required: ['givenName', 'familyName', 'personIdentifier', 'email'],
@@ -159,6 +187,10 @@ class JobOfferModule extends BaseObject {
 
     getFormFrontendKey() {
         return 'job-offer';
+    }
+
+    getDataFeedSchema() {
+        return getJobApplicationDataFeedSchema();
     }
 
     getFormName(lang = i18n.language) {
