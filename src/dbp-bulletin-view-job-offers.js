@@ -1,5 +1,6 @@
 import {css, html} from 'lit';
 import {ref, createRef} from 'lit/directives/ref.js';
+import {keyed} from 'lit/directives/keyed.js';
 import {repeat} from 'lit/directives/repeat.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
@@ -1117,6 +1118,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const areaOfInterestItems = Object.fromEntries(
             sortedAreasOfInterest.map((value) => [value, getAreaOfInterestLabel(value, t)]),
         );
+        const areaOfInterestItemsKey = JSON.stringify(areaOfInterestItems);
 
         // Loading state
         if (this._loading) {
@@ -1271,22 +1273,29 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           }}"></dbp-hours-range-element>
 
                                       <div class="field area-of-interest-field">
-                                          <dbp-enum-element
-                                              name="filter-area-of-interest"
-                                              lang="${this.lang}"
-                                              label="${t('view-job-offers.areas-of-interest')}"
-                                              multiple
-                                              display-mode="tags"
-                                              .tagPlaceholder="${{
-                                                  [this.lang]: t(
-                                                      'view-job-offers.select-placeholder',
-                                                  ),
-                                              }}"
-                                              .items="${areaOfInterestItems}"
-                                              .value="${this.filterAreasOfInterest}"
-                                              @change="${
-                                                  this.onAreaOfInterestChange
-                                              }"></dbp-enum-element>
+                                          ${keyed(
+                                              areaOfInterestItemsKey,
+                                              html`
+                                                  <dbp-enum-element
+                                                      name="filter-area-of-interest"
+                                                      lang="${this.lang}"
+                                                      label="${t(
+                                                          'view-job-offers.areas-of-interest',
+                                                      )}"
+                                                      multiple
+                                                      display-mode="tags"
+                                                      .tagPlaceholder="${{
+                                                          [this.lang]: t(
+                                                              'view-job-offers.select-placeholder',
+                                                          ),
+                                                      }}"
+                                                      .items="${areaOfInterestItems}"
+                                                      .value="${this.filterAreasOfInterest}"
+                                                      @change="${
+                                                          this.onAreaOfInterestChange
+                                                      }"></dbp-enum-element>
+                                              `,
+                                          )}
                                       </div>
                                   </div>
                               `

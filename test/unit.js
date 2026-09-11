@@ -385,6 +385,55 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         });
     });
 
+    test('should update area-of-interest options to match the filtered jobs', async () => {
+        node.clearFilters();
+        node._i18n = {t: (key) => key, changeLanguage: () => {}};
+        node.isAuthPending = () => false;
+        node.isLoggedIn = () => true;
+        node._filtersOpen = true;
+        node._jobOffers = [
+            {
+                identifier: 'graz-job',
+                title: 'Graz job',
+                areasOfInterest: ['it'],
+                workLocations: [{country: 'AT', region: 'styria', city: 'graz'}],
+                description: '',
+                publishedAt: '2026-01-01',
+            },
+            {
+                identifier: 'vienna-job',
+                title: 'Vienna job',
+                areasOfInterest: ['management'],
+                workLocations: [{country: 'AT', region: 'vienna', city: 'vienna-city'}],
+                description: '',
+                publishedAt: '2026-01-02',
+            },
+        ];
+        await node.updateComplete;
+
+        const areaOfInterestSelect = node.shadowRoot.querySelector(
+            'dbp-enum-element[name="filter-area-of-interest"]',
+        );
+        await areaOfInterestSelect.updateComplete;
+        assert.deepEqual(Object.keys(areaOfInterestSelect.items).sort(), ['it', 'management']);
+
+        node.onWorkLocationChange({detail: {value: 'AT|styria|graz'}});
+        await node.updateComplete;
+        const filteredAreaOfInterestSelect = node.shadowRoot.querySelector(
+            'dbp-enum-element[name="filter-area-of-interest"]',
+        );
+        await filteredAreaOfInterestSelect.updateComplete;
+
+        assert.deepEqual(Object.keys(filteredAreaOfInterestSelect.items), ['it']);
+        assert.deepEqual(
+            [...filteredAreaOfInterestSelect.shadowRoot.querySelectorAll('option')].map(
+                (option) => option.value,
+            ),
+            ['it'],
+        );
+        node.clearFilters();
+    });
+
     test('should not show the search query as an active filter marker', () => {
         node.clearFilters();
         node.searchQuery = 'matching job';
