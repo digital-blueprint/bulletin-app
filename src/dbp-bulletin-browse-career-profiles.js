@@ -989,6 +989,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             .filter-select {
                 display: block;
                 width: 100%;
+                --dbp-select-placeholder-color: var(--dbp-muted);
             }
 
             .filter-select::part(trigger) {

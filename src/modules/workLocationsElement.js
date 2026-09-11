@@ -414,7 +414,6 @@ export class WorkLocationSelectElement extends DBPLitElement {
                 align-items: center;
                 box-sizing: border-box;
                 display: flex;
-                height: var(--work-location-select-height, 2.2em) !important;
                 position: relative;
             }
 
