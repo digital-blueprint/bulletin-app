@@ -341,7 +341,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             const fieldLabels = this._getFieldLabels(profile);
             const localizedTextValues = [
                 data.availability,
-                data.teaser,
+                this._localized(profile, 'teaser', 'teaserEn'),
                 this._localized(profile, 'summary', 'summaryEn'),
                 this._localized(profile, 'previousExperience', 'previousExperienceEn'),
                 ...this._localizedList(profile, 'skills', 'skillsEn'),
@@ -742,6 +742,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     _renderProfileDetail(profile) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const data = profile.additionalData ?? {};
+        const teaser = this._localized(profile, 'teaser', 'teaserEn');
         const previousExperience = this._localized(
             profile,
             'previousExperience',
@@ -776,9 +777,9 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 </header>
 
                 ${
-                    data.teaser
+                    teaser
                         ? html`
-                              <p class="profile-teaser">${data.teaser}</p>
+                              <p class="profile-teaser">${teaser}</p>
                           `
                         : ''
                 }

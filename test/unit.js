@@ -1558,6 +1558,8 @@ suite('career profile student studies', () => {
         await element.updateComplete;
         element._summary = 'Profil';
         element._contactEmail = 'student@example.com';
+        element._teaser = 'Deutscher Teaser';
+        element._teaserEn = 'English teaser';
         globalThis.fetch = async (url, options) => {
             if (url.endsWith('/formalize/forms')) {
                 requestBody = JSON.parse(options.body);
@@ -1581,6 +1583,8 @@ suite('career profile student studies', () => {
             requestBody.additionalData.studyProgramEn,
             'Computer Science (Bachelor programme)',
         );
+        assert.equal(requestBody.additionalData.teaser, 'Deutscher Teaser');
+        assert.equal(requestBody.additionalData.teaserEn, 'English teaser');
     });
 
     test('should display an invalid website error in the field and notification', async () => {
@@ -1651,22 +1655,26 @@ suite('career profile student studies', () => {
             additionalData: {
                 summary: 'Saved summary',
                 teaser: 'Saved teaser',
+                teaserEn: 'Saved English teaser',
                 workLocations: [{country: 'AT', region: 'styria', city: 'graz'}],
             },
         };
         document.body.appendChild(element);
         await element.updateComplete;
 
+        assert.equal(element._teaserEn, 'Saved English teaser');
+
         element.resetForCreate();
 
         assert.equal(element._summary, '');
         assert.equal(element._teaser, '');
+        assert.equal(element._teaserEn, '');
         assert.deepEqual(element.workLocations, []);
         assert.deepEqual(element._getDisplayStudies(), element.currentStudentStudies);
         element.remove();
     });
 
-    test('should limit the optional teaser to 100 characters without a validation error', async () => {
+    test('should limit the optional teasers to 100 characters without a validation error', async () => {
         const element = document.createElement(tagName);
         document.body.appendChild(element);
         await element.updateComplete;
@@ -1681,6 +1689,18 @@ suite('career profile student studies', () => {
         assert.lengthOf(element._teaser, 100);
         assert.lengthOf(textarea.value, 100);
         assert.deepEqual(teaserField.errorMessages, []);
+
+        const teaserEnField = element.shadowRoot.querySelector('[name="teaserEn"]');
+        const teaserEnTextarea = teaserEnField.shadowRoot.querySelector('textarea');
+        teaserEnTextarea.value = 'b'.repeat(101);
+
+        teaserEnTextarea.dispatchEvent(new Event('input', {bubbles: true, composed: true}));
+        await element.updateComplete;
+        await teaserEnField.updateComplete;
+
+        assert.lengthOf(element._teaserEn, 100);
+        assert.lengthOf(teaserEnTextarea.value, 100);
+        assert.deepEqual(teaserEnField.errorMessages, []);
         element.remove();
     });
 

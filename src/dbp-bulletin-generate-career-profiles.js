@@ -207,6 +207,7 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             contactEmail: `career-profile-${Date.now()}-${index + 1}@example.org`,
             website: `https://profiles.example.org/career-${Date.now()}-${index + 1}`,
             teaser: SAMPLE_SUMMARIES_DE[summaryIndex].slice(0, 100).trim(),
+            teaserEn: SAMPLE_SUMMARIES[summaryIndex].slice(0, 100).trim(),
             studentCreatorId: `generated-student-${Date.now()}-${index + 1}`,
             studentPersonIdentifier: '',
         };

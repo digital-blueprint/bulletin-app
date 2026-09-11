@@ -443,6 +443,7 @@ const keepCareerProfileTranslations = (t) => {
     t('career-profile-form.field-teaser-description');
     t('career-profile-form.field-teaser-placeholder');
     t('career-profile-form.field-teaser-title');
+    t('career-profile-form.field-teaser-title-en');
     t('career-profile-form.field-text-placeholder');
     t('career-profile-form.field-website');
     t('career-profile-form.field-website-identity-warning');
@@ -574,6 +575,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._studentDataPrefillUserId = '';
         this._website = '';
         this._teaser = '';
+        this._teaserEn = '';
         this._loadingStudentData = false;
         this._isSubmitting = false;
     }
@@ -611,6 +613,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             _contactEmail: {state: true},
             _website: {state: true},
             _teaser: {state: true},
+            _teaserEn: {state: true},
             _loadingStudentData: {state: true},
             _isSubmitting: {state: true},
         };
@@ -642,6 +645,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._studentDataPrefillUserId = '';
         this._website = '';
         this._teaser = '';
+        this._teaserEn = '';
     }
 
     resetForCreate() {
@@ -688,6 +692,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     this._contactEmail = data.contactEmail || '';
                     this._website = data.website || data.linkUrl || '';
                     this._teaser = normalizeTeaserValue(data.teaser);
+                    this._teaserEn = normalizeTeaserValue(data.teaserEn);
                 }
             }
         });
@@ -820,6 +825,16 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._teaser = teaser;
 
         const teaserField = this.shadowRoot?.querySelector('[name="teaser"]');
+        if (teaserField && teaserField.value !== teaser) {
+            teaserField.value = teaser;
+        }
+    }
+
+    _setTeaserEn(value) {
+        const teaser = normalizeTeaserValue(value);
+        this._teaserEn = teaser;
+
+        const teaserField = this.shadowRoot?.querySelector('[name="teaserEn"]');
         if (teaserField && teaserField.value !== teaser) {
             teaserField.value = teaser;
         }
@@ -971,6 +986,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             contactEmail: this._contactEmail.trim(),
             website: this._website.trim(),
             teaser: normalizeTeaserValue(this._teaser),
+            teaserEn: normalizeTeaserValue(this._teaserEn),
             studentCreatorId: this.auth?.['user-id'] || '',
             studentPersonIdentifier: this.auth?.person_id || '',
         };
@@ -1360,6 +1376,17 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 'career-profile-form.field-teaser-title',
                 this._teaser,
                 (value) => this._setTeaser(value),
+                {
+                    rows: 4,
+                    placeholderKey: 'career-profile-form.field-teaser-placeholder',
+                    descriptionKey: 'career-profile-form.field-teaser-description',
+                },
+            )}
+            ${this.renderTextField(
+                'teaserEn',
+                'career-profile-form.field-teaser-title-en',
+                this._teaserEn,
+                (value) => this._setTeaserEn(value),
                 {
                     rows: 4,
                     placeholderKey: 'career-profile-form.field-teaser-placeholder',

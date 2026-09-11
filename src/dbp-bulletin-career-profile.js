@@ -645,6 +645,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             this.lang,
         );
         const summary = this._localized(profile, 'summary', 'summaryEn');
+        const teaser = this._localized(profile, 'teaser', 'teaserEn');
         const personalInterests = this._localized(
             profile,
             'personalInterests',
@@ -729,9 +730,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 <div class="career-profile-wrapper">
                     ${
-                        data.teaser
+                        teaser
                             ? html`
-                                  <p class="student-teaser">${data.teaser}</p>
+                                  <p class="student-teaser">${teaser}</p>
                               `
                             : ''
                     }
@@ -902,6 +903,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     _renderProfileDetail(profile) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const data = profile.additionalData ?? {};
+        const teaser = this._localized(profile, 'teaser', 'teaserEn');
         const isOwnProfile = this._isOwnProfile(profile);
         const previousExperience = this._localized(
             profile,
@@ -935,9 +937,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 </header>
 
                 ${
-                    data.teaser
+                    teaser
                         ? html`
-                              <p class="profile-teaser">${data.teaser}</p>
+                              <p class="profile-teaser">${teaser}</p>
                           `
                         : ''
                 }
