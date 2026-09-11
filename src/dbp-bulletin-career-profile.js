@@ -866,14 +866,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     ${t('career-profile.create-profile')}
                 </button>
             </section>
-
-            ${
-                ownProfiles.length > 0
-                    ? html`
-                          <p class="hint">${t('career-profile.one-profile-hint')}</p>
-                      `
-                    : ''
-            }
             ${
                 this._loadError
                     ? html`

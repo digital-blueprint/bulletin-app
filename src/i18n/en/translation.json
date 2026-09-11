@@ -33,7 +33,6 @@
         "no-profiles": "No career profiles are available yet.",
         "no-submissions": "No companies have submitted interest in this profile yet.",
         "one-profile-body": "You can create one career profile. Edit your existing profile instead.",
-        "one-profile-hint": "You already have a career profile. You can edit it or view received submissions.",
         "one-profile-title": "One profile allowed",
         "own-profile-title": "My career profile",
         "submissions-load-error": "The submissions for this profile could not be loaded.",
