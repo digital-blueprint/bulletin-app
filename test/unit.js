@@ -230,6 +230,44 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         node.clearFilters();
     });
 
+    test('should match whole words only, not substrings', () => {
+        node.clearFilters();
+        node._i18n = {
+            t: (key) =>
+                ({
+                    'manage-job-offers.job-category-internship': 'Internship Category',
+                })[key] ?? key,
+            changeLanguage: () => {},
+        };
+        node.lang = 'de';
+        node._jobOffers = [
+            {
+                identifier: 'engineering-job',
+                title: 'Engineering Position',
+                jobOfferType: 'external',
+                companyName: 'Company',
+                description: 'Description',
+                jobCategory: 'internship',
+                workLocations: [{country: 'AT', region: 'styria', city: 'leoben'}],
+                areasOfInterest: [],
+                publishedAt: '2026-01-01',
+            },
+        ];
+
+        // Partial words must not match.
+        for (const query of ['engineer', 'categ', 'leob', 'positio']) {
+            node.searchQuery = query;
+            assert.lengthOf(node.getFilteredJobs(), 0, `Expected "${query}" not to match`);
+        }
+
+        // Whole words must still match, including tokens next to punctuation.
+        for (const query of ['engineering', 'category', 'leoben', 'position']) {
+            node.searchQuery = query;
+            assert.lengthOf(node.getFilteredJobs(), 1, `Expected "${query}" to match`);
+        }
+        node.clearFilters();
+    });
+
     test('should search fields in the current language with primary-language fallback', () => {
         node.clearFilters();
         node._i18n = {t: (key) => key, changeLanguage: () => {}};

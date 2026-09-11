@@ -489,13 +489,25 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     formatHoursRange(job.weeklyHoursMin, job.weeklyHoursMax, job.weeklyHours),
                     job.weeklyHoursEn ?? '',
                 ];
-                const searchableText = searchableValues
-                    .map((value) => String(value ?? '').toLowerCase())
-                    .join(' ');
+                // Tokenize the searchable fields into whole words. Split on any
+                // non-letter/non-number character so punctuation (e.g. the commas in
+                // work location labels) does not get merged into the tokens.
+                const searchableWords = new Set(
+                    searchableValues
+                        .map((value) => String(value ?? '').toLowerCase())
+                        .join(' ')
+                        .split(/[^\p{L}\p{N}]+/u)
+                        .filter(Boolean),
+                );
 
-                // Split the search query into words and require that all words are present in the searchable text.
+                // Split the search query into words and require that every query word
+                // matches a whole word (not a substring) in the searchable fields.
                 const matchesSearch =
-                    !query || query.split(/\s+/).every((word) => searchableText.includes(word));
+                    !query ||
+                    query
+                        .split(/[^\p{L}\p{N}]+/u)
+                        .filter(Boolean)
+                        .every((word) => searchableWords.has(word));
 
                 const jobAreasOfInterest = normalizeAreaOfInterestValues(
                     job.areasOfInterest ?? job.areaOfInterest,
