@@ -1008,7 +1008,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     summary: t('career-profile-form.create-success-title'),
                     body: t('career-profile-form.create-success'),
                     type: 'success',
-                    timeout: 0,
+                    timeout: 8,
                 });
                 this.dispatchEvent(
                     new CustomEvent('dbp-edit-form-saved', {
