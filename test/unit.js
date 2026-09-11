@@ -307,7 +307,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         node.clearFilters();
     });
 
-    test('should include remote jobs only when requested', () => {
+    test('should only filter remote jobs when a work location is selected', () => {
         node._i18n = {t: (key) => key};
         node.clearFilters();
         node._jobOffers = [
@@ -317,6 +317,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
                 areasOfInterest: [],
                 description: '',
                 remote: false,
+                workLocations: [{country: 'AT', region: 'styria', city: 'graz'}],
                 publishedAt: '2026-01-01',
             },
             {
@@ -325,10 +326,24 @@ suite('dbp-bulletin-view-job-offers basics', () => {
                 areasOfInterest: [],
                 description: '',
                 remote: true,
+                workLocations: [{country: 'AT', region: 'styria', city: 'graz'}],
                 publishedAt: '2026-01-02',
             },
         ];
 
+        node.filterIncludeRemote = false;
+        assert.deepEqual(
+            node.getFilteredJobs().map((job) => job.identifier),
+            ['remote-job', 'on-site-job'],
+        );
+
+        node.filterIncludeRemote = true;
+        assert.deepEqual(
+            node.getFilteredJobs().map((job) => job.identifier),
+            ['remote-job', 'on-site-job'],
+        );
+
+        node.filterWorkLocation = 'AT|styria|graz';
         node.filterIncludeRemote = false;
         assert.deepEqual(
             node.getFilteredJobs().map((job) => job.identifier),

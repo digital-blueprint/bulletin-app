@@ -512,7 +512,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ),
                     );
 
-                const matchesRemote = this.filterIncludeRemote || !this._isRemoteJob(job);
+                const matchesRemote =
+                    !this.filterWorkLocation || this.filterIncludeRemote || !this._isRemoteJob(job);
 
                 const matchesHours = isHoursRangeInRange(
                     job.weeklyHoursMin,
