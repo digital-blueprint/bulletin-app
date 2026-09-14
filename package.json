@@ -44,7 +44,8 @@
         "rolldown": "^1.0.0-beta.42",
         "rollup-plugin-emit-ejs": "^3.1.0",
         "rollup-plugin-license": "^3.0.0",
-        "rollup-plugin-serve": "^3.0.0"
+        "rollup-plugin-serve": "^3.0.0",
+        "typescript": "^7.0.2"
     },
     "dependencies": {
         "@dbp-toolkit/app-shell": "^0.3.0",
@@ -80,6 +81,7 @@
         "oxlint": "oxlint --disable-nested-config",
         "prettier:fix": "prettier \"**/*.{js,json,ts,md,yaml,yml}\" --write",
         "prettier": "prettier \"**/*.{js,json,ts,md,yaml,yml}\" --check",
+        "tsc": "tsc -p jsconfig.json",
         "watch": "rolldown -c rolldown.config.js --watch",
         "watch-wl": "rolldown -c rolldown.config.js --watch",
         "watch-custom": "rolldown -c rolldown.config.js --watch --environment APP_ENV:localCustom",

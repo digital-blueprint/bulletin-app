@@ -119,7 +119,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      * Triggers the initial data fetch from the formalize API.
      */
     initialize() {
-        this._fetchJobOffers();
+        void this._fetchJobOffers();
     }
 
     update(changedProperties) {
@@ -426,10 +426,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._selectedJob = job;
         // Defer the open() call until after Lit has committed the current render,
         // so the detail component has received the updated job property.
-        this.updateComplete.then(() => {
+        void this.updateComplete.then(() => {
             const detailEl = /** @type {JobOfferDetail|undefined} */ (this._detailRef.value);
             if (detailEl) {
-                detailEl.open();
+                void detailEl.open();
             }
         });
     }

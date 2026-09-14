@@ -73,7 +73,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     initialize() {
-        this._fetchProfiles();
+        void this._fetchProfiles();
     }
 
     update(changedProperties) {
@@ -90,14 +90,14 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             // Token refreshes update auth.token without changing the user. Do not reload the
             // table in that case, otherwise the browse page gets stuck behind a loading flash.
             if (!this._profilesLoaded || userChanged) {
-                this._fetchProfiles();
+                void this._fetchProfiles();
             }
         }
     }
 
     loginCallback() {
         if (!this._profilesLoaded && this.auth?.token) {
-            this._fetchProfiles();
+            void this._fetchProfiles();
         }
     }
 
@@ -113,7 +113,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             changedProperties.has('filterWorkLocation') ||
             changedProperties.has('_selectedProfile')
         ) {
-            this._syncProfileTable(changedProperties);
+            void this._syncProfileTable(changedProperties);
         }
     }
 

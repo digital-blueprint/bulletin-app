@@ -194,7 +194,7 @@ class JobOfferModule extends BaseObject {
     }
 
     getFormName(lang = i18n.language) {
-        i18n.changeLanguage(lang);
+        void i18n.changeLanguage(lang);
         return i18n.t('manage-job-offers.form-type-name');
     }
 }
@@ -724,12 +724,12 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     update(changedProperties) {
         changedProperties.forEach((oldValue, propName) => {
             if (propName === 'lang') {
-                this._i18n.changeLanguage(this.lang);
+                void this._i18n.changeLanguage(this.lang);
                 this._areaOfInterestItems = this._createAreaOfInterestItems();
             }
 
             if ((propName === 'lang' || propName === 'langDir') && this.langDir) {
-                setOverridesByGlobalCache(this._i18n, this);
+                void setOverridesByGlobalCache(this._i18n, this);
             }
 
             // Pre-populate form fields when an existing form is provided for editing
@@ -2004,8 +2004,8 @@ export class JobOfferFormElement extends BaseFormElement {
         };
     }
 
-    async update(changedProperties) {
-        await super.update(changedProperties);
+    update(changedProperties) {
+        super.update(changedProperties);
 
         const formIdentifierChanged = changedProperties.has('formIdentifier');
         const jobChanged = changedProperties.has('job');
@@ -2016,7 +2016,7 @@ export class JobOfferFormElement extends BaseFormElement {
             hasSubmissionCheckContextChanged(changedProperties.get('auth'), this.auth);
 
         if (authChanged || entryPointUrlChanged) {
-            this._loadLoggedInUserData();
+            void this._loadLoggedInUserData();
         }
 
         if (formIdentifierChanged || jobChanged) {
@@ -2030,7 +2030,7 @@ export class JobOfferFormElement extends BaseFormElement {
         }
 
         if (formIdentifierChanged || jobChanged || authContextChanged) {
-            this._loadApplicationFormSchema();
+            void this._loadApplicationFormSchema();
         }
 
         // Only re-check when the active job or the logged-in user changes.
@@ -2040,7 +2040,7 @@ export class JobOfferFormElement extends BaseFormElement {
             this._checkingApplied = false;
 
             if (this.formIdentifier && this.auth?.token && this.auth?.['user-id']) {
-                this._checkAlreadyApplied();
+                void this._checkAlreadyApplied();
             }
         }
     }
@@ -2102,15 +2102,15 @@ export class JobOfferFormElement extends BaseFormElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.updateComplete.then(() => {
+        void this.updateComplete.then(() => {
             this.addEventListener(
                 'dbp-file-source-file-selected',
                 this._handleAttachmentFilesSelected,
             );
 
             // Listen for the form submission event dispatched by sendSubmission() in base class
-            this.addEventListener('DbpFormalizeFormSubmission', async (event) => {
-                await this._handleSubmission(event.detail);
+            this.addEventListener('DbpFormalizeFormSubmission', (event) => {
+                void this._handleSubmission(event.detail);
             });
         });
     }
@@ -2330,7 +2330,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 options,
             );
             if (!response.ok) {
-                throw response;
+                throw new Error(`Request failed with status ${response.status}`, {cause: response});
             }
             const userDetails = await response.json();
             const localData = userDetails.localData ?? {};

@@ -1,6 +1,9 @@
 {
     "$schema": "./node_modules/oxlint/configuration_schema.json",
-    "plugins": ["jsdoc"],
+    "plugins": ["jsdoc", "typescript"],
+    "options": {
+        "typeAware": true
+    },
     "categories": {
         "correctness": "error"
     },
@@ -8,7 +11,7 @@
         "browser": true,
         "mocha": true
     },
-    "ignorePatterns": ["dist/", "vendor/"],
+    "ignorePatterns": ["dist/", "test/", "vendor/"],
     "rules": {
         "no-empty": "error",
         "no-fallthrough": "error",
@@ -42,6 +45,23 @@
         "jsdoc/require-throws-type": "warn",
         "jsdoc/require-yields": "warn",
         "jsdoc/require-yields-type": "warn",
-        "no-array-constructor": "error"
+        "no-array-constructor": "error",
+        "typescript/ban-ts-comment": "error",
+        "typescript/no-empty-object-type": "error",
+        "typescript/no-explicit-any": "error",
+        "typescript/no-base-to-string": "off",
+        "typescript/no-misused-promises": "error",
+        "typescript/no-namespace": "error",
+        "typescript/no-require-imports": "error",
+        "typescript/no-unnecessary-type-assertion": "off",
+        "typescript/no-unnecessary-type-constraint": "error",
+        "typescript/no-unsafe-enum-comparison": "error",
+        "typescript/no-unsafe-function-type": "error",
+        "typescript/only-throw-error": "error",
+        "typescript/prefer-promise-reject-errors": "error",
+        "typescript/require-await": "error",
+        "typescript/restrict-plus-operands": "error",
+        "typescript/restrict-template-expressions": "off",
+        "typescript/unbound-method": "off"
     }
 }

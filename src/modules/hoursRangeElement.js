@@ -235,11 +235,11 @@ export class HoursRangeElement extends DBPLitElement {
 
     update(changedProperties) {
         if (changedProperties.has('lang')) {
-            this._i18n.changeLanguage(this.lang);
+            void this._i18n.changeLanguage(this.lang);
         }
 
         if (this.langDir && (changedProperties.has('lang') || changedProperties.has('langDir'))) {
-            setOverridesByGlobalCache(this._i18n, this);
+            void setOverridesByGlobalCache(this._i18n, this);
         }
 
         super.update(changedProperties);

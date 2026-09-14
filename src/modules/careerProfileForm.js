@@ -518,7 +518,7 @@ class CareerProfileModule extends BaseObject {
     }
 
     getFormName(lang = i18n.language) {
-        i18n.changeLanguage(lang);
+        void i18n.changeLanguage(lang);
         return i18n.t('career-profile-form.form-type-name');
     }
 
@@ -652,17 +652,17 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     resetForCreate() {
         this._resetProfileValues();
         this._setAvailableStudies(this.currentStudentStudies);
-        this._prefillStudentData();
+        void this._prefillStudentData();
     }
 
     update(changedProperties) {
         changedProperties.forEach((oldValue, propName) => {
             if (propName === 'lang') {
-                this._i18n.changeLanguage(this.lang);
+                void this._i18n.changeLanguage(this.lang);
             }
 
             if ((propName === 'lang' || propName === 'langDir') && this.langDir) {
-                setOverridesByGlobalCache(this._i18n, this);
+                void setOverridesByGlobalCache(this._i18n, this);
             }
 
             if (propName === 'existingForm' && (this.existingForm || oldValue)) {
@@ -710,7 +710,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             changedProperties.has('entryPointUrl') ||
             changedProperties.has('existingForm')
         ) {
-            this._prefillStudentData();
+            void this._prefillStudentData();
         }
 
         super.update(changedProperties);
@@ -1506,13 +1506,13 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
         };
     }
 
-    async update(changedProperties) {
-        await super.update(changedProperties);
+    update(changedProperties) {
+        super.update(changedProperties);
 
         const formIdentifierChanged = changedProperties.has('formIdentifier');
         const authChanged = changedProperties.has('auth');
         if ((formIdentifierChanged || authChanged) && this.formIdentifier && this.auth?.token) {
-            this._checkAlreadySubmittedInterest();
+            void this._checkAlreadySubmittedInterest();
         }
     }
 

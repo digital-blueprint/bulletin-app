@@ -76,8 +76,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     initialize() {
-        this._fetchProfiles();
-        this._fetchCurrentStudentStudies();
+        void this._fetchProfiles();
+        void this._fetchCurrentStudentStudies();
     }
 
     update(changedProperties) {
@@ -94,21 +94,21 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             // Token refreshes update auth.token without changing the user. Do not reload the
             // list in that case, otherwise the activity flashes a loading spinner periodically.
             if (!this._profilesLoaded || userChanged) {
-                this._fetchProfiles();
+                void this._fetchProfiles();
             }
         }
 
         if (changedProperties.has('auth') || changedProperties.has('entryPointUrl')) {
-            this._fetchCurrentStudentStudies();
+            void this._fetchCurrentStudentStudies();
         }
     }
 
     loginCallback() {
         if (!this._profilesLoaded && this.auth?.token) {
-            this._fetchProfiles();
+            void this._fetchProfiles();
         }
 
-        this._fetchCurrentStudentStudies();
+        void this._fetchCurrentStudentStudies();
     }
 
     async _fetchCurrentStudentStudies() {
@@ -254,7 +254,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             this._submissions = [];
 
             if (profile) {
-                this._fetchSubmissions(profile.identifier);
+                void this._fetchSubmissions(profile.identifier);
             } else if (this._profilesLoaded) {
                 this._backToOverview();
             }
@@ -382,7 +382,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         this._deleteDialogProfile = profile;
-        this.updateComplete.then(() => this._('#career-profile-delete-modal')?.open());
+        void this.updateComplete.then(() => this._('#career-profile-delete-modal')?.open());
     }
 
     async _deleteProfile() {
@@ -636,7 +636,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         return `${day}.${month}.${year}`;
     }
     _renderProfileCard(profile) {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         const isOwnProfile = this._isOwnProfile(profile);
         const data = profile.additionalData ?? {};
         const workLocationLabels = getWorkLocationLabels(
