@@ -27,6 +27,8 @@ import {
     ADMIN_TOOLS_FEATURE_FLAG,
     CAREER_PROFILES_FEATURE_FLAG,
     EXTERNAL_JOBS_FEATURE_FLAG,
+    FEATURE_FLAGS,
+    initializeFeatureFlags,
 } from '../src/featureFlags.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
@@ -818,6 +820,41 @@ suite('dbp-bulletin app shell', () => {
 
         setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, false);
         setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, false);
+    });
+});
+
+suite('feature flag defaults', () => {
+    setup(() => {
+        for (const featureFlag of FEATURE_FLAGS) {
+            localStorage.removeItem(`dbp-feature-${featureFlag}`);
+            localStorage.removeItem(`dbp-feature-default-${featureFlag}`);
+        }
+    });
+
+    teardown(() => {
+        for (const featureFlag of FEATURE_FLAGS) {
+            localStorage.removeItem(`dbp-feature-${featureFlag}`);
+            localStorage.removeItem(`dbp-feature-default-${featureFlag}`);
+        }
+    });
+
+    test('should preserve a manually enabled flag on first initialization', () => {
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
+
+        initializeFeatureFlags([]);
+
+        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
+        assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'false');
+    });
+
+    test('should apply a changed deployment default', () => {
+        localStorage.setItem('dbp-feature-default-admin-tools', 'true');
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
+
+        initializeFeatureFlags([]);
+
+        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), null);
+        assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'false');
     });
 });
 
