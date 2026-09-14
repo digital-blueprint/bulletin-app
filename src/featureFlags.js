@@ -24,13 +24,10 @@ export function initializeFeatureFlags(defaultEnabledFeatureFlags) {
         const previousDefault = localStorage.getItem(defaultKey);
         const currentDefault = String(defaultEnabled);
 
-        if (previousDefault === null) {
+        if (previousDefault === null || previousDefault !== currentDefault) {
             if (!isFeatureEnabled(featureFlag)) {
                 setFeatureFlag(featureFlag, defaultEnabled);
             }
-            localStorage.setItem(defaultKey, currentDefault);
-        } else if (previousDefault !== currentDefault) {
-            setFeatureFlag(featureFlag, defaultEnabled);
             localStorage.setItem(defaultKey, currentDefault);
         }
     }

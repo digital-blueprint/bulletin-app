@@ -847,14 +847,23 @@ suite('feature flag defaults', () => {
         assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'false');
     });
 
-    test('should apply a changed deployment default', () => {
+    test('should preserve a manually enabled flag when the deployment default changes', () => {
         localStorage.setItem('dbp-feature-default-admin-tools', 'true');
         setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
 
         initializeFeatureFlags([]);
 
-        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), null);
+        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
         assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'false');
+    });
+
+    test('should enable a flag when the deployment default changes to enabled', () => {
+        localStorage.setItem('dbp-feature-default-admin-tools', 'false');
+
+        initializeFeatureFlags([ADMIN_TOOLS_FEATURE_FLAG]);
+
+        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
+        assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'true');
     });
 });
 
