@@ -1,5 +1,6 @@
 import {css, html} from 'lit';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
+import {classMap} from 'lit/directives/class-map.js';
 import {Modal, Icon} from '@dbp-toolkit/common';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
@@ -16,6 +17,10 @@ import {formatHoursRange} from './modules/hoursRangeElement.js';
 
 const JOB_OFFER_USER_ROLE = 'ROLE_BULLETIN_JOB_OFFER_USER';
 
+// Ignore overflow up to one button height. Hiding the top shortcut removes
+// this space and avoids showing a shortcut for an almost imperceptible scroll.
+const APPLY_ANCHOR_OVERFLOW_TOLERANCE = 32;
+
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
@@ -26,6 +31,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._onDocumentPointerDown = this._handleDocumentPointerDown.bind(this);
         this.universityShortName = '';
         this._hasApplied = false;
+        /** @type {boolean} Whether the top apply-anchor button is hidden (internal jobs only) */
+        this._hideApplyAnchor = false;
+        /** @type {ResizeObserver|null} Observes the modal content to detect scrollability */
+        this._modalResizeObserver = null;
+        this._onModalResize = this._handleModalResize.bind(this);
     }
 
     static get scopedElements() {
@@ -43,6 +53,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             job: {type: Object},
             _shareDropdownOpen: {state: true},
             _hasApplied: {state: true},
+            _hideApplyAnchor: {state: true},
             universityShortName: {type: String, attribute: 'university-short-name'},
         };
     }
@@ -56,6 +67,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     disconnectedCallback() {
         document.removeEventListener('pointerdown', this._onDocumentPointerDown);
         this.removeEventListener('dbp-job-offer-applied', this._onJobOfferApplied);
+        this._teardownModalResizeObserver();
         super.disconnectedCallback();
     }
 
@@ -88,16 +100,50 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         if (modal.modalDialog) {
             modal.open();
+            this._setupModalResizeObserver(modal);
         }
     }
 
     /** Closes the modal dialog. */
     close() {
         this._shareDropdownOpen = false;
+        this._teardownModalResizeObserver();
+        this._hideApplyAnchor = false;
         const modal = this.shadowRoot?.querySelector('dbp-modal');
         if (modal?.modalDialog) {
             modal.close();
         }
+    }
+
+    /**
+     * Observes the modal content so the top apply-anchor button can be hidden
+     * when the content does not overflow (i.e. no scrolling is needed).
+     * @param {import('lit').LitElement & {shadowRoot: ShadowRoot}} modal
+     */
+    _setupModalResizeObserver(modal) {
+        const scrollEl = modal.shadowRoot?.querySelector('.modal-content');
+        if (!window.ResizeObserver || !scrollEl) {
+            return;
+        }
+
+        this._teardownModalResizeObserver();
+
+        this._modalResizeObserver = new ResizeObserver(this._onModalResize);
+        // Observe the scroll container to react to viewport/height changes.
+        this._modalResizeObserver.observe(scrollEl);
+        // Also observe the slotted content so changes in content height recompute.
+        const contentEl = this.shadowRoot?.querySelector('.content-wrapper');
+        if (contentEl) {
+            this._modalResizeObserver.observe(contentEl);
+        }
+
+        // Run one measurement after layout/fonts have settled.
+        requestAnimationFrame(() => this._handleModalResize());
+    }
+
+    _teardownModalResizeObserver() {
+        this._modalResizeObserver?.disconnect();
+        this._modalResizeObserver = null;
     }
     /**
      * Renders a list section when at least one item is available.
@@ -662,6 +708,33 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _handleModalClosed() {
         this._shareDropdownOpen = false;
+        this._teardownModalResizeObserver();
+        this._hideApplyAnchor = false;
+    }
+
+    /**
+     * The top apply-anchor button is only a scroll shortcut to the real apply
+     * button at the bottom (internal jobs). When the content does not overflow,
+     * both buttons are already visible, so the top one is redundant and hidden.
+     * External jobs are handled in the render guard and always keep the button.
+     */
+    _handleModalResize() {
+        const modal = this.shadowRoot?.querySelector('dbp-modal');
+        const scrollEl = modal?.shadowRoot?.querySelector('.modal-content');
+        if (!scrollEl) {
+            return;
+        }
+
+        // Overflow of the scroll container. A tolerance margin absorbs the top
+        // button's own height so the decision cannot oscillate at the boundary.
+        const overflow = scrollEl.scrollHeight - scrollEl.clientHeight;
+        const canScroll = overflow > APPLY_ANCHOR_OVERFLOW_TOLERANCE;
+
+        // Hide when there is effectively no scrolling (both buttons visible).
+        const shouldHide = !canScroll;
+        if (shouldHide !== this._hideApplyAnchor) {
+            this._hideApplyAnchor = shouldHide;
+        }
     }
 
     getInternalFavicon(job) {
@@ -763,7 +836,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 modal-id="job-offer-detail-dialog"
                 lang="${this.lang}"
                 @dbp-modal-closed="${this._handleModalClosed}"
-                class="modal-width">
+                class="modal-width job-offer-detail-dialog">
                 <div slot="header">
                     <dbp-notification
                         id="dbp-notification-copy"
@@ -913,13 +986,17 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       // For external job offers the button leads to
                                                       // the company website, so it is only useful
                                                       // when a valid link is available.
+                                                      // For internal jobs the button is only a scroll
+                                                      // shortcut, so it is hidden when the content does
+                                                      // not overflow (both buttons already visible).
                                                       !this._canApply() ||
                                                       (isExternalJob &&
-                                                          !this._getExternalJobUrl(job))
+                                                          !this._getExternalJobUrl(job)) ||
+                                                      (!isExternalJob && this._hideApplyAnchor)
                                                           ? ''
                                                           : html`
                                                                 <button
-                                                                    class="button is-primary apply-anchor-btn"
+                                                                    class="button is-primary apply-anchor-btn ${classMap({'external-job': isExternalJob})}"
                                                                     type="button"
                                                                     ?disabled="${this._hasApplied}"
                                                                     @click="${() =>
@@ -1208,7 +1285,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             ${commonStyles.getThemeCSS()}
             ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
-            
+
             .modal-width {
                 --dbp-modal-min-width: min(95vw, 700px);
                 --dbp-modal-max-width: min(95vw, 700px);
