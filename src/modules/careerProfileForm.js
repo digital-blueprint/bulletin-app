@@ -1372,28 +1372,30 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 )}
             </div>
 
-            ${this.renderTextField(
-                'teaser',
-                'career-profile-form.field-teaser-title',
-                this._teaser,
-                (value) => this._setTeaser(value),
-                {
-                    rows: 4,
-                    placeholderKey: 'career-profile-form.field-teaser-placeholder',
-                    descriptionKey: 'career-profile-form.field-teaser-description',
-                },
-            )}
-            ${this.renderTextField(
-                'teaserEn',
-                'career-profile-form.field-teaser-title-en',
-                this._teaserEn,
-                (value) => this._setTeaserEn(value),
-                {
-                    rows: 4,
-                    placeholderKey: 'career-profile-form.field-teaser-placeholder-en',
-                    descriptionKey: 'career-profile-form.field-teaser-description',
-                },
-            )}
+            <div class="translation-row">
+                ${this.renderTextField(
+                    'teaser',
+                    'career-profile-form.field-teaser-title',
+                    this._teaser,
+                    (value) => this._setTeaser(value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'career-profile-form.field-teaser-placeholder',
+                        descriptionKey: 'career-profile-form.field-teaser-description',
+                    },
+                )}
+                ${this.renderTextField(
+                    'teaserEn',
+                    'career-profile-form.field-teaser-title-en',
+                    this._teaserEn,
+                    (value) => this._setTeaserEn(value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'career-profile-form.field-teaser-placeholder-en',
+                        descriptionKey: 'career-profile-form.field-teaser-description',
+                    },
+                )}
+            </div>
         `;
     }
 
