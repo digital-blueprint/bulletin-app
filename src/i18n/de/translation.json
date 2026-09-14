@@ -618,8 +618,8 @@
         "select-placeholder": "Alle",
         "view-details": "Anzeigen",
         "weekly-hours": "Wochenstunden",
-        "weekly-hours-max-marker": "< {{hours}}h",
-        "weekly-hours-min-marker": "> {{hours}}h",
+        "weekly-hours-max-marker": "=< {{hours}}h",
+        "weekly-hours-min-marker": ">= {{hours}}h",
         "weekly-hours-range-marker": "{{min}} – {{max}}h",
         "work-location": "Dienstort"
     }
