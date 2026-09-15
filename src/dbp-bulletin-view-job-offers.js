@@ -519,6 +519,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 const matchesWorkLocation =
                     !includeWorkLocation ||
                     !this.filterWorkLocation ||
+                    (this.filterIncludeRemote && this._isRemoteJob(job)) ||
                     normalizeWorkLocations(job.workLocations).some((location) =>
                         getLocationHierarchy(location).some(
                             (ancestor) => getLocationKey(ancestor) === this.filterWorkLocation,
@@ -877,10 +878,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     onWorkLocationChange(e) {
         this.filterWorkLocation = e.detail?.value ?? '';
-
-        if (this.filterWorkLocation) {
-            this.filterIncludeRemote = true;
-        }
+        this.filterIncludeRemote = Boolean(this.filterWorkLocation);
 
         this._clearUnavailableAreaOfInterest();
         this._resetVisibleCount();
@@ -906,7 +904,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     onIncludeRemoteChange(e) {
-        this.filterIncludeRemote = e.target.checked;
+        this.filterIncludeRemote = Boolean(this.filterWorkLocation) && e.target.checked;
         this._resetVisibleCount();
     }
 
@@ -1261,6 +1259,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   <input
                                                       type="checkbox"
                                                       class="remote-checkbox-input"
+                                                      ?disabled="${!this.filterWorkLocation}"
                                                       .checked="${this.filterIncludeRemote}"
                                                       @change="${this.onIncludeRemoteChange}" />
                                                   <span class="remote-checkbox-label">
