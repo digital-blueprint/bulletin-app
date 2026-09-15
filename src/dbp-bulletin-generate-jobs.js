@@ -312,7 +312,6 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     familyName,
                     email: `${givenName}.${familyName}.${uniqueId}@example.org`.toLowerCase(),
                     title: '',
-                    personIdentifier: `generated-${uniqueId}`,
                     freeText: randomItem(SAMPLE_DESCRIPTIONS),
                 };
                 const postFormData = new FormData();

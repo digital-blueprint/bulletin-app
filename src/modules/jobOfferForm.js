@@ -105,14 +105,6 @@ export function getJobApplicationDataFeedSchema() {
                     en: i18n.t('job-offer-detail.title', {lng: 'en'}),
                 },
             },
-            personIdentifier: {
-                type: 'string',
-                description: 'The UID of the person',
-                localizedName: {
-                    de: i18n.t('job-offer-detail.matriculation-number', {lng: 'de'}),
-                    en: i18n.t('job-offer-detail.matriculation-number', {lng: 'en'}),
-                },
-            },
             freeText: {
                 type: 'string',
                 description: 'Free-text message or cover letter.',
@@ -122,7 +114,7 @@ export function getJobApplicationDataFeedSchema() {
                 },
             },
         },
-        required: ['givenName', 'familyName', 'personIdentifier', 'email'],
+        required: ['givenName', 'familyName', 'email'],
     });
 }
 
@@ -1973,8 +1965,6 @@ export class JobOfferFormElement extends BaseFormElement {
         this._prefilledFamilyName = '';
         /** @type {string} Prefilled email address */
         this._prefilledEmail = '';
-        /** @type {string} Prefilled person/matriculation identifier */
-        this._prefilledPersonIdentifier = '';
         this._attachmentLimitNotified = false;
         this._applicationDataFeedSchema = '';
 
@@ -2000,7 +1990,6 @@ export class JobOfferFormElement extends BaseFormElement {
             _prefilledFamilyName: {state: true},
             _prefilledStudyField: {state: true},
             _prefilledEmail: {state: true},
-            _prefilledPersonIdentifier: {state: true},
         };
     }
 
@@ -2324,9 +2313,7 @@ export class JobOfferFormElement extends BaseFormElement {
         try {
             let response = await fetch(
                 this.entryPointUrl +
-                    `/base/people/${encodeURIComponent(
-                        userId,
-                    )}?includeLocal=email,matriculationNumber`,
+                    `/base/people/${encodeURIComponent(userId)}?includeLocal=email`,
                 options,
             );
             if (!response.ok) {
@@ -2338,7 +2325,6 @@ export class JobOfferFormElement extends BaseFormElement {
             this._prefilledFamilyName = userDetails.familyName;
             this._prefilledStudyField = localData.studyField ?? '';
             this._prefilledEmail = localData.email ?? this._prefilledEmail;
-            this._prefilledPersonIdentifier = localData.matriculationNumber ?? '';
         } catch (error) {
             console.error('Error loading logged-in user details:', error);
         }
@@ -2358,14 +2344,6 @@ export class JobOfferFormElement extends BaseFormElement {
      */
     _getLoggedInFamilyName() {
         return this._prefilledFamilyName ?? this.formData?.familyName ?? '';
-    }
-
-    /**
-     * Returns the logged-in user's matriculation/person identifier.
-     * @returns {string}
-     */
-    _getLoggedInPersonIdentifier() {
-        return this._prefilledPersonIdentifier ?? this.formData?.personIdentifier ?? '';
     }
 
     /**
@@ -2519,12 +2497,12 @@ export class JobOfferFormElement extends BaseFormElement {
             await this._loadApplicationFormSchema();
         }
 
+        const applicationSchema = this._getApplicationSchema();
+
         if (!this._validateApplicationForm()) {
             return;
         }
 
-        // Collect person_id from auth if available and inject it as a hidden value
-        // so sendSubmission() includes it via gatherFormDataFromElement
         this._isSubmitting = true;
         this.saveButtonEnabled = false;
 
@@ -2535,7 +2513,11 @@ export class JobOfferFormElement extends BaseFormElement {
             familyName: this._getLoggedInFamilyName() || this._lastNameRef.value?.value || '',
             email: this._getLoggedInEmail(),
             freeText: this._messageRef.value?.value ?? '',
-            personIdentifier: this._getLoggedInPersonIdentifier(),
+            // Existing job offers can still require this legacy field. Submit no personal
+            // identifier while keeping applications compatible until the offer is saved again.
+            ...(applicationSchema?.required?.includes('personIdentifier')
+                ? {personIdentifier: ''}
+                : {}),
         };
 
         await this._handleSubmission({formData: submissionData, submissionId: null});
@@ -2651,11 +2633,6 @@ export class JobOfferFormElement extends BaseFormElement {
 
         const attachmentGroup = this._getAttachmentGroupData();
         const attachmentCount = attachmentGroup.filesToSubmit.size;
-        const data = {
-            ...(this.formData ?? {}),
-            matriculationNumber: this._getLoggedInPersonIdentifier(),
-        };
-
         if (this._checkingApplied) {
             return html`
                 <div class="checking-spinner"><dbp-icon name="reload"></dbp-icon></div>
@@ -2696,14 +2673,6 @@ export class JobOfferFormElement extends BaseFormElement {
                             </span>
                         </div>
 
-                        <div class="form-column">
-                            <span>
-                                <span class="application-view-label">
-                                    ${t('job-offer-detail.matriculation-number')}:
-                                </span>
-                                ${data.matriculationNumber || ''}
-                            </span>
-                        </div>
                         <div class="form-column">
                             <span>
                                 <span class="application-view-label">

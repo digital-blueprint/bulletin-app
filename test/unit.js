@@ -1114,9 +1114,10 @@ suite('jobOfferForm application submission', () => {
             'familyName',
             'email',
             'title',
-            'personIdentifier',
             'freeText',
         ]);
+        assert.notProperty(schema.properties, 'personIdentifier');
+        assert.notInclude(schema.required, 'personIdentifier');
     });
 
     test('should define localized names for all application fields', () => {
@@ -1137,10 +1138,6 @@ suite('jobOfferForm application submission', () => {
         assert.deepEqual(schema.properties.title.localizedName, {
             de: 'Titel',
             en: 'Title',
-        });
-        assert.deepEqual(schema.properties.personIdentifier.localizedName, {
-            de: 'Matrikelnummer',
-            en: 'Matriculation number',
         });
         assert.deepEqual(schema.properties.freeText.localizedName, {
             de: 'Warum haben Sie Interesse an diesem Stellenangebot?',
@@ -1257,7 +1254,6 @@ suite('jobOfferForm application submission', () => {
                     familyName: 'Lovelace',
                     localData: {
                         email: 'applicant@example.com',
-                        matriculationNumber: '12345678',
                     },
                 }),
             };
@@ -1271,14 +1267,11 @@ suite('jobOfferForm application submission', () => {
             globalThis.fetch = originalFetch;
         }
 
-        assert.equal(
-            requestUrl,
-            'https://example.invalid/base/people/user-1?includeLocal=email,matriculationNumber',
-        );
+        assert.equal(requestUrl, 'https://example.invalid/base/people/user-1?includeLocal=email');
         assert.equal(element._getLoggedInEmail(), 'applicant@example.com');
     });
 
-    test('should submit study field and free text', async () => {
+    test('should submit email and free text without a person identifier', async () => {
         const tagName = 'test-job-offer-form-element';
         if (!customElements.get(tagName)) {
             customElements.define(tagName, JobOfferFormElement);
@@ -1301,6 +1294,33 @@ suite('jobOfferForm application submission', () => {
 
         assert.equal(submittedData.email, 'applicant@example.com');
         assert.equal(submittedData.freeText, 'Application message');
+        assert.notProperty(submittedData, 'personIdentifier');
+    });
+
+    test('should submit an empty person identifier for legacy schemas', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        let submittedData;
+        element.entryPointUrl = 'https://example.invalid';
+        element.formIdentifier = 'job-1';
+        element.auth = {token: 'token'};
+        element._prefilledEmail = 'applicant@example.com';
+        element._applicationDataFeedSchema = JSON.stringify({
+            required: ['givenName', 'familyName', 'email', 'personIdentifier'],
+        });
+        element._messageRef = {value: {value: 'Application message'}};
+        element._validateApplicationForm = () => true;
+        element._handleSubmission = async ({formData}) => {
+            submittedData = formData;
+        };
+
+        await element._onApplySubmit({preventDefault() {}});
+
+        assert.equal(submittedData.personIdentifier, '');
     });
 });
 
