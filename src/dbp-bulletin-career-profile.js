@@ -1198,26 +1198,30 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <h2 class="modal-title">${title}</h2>
                 </div>
                 <div slot="header" class="modal-header">
-                    <p class="required-field-note">
-                        <span class="required-asterisk">*</span>
-                        ${t('career-profile-form.required-field-note')}
-                    </p>
-                    <button
-                        class="button is-primary save-button"
-                        type="button"
-                        ?disabled="${this._isSubmitting}"
-                        @click="${() => this._saveProfile()}">
-                        ${
-                            this._isSubmitting
-                                ? html`
-                                      <dbp-mini-spinner></dbp-mini-spinner>
-                                  `
-                                : html`
-                                      <dbp-icon name="save" aria-hidden="true"></dbp-icon>
-                                  `
-                        }
-                        <span class="button-label">${t('career-profile-form.save-profile')}</span>
-                    </button>
+                    <div class="dialog-actions-bar">
+                        <p class="required-field-note">
+                            <span class="required-asterisk">*</span>
+                            ${t('career-profile-form.required-field-note')}
+                        </p>
+                        <button
+                            class="button is-primary save-button"
+                            type="button"
+                            ?disabled="${this._isSubmitting}"
+                            @click="${() => this._saveProfile()}">
+                            ${
+                                this._isSubmitting
+                                    ? html`
+                                          <dbp-mini-spinner></dbp-mini-spinner>
+                                      `
+                                    : html`
+                                          <dbp-icon name="save" aria-hidden="true"></dbp-icon>
+                                      `
+                            }
+                            <span class="button-label">
+                                ${t('career-profile-form.save-profile')}
+                            </span>
+                        </button>
+                    </div>
                 </div>
                 <div slot="content">
                     <dbp-notification
@@ -1560,9 +1564,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 color: var(--dbp-accent);
             }
 
-            .modal-header {
+            .dialog-actions-bar {
                 display: flex;
                 justify-content: space-between;
+                padding-bottom: 1em;
             }
 
             .save-button {
