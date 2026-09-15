@@ -43,7 +43,6 @@
         "view-submissions": "Einreichungen anzeigen"
     },
     "career-profile-form": {
-        "contact-email-missing": "Ihre Kontakt-E-Mail konnte nicht automatisch geladen werden. Bitte versuchen Sie es später erneut oder wenden Sie sich an den Support.",
         "create-error-title": "Fehler",
         "create-success": "Das Karriereprofil wurde erfolgreich gespeichert.",
         "create-success-title": "Karriereprofil erstellt",

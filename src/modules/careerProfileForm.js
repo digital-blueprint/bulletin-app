@@ -347,7 +347,6 @@ const isValidWebsiteUrl = (value) => {
 const keepCareerProfileTranslations = (t) => {
     t('career-profile-form.create-error-title');
     t('career-profile-form.create-success');
-    t('career-profile-form.contact-email-missing');
     t('career-profile-form.field-availability');
     t('career-profile-form.field-contact-email');
     t('career-profile-form.field-languages');
@@ -690,7 +689,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     this._fields = normalizeCareerProfileSelectValues(data.fields);
                     this._workLocations = normalizeWorkLocations(data.workLocations);
                     this._availability = data.availability || '';
-                    this._contactEmail = data.contactEmail || '';
                     this._website = data.website || data.linkUrl || '';
                     this._teaser = normalizeTeaserValue(data.teaser);
                     this._teaserEn = normalizeTeaserValue(data.teaserEn);
@@ -749,12 +747,11 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     : Promise.resolve({}),
             ]);
 
-            // Email is kept in additionalData for contacting the student, but never shown to companies.
             const studies = needsStudies
                 ? mergeLocalizedStudentStudies(localData, englishLocalData)
                 : currentStudies;
 
-            this._contactEmail = this._contactEmail || localData.email || '';
+            this._contactEmail = localData.email || '';
             this._localizedStudentStudies = studies;
             this._setAvailableStudies(studies);
             this._studentDataPrefillUserId = userId;
@@ -800,7 +797,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     get _isFormValid() {
         return (
             this._summary.trim() !== '' &&
-            this._contactEmail.trim() !== '' &&
             (this._availableStudies.length === 0 || this._getDisplayStudies().length > 0) &&
             isValidWebsiteUrl(this._website)
         );
@@ -916,23 +912,10 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             ? formatStudentStudies({studies}, 'en')
             : this.existingForm?.additionalData?.studyProgramEn || studyProgram;
 
-        if (!this._contactEmail.trim()) {
-            sendNotification({
-                summary: t('career-profile-form.create-error-title'),
-                body: t('career-profile-form.contact-email-missing'),
-                type: 'warning',
-                timeout: 0,
-                targetNotificationId: 'career-profile-form-notification',
-            });
-            return null;
-        }
-
         this._validateWebsiteField();
         if (!this._isFormValid) {
             const hasRequiredValues =
-                this._summary.trim() &&
-                this._contactEmail.trim() &&
-                (this._availableStudies.length === 0 || studies.length > 0);
+                this._summary.trim() && (this._availableStudies.length === 0 || studies.length > 0);
             sendNotification({
                 summary: t('career-profile-form.create-error-title'),
                 body: hasRequiredValues
@@ -984,13 +967,16 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             fields: normalizeCareerProfileSelectValues(this._fields),
             workLocations: normalizeWorkLocations(this._workLocations),
             availability: this._availability.trim(),
-            contactEmail: this._contactEmail.trim(),
             website: this._website.trim(),
             teaser: normalizeTeaserValue(this._teaser),
             teaserEn: normalizeTeaserValue(this._teaserEn),
             studentCreatorId: this.auth?.['user-id'] || '',
             studentPersonIdentifier: this.auth?.person_id || '',
         };
+        if (isEditMode) {
+            // JSON Merge Patch requires null to remove contactEmail from existing profiles.
+            additionalData.contactEmail = null;
+        }
 
         // The profile itself is a Formalize form; the public profile fields live in additionalData.
         const formName = new CareerProfileModule().getFormName(this.lang);

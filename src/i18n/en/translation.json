@@ -43,7 +43,6 @@
         "view-submissions": "View submissions"
     },
     "career-profile-form": {
-        "contact-email-missing": "Your contact email could not be loaded automatically. Please try again later or contact support.",
         "create-error-title": "Error",
         "create-success": "The career profile has been saved.",
         "create-success-title": "Profile created",

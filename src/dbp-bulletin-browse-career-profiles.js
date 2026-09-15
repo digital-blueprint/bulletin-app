@@ -174,7 +174,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     _mapProfile(form) {
-        const additionalData = form.additionalData ?? {};
+        const additionalData = {...(form.additionalData ?? {})};
+        delete additionalData.contactEmail;
         return {
             identifier: form.identifier,
             formName: this._getLocalizedName(form.localizedNames) || form.name || '',

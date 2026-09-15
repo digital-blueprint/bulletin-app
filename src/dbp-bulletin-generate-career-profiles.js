@@ -204,7 +204,6 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             fields: randomSubset(Object.keys(CAREER_PROFILE_FIELDS), 3),
             workLocations: randomSubset(SAMPLE_WORK_LOCATIONS, 2),
             availability,
-            contactEmail: `career-profile-${Date.now()}-${index + 1}@example.org`,
             website: `https://profiles.example.org/career-${Date.now()}-${index + 1}`,
             teaser: SAMPLE_SUMMARIES_DE[summaryIndex].slice(0, 100).trim(),
             teaserEn: SAMPLE_SUMMARIES[summaryIndex].slice(0, 100).trim(),

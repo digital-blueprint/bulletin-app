@@ -711,23 +711,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         }
                     </div>
                 </div>
-                <div>
-                    ${
-                        isOwnProfile && data.contactEmail
-                            ? html`
-                                  <div class="contact-email">
-                                      <dl class="contact-wrapper">
-                                          <dt>
-                                              ${this._i18n.t('career-profile-form.field-contact-email')}:
-                                          </dt>
-                                          <dd class="contact-value">${data.contactEmail}</dd>
-                                      </dl>
-                                  </div>
-                              `
-                            : ''
-                    }
-                </div>
-
                 <div class="career-profile-wrapper">
                     ${
                         teaser
@@ -1359,9 +1342,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 1rem;
             }
 
-            .contact-email {
-                margin-top: 1rem;
-            }
             dl {
                 display: flex;
                 flex-direction: column;

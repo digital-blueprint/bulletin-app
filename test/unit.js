@@ -2,6 +2,7 @@ import {assert} from 'chai';
 
 import '../src/dbp-bulletin-view-job-offers';
 import '../src/dbp-bulletin-career-profile.js';
+import '../src/dbp-bulletin-browse-career-profiles.js';
 import '../src/dbp-bulletin-job-offer-detail.js';
 import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
@@ -1689,6 +1690,38 @@ suite('career profile student studies', () => {
         );
         assert.equal(requestBody.additionalData.teaser, 'Deutscher Teaser');
         assert.equal(requestBody.additionalData.teaserEn, 'English teaser');
+        assert.notProperty(requestBody.additionalData, 'contactEmail');
+    });
+
+    test('should remove a stored contact email when updating a profile', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        let requestBody;
+        let requestMethod;
+        element.auth = {token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        element.existingForm = {
+            formId: 'profile-1',
+            additionalData: {contactEmail: 'legacy@example.com'},
+        };
+        element._summary = 'Profile';
+        globalThis.fetch = async (_url, options) => {
+            requestMethod = options.method;
+            requestBody = JSON.parse(options.body);
+            return {
+                ok: true,
+                json: async () => ({identifier: 'profile-1'}),
+            };
+        };
+
+        try {
+            await element.submit();
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.equal(requestMethod, 'PATCH');
+        assert.isNull(requestBody.additionalData.contactEmail);
     });
 
     test('should display an invalid website error in the field and notification', async () => {
@@ -1842,6 +1875,21 @@ suite('career profile student studies', () => {
         } finally {
             globalThis.fetch = originalFetch;
         }
+    });
+});
+
+suite('dbp-bulletin-browse-career-profiles privacy', () => {
+    test('should discard legacy profile contact emails', () => {
+        const element = document.createElement('dbp-bulletin-browse-career-profiles');
+        const profile = element._mapProfile({
+            identifier: 'profile-1',
+            additionalData: {
+                summary: 'Profile',
+                contactEmail: 'legacy@example.com',
+            },
+        });
+
+        assert.deepEqual(profile.additionalData, {summary: 'Profile'});
     });
 });
 
