@@ -1728,6 +1728,8 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
                     border-radius: var(--dbp-border-radius);
                     margin-top: 1.5rem;
                     padding: 1rem;
+
+                    --dbp-label-margin-bottom: 3px;
                 }
 
                 .interest-form h3 {

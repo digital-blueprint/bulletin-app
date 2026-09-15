@@ -1212,6 +1212,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         lang="${this.lang}"></dbp-notification>
                     <dbp-career-profile-edit-form
                         id="career-profile-edit-form"
+                        class="career-profile-edit-form"
                         lang="${this.lang}"
                         lang-dir="${this.langDir}"
                         .auth="${this.auth}"
@@ -1571,6 +1572,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 --dbp-modal-max-width: min(95vw, 900px);
                 --dbp-modal-max-height: 90vh;
                 --dbp-modal-content-overflow-y: auto;
+            }
+
+            .career-profile-edit-form {
+                --dbp-label-margin-bottom: 3px;
             }
 
             @media (max-width: 720px) {

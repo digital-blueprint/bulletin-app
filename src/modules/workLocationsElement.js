@@ -883,6 +883,10 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 font-weight: 300;
             }
 
+            .selector-label > span {
+                margin-bottom: 3px;
+            }
+
             .select2-control.control {
                 width: 100%;
             }
