@@ -409,6 +409,7 @@
             "attachment-limit-body_other": "You can upload at most {{count}} PDF files.",
             "error-body": "An error occurred while copying the link. Please try copying it manually or share the link using the other available options.",
             "error-heading": "Error",
+            "file-security-validation-failed": "One or more attachments were rejected by the security scan. Remove or replace them and try again.",
             "submit-error-body": "An error occurred while submitting your application. Please try again or contact support.",
             "submit-error-heading": "Submission error",
             "success-body": "The link was successfully copied to your clipboard.",

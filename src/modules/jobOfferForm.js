@@ -1,4 +1,8 @@
-import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-object.js';
+import {
+    BaseFormElement,
+    BaseObject,
+    FILE_SECURITY_VALIDATION_ERROR_ID,
+} from '../../vendor/formalize/src/form/base-object.js';
 import {css, html} from 'lit';
 import {createRef, ref} from 'lit/directives/ref.js';
 import {
@@ -143,6 +147,7 @@ const keepJobOfferAttachmentTranslations = (t) => {
     t('job-offer-detail.notification.attachment-limit-body', {
         count: JOB_APPLICATION_ATTACHMENT_LIMIT,
     });
+    t('job-offer-detail.notification.file-security-validation-failed');
     t('render-form.download-widget.attachment-upload-file-text');
     t('render-form.download-widget.attachment-upload-warning-text');
     t('render-form.download-widget.attachment-remove-file-text');
@@ -2555,10 +2560,18 @@ export class JobOfferFormElement extends BaseFormElement {
             if (!response.ok) {
                 const errorBody = await response.json().catch(() => ({}));
                 console.error('Failed to submit application:', response.status, errorBody);
-                const apiMessage = errorBody.description || errorBody['hydra:description'] || '';
-                const body = apiMessage
-                    ? `${t('job-offer-detail.notification.submit-error-body')}\n${apiMessage}`
-                    : t('job-offer-detail.notification.submit-error-body');
+                const isFileSecurityValidationError =
+                    errorBody['relay:errorId'] === FILE_SECURITY_VALIDATION_ERROR_ID;
+                const apiMessage =
+                    errorBody.detail ||
+                    errorBody.description ||
+                    errorBody['hydra:description'] ||
+                    '';
+                const body = isFileSecurityValidationError
+                    ? t('job-offer-detail.notification.file-security-validation-failed')
+                    : apiMessage
+                      ? `${t('job-offer-detail.notification.submit-error-body')}\n${apiMessage}`
+                      : t('job-offer-detail.notification.submit-error-body');
                 sendNotification({
                     summary: t('job-offer-detail.notification.submit-error-heading'),
                     body: body,

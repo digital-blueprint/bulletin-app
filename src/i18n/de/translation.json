@@ -409,6 +409,7 @@
             "attachment-limit-body_other": "Sie können maximal {{count}} PDF-Dateien hochladen.",
             "error-body": "Beim Kopieren des Links ist ein Fehler aufgetreten. Bitte versuchen Sie es manuell oder teilen Sie die Stelle über die anderen verfügbaren Optionen.",
             "error-heading": "Fehler",
+            "file-security-validation-failed": "Eine oder mehrere Anlagen wurden von der Sicherheitsprüfung abgelehnt. Entfernen oder ersetzen Sie diese und versuchen Sie es erneut.",
             "submit-error-body": "Beim Übermitteln Ihrer Bewerbung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support.",
             "submit-error-heading": "Fehler beim Absenden",
             "success-body": "Der Link wurde erfolgreich in Ihre Zwischenablage kopiert.",

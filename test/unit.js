@@ -1237,6 +1237,51 @@ suite('jobOfferForm application submission', () => {
         assert.deepEqual(requestBody.getAll('attachments[]'), [attachment]);
     });
 
+    test('should show a security scan message when an attachment is rejected', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        element.entryPointUrl = 'https://example.invalid';
+        element.formIdentifier = 'job-1';
+        element.auth = {token: 'token'};
+        await element._i18n.changeLanguage('en');
+
+        const originalFetch = globalThis.fetch;
+        let notificationDetail;
+        const notificationHandler = (event) => {
+            notificationDetail = event.detail;
+            event.preventDefault();
+        };
+        window.addEventListener('dbp-notification-send', notificationHandler);
+        globalThis.fetch = async () => ({
+            ok: false,
+            status: 400,
+            json: async () => ({
+                'relay:errorId': 'blob:create-file-data-file-does-not-validate-against-type',
+                'relay:errorDetails': [
+                    'clamav_check: Virus detected in application.pdf: test-signature',
+                ],
+            }),
+        });
+
+        try {
+            await element._handleSubmission({formData: {}, submissionId: null});
+        } finally {
+            window.removeEventListener('dbp-notification-send', notificationHandler);
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.equal(notificationDetail?.type, 'danger');
+        assert.equal(
+            notificationDetail?.body,
+            'One or more attachments were rejected by the security scan. Remove or replace them and try again.',
+        );
+        assert.notInclude(notificationDetail?.body, 'test-signature');
+    });
+
     test('should request only supported applicant local data', async () => {
         const tagName = 'test-job-offer-form-element';
         if (!customElements.get(tagName)) {
