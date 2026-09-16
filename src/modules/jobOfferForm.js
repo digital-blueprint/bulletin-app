@@ -1096,8 +1096,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             }
         }
 
-        const selectElement = this.shadowRoot?.querySelector(
-            'dbp-submission-select-element[name="company-submission"]',
+        const selectElement = /** @type {DbpSubmissionSelectElement} */ (
+            this.renderRoot.querySelector(
+                'dbp-submission-select-element[name="company-submission"]',
+            )
         );
         const companyName = this._resolveCompanyName(selectElement, submissionId);
         const companyData = this._resolveCompanyData(selectElement, submissionId);
@@ -1128,9 +1130,13 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             : getDefaultInternalWorkLocations();
 
         if (!this._isFormValid) {
-            this.shadowRoot?.querySelector('dbp-hours-range-element')?.reportValidity();
+            /** @type {HoursRangeElement} */ (
+                this.renderRoot.querySelector('dbp-hours-range-element')
+            )?.reportValidity();
             if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
-                this.shadowRoot?.querySelector('dbp-date-element[name="deadline"]')?.handleErrors();
+                /** @type {DbpDateElement} */ (
+                    this.renderRoot.querySelector('dbp-date-element[name="deadline"]')
+                )?.handleErrors();
             }
             let body = t('create-job-offer.validation-required');
             if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
@@ -1241,12 +1247,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         try {
             let result;
             if (isEditMode) {
-                result = await apiUpdateForm(
-                    host,
-                    this.existingForm.formId,
-                    formData,
-                    notificationOptions,
-                );
+                const formId = this.existingForm?.formId;
+                if (!formId) {
+                    throw new Error('Cannot update job offer: the existing form has no formId.');
+                }
+                result = await apiUpdateForm(host, formId, formData, notificationOptions);
             } else {
                 result = await apiCreateForm(host, formData, notificationOptions);
             }
@@ -2108,7 +2113,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
             // Listen for the form submission event dispatched by sendSubmission() in base class
             this.addEventListener('DbpFormalizeFormSubmission', (event) => {
-                void this._handleSubmission(event.detail);
+                void this._handleSubmission(/** @type {CustomEvent} */ (event).detail);
             });
         });
     }
@@ -2125,13 +2130,15 @@ export class JobOfferFormElement extends BaseFormElement {
      * Clears all inline validation errors from the application form fields.
      */
     _clearFormErrors() {
-        const fields = [
-            this._firstNameRef.value,
-            this._lastNameRef.value,
-            this._emailRef.value,
-            this._messageRef.value,
-        ];
-        fields.filter(Boolean).forEach((field) => {
+        const fields = /** @type {DbpStringElement[]} */ (
+            [
+                this._firstNameRef.value,
+                this._lastNameRef.value,
+                this._emailRef.value,
+                this._messageRef.value,
+            ].filter(Boolean)
+        );
+        fields.forEach((field) => {
             field.errorMessages = [];
         });
     }
@@ -2264,16 +2271,15 @@ export class JobOfferFormElement extends BaseFormElement {
      * @returns {boolean}
      */
     _validateApplicationForm() {
-        const fields = [
-            this._firstNameRef.value,
-            this._lastNameRef.value,
-            this._emailRef.value,
-            this._messageRef.value,
-        ];
-        return fields
-            .filter(Boolean)
-            .map((field) => field.handleErrors())
-            .every(Boolean);
+        const fields = /** @type {DbpStringElement[]} */ (
+            [
+                this._firstNameRef.value,
+                this._lastNameRef.value,
+                this._emailRef.value,
+                this._messageRef.value,
+            ].filter(Boolean)
+        );
+        return fields.map((field) => field.handleErrors()).every(Boolean);
     }
 
     /**
@@ -2291,10 +2297,9 @@ export class JobOfferFormElement extends BaseFormElement {
     }
 
     /**
-     * Returns a customValidator function for the message field that enforces a 50-character minimum.
-     * @returns {(value: string) => string[]}
+     * Whether the current job offer is an external job offer.
+     * @returns {boolean}
      */
-
     get _isExternalJobOffer() {
         return this.job?.jobOfferType === JOB_OFFER_TYPE_EXTERNAL;
     }
@@ -2304,7 +2309,7 @@ export class JobOfferFormElement extends BaseFormElement {
      * This keeps non-editable name fields reliably prefilled.
      */
     async _loadLoggedInUserData() {
-        this._prefilledEmail = this.auth?.email ?? '';
+        this._prefilledEmail = /** @type {string} */ (this.auth?.email ?? '');
 
         const userId = this.auth?.['user-id'];
         if (!userId || !this.entryPointUrl || !this.auth?.token) {
@@ -2518,10 +2523,16 @@ export class JobOfferFormElement extends BaseFormElement {
         // Build submission data manually from the ref'd fields since these are
         // custom web-component fields not part of the BaseFormElement form element tree.
         const submissionData = {
-            givenName: this._getLoggedInGivenName() || this._firstNameRef.value?.value || '',
-            familyName: this._getLoggedInFamilyName() || this._lastNameRef.value?.value || '',
+            givenName:
+                this._getLoggedInGivenName() ||
+                /** @type {DbpStringElement} */ (this._firstNameRef.value)?.value ||
+                '',
+            familyName:
+                this._getLoggedInFamilyName() ||
+                /** @type {DbpStringElement} */ (this._lastNameRef.value)?.value ||
+                '',
             email: this._getLoggedInEmail(),
-            freeText: this._messageRef.value?.value ?? '',
+            freeText: /** @type {DbpStringElement} */ (this._messageRef.value)?.value ?? '',
             // Existing job offers can still require this legacy field. Submit no personal
             // identifier while keeping applications compatible until the offer is saved again.
             ...(applicationSchema?.required?.includes('personIdentifier')
@@ -2556,7 +2567,7 @@ export class JobOfferFormElement extends BaseFormElement {
             const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${this.auth.token}`,
+                    Authorization: `Bearer ${this.auth?.token}`,
                 },
                 body: postFormData,
             });

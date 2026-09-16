@@ -810,7 +810,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 
     _validateWebsiteField() {
         const websiteField = /** @type {DbpStringElement} */ (
-            this.shadowRoot?.querySelector('[name="website"]')
+            this.renderRoot.querySelector('[name="website"]')
         );
         if (!websiteField) {
             return isValidWebsiteUrl(this._website);
@@ -830,7 +830,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._teaser = teaser;
 
         const teaserField = /** @type {DbpStringElement} */ (
-            this.shadowRoot?.querySelector('[name="teaser"]')
+            this.renderRoot.querySelector('[name="teaser"]')
         );
         if (teaserField && teaserField.value !== teaser) {
             teaserField.value = teaser;
@@ -842,7 +842,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._teaserEn = teaser;
 
         const teaserField = /** @type {DbpStringElement} */ (
-            this.shadowRoot?.querySelector('[name="teaserEn"]')
+            this.renderRoot.querySelector('[name="teaserEn"]')
         );
         if (teaserField && teaserField.value !== teaser) {
             teaserField.value = teaser;
