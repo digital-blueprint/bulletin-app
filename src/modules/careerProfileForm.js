@@ -275,7 +275,13 @@ export const mergeLocalizedStudentStudies = (germanLocalData, englishLocalData) 
     const englishStudies = normalizeStudentStudies(englishLocalData);
     const englishStudiesByIdentifier = new Map(
         englishStudies
-            .map((study, index) => [getStableStudentStudyIdentifier(study), {study, index}])
+            .map(
+                (study, index) =>
+                    /** @type {[string | null, {study: object, index: number}]} */ ([
+                        getStableStudentStudyIdentifier(study),
+                        {study, index},
+                    ]),
+            )
             .filter(([identifier]) => identifier),
     );
     const matchedEnglishIndexes = new Set();
@@ -787,7 +793,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     : {};
             }
 
-            throw new Error(response.statusText || response.status);
+            throw new Error(response.statusText || String(response.status));
         }
 
         const person = await response.json();
@@ -803,7 +809,9 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     }
 
     _validateWebsiteField() {
-        const websiteField = this.shadowRoot?.querySelector('[name="website"]');
+        const websiteField = /** @type {DbpStringElement} */ (
+            this.shadowRoot?.querySelector('[name="website"]')
+        );
         if (!websiteField) {
             return isValidWebsiteUrl(this._website);
         }
@@ -821,7 +829,9 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         const teaser = normalizeTeaserValue(value);
         this._teaser = teaser;
 
-        const teaserField = this.shadowRoot?.querySelector('[name="teaser"]');
+        const teaserField = /** @type {DbpStringElement} */ (
+            this.shadowRoot?.querySelector('[name="teaser"]')
+        );
         if (teaserField && teaserField.value !== teaser) {
             teaserField.value = teaser;
         }
@@ -831,7 +841,9 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         const teaser = normalizeTeaserValue(value);
         this._teaserEn = teaser;
 
-        const teaserField = this.shadowRoot?.querySelector('[name="teaserEn"]');
+        const teaserField = /** @type {DbpStringElement} */ (
+            this.shadowRoot?.querySelector('[name="teaserEn"]')
+        );
         if (teaserField && teaserField.value !== teaser) {
             teaserField.value = teaser;
         }
@@ -902,7 +914,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             return null;
         }
 
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         const isEditMode = Boolean(this.existingForm?.formId);
         const studies = this._getDisplayStudies();
         const studyProgram = studies.length
@@ -1039,7 +1051,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     }
 
     renderTextField(name, labelKey, value, onChange, options = {}) {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         return html`
             <dbp-string-element
                 name="${name}"
@@ -1066,7 +1078,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     }
 
     renderDateField(name, labelKey, value, onChange, options = {}) {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         return html`
             <dbp-date-element
                 name="${name}"
@@ -1079,7 +1091,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     }
 
     renderMultiSelectField(name, labelKey, items, value, onChange, options = {}) {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         return html`
             <dbp-enum-element
                 name="${name}"
@@ -1109,7 +1121,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     }
 
     renderCheckboxField(name, labelKey, value, onChange) {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         return html`
             <label class="checkbox-field">
                 <input
@@ -1158,7 +1170,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     }
 
     render() {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         const studyItems = Object.fromEntries(
             this._availableStudies.map((study) => [
                 getStudentStudyValue(study),
@@ -1457,6 +1469,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 export class CareerProfileInterestFormElement extends BaseFormElement {
     static get scopedElements() {
         return {
+            ...super.scopedElements,
             'dbp-string-element': DbpStringElement,
             'dbp-button': Button,
             'dbp-icon': Icon,
@@ -1553,7 +1566,7 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
 
     async submitInterest(event) {
         event.preventDefault();
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
 
         if (!this._isFormValid) {
             sendNotification({
@@ -1590,7 +1603,7 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
         try {
             const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
                 method: 'POST',
-                headers: {Authorization: `Bearer ${this.auth.token}`},
+                headers: {Authorization: `Bearer ${this.auth?.token}`},
                 body: postFormData,
             });
 
@@ -1631,7 +1644,7 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
     }
 
     render() {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         keepCareerProfileTranslations(t);
 
         if (this._checkingSubmittedInterest) {

@@ -40,6 +40,11 @@ import HoursRangeElement, {
 import {pickCompanyData} from './companyForm.js';
 import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from '../featureFlags.js';
 
+/**
+ * @typedef {Record<string, any>} JobOfferData
+ * @typedef {{formId?: string, formSlug?: string, formName?: string, moduleInstance?: object, additionalData?: JobOfferData, localizedNames?: object}} ExistingJobOfferForm
+ */
+
 const i18n = createInstance();
 
 const JOB_APPLICATION_ATTACHMENT_GROUP = 'attachments';
@@ -582,7 +587,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         /**
          * When set by the parent dialog, the component operates in edit mode.
          * Shape: { formId, formSlug, formName, moduleInstance, additionalData, localizedNames }
-         * @type {object|null}
+         * @type {?ExistingJobOfferForm}
          */
         this.existingForm = null;
 
@@ -600,7 +605,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._companySubmissionId = '';
         /** @type {string} The display name of the selected company (kept so it can be shown even if the company submission is deleted) */
         this._companyName = '';
-        /** @type {object} Snapshot of the selected company submission data */
+        /** @type {JobOfferData} Snapshot of the selected company submission data */
         this._companyData = {};
         /** @type {boolean} Whether the selected company was marked as a partner company */
         this._isFromPartnerCompany = false;
@@ -730,7 +735,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             // Pre-populate form fields when an existing form is provided for editing
             if (propName === 'existingForm' && this.existingForm) {
-                const d = this.existingForm.additionalData || {};
+                const d = /** @type {JobOfferData} */ (this.existingForm.additionalData || {});
                 this._title = d.title || '';
                 this._description = d.description || '';
                 this._publishedAt = d.publishedAt || '';
@@ -973,7 +978,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
      * Prefers the element's own label resolution for the matching submission, falling back to
      * the selected option's text content. Returns an empty string when no company is selected.
      *
-     * @param {HTMLElement} selectElement - The dbp-submission-select-element that emitted the change.
+     * @param {DbpSubmissionSelectElement} selectElement - The dbp-submission-select-element that emitted the change.
      * @param {string} submissionId - The identifier of the selected company submission.
      * @returns {string}
      */
@@ -1111,7 +1116,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
      * On success dispatches a form event, on failure shows an error notification.
      */
     async submit() {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         const isEditMode = this.existingForm !== null && this.existingForm !== undefined;
 
         if (!isEditMode && !isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)) {
@@ -1272,7 +1277,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return null;
     }
     render() {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         keepJobOfferAttachmentTranslations(t);
         const jobTypeItems = this._getJobTypeItems(t);
         const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
@@ -2206,7 +2211,7 @@ export class JobOfferFormElement extends BaseFormElement {
             return;
         }
 
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         this._attachmentLimitNotified = true;
         sendNotification({
             summary: t('job-offer-detail.notification.submit-error-heading'),
@@ -2534,7 +2539,7 @@ export class JobOfferFormElement extends BaseFormElement {
      * @param {{formData: object, submissionId: string|null}} detail
      */
     async _handleSubmission(detail) {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         const {formData} = detail;
         const attachmentGroup = this._getAttachmentGroupData();
 
@@ -2621,6 +2626,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
     static get scopedElements() {
         return {
+            ...super.scopedElements,
             'dbp-form-string-element': DbpStringElement,
             'dbp-form-date-element': DbpDateElement,
             'dbp-form-enum-element': DbpEnumElement,
@@ -2634,7 +2640,7 @@ export class JobOfferFormElement extends BaseFormElement {
     }
 
     render() {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         keepJobOfferAttachmentTranslations(t);
 
         // External job offers are not applied for in this app, the "apply" button in the detail
