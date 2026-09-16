@@ -612,7 +612,7 @@
         "partner-company": "Partner company",
         "position-count": "({{total}} total, {{filtered}} filtered)",
         "remote-marker": "Remote",
-        "remove-filter": "Remove filter {{filter}}",
+        "remove-filter": "Remove filter {{-filter}}",
         "search-placeholder": "Search job offers",
         "select-placeholder": "All",
         "view-details": "View",
