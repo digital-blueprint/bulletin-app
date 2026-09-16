@@ -47,6 +47,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
     constructor() {
         super();
+        this.langDir = '';
         this.searchQuery = '';
         this.filterIndustry = '';
         this.filterField = '';
@@ -61,6 +62,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     static get properties() {
         return {
             ...super.properties,
+            langDir: {type: String, attribute: 'lang-dir'},
             searchQuery: {type: String, state: true},
             filterIndustry: {type: String, state: true},
             filterField: {type: String, state: true},
@@ -565,7 +567,9 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     async _syncProfileTable(changedProperties = new Map()) {
-        const table = this.renderRoot?.querySelector('#career-profiles-table');
+        const table = /** @type {CustomTabulatorTable} */ (
+            this.renderRoot?.querySelector('#career-profiles-table')
+        );
         if (!table || this._selectedProfile) {
             return;
         }

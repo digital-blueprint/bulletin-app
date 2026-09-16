@@ -7,6 +7,11 @@ import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CompanyModule, {pickCompanyData} from './modules/companyForm.js';
 
+/**
+ * @typedef {{rowNumber: number, name: string}} ImportRow
+ * @typedef {{rowNumber: number, name: string, message: string}} ImportError
+ */
+
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const SUBMISSION_STATE_SUBMITTED = 4;
 const IMPORT_LIMIT_OPTIONS = ['10', '20', '50', '100', '200', '500', '1000', 'all'];
@@ -150,7 +155,8 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
     }
 
     get _isDeveloper() {
-        return (this.auth?._roles ?? []).includes(BULLETIN_ADMIN_ROLE);
+        const roles = /** @type {string[]} */ (this.auth?._roles ?? []);
+        return roles.includes(BULLETIN_ADMIN_ROLE);
     }
 
     async _handleFileSelected(event) {
@@ -314,12 +320,12 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         const maxImports =
             this._importLimit === 'all' ? Number.POSITIVE_INFINITY : Number(this._importLimit);
         const report = {
-            imported: [],
-            overwritten: [],
-            skipped: [],
-            skippedDeactivated: [],
-            skippedLimit: [],
-            errors: [],
+            imported: /** @type {ImportRow[]} */ ([]),
+            overwritten: /** @type {ImportRow[]} */ ([]),
+            skipped: /** @type {ImportRow[]} */ ([]),
+            skippedDeactivated: /** @type {ImportRow[]} */ ([]),
+            skippedLimit: /** @type {ImportRow[]} */ ([]),
+            errors: /** @type {ImportError[]} */ ([]),
         };
 
         await commonUtils.asyncArrayForEach(rows.slice(1), async (row, index) => {
@@ -386,7 +392,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             {
                 headers: {
                     'Content-Type': 'application/ld+json',
-                    Authorization: `Bearer ${this.auth.token}`,
+                    Authorization: `Bearer ${this.auth?.token}`,
                 },
             },
         );
@@ -413,7 +419,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             {
                 headers: {
                     'Content-Type': 'application/ld+json',
-                    Authorization: `Bearer ${this.auth.token}`,
+                    Authorization: `Bearer ${this.auth?.token}`,
                 },
             },
         );
@@ -477,7 +483,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${this.auth.token}`,
+                Authorization: `Bearer ${this.auth?.token}`,
             },
             body: postFormData,
         });
@@ -509,7 +515,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             {
                 method: 'PATCH',
                 headers: {
-                    Authorization: `Bearer ${this.auth.token}`,
+                    Authorization: `Bearer ${this.auth?.token}`,
                 },
                 body: patchFormData,
             },
@@ -647,9 +653,9 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                     }"
                     ?disabled="${this._isImporting}"
                     @click="${() =>
-                        this.renderRoot
-                            .querySelector('dbp-file-source')
-                            ?.openDialog()}"></dbp-button>
+                        /** @type {FileSource} */ (
+                            this.renderRoot.querySelector('dbp-file-source')
+                        )?.openDialog()}"></dbp-button>
                 <dbp-file-source
                     context="${t('import-companies.file-source-title')}"
                     button-label="${t('import-companies.select-file')}"

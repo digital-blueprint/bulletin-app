@@ -153,13 +153,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     return;
                 }
 
-                const [germanPerson, englishPerson] =
-                    /** @type {[PersonData, PersonData]} */ (
-                        await Promise.all([
-                            germanResponse.ok ? germanResponse.json() : {},
-                            englishResponse.ok ? englishResponse.json() : {},
-                        ])
-                    );
+                const [germanPerson, englishPerson] = /** @type {[PersonData, PersonData]} */ (
+                    await Promise.all([
+                        germanResponse.ok ? germanResponse.json() : {},
+                        englishResponse.ok ? englishResponse.json() : {},
+                    ])
+                );
                 this._currentStudentStudies = mergeLocalizedStudentStudies(
                     germanPerson?.localData ?? {},
                     englishPerson?.localData ?? {},
