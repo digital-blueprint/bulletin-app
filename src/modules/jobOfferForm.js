@@ -34,7 +34,6 @@ import WorkLocationsElement, {
 } from './workLocationsElement.js';
 import HoursRangeElement, {
     formatHoursRange,
-    isHoursRangeValid,
     parseOptionalHours,
     sanitizeHoursValue,
 } from './hoursRangeElement.js';
@@ -805,7 +804,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._deadline.trim() !== '' &&
             !isDeadlineBeforePublishedAt(this._publishedAt, this._deadline) &&
             this._jobOfferType.trim() !== '' &&
-            isHoursRangeValid(this._weeklyHoursMin, this._weeklyHoursMax) &&
+            this._weeklyHoursMin.trim() !== '' &&
+            this._weeklyHoursMax.trim() !== '' &&
             hasJobOwner
         );
     }
@@ -1475,9 +1475,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         required
                         @change="${(e) => {
                             this._publishedAt = e.detail.value;
-                            this.shadowRoot
-                                ?.querySelector('dbp-date-element[name="deadline"]')
-                                ?.handleErrorsIfAny();
+                            this.shadowRoot?.querySelector('dbp-date-element[name="deadline"]');
                         }}"></dbp-date-element>
 
                     <dbp-date-element
