@@ -1758,9 +1758,8 @@ suite('career profile student studies', () => {
         element.entryPointUrl = 'https://example.invalid';
         element.existingForm = {
             formId: 'profile-1',
-            additionalData: {contactEmail: 'legacy@example.com'},
+            additionalData: {summary: 'Profile', contactEmail: 'legacy@example.com'},
         };
-        element._summary = 'Profile';
         globalThis.fetch = async (_url, options) => {
             requestMethod = options.method;
             requestBody = JSON.parse(options.body);
@@ -1769,11 +1768,14 @@ suite('career profile student studies', () => {
                 json: async () => ({identifier: 'profile-1'}),
             };
         };
+        document.body.appendChild(element);
+        await element.updateComplete;
 
         try {
             await element.submit();
         } finally {
             globalThis.fetch = originalFetch;
+            element.remove();
         }
 
         assert.equal(requestMethod, 'PATCH');
@@ -1920,6 +1922,8 @@ suite('career profile student studies', () => {
             }
             return {ok: true};
         };
+        document.body.appendChild(element);
+        await element.updateComplete;
 
         try {
             const firstSubmit = element.submit();
@@ -1930,6 +1934,7 @@ suite('career profile student studies', () => {
             await firstSubmit;
         } finally {
             globalThis.fetch = originalFetch;
+            element.remove();
         }
     });
 });
