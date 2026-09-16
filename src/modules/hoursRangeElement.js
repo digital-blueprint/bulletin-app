@@ -172,8 +172,9 @@ export const isHoursRangeInRange = (jobMin, jobMax, filterMin, filterMax, scalar
         return false;
     }
 
-    const effectiveOfferMin = offerMin ?? offerMax;
-    const effectiveOfferMax = offerMax ?? offerMin;
+    // At least one offer bound is non-null here, so both fallbacks resolve to a number.
+    const effectiveOfferMin = /** @type {number} */ (offerMin ?? offerMax);
+    const effectiveOfferMax = /** @type {number} */ (offerMax ?? offerMin);
     return (
         (selectedMin === null || effectiveOfferMin >= selectedMin) &&
         (selectedMax === null || effectiveOfferMax <= selectedMax)
@@ -246,7 +247,7 @@ export class HoursRangeElement extends DBPLitElement {
     }
 
     _sanitize(value) {
-        return sanitizeHoursValue(value, this.hoursMin, this.hoursMax, this.step);
+        return sanitizeHoursValue(value, this.hoursMin, this.hoursMax);
     }
 
     _onMinInput(event) {
@@ -272,8 +273,12 @@ export class HoursRangeElement extends DBPLitElement {
     }
 
     _validateRange() {
-        const minInput = this.renderRoot?.querySelector('.hours-range-min');
-        const maxInput = this.renderRoot?.querySelector('.hours-range-max');
+        const minInput = /** @type {HTMLInputElement} */ (
+            this.renderRoot?.querySelector('.hours-range-min')
+        );
+        const maxInput = /** @type {HTMLInputElement} */ (
+            this.renderRoot?.querySelector('.hours-range-max')
+        );
 
         const invalid = !isHoursRangeValid(this.min, this.max);
 

@@ -4,6 +4,10 @@ import * as commonUtils from '@dbp-toolkit/common/utils';
 import {Translated} from '@dbp-toolkit/common/src/translated';
 import {FEATURE_FLAGS, initializeFeatureFlags, isFeatureEnabled} from './featureFlags.js';
 
+/**
+ * @typedef {import('lit').LitElement} LitElement
+ */
+
 export class BulletinAppShell extends AppShell {
     constructor() {
         super();
@@ -39,7 +43,8 @@ export class BulletinAppShell extends AppShell {
         if (!changedFeatureFlag) return;
 
         this._updateVisibleRoutes();
-        this._lastElm?.requestUpdate();
+        const lastElm = /** @type {LitElement} */ (this._lastElm);
+        lastElm?.requestUpdate();
     }
 
     _updateVisibleRoutes() {

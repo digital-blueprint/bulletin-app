@@ -6,6 +6,10 @@ import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CompanyModule, {pickCompanyData} from './modules/companyForm.js';
 
+/**
+ * @typedef {{name: string, identifier: string, formIdentifier: string}} CreatedCompany
+ */
+
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const COMPANY_COUNT_OPTIONS = ['5', '10', '20', '50', '100'];
 const SUBMISSION_STATE_SUBMITTED = 4;
@@ -105,7 +109,8 @@ class GenerateCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElemen
     }
 
     get _isDeveloper() {
-        return (this.auth?._roles ?? []).includes(BULLETIN_ADMIN_ROLE);
+        const roles = /** @type {string[]} */ (this.auth?._roles ?? []);
+        return roles.includes(BULLETIN_ADMIN_ROLE);
     }
 
     async _getOrCreateCompanyFormIdentifier() {
@@ -118,7 +123,7 @@ class GenerateCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElemen
             {
                 headers: {
                     'Content-Type': 'application/ld+json',
-                    Authorization: `Bearer ${this.auth.token}`,
+                    Authorization: `Bearer ${this.auth?.token}`,
                 },
             },
         );
@@ -141,7 +146,7 @@ class GenerateCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElemen
             method: 'POST',
             headers: {
                 'Content-Type': 'application/ld+json',
-                Authorization: `Bearer ${this.auth.token}`,
+                Authorization: `Bearer ${this.auth?.token}`,
             },
             body: JSON.stringify({
                 name: companyModule.getFormName(this.lang),
@@ -176,7 +181,7 @@ class GenerateCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElemen
 
         const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
             method: 'POST',
-            headers: {Authorization: `Bearer ${this.auth.token}`},
+            headers: {Authorization: `Bearer ${this.auth?.token}`},
             body,
         });
 
@@ -220,7 +225,10 @@ class GenerateCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElemen
 
         this._isGenerating = true;
         this._report = null;
-        const report = {created: [], errors: []};
+        const report = {
+            created: /** @type {CreatedCompany[]} */ ([]),
+            errors: /** @type {string[]} */ ([]),
+        };
 
         try {
             const formIdentifier = await this._getOrCreateCompanyFormIdentifier();

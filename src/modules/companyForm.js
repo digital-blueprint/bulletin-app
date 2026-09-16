@@ -149,6 +149,7 @@ class CompanyFormElement extends BaseFormElement {
 
     static get scopedElements() {
         return {
+            ...super.scopedElements,
             'dbp-boolean-element': DbpBooleanElement,
             'dbp-enum-element': DbpEnumElement,
             'dbp-string-element': DbpStringElement,

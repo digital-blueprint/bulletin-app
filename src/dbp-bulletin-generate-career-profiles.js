@@ -158,7 +158,8 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
     }
 
     get _isDeveloper() {
-        return (this.auth?._roles ?? []).includes(BULLETIN_ADMIN_ROLE);
+        const roles = /** @type {string[]} */ (this.auth?._roles ?? []);
+        return roles.includes(BULLETIN_ADMIN_ROLE);
     }
 
     // Builds a single random career-profile form payload compatible with /formalize/forms.
@@ -253,7 +254,7 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             method: 'POST',
             headers: {
                 'Content-Type': 'application/ld+json',
-                Authorization: 'Bearer ' + this.auth.token,
+                Authorization: 'Bearer ' + this.auth?.token,
             },
             body: JSON.stringify(body),
         });
@@ -294,7 +295,10 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
         this._isGenerating = true;
         this._report = null;
 
-        const report = {created: [], errors: []};
+        const report = {
+            created: /** @type {string[]} */ ([]),
+            errors: /** @type {string[]} */ ([]),
+        };
 
         await commonUtils.asyncArrayForEach(Array.from({length: count}), async (_value, index) => {
             const formData = this._buildRandomCareerProfile(index);

@@ -22,6 +22,10 @@ import CareerProfileModule, {
 } from './modules/careerProfileForm.js';
 import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
 
+/**
+ * @typedef {{localData?: object}} PersonData
+ */
+
 class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
@@ -38,6 +42,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     constructor() {
         super();
+        this.langDir = '';
         this._profiles = [];
         this._selectedProfile = null;
         this._submissions = [];
@@ -59,6 +64,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get properties() {
         return {
             ...super.properties,
+            langDir: {type: String, attribute: 'lang-dir'},
             _profiles: {state: true},
             _selectedProfile: {state: true},
             _submissions: {state: true},
@@ -137,7 +143,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         fetch(url, {
                             headers: {
                                 'Content-Type': 'application/ld+json',
-                                Authorization: `Bearer ${this.auth.token}`,
+                                Authorization: `Bearer ${this.auth?.token}`,
                                 'Accept-Language': language,
                             },
                         }),
@@ -147,10 +153,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     return;
                 }
 
-                const [germanPerson, englishPerson] = await Promise.all([
-                    germanResponse.ok ? germanResponse.json() : {},
-                    englishResponse.ok ? englishResponse.json() : {},
-                ]);
+                const [germanPerson, englishPerson] =
+                    /** @type {[PersonData, PersonData]} */ (
+                        await Promise.all([
+                            germanResponse.ok ? germanResponse.json() : {},
+                            englishResponse.ok ? englishResponse.json() : {},
+                        ])
+                    );
                 this._currentStudentStudies = mergeLocalizedStudentStudies(
                     germanPerson?.localData ?? {},
                     englishPerson?.localData ?? {},

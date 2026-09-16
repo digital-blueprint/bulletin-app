@@ -13,6 +13,10 @@ import JobOfferModule, {
 import {getDefaultInternalWorkLocations} from './modules/workLocationsElement.js';
 import {SUBMISSION_STATES_BINARY} from '../vendor/formalize/src/utils.js';
 
+/**
+ * @typedef {{name: string, identifier: string}} CreatedJobOffer
+ */
+
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const JOB_COUNT_OPTIONS = ['5', '10', '20', '50', '100'];
 // Formalize stores this value in a signed SMALLINT column.
@@ -173,7 +177,8 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     get _isAdmin() {
-        return (this.auth?._roles ?? []).includes(BULLETIN_ADMIN_ROLE);
+        const roles = /** @type {string[]} */ (this.auth?._roles ?? []);
+        return roles.includes(BULLETIN_ADMIN_ROLE);
     }
 
     // Builds a single random job-offer form payload compatible with apiCreateForm.
@@ -285,7 +290,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/ld+json',
-                Authorization: 'Bearer ' + this.auth.token,
+                Authorization: 'Bearer ' + this.auth?.token,
             },
             body: JSON.stringify(body),
         });
@@ -322,7 +327,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 const response = await fetch(`${this.entryPointUrl}/formalize/submissions`, {
                     method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${this.auth.token}`,
+                        Authorization: `Bearer ${this.auth?.token}`,
                     },
                     body: postFormData,
                 });
@@ -363,7 +368,10 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._isGenerating = true;
         this._report = null;
 
-        const report = {created: [], errors: []};
+        const report = {
+            created: /** @type {CreatedJobOffer[]} */ ([]),
+            errors: /** @type {string[]} */ ([]),
+        };
 
         await commonUtils.asyncArrayForEach(Array.from({length: count}), async (_value, index) => {
             const jobOfferType = this._resolveJobOfferType();
