@@ -531,7 +531,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 const shouldFilterRemote =
                     Boolean(this.filterWorkLocation) || this.filterDreamJob === 'career-entry';
                 const matchesRemote =
-                    !shouldFilterRemote || this.filterIncludeRemote || !this._isRemoteJob(job);
+                    this.filterIncludeRemote && !this.filterWorkLocation
+                        ? this._isRemoteJob(job)
+                        : !shouldFilterRemote ||
+                          this.filterIncludeRemote ||
+                          !this._isRemoteJob(job);
 
                 const matchesHours = isHoursRangeInRange(
                     job.weeklyHoursMin,
@@ -563,13 +567,27 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      * @param {object} job
      * @returns {boolean}
      */
+    /**
+     * Returns true when a work-location value represents a remote location.
+     * @param {object} location
+     * @returns {boolean}
+     */
+    _isRemoteLocation(location) {
+        return [location.country, location.region, location.city].some(
+            (part) => String(part).trim().toLowerCase() === 'remote',
+        );
+    }
+
+    /**
+     * Returns true when the job is remote. Legacy remote location values remain supported.
+     * @param {object} job
+     * @returns {boolean}
+     */
     _isRemoteJob(job) {
         return (
             job.remote === true ||
             normalizeWorkLocations(job.workLocations).some((location) =>
-                [location.country, location.region, location.city].some(
-                    (part) => String(part).toLowerCase() === 'remote',
-                ),
+                this._isRemoteLocation(location),
             )
         );
     }
@@ -684,18 +702,35 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _renderWorkLocationTags(job, t) {
         const locations = normalizeWorkLocations(job.workLocations);
-        if (locations.length === 0) {
+        const isRemote = this._isRemoteJob(job);
+        const locationLabels = locations
+            .filter((location) => !this._isRemoteLocation(location))
+            .map((location) => getWorkLocationLabel(location, t, this.lang))
+            .map((label) => label.split(', ').slice(0, 1, 2).join(', '));
+
+        if (locationLabels.length === 0 && !isRemote) {
             return '';
         }
-
-        const labels = locations.map((loc) => getWorkLocationLabel(loc, t, this.lang));
 
         return html`
             <div class="job-tags-wrapper">
                 <span class="job-card-label">${t('view-job-offers.work-location')}:</span>
-                <span class="job-locations">
-                    ${labels.map((label) => label.split(', ').slice(0, 1, 2).join(', ')).join('; ')}
-                </span>
+                ${
+                    locationLabels.length > 0
+                        ? html`
+                              <span class="job-locations">${locationLabels.join('; ')}</span>
+                          `
+                        : ''
+                }
+                ${
+                    isRemote
+                        ? html`
+                              <button type="button" class="job-tag remote-job-tag">
+                                  ${t('view-job-offers.remote-marker')}
+                              </button>
+                          `
+                        : ''
+                }
             </div>
         `;
     }
@@ -904,7 +939,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     onIncludeRemoteChange(e) {
-        this.filterIncludeRemote = Boolean(this.filterWorkLocation) && e.target.checked;
+        this.filterIncludeRemote = e.target.checked;
         this._resetVisibleCount();
     }
 
@@ -1259,7 +1294,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   <input
                                                       type="checkbox"
                                                       class="remote-checkbox-input"
-                                                      ?disabled="${!this.filterWorkLocation}"
                                                       .checked="${this.filterIncludeRemote}"
                                                       @change="${this.onIncludeRemoteChange}" />
                                                   <span class="remote-checkbox-label">
@@ -2105,6 +2139,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 0.1rem 0.4rem;
                 font-size: 1rem;
                 color: var(--dbp-content);
+            }
+
+            .remote-job-tag {
+                background: transparent;
+                border: 0;
+                border-radius: 0;
+                padding: 0;
+                font: inherit;
+            }
+
+            .remote-job-tag::before {
+                content: '/';
+                display: inline-block;
             }
 
             .job-card-footer {

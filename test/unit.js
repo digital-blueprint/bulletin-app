@@ -381,7 +381,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         node.filterIncludeRemote = true;
         assert.deepEqual(
             node.getFilteredJobs().map((job) => job.identifier),
-            ['remote-job', 'on-site-job'],
+            ['remote-job'],
         );
 
         node.filterWorkLocation = 'AT|styria|graz';
