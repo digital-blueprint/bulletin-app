@@ -806,6 +806,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._jobOfferType.trim() !== '' &&
             this._weeklyHoursMin.trim() !== '' &&
             this._weeklyHoursMax.trim() !== '' &&
+            Number(this._weeklyHoursMin) <= Number(this._weeklyHoursMax) &&
             hasJobOwner
         );
     }
@@ -1475,9 +1476,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         required
                         @change="${(e) => {
                             this._publishedAt = e.detail.value;
-                            this.shadowRoot
-                                ?.querySelector('dbp-date-element[name="deadline"]')
-                                ?.handleErrorsIfAny();
+                            this.shadowRoot?.querySelector('dbp-date-element[name="deadline"]');
                         }}"></dbp-date-element>
 
                     <dbp-date-element

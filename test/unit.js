@@ -1015,7 +1015,7 @@ suite('jobOfferForm validation', () => {
         assert.isTrue(element._isExternalJobUrlValid());
     });
 
-    test('should allow an empty application deadline', () => {
+    test('should require weekly hours and allow an empty application deadline', () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
         if (!customElements.get(tagName)) {
@@ -1030,11 +1030,22 @@ suite('jobOfferForm validation', () => {
         element._applicationDeadline = '';
         element._organization = 'TU Graz';
 
-        assert.isTrue(element._isFormValid);
+        assert.isFalse(element._isFormValid);
+
+        element._weeklyHoursMin = '20';
+        assert.isFalse(element._isFormValid);
+
+        element._weeklyHoursMin = '';
+        element._weeklyHoursMax = '40';
+        assert.isFalse(element._isFormValid);
 
         element._weeklyHoursMin = '40';
         element._weeklyHoursMax = '20';
         assert.isFalse(element._isFormValid);
+
+        element._weeklyHoursMin = '20';
+        element._weeklyHoursMax = '40';
+        assert.isTrue(element._isFormValid);
     });
 });
 
