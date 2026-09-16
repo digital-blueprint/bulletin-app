@@ -29,6 +29,11 @@ import HoursRangeElement, {
 } from './modules/hoursRangeElement.js';
 import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from './featureFlags.js';
 
+/**
+ * Normalized job offer shape derived from a formalize form entry.
+ * @typedef {Record<string, any>} JobOffer
+ */
+
 // Number of job cards shown initially and appended each time the user requests more
 const LOAD_MORE_BATCH_SIZE = 12;
 
@@ -78,11 +83,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._filtersOpen = false;
         /** @type {number} Number of job cards currently rendered */
         this._visibleCount = LOAD_MORE_BATCH_SIZE;
-        /** @type {object|null} Currently selected job offer shown in the detail dialog */
+        /** @type {?JobOffer} Currently selected job offer shown in the detail dialog */
         this._selectedJob = null;
         /** @type {import('lit/directives/ref.js').Ref} Direct reference to the detail dialog element */
         this._detailRef = createRef();
-        /** @type {Array} Job offers loaded from the formalize API */
+        /** @type {JobOffer[]} Job offers loaded from the formalize API */
         this._jobOffers = [];
         /** @type {Record<string, Record<string, string>>} Organizational unit names by language and id */
         this._organizationNamesByLanguage = {};
@@ -91,6 +96,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         /** @type {boolean} Whether the API request failed */
         this._loadError = false;
         this.universityShortName = '';
+        this.langDir = '';
     }
 
     static get properties() {
@@ -107,6 +113,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             _filtersOpen: {type: Boolean, state: true},
             _visibleCount: {type: Number, state: true},
             universityShortName: {type: String, attribute: 'university-short-name'},
+            langDir: {type: String, attribute: 'lang-dir'},
             _selectedJob: {state: true},
             _jobOffers: {state: true},
             _loading: {state: true},
@@ -369,10 +376,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             });
 
             if (this._selectedJob) {
+                const selectedJob = this._selectedJob;
                 this._selectedJob =
-                    this._jobOffers.find(
-                        (job) => job.identifier === this._selectedJob.identifier,
-                    ) ?? this._selectedJob;
+                    this._jobOffers.find((job) => job.identifier === selectedJob.identifier) ??
+                    selectedJob;
             }
         } catch (error) {
             console.error('Error loading organizational unit names:', error);
@@ -420,7 +427,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      * Sets the selected job and opens the detail dialog.
      * The ref is always populated since the dialog element is always in the DOM.
      * updateComplete ensures the job property has been received before open() is called.
-     * @param {object} job
+     * @param {JobOffer} job
      */
     openJobDialog(job) {
         this._selectedJob = job;
@@ -437,7 +444,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     /**
      * Opens the job detail dialog from a "View" button click and updates the routing URL.
      * The routing URL change triggers handleRoutingUrlChange, which calls openJobDialog.
-     * @param {object} job
+     * @param {JobOffer} job
      */
     openJob(job) {
         this.sendSetPropertyEvent('routing-url', `job/${job.identifier}`, true);
@@ -453,7 +460,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /**
      * Returns the loaded job offers filtered by search query and dropdowns, then sorted.
-     * @returns {Array<object>}
+     * @returns {Array<JobOffer>}
      */
     getFilteredJobs({includeAreaOfInterest = true, includeWorkLocation = true} = {}) {
         const query = this.searchQuery.toLowerCase().trim();
@@ -564,12 +571,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /**
      * Returns true when the job is remote. Legacy remote location values remain supported.
-     * @param {object} job
+     * @param {JobOffer} job
      * @returns {boolean}
      */
     /**
      * Returns true when a work-location value represents a remote location.
-     * @param {object} location
+     * @param {{country?: string, region?: string, city?: string}} location
      * @returns {boolean}
      */
     _isRemoteLocation(location) {
@@ -580,7 +587,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /**
      * Returns true when the job is remote. Legacy remote location values remain supported.
-     * @param {object} job
+     * @param {JobOffer} job
      * @returns {boolean}
      */
     _isRemoteJob(job) {
@@ -706,7 +713,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const locationLabels = locations
             .filter((location) => !this._isRemoteLocation(location))
             .map((location) => getWorkLocationLabel(location, t, this.lang))
-            .map((label) => label.split(', ').slice(0, 1, 2).join(', '));
+            .map((label) => label.split(', ').slice(0, 1).join(', '));
 
         if (locationLabels.length === 0 && !isRemote) {
             return '';
@@ -785,7 +792,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /**
      * Returns the localized description for search and display contexts.
-     * @param {object} job
+     * @param {JobOffer} job
      * @returns {string}
      */
     _getLocalizedDescription(job) {
@@ -850,8 +857,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /**
      * Compares two jobs by publication date and keeps missing dates at the end.
-     * @param {object} a
-     * @param {object} b
+     * @param {JobOffer} a
+     * @param {JobOffer} b
      * @returns {number}
      */
     compareJobsByDate(a, b) {

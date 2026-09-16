@@ -15,6 +15,11 @@ import {
 import {getWorkLocationLabels} from './modules/workLocationsElement.js';
 import {formatHoursRange} from './modules/hoursRangeElement.js';
 
+/**
+ * Normalized job offer shape shown in the detail dialog.
+ * @typedef {Record<string, any>} JobOffer
+ */
+
 const JOB_OFFER_USER_ROLE = 'ROLE_BULLETIN_JOB_OFFER_USER';
 
 // Ignore overflow up to one button height. Hiding the top shortcut removes
@@ -24,7 +29,7 @@ const APPLY_ANCHOR_OVERFLOW_TOLERANCE = 32;
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
-        /** @type {object|null} The job offer to display */
+        /** @type {?JobOffer} The job offer to display */
         this.job = null;
         /** @type {boolean} Whether the share dropdown is open */
         this._shareDropdownOpen = false;
@@ -81,7 +86,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             this._hasApplied = false;
         }
         // Keep primary apply button in sync with the form's already-applied state
-        const formEl = this.shadowRoot?.querySelector('dbp-bulletin-job-offer-form');
+        const formEl = /** @type {JobOfferFormElement} */ (
+            this.renderRoot.querySelector('dbp-bulletin-job-offer-form')
+        );
         if (formEl && formEl._hasApplied && !this._hasApplied) {
             this._hasApplied = true;
         }
@@ -90,7 +97,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     /** Opens the modal dialog. */
     async open() {
         await this.updateComplete;
-        const modal = this.shadowRoot?.querySelector('dbp-modal');
+        const modal = /** @type {Modal} */ (this.renderRoot.querySelector('dbp-modal'));
 
         if (!modal) {
             return;
@@ -109,7 +116,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._shareDropdownOpen = false;
         this._teardownModalResizeObserver();
         this._hideApplyAnchor = false;
-        const modal = this.shadowRoot?.querySelector('dbp-modal');
+        const modal = /** @type {Modal} */ (this.renderRoot.querySelector('dbp-modal'));
         if (modal?.modalDialog) {
             modal.close();
         }
@@ -118,7 +125,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     /**
      * Observes the modal content so the top apply-anchor button can be hidden
      * when the content does not overflow (i.e. no scrolling is needed).
-     * @param {import('lit').LitElement & {shadowRoot: ShadowRoot}} modal
+     * @param {Modal} modal
      */
     _setupModalResizeObserver(modal) {
         const scrollEl = modal.shadowRoot?.querySelector('.modal-content');
@@ -309,7 +316,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     /**
      * Renders the localized job description while preserving line breaks from the stored text.
-     * @param {object} job
+     * @param {JobOffer} job
      * @returns {import('lit').TemplateResult}
      */
     _renderDescription(job) {
@@ -549,12 +556,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _canApply() {
-        return (this.auth?._roles ?? []).includes(JOB_OFFER_USER_ROLE);
+        return /** @type {string[]} */ (this.auth?._roles ?? []).includes(JOB_OFFER_USER_ROLE);
     }
 
     /**
      * Returns a truncated description for sharing (personalizable length, word-boundary safe).
-     * @param {object} job
+     * @param {?JobOffer} job
      * @param {number} maxLen
      * @returns {string}
      */
@@ -571,16 +578,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     /**
      * Builds the i18n-personalizable e-mail/share payload (same text for both channels).
      * All wording is defined via i18n so the final copy can be confirmed without code changes.
-     * @returns {{subject: string, body: string, url: string}}
+     * @returns {{subject: string, body: string, url: string, title: string, description: string, organization: string, organizationSuffix: string, goodLuck: string}}
      */
-    /**
-     * Returns the organization label as plain string for sharing (no TemplateResult).
-     * @param {object} job
-     * @returns {string}
-     */
-
     _getShareEmailData() {
-        const t = (key, opts) => this._i18n.t(key, opts);
+        const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         const title = this._getLocalizedTitle(this.job);
         const url = this.getShareUrl();
         const description = this._getShareDescription(this.job, 100);
@@ -1154,7 +1155,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       job.areasOfInterest?.length > 0
                                                           ? html`
                                                                 <div class="tag">
-                                                                    ${this._renderAreaOfInterestTags(job, t)}
+                                                                    ${this._renderAreaOfInterestTags(job)}
                                                                 </div>
                                                             `
                                                           : ''
