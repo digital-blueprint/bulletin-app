@@ -1475,7 +1475,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         required
                         @change="${(e) => {
                             this._publishedAt = e.detail.value;
-                            this.shadowRoot?.querySelector('dbp-date-element[name="deadline"]');
+                            this.shadowRoot
+                                ?.querySelector('dbp-date-element[name="deadline"]')
+                                ?.handleErrorsIfAny();
                         }}"></dbp-date-element>
 
                     <dbp-date-element
