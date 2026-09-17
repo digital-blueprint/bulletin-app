@@ -351,10 +351,12 @@ const isValidWebsiteUrl = (value) => {
 };
 
 const keepCareerProfileTranslations = (t) => {
+    t('career-profile-form.additional-information');
     t('career-profile-form.create-error-title');
     t('career-profile-form.create-success');
     t('career-profile-form.field-availability');
     t('career-profile-form.field-contact-email');
+    t('career-profile-form.field-contact-email-note');
     t('career-profile-form.field-languages');
     t('career-profile-form.field-languages-en');
     t('career-profile-form.field-locations');
@@ -1183,6 +1185,33 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         return html`
             <div class="translation-row">
                 ${this.renderTextField(
+                    'teaser',
+                    'career-profile-form.field-teaser-title',
+                    this._teaser,
+                    (value) => this._setTeaser(value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'career-profile-form.field-teaser-placeholder',
+                        descriptionKey: 'career-profile-form.field-teaser-description',
+                        maxlength: CAREER_PROFILE_TEASER_MAX_LENGTH,
+                    },
+                )}
+                ${this.renderTextField(
+                    'teaserEn',
+                    'career-profile-form.field-teaser-title-en',
+                    this._teaserEn,
+                    (value) => this._setTeaserEn(value),
+                    {
+                        rows: 4,
+                        placeholderKey: 'career-profile-form.field-teaser-placeholder-en',
+                        descriptionKey: 'career-profile-form.field-teaser-description',
+                        maxlength: CAREER_PROFILE_TEASER_MAX_LENGTH,
+                    },
+                )}
+            </div>
+
+            <div class="translation-row">
+                ${this.renderTextField(
                     'summary',
                     'career-profile-form.field-profile-summary',
                     this._summary,
@@ -1201,9 +1230,19 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             ${
                 this._contactEmail
                     ? html`
-                          <div class="profile-prefill-info">
+                          <div class="profile-prefill-info contact-email">
                               <strong>${t('career-profile-form.field-contact-email')}:</strong>
                               ${this._contactEmail}
+                              <!-- Note explaining where the contact email can be changed -->
+                              <p class="contact-email-note">
+                                  <dbp-icon
+                                      name="information-circle"
+                                      class="information-icon"
+                                      aria-label="${t(
+                                          'career-profile-form.additional-information',
+                                      )}"></dbp-icon>
+                                  ${t('career-profile-form.field-contact-email-note')}
+                              </p>
                           </div>
                       `
                     : ''
@@ -1369,31 +1408,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     },
                 )}
             </div>
-
-            <div class="translation-row">
-                ${this.renderTextField(
-                    'teaser',
-                    'career-profile-form.field-teaser-title',
-                    this._teaser,
-                    (value) => this._setTeaser(value),
-                    {
-                        rows: 4,
-                        placeholderKey: 'career-profile-form.field-teaser-placeholder',
-                        descriptionKey: 'career-profile-form.field-teaser-description',
-                    },
-                )}
-                ${this.renderTextField(
-                    'teaserEn',
-                    'career-profile-form.field-teaser-title-en',
-                    this._teaserEn,
-                    (value) => this._setTeaserEn(value),
-                    {
-                        rows: 4,
-                        placeholderKey: 'career-profile-form.field-teaser-placeholder-en',
-                        descriptionKey: 'career-profile-form.field-teaser-description',
-                    },
-                )}
-            </div>
         `;
     }
 
@@ -1436,6 +1450,17 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 
                 .profile-prefill-info p {
                     margin: 0.5rem 0 0;
+                }
+
+                .contact-email {
+                    margin-top: 0.5rem;
+                }
+                .information-icon {
+                    color: var(--dbp-info);
+                }
+                .profile-prefill-info .contact-email-note {
+                    font-size: 0.875rem;
+                    margin: 0;
                 }
 
                 .checkbox-field {
