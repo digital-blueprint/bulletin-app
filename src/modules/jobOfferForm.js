@@ -1173,6 +1173,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         // so the public view can read them back via GET /formalize/forms.
         // English fields are optional; only stored when non-empty.
         const additionalData = {
+            generatedByJobGenerator:
+                this.existingForm?.additionalData?.generatedByJobGenerator === true,
             title: this._title.trim(),
             description: this._description.trim(),
             publishedAt: this._publishedAt.trim(),

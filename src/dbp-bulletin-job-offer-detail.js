@@ -785,6 +785,16 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
+    _renderGeneratedJobMarker(job, t) {
+        if (!job.generatedByJobGenerator) {
+            return null;
+        }
+
+        return html`
+            <span class="generated-job-marker">${t('view-job-offers.generated-job')}</span>
+        `;
+    }
+
     getOrganizationLabel(job) {
         if (job.jobOfferType === 'internal') {
             return this.universityShortName;
@@ -861,6 +871,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                   <div class="content-wrapper">
                                       <div class="meta-row">
                                           <dl class="meta-list">
+                                              ${this._renderGeneratedJobMarker(job, t)}
                                               ${this._renderPartnerCompanyMarker(job, t)}
                                               <div class="meta-item favicon">
                                                   ${
@@ -1362,6 +1373,16 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             .partner-company-link {
                 color: var(--dbp-primary);
                 text-decoration: underline;
+            }
+
+            .generated-job-marker {
+                align-self: flex-start;
+                border: 1px solid currentColor;
+                border-radius: var(--dbp-border-radius);
+                padding: 0.1rem 0.4rem;
+                color: var(--dbp-muted);
+                font-size: 0.8rem;
+                line-height: 1.2;
             }
 
             .meta-item dt {

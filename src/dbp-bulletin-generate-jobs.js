@@ -203,6 +203,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         const companyName = isExternal ? randomItem(SAMPLE_COMPANIES) : '';
 
         const additionalData = {
+            generatedByJobGenerator: true,
             title: title,
             description: randomItem(SAMPLE_DESCRIPTIONS),
             publishedAt: publishedAt,

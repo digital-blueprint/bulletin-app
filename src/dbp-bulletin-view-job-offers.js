@@ -195,6 +195,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         dataFeedSchema: form.dataFeedSchema ?? '',
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
+                        generatedByJobGenerator: extra.generatedByJobGenerator === true,
                         jobOfferType: extra.jobOfferType ?? '',
                         jobCategory: extra.jobCategory ?? extra.jobType ?? '',
                         areaOfInterest: areasOfInterest[0] ?? '',
@@ -689,6 +690,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             <span class="partner-company-marker" title="${t('view-job-offers.partner-company')}">
                 <dbp-icon name="star" aria-hidden="true"></dbp-icon>
             </span>
+        `;
+    }
+
+    _renderGeneratedJobMarker(job, t) {
+        if (!job.generatedByJobGenerator) {
+            return null;
+        }
+
+        return html`
+            <span class="generated-job-marker">${t('view-job-offers.generated-job')}</span>
         `;
     }
 
@@ -1441,9 +1452,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   <div class="job-card">
                                                       <div class="job-card-body">
                                                           <div class="job-card-header">
-                                                              <h3 class="job-title">
-                                                                  ${job.title}
-                                                              </h3>
+                                                              <div>
+                                                                  <h3 class="job-title">
+                                                                      ${job.title}
+                                                                  </h3>
+                                                                  ${this._renderGeneratedJobMarker(
+                                                                      job,
+                                                                      t,
+                                                                  )}
+                                                              </div>
                                                               <div class="job-source-marker">
                                                                   ${this.getInternalLogo(job)}
                                                               </div>
@@ -2074,6 +2091,17 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .partner-company-link {
                 color: var(--dbp-primary);
                 text-decoration: underline;
+            }
+
+            .generated-job-marker {
+                display: inline-block;
+                margin-bottom: 0.5rem;
+                border: 1px solid currentColor;
+                border-radius: var(--dbp-border-radius);
+                padding: 0.1rem 0.4rem;
+                color: var(--dbp-muted);
+                font-size: 0.8rem;
+                line-height: 1.2;
             }
 
             .job-type-marker {

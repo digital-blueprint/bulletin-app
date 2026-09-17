@@ -22,6 +22,7 @@ import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 import HoursRangeElement, {isHoursRangeValid} from '../src/modules/hoursRangeElement.js';
 import {COMPANY_FIELDS, pickCompanyData} from '../src/modules/companyForm.js';
 import {buildRandomCompany} from '../src/dbp-bulletin-generate-companies.js';
+import '../src/dbp-bulletin-generate-jobs.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
 import {setFeatureFlag} from '@dbp-toolkit/common';
 import {
@@ -536,6 +537,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
                         additionalData: {
                             deadline: '2030-01-01',
                             areasOfInterest: ['it'],
+                            generatedByJobGenerator: true,
                         },
                     },
                 ],
@@ -549,6 +551,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         }
 
         assert.equal(openedJob?.identifier, 'deep-job');
+        assert.isTrue(openedJob?.generatedByJobGenerator);
     });
 
     test('should load another batch of job offers when requested', async () => {
@@ -631,6 +634,44 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         element.remove();
     });
 
+    test('should mark generated job offers in job cards', async () => {
+        const element = document.createElement('dbp-bulletin-view-job-offers');
+        element._i18n = {t: (key) => key, changeLanguage: () => {}};
+        element.isAuthPending = () => false;
+        element.isLoggedIn = () => true;
+        element._jobOffers = [
+            {
+                identifier: 'generated-job',
+                title: 'Generated job',
+                generatedByJobGenerator: true,
+                areasOfInterest: [],
+                description: '',
+                publishedAt: '2026-01-01',
+            },
+            {
+                identifier: 'regular-job',
+                title: 'Regular job',
+                areasOfInterest: [],
+                description: '',
+                publishedAt: '2026-01-02',
+            },
+        ];
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const cards = [...element.shadowRoot.querySelectorAll('.job-card')];
+        const generatedCard = cards.find((card) => card.textContent.includes('Generated job'));
+        const regularCard = cards.find((card) => card.textContent.includes('Regular job'));
+
+        assert.equal(
+            generatedCard.querySelector('.generated-job-marker').textContent.trim(),
+            'view-job-offers.generated-job',
+        );
+        assert.isNull(regularCard.querySelector('.generated-job-marker'));
+
+        element.remove();
+    });
+
     test('should show total and filtered job counts', async () => {
         const element = document.createElement('dbp-bulletin-view-job-offers');
         element._i18n = {
@@ -698,6 +739,27 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
             element.shadowRoot.querySelector('.apply-submit-wrapper').textContent;
         assert.include(descriptionText, element._i18n.t('job-offer-detail.remote'));
         assert.include(descriptionText, element._i18n.t('job-offer-detail.yes'));
+
+        element.remove();
+    });
+
+    test('should mark generated job offers in the detail view', async () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        element.job = {
+            title: 'Generated job',
+            description: 'Job description',
+            generatedByJobGenerator: true,
+            areasOfInterest: [],
+            publishedAt: '2026-01-01',
+            deadline: '2026-12-31',
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.equal(
+            element.shadowRoot.querySelector('.generated-job-marker').textContent.trim(),
+            element._i18n.t('view-job-offers.generated-job'),
+        );
 
         element.remove();
     });
@@ -975,6 +1037,15 @@ suite('company data handling', () => {
             }),
             {name: 'Example Ltd', abteilung: 'Research', branchen: ['19', '20']},
         );
+    });
+});
+
+suite('job generator data handling', () => {
+    test('should mark generated job offers in additional data', () => {
+        const element = document.createElement('dbp-bulletin-generate-jobs');
+        const jobOffer = element._buildRandomJobOffer(0, 'internal');
+
+        assert.isTrue(jobOffer.additionalData.generatedByJobGenerator);
     });
 });
 

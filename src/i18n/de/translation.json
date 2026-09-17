@@ -603,6 +603,7 @@
         "error-load-failed": "Stellenangebote konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
         "filter-close": "Filter schließen",
         "filter-open": "Filter öffnen",
+        "generated-job": "Generiertes Stellenangebot",
         "include-remote": "Remote-Jobs einbeziehen",
         "load-more": "Mehr laden",
         "loading": "Stellenangebote werden geladen…",
