@@ -460,16 +460,24 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             : data[primaryKey] || [];
     }
 
-    _renderList(items) {
+    /**
+     * Renders a list of items. The explicit list roles are required because some of these lists
+     * are styled with "list-style: none", which removes the implicit list semantics in some
+     * browsers.
+     * @param {Array} items
+     * @param {string} itemClass Optional CSS class for the list items
+     * @returns {object|string}
+     */
+    _renderList(items, itemClass = '') {
         if (!Array.isArray(items) || items.length === 0) {
             return '';
         }
 
         return html`
-            <ul>
+            <ul role="list">
                 ${items.map(
                     (item) => html`
-                        <li>${item}</li>
+                        <li class="${itemClass}" role="listitem">${item}</li>
                     `,
                 )}
             </ul>
@@ -511,13 +519,8 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             <dt>${this._i18n.t('career-profile-form.field-study-program')}:</dt>
             <dd class="studyProgram-list">
                 ${this._renderList(
-                    studies.map(
-                        (study) => html`
-                            <span class="tag">
-                                ${getLocalizedStudentStudyLabel(study, this.lang)}
-                            </span>
-                        `,
-                    ),
+                    studies.map((study) => getLocalizedStudentStudyLabel(study, this.lang)),
+                    'tag',
                 )}
             </dd>
         `;
@@ -614,10 +617,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul class="field-list">
+            <ul
+                class="field-list"
+                role="list"
+                aria-label="${t('career-profile-form.field-fields')}">
                 ${items.map(
                     (item) => html`
-                        <li class="tag">${item}</li>
+                        <li class="tag" role="listitem">${item}</li>
                     `,
                 )}
             </ul>
@@ -630,10 +636,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul class="work-location-list">
+            <ul
+                class="work-location-list"
+                role="list"
+                aria-label="${this._i18n.t('career-profile-form.field-preferred-work-location')}">
                 ${labels.map(
                     (label) => html`
-                        <li class="work-location-list-item">${label}</li>
+                        <li class="work-location-list-item" role="listitem">${label}</li>
                     `,
                 )}
             </ul>

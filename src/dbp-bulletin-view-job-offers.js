@@ -767,16 +767,21 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             return '';
         }
 
+        const areasOfInterestLabel = t('view-job-offers.areas-of-interest');
+
+        // The list is rendered inline so that single tags wrap individually next to the label.
+        // The explicit list roles are required because "list-style: none" and the inline display
+        // remove the implicit list semantics in some browsers.
         return html`
             <div class="job-tags-wrapper area-wrapper">
-                <span class="job-card-label">${t('view-job-offers.areas-of-interest')}:</span>
-                <div class="job-tags">
+                <span class="job-card-label">${areasOfInterestLabel}:</span>
+                <ul class="job-tags" role="list" aria-label="${areasOfInterestLabel}">
                     ${areaOfInterestLabels.map(
                         (label) => html`
-                            <span class="job-tag">${label}</span>
+                            <li class="job-tag" role="listitem">${label}</li>
                         `,
                     )}
-                </div>
+                </ul>
             </div>
         `;
     }
@@ -2180,19 +2185,20 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .area-wrapper {
-                display: initial;
+                display: block;
             }
             .job-tags-wrapper .job-card-label {
                 margin-right: 0.15rem;
             }
 
             .job-tags {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.2rem;
-                margin: 0.3rem 0;
+                display: inline;
+                list-style: none;
+                margin: 0;
+                padding: 0;
             }
 
+            /* The area-of-interest tags use the same styling as the work location items */
             .job-tag {
                 display: inline-block;
                 border: 1px solid var(--dbp-content);
@@ -2200,6 +2206,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 0.1rem 0.4rem;
                 font-size: 1rem;
                 color: var(--dbp-content);
+                margin-bottom: 0.2rem;
             }
 
             .remote-job-tag {
@@ -2207,6 +2214,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 border: 0;
                 border-radius: 0;
                 padding: 0;
+                margin: 0;
                 font: inherit;
             }
 

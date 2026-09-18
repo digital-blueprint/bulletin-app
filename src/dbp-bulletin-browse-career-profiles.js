@@ -233,16 +233,22 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         return this._i18n.t('browse-career-profiles.applicant-alias', {number: index + 1});
     }
 
+    /**
+     * Renders a tag list. The explicit list roles are required because "list-style: none" removes
+     * the implicit list semantics in some browsers.
+     * @param {Array} items
+     * @returns {object|string}
+     */
     _renderList(items) {
         if (!Array.isArray(items) || items.length === 0) {
             return '';
         }
 
         return html`
-            <ul class="studyProgram-list">
+            <ul class="studyProgram-list" role="list">
                 ${items.map(
                     (item) => html`
-                        <li class="tag">${item}</li>
+                        <li class="tag" role="listitem">${item}</li>
                     `,
                 )}
             </ul>

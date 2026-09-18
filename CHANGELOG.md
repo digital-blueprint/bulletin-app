@@ -20,6 +20,10 @@
 - Career profile: the "Back to profile" navigation of the company interest submissions page now leads to the career profile overview instead of the profile view mode
 - Browse career profiles: the "View profile" table action button now has a row-specific `aria-label` naming the applicant, while the tooltip stays short
 - Manage job offers: the work location remove buttons now have an `aria-label` and a tooltip naming the location, so the repeated icon buttons can be told apart
+- The decorative `hr` dividers below the section headings of the company form, the job offer form and the job offer detail view are now hidden from screen readers via `aria-hidden`
+- View job offers and job offer detail: the areas of interest tags are now rendered as a real list with explicit `list`/`listitem` roles, which the `list-style: none` styling removed in some browsers
+- View job offers and job offer detail: the areas of interest tags now flow inline next to their label, so single tags wrap one after another instead of the whole tag block moving to the next line
+- Career profile and browse career profiles: the study program, areas of interest and work location lists now carry explicit `list`/`listitem` roles and an `aria-label`, and the study program tags no longer nest a `span` inside the list item
 
 ## 0.1.0
 

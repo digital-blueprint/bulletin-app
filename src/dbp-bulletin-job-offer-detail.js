@@ -302,14 +302,21 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             return '';
         }
 
+        const areasOfInterestLabel = t('view-job-offers.areas-of-interest');
+
+        // The list is rendered inline so that single tags wrap individually next to the label.
+        // The explicit list roles are required because "list-style: none" and the inline display
+        // remove the implicit list semantics in some browsers.
         return html`
-            <div class="job-tags">
-                <span class="tag-label">${t('view-job-offers.areas-of-interest')}:</span>
-                ${areaOfInterestLabels.map(
-                    (label) => html`
-                        <span class="job-tag">${label}</span>
-                    `,
-                )}
+            <div class="job-tags-wrapper">
+                <span class="tag-label">${areasOfInterestLabel}:</span>
+                <ul class="job-tags" role="list" aria-label="${areasOfInterestLabel}">
+                    ${areaOfInterestLabels.map(
+                        (label) => html`
+                            <li class="job-tag" role="listitem">${label}</li>
+                        `,
+                    )}
+                </ul>
             </div>
         `;
     }
@@ -1403,7 +1410,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 list-style: none;
             }
 
-            .work-location-list-item {
+            /* The area-of-interest tags use the exact same styling as the work location items */
+            .work-location-list-item,
+            .job-tag {
                 display: inline-block;
                 border: 1px solid var(--dbp-content);
                 border-radius: 2px;
@@ -1432,20 +1441,15 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             /* Outlined area-of-interest badge */
-            .job-tags {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.2rem;
-                justify-content: flex-start;
+            .job-tags-wrapper {
+                display: block;
             }
 
-            .job-tag {
-                display: inline-block;
-                border: 1px solid var(--dbp-content);
-                border-radius: 2px;
-                padding: 0.1rem 0.4rem;
-                font-size: 1rem;
-                color: var(--dbp-content);
+            .job-tags {
+                display: inline;
+                list-style: none;
+                margin: 0;
+                padding: 0;
             }
 
             .action-buttons {
@@ -1593,10 +1597,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
                 .meta-actions {
                     width: 100%;
-                }
-
-                .job-tags {
-                    justify-content: flex-start;
                 }
 
                 .company-info-list {
