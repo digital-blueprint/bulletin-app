@@ -167,7 +167,7 @@
         "required-field-note": "marks a required field",
         "save-profile": "Save",
         "validation-required": "Please fill in all required fields.",
-        "validation-url": "Please enter a valid website URL."
+        "validation-url": "Please enter a valid website URL containing a domain name, for example example.org."
     },
     "company-form": {
         "field-address": "Address",
@@ -240,7 +240,7 @@
     },
     "create-job-offer": {
         "error-title": "Error",
-        "external-url-invalid": "The URL to application must begin with \"http://\" or \"https://\".",
+        "external-url-invalid": "Please enter a valid URL containing a domain name, for example example.org.",
         "select-work-location": "Please select at least one preferred work location.",
         "validation-deadline-before-published": "The end of publication cannot be before the publication date.",
         "validation-required": "Please fill in all required fields."

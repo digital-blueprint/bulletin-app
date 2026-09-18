@@ -167,7 +167,7 @@
         "required-field-note": "kennzeichnet ein Pflichtfeld",
         "save-profile": "Speichern",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus.",
-        "validation-url": "Bitte geben Sie eine gültige Website-URL ein."
+        "validation-url": "Bitte geben Sie eine gültige Website-URL mit einem Domainnamen ein, zum Beispiel example.org."
     },
     "company-form": {
         "field-address": "Adresse",
@@ -240,7 +240,7 @@
     },
     "create-job-offer": {
         "error-title": "Fehler",
-        "external-url-invalid": "Die URL zur Bewerbung muss mit 'http://' oder 'https://' beginnen.",
+        "external-url-invalid": "Bitte geben Sie eine gültige URL mit einem Domainnamen ein, zum Beispiel example.org.",
         "select-work-location": "Bitte wählen sie mindestens einen bevorzugten Dienstort aus",
         "validation-deadline-before-published": "Das Ende der Veröffentlichung darf nicht vor dem Datum der Veröffentlichung liegen.",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder korrekt aus."

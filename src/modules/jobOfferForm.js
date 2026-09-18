@@ -804,7 +804,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._weeklyHoursMin.trim() !== '' &&
             this._weeklyHoursMax.trim() !== '' &&
             Number(this._weeklyHoursMin) <= Number(this._weeklyHoursMax) &&
-            hasJobOwner
+            hasJobOwner &&
+            this._areOptionalLinkUrlsValid()
         );
     }
 
@@ -818,6 +819,41 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
     _isExternalJobUrlValid() {
         return isValidHttpUrl(this._externalJobUrl);
+    }
+
+    _areOptionalLinkUrlsValid() {
+        return [this._linkUrl, this._linkUrlEn].every((value) =>
+            isValidHttpUrl(value, {allowEmpty: true}),
+        );
+    }
+
+    _validateUrlField(name, value, allowEmpty = false) {
+        const field = /** @type {DbpStringElement} */ (
+            this.renderRoot.querySelector(`dbp-string-element[name="${name}"]`)
+        );
+        const validator = (fieldValue) =>
+            isValidHttpUrl(fieldValue, {allowEmpty})
+                ? []
+                : [this._i18n.t('create-job-offer.external-url-invalid')];
+
+        if (!field) {
+            return validator(value).length === 0;
+        }
+
+        field.customValidator = validator;
+        return field.handleErrors();
+    }
+
+    _validateUrlFields() {
+        const results = [
+            this._validateUrlField('link-url', this._linkUrl, true),
+            this._validateUrlField('link-url-en', this._linkUrlEn, true),
+        ];
+        if (this._isExternalJob) {
+            results.push(this._validateUrlField('external-job-url', this._externalJobUrl));
+        }
+
+        return results.every(Boolean);
     }
 
     _handleWeeklyHoursRangeChange(event) {
@@ -1120,8 +1156,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         const selectedLocations = this._isExternalJob
             ? normalizeWorkLocations(this._workLocations)
             : getDefaultInternalWorkLocations();
+        const areUrlsValid = this._validateUrlFields();
 
-        if (!this._isFormValid) {
+        if (!this._isFormValid || !areUrlsValid) {
             /** @type {HoursRangeElement} */ (
                 this.renderRoot.querySelector('dbp-hours-range-element')
             )?.reportValidity();
@@ -1133,7 +1170,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             let body = t('create-job-offer.validation-required');
             if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
                 body = t('create-job-offer.validation-deadline-before-published');
-            } else if (this._isExternalJob && !this._isExternalJobUrlValid()) {
+            } else if (
+                (this._isExternalJob && !this._isExternalJobUrlValid()) ||
+                !this._areOptionalLinkUrlsValid()
+            ) {
                 body = t('create-job-offer.external-url-invalid');
             }
             sendNotification({
@@ -1706,6 +1746,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             lang="${this.lang}"
                             label="${t('manage-job-offers.field-link-url')}"
                             placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
+                            type="url"
                             .value="${this._linkUrl}"
                             @change="${(e) =>
                                 (this._linkUrl = e.detail.value)}"></dbp-string-element>
@@ -1715,6 +1756,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             lang="${this.lang}"
                             label="${t('manage-job-offers.field-link-url-en')}"
                             placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
+                            type="url"
                             .value="${this._linkUrlEn}"
                             @change="${(e) =>
                                 (this._linkUrlEn = e.detail.value)}"></dbp-string-element>

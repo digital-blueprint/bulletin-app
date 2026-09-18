@@ -793,8 +793,12 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         return (
             this._summary.trim() !== '' &&
             (this._availableStudies.length === 0 || this._getDisplayStudies().length > 0) &&
-            isValidHttpUrl(this._website, {allowEmpty: true})
+            this._isWebsiteUrlValid()
         );
+    }
+
+    _isWebsiteUrlValid(value = this._website) {
+        return isValidHttpUrl(value, {allowEmpty: true});
     }
 
     _validateWebsiteField() {
@@ -802,11 +806,11 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             this.renderRoot.querySelector('[name="website"]')
         );
         if (!websiteField) {
-            return isValidHttpUrl(this._website, {allowEmpty: true});
+            return this._isWebsiteUrlValid();
         }
 
         websiteField.customValidator = (value) =>
-            isValidHttpUrl(value, {allowEmpty: true})
+            this._isWebsiteUrlValid(value)
                 ? []
                 : [this._i18n.t('career-profile-form.validation-url')];
         return websiteField.handleErrors();

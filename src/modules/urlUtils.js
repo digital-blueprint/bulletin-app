@@ -22,7 +22,12 @@ export const isValidHttpUrl = (value, {allowEmpty = false} = {}) => {
 
     try {
         const url = new URL(normalizedValue);
-        return ['http:', 'https:'].includes(url.protocol);
+        return (
+            ['http:', 'https:'].includes(url.protocol) &&
+            url.hostname.includes('.') &&
+            !url.hostname.startsWith('.') &&
+            !url.hostname.endsWith('.')
+        );
     } catch {
         return false;
     }

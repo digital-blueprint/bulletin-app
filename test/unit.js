@@ -956,6 +956,8 @@ suite('URL normalization', () => {
         assert.isTrue(isValidHttpUrl('http://example.org'));
         assert.isFalse(isValidHttpUrl('ftp://example.org'));
         assert.isFalse(isValidHttpUrl('not a valid URL'));
+        assert.isFalse(isValidHttpUrl('example .org'));
+        assert.isFalse(isValidHttpUrl('example'));
         assert.isTrue(isValidHttpUrl('', {allowEmpty: true}));
     });
 });
@@ -1108,6 +1110,27 @@ suite('jobOfferForm validation', () => {
         assert.isTrue(element._isExternalJobUrlValid());
     });
 
+    test('should expose job offer URL fields as URL inputs', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+        const element = document.createElement(tagName);
+        element._jobOfferType = 'external';
+        element.optionalContent = true;
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        for (const fieldName of ['external-job-url', 'link-url', 'link-url-en']) {
+            const field = element.shadowRoot.querySelector(`[name="${fieldName}"]`);
+            await field.updateComplete;
+            assert.equal(field.shadowRoot.querySelector('input').type, 'url');
+        }
+
+        element.remove();
+    });
+
     test('should require weekly hours and allow an empty application deadline', () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
@@ -1139,6 +1162,15 @@ suite('jobOfferForm validation', () => {
         element._weeklyHoursMin = '20';
         element._weeklyHoursMax = '40';
         assert.isTrue(element._isFormValid);
+
+        element._linkUrl = 'not a valid URL';
+        assert.isFalse(element._isFormValid);
+
+        element._linkUrl = 'details.example.org';
+        assert.isTrue(element._isFormValid);
+
+        element._linkUrlEn = 'localhost';
+        assert.isFalse(element._isFormValid);
     });
 });
 
@@ -1902,6 +1934,32 @@ suite('career profile student studies', () => {
         assert.equal(requestBody.additionalData.website, 'https://example.invalid');
     });
 
+    test('should expose the profile website as a URL input', async () => {
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const websiteField = element.shadowRoot.querySelector('[name="website"]');
+        await websiteField.updateComplete;
+        assert.equal(websiteField.shadowRoot.querySelector('input').type, 'url');
+
+        element.remove();
+    });
+
+    test('should require profile websites to have a domain and no spaces', () => {
+        const element = document.createElement(tagName);
+        element._summary = 'Profile';
+
+        element._website = 'example';
+        assert.isFalse(element._isFormValid);
+
+        element._website = 'example .org';
+        assert.isFalse(element._isFormValid);
+
+        element._website = 'example.org';
+        assert.isTrue(element._isFormValid);
+    });
+
     test('should display an invalid website error in the field and notification', async () => {
         const element = document.createElement(tagName);
         let notificationDetail = null;
@@ -1929,9 +1987,12 @@ suite('career profile student studies', () => {
 
         await websiteField.updateComplete;
         assert.deepEqual(websiteField.errorMessages, [
-            'Bitte geben Sie eine gültige Website-URL ein.',
+            'Bitte geben Sie eine gültige Website-URL mit einem Domainnamen ein, zum Beispiel example.org.',
         ]);
-        assert.equal(notificationDetail?.body, 'Bitte geben Sie eine gültige Website-URL ein.');
+        assert.equal(
+            notificationDetail?.body,
+            'Bitte geben Sie eine gültige Website-URL mit einem Domainnamen ein, zum Beispiel example.org.',
+        );
         element.remove();
     });
 
