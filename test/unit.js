@@ -561,6 +561,60 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         assert.isTrue(openedJob?.generatedByJobGenerator);
     });
 
+    test('should only load job offers within their publication window', async () => {
+        const element = document.createElement('dbp-bulletin-view-job-offers');
+        const originalFetch = globalThis.fetch;
+        const toLocalIsoDate = (date) =>
+            [date.getFullYear(), date.getMonth() + 1, date.getDate()]
+                .map((part, index) => String(part).padStart(index === 0 ? 4 : 2, '0'))
+                .join('-');
+        const today = new Date();
+        const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+        const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+        element.auth = {token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        globalThis.fetch = async () => ({
+            ok: true,
+            json: async () => ({
+                'hydra:member': [
+                    {
+                        identifier: 'active-job',
+                        publishedAt: toLocalIsoDate(yesterday),
+                        additionalData: {deadline: toLocalIsoDate(tomorrow)},
+                    },
+                    {
+                        identifier: 'starts-today',
+                        publishedAt: toLocalIsoDate(today),
+                        additionalData: {deadline: toLocalIsoDate(today)},
+                    },
+                    {
+                        identifier: 'future-job',
+                        publishedAt: toLocalIsoDate(tomorrow),
+                        additionalData: {deadline: toLocalIsoDate(tomorrow)},
+                    },
+                    {
+                        identifier: 'expired-job',
+                        publishedAt: toLocalIsoDate(yesterday),
+                        additionalData: {deadline: toLocalIsoDate(yesterday)},
+                    },
+                    {identifier: 'undated-job'},
+                ],
+            }),
+        });
+
+        try {
+            await element._fetchJobOffers();
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.deepEqual(
+            element._jobOffers.map((job) => job.identifier),
+            ['active-job', 'starts-today', 'undated-job'],
+        );
+    });
+
     test('should load another batch of job offers when requested', async () => {
         const element = document.createElement('dbp-bulletin-view-job-offers');
         element._i18n = {t: (key) => key, changeLanguage: () => {}};

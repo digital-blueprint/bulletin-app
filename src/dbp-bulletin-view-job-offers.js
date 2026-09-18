@@ -266,8 +266,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         weOfferEn: Array.isArray(extra.weOfferEn) ? extra.weOfferEn : [],
                     };
                 })
-                // Keep date-only deadlines visible for the full deadline day.
-                .filter((job) => this._isDeadlineVisible(job.deadline));
+                // Date-only publication windows start and end at local midnight boundaries.
+                .filter(
+                    (job) =>
+                        this._isPublicationDateVisible(job.publishedAt) &&
+                        this._isDeadlineVisible(job.deadline),
+                );
             this._clearUnavailableAreaOfInterest();
             await this._loadAndApplyLocalizedOrganizationNames();
             jobOffersLoaded = true;
@@ -808,6 +812,28 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     _getLocalizedDescription(job) {
         return this._localized(job.description ?? '', job.descriptionEn ?? '');
+    }
+
+    /**
+     * Returns whether a publication date has been reached.
+     * Date-only values become visible at the start of the date in local time.
+     * @param {string} publishedAt
+     * @returns {boolean}
+     */
+    _isPublicationDateVisible(publishedAt) {
+        if (!publishedAt) {
+            return true;
+        }
+
+        const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(publishedAt);
+        if (dateOnlyMatch) {
+            const [, year, month, day] = dateOnlyMatch;
+            const startsAt = new Date(Number(year), Number(month) - 1, Number(day));
+            return startsAt <= new Date();
+        }
+
+        const timestamp = Date.parse(publishedAt);
+        return !Number.isNaN(timestamp) && timestamp <= Date.now();
     }
 
     /**
