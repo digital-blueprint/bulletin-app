@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Manage job offers: the open-applications button in the job offers table read as "Stellenangebote verwalten" for every row, because the translation override dropped the form name placeholder; it now names the job offer via a separate `open-forms-aria` override while the tooltip stays short
 - Remember the selected pagination size per user, activity, and browser in browse career profiles, manage job offers, and manage user-defined fields
 - Added a new developer-only activity `generate-career-profiles` that creates random career profiles so more entries are shown on the browse career profiles page
 - Added a new admin-only activity `generate-jobs` that creates random job offers so more entries are shown on the view job offers page; supports generating TU Graz (internal) positions, external (company) positions, or a random mix of both

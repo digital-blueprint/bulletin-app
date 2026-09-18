@@ -4,6 +4,7 @@
             "edit-form-button": "Stellenangebot bearbeiten",
             "name": "Stellenbezeichnung",
             "open-forms": "Stellenangebote verwalten",
+            "open-forms-aria": "Bewerbungen für {{- formName}} verwalten",
             "no-submission-data-available": "Für diese Stelle sind noch keine Bewerbungen vorhanden.",
             "no-form-selected": "Kein Stellenangebot ausgewählt"
         },
