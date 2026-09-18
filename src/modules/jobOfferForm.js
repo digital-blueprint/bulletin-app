@@ -2849,7 +2849,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 allowed-mime-types="application/pdf"
                 max-file-size="${JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB * KILOBYTES_PER_MEGABYTE}"
                 number-of-files="${JOB_APPLICATION_ATTACHMENT_LIMIT}"
-                enabled-targets="local,clipboard,nextcloud"
+                enabled-targets="local,nextcloud"
                 @dbp-modal-closed="${this._handleAttachmentPickerClosed}"
                 subscribe="nextcloud-auth-url,nextcloud-web-dav-url,nextcloud-name,nextcloud-file-url"></dbp-file-source>
 
@@ -2858,7 +2858,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 class="file-sink"
                 lang="${this.lang}"
                 allowed-mime-types="application/pdf,.pdf"
-                enabled-targets="local,clipboard,nextcloud"
+                enabled-targets="local,nextcloud"
                 @dbp-modal-closed="${this._handleAttachmentDownloadClosed}"
                 subscribe="nextcloud-auth-url,nextcloud-web-dav-url,nextcloud-name,nextcloud-file-url"></dbp-file-sink>
 
