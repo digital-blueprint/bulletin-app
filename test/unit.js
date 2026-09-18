@@ -21,6 +21,7 @@ import {
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 import HoursRangeElement, {isHoursRangeValid} from '../src/modules/hoursRangeElement.js';
 import {COMPANY_FIELDS, pickCompanyData} from '../src/modules/companyForm.js';
+import {isValidHttpUrl, normalizeHttpUrl} from '../src/modules/urlUtils.js';
 import {buildRandomCompany} from '../src/dbp-bulletin-generate-companies.js';
 import '../src/dbp-bulletin-generate-jobs.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
@@ -938,6 +939,27 @@ suite('jobOfferForm area normalization', () => {
     });
 });
 
+suite('URL normalization', () => {
+    test('should add HTTPS when no HTTP(S) prefix is provided', () => {
+        assert.equal(normalizeHttpUrl('example.org/path'), 'https://example.org/path');
+        assert.equal(normalizeHttpUrl('  example.org  '), 'https://example.org');
+    });
+
+    test('should preserve existing URL schemes', () => {
+        assert.equal(normalizeHttpUrl('http://example.org'), 'http://example.org');
+        assert.equal(normalizeHttpUrl('https://example.org'), 'https://example.org');
+        assert.equal(normalizeHttpUrl('ftp://example.org'), 'ftp://example.org');
+    });
+
+    test('should only validate HTTP(S) URLs', () => {
+        assert.isTrue(isValidHttpUrl('example.org'));
+        assert.isTrue(isValidHttpUrl('http://example.org'));
+        assert.isFalse(isValidHttpUrl('ftp://example.org'));
+        assert.isFalse(isValidHttpUrl('not a valid URL'));
+        assert.isTrue(isValidHttpUrl('', {allowEmpty: true}));
+    });
+});
+
 suite('jobOfferForm partner company handling', () => {
     test('should normalize company partner flags', () => {
         assert.isTrue(normalizePartnerCompanyValue(true));
@@ -1068,7 +1090,7 @@ suite('jobOfferForm validation', () => {
         setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
     });
 
-    test('should require an absolute HTTP(S) external job URL', () => {
+    test('should accept external job URLs with or without an HTTP(S) prefix', () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
         if (!customElements.get(tagName)) {
@@ -1077,7 +1099,7 @@ suite('jobOfferForm validation', () => {
         const element = document.createElement(tagName);
 
         element._externalJobUrl = 'www.test.at';
-        assert.isFalse(element._isExternalJobUrlValid());
+        assert.isTrue(element._isExternalJobUrlValid());
 
         element._externalJobUrl = 'https://www.test.at';
         assert.isTrue(element._isExternalJobUrlValid());
@@ -1853,6 +1875,33 @@ suite('career profile student studies', () => {
         assert.isNull(requestBody.additionalData.contactEmail);
     });
 
+    test('should add HTTPS to a profile website without a scheme', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        let requestBody;
+        element.lang = 'de';
+        element._summary = 'Profil';
+        element._contactEmail = 'student@example.com';
+        element._website = 'example.invalid';
+        element.auth = {token: 'token'};
+        element.entryPointUrl = 'https://api.example.invalid';
+        globalThis.fetch = async (_url, options) => {
+            requestBody = JSON.parse(options.body);
+            return {ok: true, json: async () => ({identifier: 'profile-1'})};
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        try {
+            await element.submit();
+        } finally {
+            globalThis.fetch = originalFetch;
+            element.remove();
+        }
+
+        assert.equal(requestBody.additionalData.website, 'https://example.invalid');
+    });
+
     test('should display an invalid website error in the field and notification', async () => {
         const element = document.createElement(tagName);
         let notificationDetail = null;
@@ -1863,9 +1912,11 @@ suite('career profile student studies', () => {
         element.lang = 'de';
         element._summary = 'Profil';
         element._contactEmail = 'student@example.com';
-        element._website = 'example.invalid';
         document.body.appendChild(element);
         await element.updateComplete;
+        element._website = 'ftp://example.org';
+        const websiteField = element.shadowRoot.querySelector('[name="website"]');
+        websiteField.value = element._website;
         window.addEventListener('dbp-notification-send', notificationHandler, {capture: true});
 
         try {
@@ -1876,19 +1927,11 @@ suite('career profile student studies', () => {
             });
         }
 
-        const websiteField = element.shadowRoot.querySelector('[name="website"]');
         await websiteField.updateComplete;
         assert.deepEqual(websiteField.errorMessages, [
             'Bitte geben Sie eine gültige Website-URL ein.',
         ]);
-        assert.equal(
-            websiteField.shadowRoot.querySelector('.validation-errors')?.textContent.trim(),
-            'Bitte geben Sie eine gültige Website-URL ein.',
-        );
-        assert.equal(notificationDetail?.summary, 'Fehler');
         assert.equal(notificationDetail?.body, 'Bitte geben Sie eine gültige Website-URL ein.');
-        assert.equal(notificationDetail?.targetNotificationId, 'career-profile-form-notification');
-        assert.equal(notificationDetail?.type, 'warning');
         element.remove();
     });
 

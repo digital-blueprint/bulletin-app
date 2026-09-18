@@ -15,6 +15,7 @@ import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {createInstance} from '../i18n.js';
 import WorkLocationsElement, {normalizeWorkLocations} from './workLocationsElement.js';
+import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
 
 const i18n = createInstance();
 const CAREER_PROFILE_FRONTEND_KEY = 'career-profile';
@@ -334,20 +335,6 @@ const mergeStudentStudies = (...studyLists) => {
     });
 
     return [...studiesByIdentifier.values()];
-};
-
-const isValidWebsiteUrl = (value) => {
-    const trimmedValue = value.trim();
-    if (!trimmedValue) {
-        return true;
-    }
-
-    try {
-        const url = new URL(trimmedValue);
-        return ['http:', 'https:'].includes(url.protocol);
-    } catch {
-        return false;
-    }
 };
 
 const keepCareerProfileTranslations = (t) => {
@@ -806,7 +793,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         return (
             this._summary.trim() !== '' &&
             (this._availableStudies.length === 0 || this._getDisplayStudies().length > 0) &&
-            isValidWebsiteUrl(this._website)
+            isValidHttpUrl(this._website, {allowEmpty: true})
         );
     }
 
@@ -815,11 +802,13 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             this.renderRoot.querySelector('[name="website"]')
         );
         if (!websiteField) {
-            return isValidWebsiteUrl(this._website);
+            return isValidHttpUrl(this._website, {allowEmpty: true});
         }
 
         websiteField.customValidator = (value) =>
-            isValidWebsiteUrl(value) ? [] : [this._i18n.t('career-profile-form.validation-url')];
+            isValidHttpUrl(value, {allowEmpty: true})
+                ? []
+                : [this._i18n.t('career-profile-form.validation-url')];
         return websiteField.handleErrors();
     }
 
@@ -981,7 +970,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             fields: normalizeCareerProfileSelectValues(this._fields),
             workLocations: normalizeWorkLocations(this._workLocations),
             availability: this._availability.trim(),
-            website: this._website.trim(),
+            website: normalizeHttpUrl(this._website),
             teaser: normalizeTeaserValue(this._teaser),
             teaserEn: normalizeTeaserValue(this._teaserEn),
             studentCreatorId: this.auth?.['user-id'] || '',

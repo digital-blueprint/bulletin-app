@@ -39,6 +39,7 @@ import HoursRangeElement, {
 } from './hoursRangeElement.js';
 import {pickCompanyData} from './companyForm.js';
 import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from '../featureFlags.js';
+import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
 
 /**
  * @typedef {Record<string, any>} JobOfferData
@@ -533,15 +534,6 @@ const normalizeStringList = (value) => {
     return parseMultilineList(normalizeMultilineValue(value));
 };
 
-const normalizeHttpUrl = (value) => {
-    try {
-        const url = new URL(String(value).trim());
-        return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
-    } catch {
-        return '';
-    }
-};
-
 export const isDeadlineBeforePublishedAt = (publishedAt, deadline) => {
     if (!publishedAt?.trim() || !deadline?.trim()) {
         return false;
@@ -825,7 +817,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     _isExternalJobUrlValid() {
-        return normalizeHttpUrl(this._externalJobUrl) !== '';
+        return isValidHttpUrl(this._externalJobUrl);
     }
 
     _handleWeeklyHoursRangeChange(event) {
@@ -1201,7 +1193,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             jobCategory: this._jobCategory,
             areasOfInterest: this._areasOfInterest,
             linkName: this._linkName.trim(),
-            linkUrl: this._linkUrl.trim(),
+            linkUrl: normalizeHttpUrl(this._linkUrl),
             contactInformation: this._contactInformation.trim(),
             contactInformationEn: this._contactInformationEn.trim(),
             requirements: this._parseRequirements(),
@@ -1215,7 +1207,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             salaryEn: this._salaryEn.trim(),
             contractDurationEn: this._contractDurationEn.trim(),
             linkNameEn: this._linkNameEn.trim(),
-            linkUrlEn: this._linkUrlEn.trim(),
+            linkUrlEn: normalizeHttpUrl(this._linkUrlEn),
             requirementsEn: this._parseRequirementsEn(),
             responsibilitiesEn: this._parseResponsibilitiesEn(),
             requiredQualificationEn: this._parseRequiredQualificationEn(),
