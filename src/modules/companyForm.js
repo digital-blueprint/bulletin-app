@@ -233,7 +233,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-basic-data')}</h3>
-                    <hr />
+                    <hr aria-hidden="true" />
                     ${this.renderStringField('name', 'company-form.field-name', {required: true})}
                     ${this.renderStringField('abteilung', 'company-form.field-department', {
                         rows: 2,
@@ -246,7 +246,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-address-contact')}</h3>
-                    <hr />
+                    <hr aria-hidden="true" />
                     ${this.renderStringField('adresse', 'company-form.field-address', {rows: 4})}
                     <div class="two-column-row compact-left">
                         ${this.renderStringField('plz', 'company-form.field-postal-code')}
@@ -266,7 +266,7 @@ class CompanyFormElement extends BaseFormElement {
 
                 <section class="form-section">
                     <h3>${t('company-form.section-company-profile')}</h3>
-                    <hr />
+                    <hr aria-hidden="true" />
                     ${this.renderStringField('teaser', 'company-form.field-teaser', {rows: 3})}
                     ${this.renderStringField('beschreibung', 'company-form.field-description', {
                         rows: 10,

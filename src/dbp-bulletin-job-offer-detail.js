@@ -450,7 +450,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <div class="apply-submit-wrapper">
                 <h3>${t('job-offer-detail.company')}</h3>
-                <hr />
+                <hr aria-hidden="true" />
                 <dl class="company-info-list">
                     ${this._renderCompanyMetaItem(t('company-form.field-name'), companyName)}
                     ${this._renderCompanyMetaItem(t('company-form.field-department'), department)}
@@ -1030,7 +1030,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       <div>
                                           <div class="apply-submit-wrapper">
                                               <h3>${t('job-offer-detail.job-description')}</h3>
-                                              <hr />
+                                              <hr aria-hidden="true" />
                                               <div class="job-description-wrapper">
                                                   ${
                                                       job?.startDate ||

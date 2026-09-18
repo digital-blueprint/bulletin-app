@@ -1592,7 +1592,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         name="chevron-down"
                         aria-hidden="true"></dbp-icon>
                 </button>
-                <hr />
+                <hr aria-hidden="true" />
                 <div
                     class="content
                     ${this.optionalContent ? 'optional-data-visible' : 'optional-data-hidden'}">
@@ -2755,7 +2755,7 @@ export class JobOfferFormElement extends BaseFormElement {
             <form @submit="${this._onApplySubmit}" novalidate>
                 <div class="apply-submit-wrapper">
                     <h3>${t('job-offer-detail.application-title')}</h3>
-                    <hr />
+                    <hr aria-hidden="true" />
                     <div class="form-row">
                         <div class="form-column">
                             <span>
