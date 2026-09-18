@@ -19,7 +19,11 @@ import {
     mergeLocalizedStudentStudies,
 } from '../src/modules/careerProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
-import HoursRangeElement, {isHoursRangeValid} from '../src/modules/hoursRangeElement.js';
+import HoursRangeElement, {
+    isHoursRangeValid,
+    parseOptionalHours,
+    sanitizeHoursValue,
+} from '../src/modules/hoursRangeElement.js';
 import {COMPANY_FIELDS, pickCompanyData} from '../src/modules/companyForm.js';
 import {isValidHttpUrl, normalizeHttpUrl} from '../src/modules/urlUtils.js';
 import {buildRandomCompany} from '../src/dbp-bulletin-generate-companies.js';
@@ -1227,11 +1231,19 @@ suite('hours range validation', () => {
         element.remove();
     });
 
+    test('should reject decimal values', () => {
+        assert.isNull(parseOptionalHours('20.5'));
+        assert.isNull(parseOptionalHours('20,5'));
+        assert.equal(sanitizeHoursValue('20.5'), '20');
+        assert.equal(sanitizeHoursValue('20,5'), '20');
+    });
+
     test('should reject a minimum greater than the maximum', () => {
         assert.isTrue(isHoursRangeValid('', '20'));
         assert.isTrue(isHoursRangeValid('20', ''));
         assert.isTrue(isHoursRangeValid('20', '20'));
         assert.isTrue(isHoursRangeValid('20', '40'));
+        assert.isTrue(isHoursRangeValid('20.5', '40'));
         assert.isFalse(isHoursRangeValid('40', '20'));
     });
 });

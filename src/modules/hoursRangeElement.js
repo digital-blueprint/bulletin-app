@@ -9,7 +9,7 @@ export const HOURS_MAX = 99;
 export const HOURS_STEP = 1;
 
 /**
- * Converts a decimal hours value into a comparable number of hours or null.
+ * Converts an optional hours value into a comparable integer or null.
  *
  * Empty and invalid values are treated as missing.
  *
@@ -21,38 +21,15 @@ export const parseOptionalHours = (value) => {
         return null;
     }
 
-    const normalized = String(value).replace(',', '.');
+    const normalized = String(value).trim();
 
-    if (!/^\d{1,2}(?:\.\d{1,2})?$/.test(normalized)) {
+    if (!/^\d{1,2}$/.test(normalized)) {
         return null;
     }
 
-    const hours = Number(normalized);
-
-    if (!Number.isFinite(hours) || hours < HOURS_MIN || hours > HOURS_MAX) {
-        return null;
-    }
-
-    return hours;
-};
-
-/**
- * Converts a value into a finite number or null.
- *
- * Empty and invalid values are treated as missing.
- *
- * @param {unknown} value
- * @returns {number|null}
- */
-const parseOptionalNumber = (value) => {
-    if (value === '' || value === null || value === undefined) {
-        return null;
-    }
-
-    const normalized = String(value).replace(',', '.');
     const parsed = Number(normalized);
 
-    return Number.isFinite(parsed) ? parsed : null;
+    return Number.isFinite(parsed) && parsed >= HOURS_MIN && parsed <= HOURS_MAX ? parsed : null;
 };
 
 /**
@@ -63,19 +40,19 @@ const parseOptionalNumber = (value) => {
  * @returns {boolean}
  */
 export const isHoursRangeValid = (min, max) => {
-    const minHours = parseOptionalNumber(min);
-    const maxHours = parseOptionalNumber(max);
+    const minHours = parseOptionalHours(min);
+    const maxHours = parseOptionalHours(max);
 
     return minHours === null || maxHours === null || minHours <= maxHours;
 };
 
 /**
- * Sanitizes an hours value while preserving one optional decimal separator.
+ * Sanitizes an hours value to digits only.
  *
  * Examples:
- * "12.5" -> "12.5"
- * "12,5" -> "12.5"
- * "abc12.55" -> "12.5"
+ * "12" -> "12"
+ * "abc12" -> "12"
+ * "12.5" -> "12"
  *
  * @param {unknown} rawValue
  * @param {number} min
@@ -83,36 +60,20 @@ export const isHoursRangeValid = (min, max) => {
  * @returns {string}
  */
 export const sanitizeHoursValue = (rawValue, min = HOURS_MIN, max = HOURS_MAX) => {
-    const raw = String(rawValue ?? '')
-        .replace(',', '.')
-        .replace(/[^0-9.]/g, '')
-        .replace(/(\..*?)\..*/g, '$1');
+    const raw = String(rawValue ?? '').replace(/\D/g, '');
 
     if (raw === '') {
         return '';
     }
 
-    const [rawHours = ''] = raw.split('.');
-    const hours = rawHours.slice(0, String(Math.trunc(max)).length);
+    const hours = raw.slice(0, String(Math.trunc(max)).length);
+    const numericHours = Number(hours);
 
-    // Preserve intermediate input such as "12."
-    if (raw.includes('.')) {
-        return `${hours}`;
+    if (!Number.isFinite(numericHours)) {
+        return '';
     }
 
-    if (!raw.includes('.')) {
-        const numericHours = Number(hours);
-
-        if (!Number.isFinite(numericHours)) {
-            return '';
-        }
-
-        return String(Math.min(max, Math.max(min, numericHours)));
-    }
-
-    const value = Number(`${hours}`);
-
-    return String(Math.min(max, Math.max(min, value)));
+    return String(Math.min(max, Math.max(min, numericHours)));
 };
 
 /**
@@ -155,10 +116,10 @@ export const isHoursInRange = (weeklyHours, min, max) => {
  * @returns {boolean}
  */
 export const isHoursRangeInRange = (jobMin, jobMax, filterMin, filterMax, scalarHours = null) => {
-    const offerMin = parseOptionalNumber(jobMin);
-    const offerMax = parseOptionalNumber(jobMax);
-    const selectedMin = parseOptionalNumber(filterMin);
-    const selectedMax = parseOptionalNumber(filterMax);
+    const offerMin = parseOptionalHours(jobMin);
+    const offerMax = parseOptionalHours(jobMax);
+    const selectedMin = parseOptionalHours(filterMin);
+    const selectedMax = parseOptionalHours(filterMax);
 
     if (selectedMin === null && selectedMax === null) {
         return true;
@@ -354,8 +315,8 @@ export class HoursRangeElement extends DBPLitElement {
                     <input
                         id="hours-range-min"
                         type="text"
-                        inputmode="decimal"
-                        pattern="\\d{1,2}(?:[.,]\\d{1,2})?"
+                        inputmode="numeric"
+                        pattern="\\d{1,2}"
                         class="input hours-range-min"
                         .value=${this.min}
                         min=${this.hoursMin}
@@ -372,8 +333,8 @@ export class HoursRangeElement extends DBPLitElement {
                     <input
                         id="hours-range-max"
                         type="text"
-                        inputmode="decimal"
-                        pattern="\\d{1,2}(?:[.,]\\d{1,2})?"
+                        inputmode="numeric"
+                        pattern="\\d{1,2}"
                         class="input hours-range-max"
                         .value=${this.max}
                         min=${this.hoursMin}
