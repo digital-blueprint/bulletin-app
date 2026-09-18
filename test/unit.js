@@ -7,6 +7,8 @@ import '../src/dbp-bulletin-job-offer-detail.js';
 import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
+    JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
+    JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION,
     getJobApplicationDataFeedSchema,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
@@ -1075,6 +1077,14 @@ suite('job generator data handling', () => {
 
         assert.isTrue(jobOffer.additionalData.generatedByJobGenerator);
     });
+
+    test('should allow submitters to read generated applications', () => {
+        const element = document.createElement('dbp-bulletin-generate-jobs');
+        const jobOffer = element._buildRandomJobOffer(0, 'internal');
+
+        assert.isTrue(jobOffer.grantBasedSubmissionAuthorization);
+        assert.deepEqual(jobOffer.allowedActionsWhenSubmitted, ['read']);
+    });
 });
 
 suite('jobOfferForm validation', () => {
@@ -1291,6 +1301,51 @@ suite('jobOfferForm error notifications', () => {
 });
 
 suite('jobOfferForm application submission', () => {
+    test('should allow submitters to read their submitted application', () => {
+        assert.isTrue(JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION);
+        assert.deepEqual(JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED, ['read']);
+    });
+
+    test('should detect a submitted application belonging to the current user', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        Object.defineProperties(element, {
+            entryPointUrl: {value: 'https://example.invalid'},
+            formIdentifier: {value: 'job-1'},
+            auth: {value: {'user-id': 'user-1', token: 'token'}},
+        });
+        const originalFetch = globalThis.fetch;
+        let requestUrl;
+        let appliedEventReceived = false;
+        element.addEventListener('dbp-job-offer-applied', () => {
+            appliedEventReceived = true;
+        });
+        globalThis.fetch = async (url) => {
+            requestUrl = url;
+            return {
+                ok: true,
+                json: async () => ({'hydra:member': [{identifier: 'application-1'}]}),
+            };
+        };
+
+        try {
+            await element._checkAlreadyApplied();
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+
+        assert.equal(
+            requestUrl,
+            'https://example.invalid/formalize/submissions?formIdentifier=job-1&perPage=1&creatorIdEquals=user-1',
+        );
+        assert.isTrue(element._hasApplied);
+        assert.isTrue(appliedEventReceived);
+    });
+
     test('should define all fields submitted by the application form', () => {
         const schema = JSON.parse(getJobApplicationDataFeedSchema());
 

@@ -6,6 +6,7 @@ import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import JobOfferModule, {
     JOB_CATEGORIES,
+    JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
     JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION,
     AREAS_OF_INTEREST,
     getJobApplicationDataFeedSchema,
@@ -265,6 +266,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             ],
             frontendKey: new JobOfferModule().getFormFrontendKey(),
             grantBasedSubmissionAuthorization: JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION,
+            allowedActionsWhenSubmitted: JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
             additionalData: additionalData,
             dataFeedSchema: dataFeedSchema,
             maxNumSubmissionsPerCreator: this._generateApplications
@@ -282,6 +284,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             localizedNames: formData.localizedNames,
             frontendKey: formData.frontendKey,
             grantBasedSubmissionAuthorization: formData.grantBasedSubmissionAuthorization,
+            allowedActionsWhenSubmitted: formData.allowedActionsWhenSubmitted,
             additionalData: formData.additionalData,
             dataFeedSchema: formData.dataFeedSchema,
             maxNumSubmissionsPerCreator: formData.maxNumSubmissionsPerCreator,

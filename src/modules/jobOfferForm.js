@@ -59,6 +59,7 @@ const JOB_OFFER_TYPE_INTERNAL = 'internal';
 const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
 export const JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION = true;
+export const JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED = ['read'];
 
 export function getJobApplicationDataFeedSchema() {
     return JSON.stringify({
@@ -1295,6 +1296,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             ],
             frontendKey: new JobOfferModule().getFormFrontendKey(),
             grantBasedSubmissionAuthorization: JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION,
+            allowedActionsWhenSubmitted: JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
             additionalData,
             dataFeedSchema,
         };
