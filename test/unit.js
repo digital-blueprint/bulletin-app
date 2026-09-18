@@ -1074,6 +1074,42 @@ suite('job generator data handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
+    test('should show partially populated optional data when editing', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+        const element = document.createElement(tagName);
+        element.existingForm = {additionalData: {salaryEn: 'From EUR 50,000'}};
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isTrue(element.optionalContent);
+        assert.equal(
+            element.shadowRoot.querySelector('#optional-button').getAttribute('aria-expanded'),
+            'true',
+        );
+        assert.isNotNull(element.shadowRoot.querySelector('.optional-data-visible'));
+        element.remove();
+    });
+
+    test('should keep optional data hidden when editing without optional values', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+        const element = document.createElement(tagName);
+        element.existingForm = {additionalData: {title: 'Software developer'}};
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isFalse(element.optionalContent);
+        assert.isNotNull(element.shadowRoot.querySelector('.optional-data-hidden'));
+        element.remove();
+    });
+
     test('should only offer TU Graz jobs for creation when external jobs are disabled', () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();

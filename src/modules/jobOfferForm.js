@@ -780,9 +780,39 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     d.requiredQualificationEn,
                 );
                 this._weOfferTextEn = normalizeMultilineValue(d.weOfferEn);
+                this.optionalContent = this._hasPopulatedOptionalData();
             }
         });
         super.update(changedProperties);
+    }
+
+    _hasPopulatedOptionalData() {
+        return (
+            this._areasOfInterest.length > 0 ||
+            [
+                this._applicationDeadline,
+                this._startDate,
+                this._salary,
+                this._salaryEn,
+                this._contractDuration,
+                this._contractDurationEn,
+                this._jobCategory,
+                this._requirementsText,
+                this._requirementsTextEn,
+                this._responsibilitiesText,
+                this._responsibilitiesTextEn,
+                this._requiredQualificationText,
+                this._requiredQualificationTextEn,
+                this._weOfferText,
+                this._weOfferTextEn,
+                this._linkName,
+                this._linkNameEn,
+                this._linkUrl,
+                this._linkUrlEn,
+                this._contactInformation,
+                this._contactInformationEn,
+            ].some((value) => value.trim() !== '')
+        );
     }
 
     /**
@@ -934,6 +964,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._requiredQualificationTextEn = '';
         this._weOfferTextEn = '';
         this._isSubmitting = false;
+        this.optionalContent = false;
     }
 
     /**
