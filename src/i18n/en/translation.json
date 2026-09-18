@@ -13,7 +13,8 @@
         "search-placeholder": "Search career profiles",
         "select-placeholder": "All",
         "title": "View career profiles",
-        "view-profile": "View profile"
+        "view-profile": "View profile",
+        "view-profile-aria": "View profile of {{- name}}"
     },
     "career-profile": {
         "back-to-profile": "Back to profile",
@@ -574,6 +575,7 @@
         "work-location-region-vienna": "Vienna",
         "work-location-region-vorarlberg": "Vorarlberg",
         "work-location-remove": "Remove",
+        "work-location-remove-aria": "Remove {{- location}}",
         "work-location-selected": "Selected places of employment"
     },
     "render-form": {

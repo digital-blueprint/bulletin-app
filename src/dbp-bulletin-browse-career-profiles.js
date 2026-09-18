@@ -454,12 +454,14 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         });
     }
 
-    _createTableActionButton(iconName, title, onClick) {
+    _createTableActionButton(iconName, title, onClick, ariaLabel = title) {
         const button = this.createScopedElement('dbp-icon-button');
         button.setAttribute('subscribe', 'lang');
         button.setAttribute('icon-name', iconName);
+        // The title stays short as a tooltip, while the aria-label additionally names the row
+        // so screen reader users can tell the repeated action buttons apart.
         button.title = title;
-        button.setAttribute('aria-label', title);
+        button.setAttribute('aria-label', ariaLabel);
         button.addEventListener('click', (event) => {
             event.stopPropagation();
             onClick();
@@ -480,6 +482,9 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 'keyword-research',
                 t('browse-career-profiles.view-profile'),
                 () => this._openProfile(profile),
+                t('browse-career-profiles.view-profile-aria', {
+                    name: this._getProfileAlias(profile),
+                }),
             ),
         );
         return actions;

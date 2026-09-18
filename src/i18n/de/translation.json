@@ -13,7 +13,8 @@
         "search-placeholder": "Karriereprofile suchen",
         "select-placeholder": "Alle",
         "title": "Karriereprofile durchsuchen",
-        "view-profile": "Profil anzeigen"
+        "view-profile": "Profil anzeigen",
+        "view-profile-aria": "Profil von {{- name}} anzeigen"
     },
     "career-profile": {
         "back-to-profile": "Zurück zum Profil",
@@ -574,6 +575,7 @@
         "work-location-region-vienna": "Wien",
         "work-location-region-vorarlberg": "Vorarlberg",
         "work-location-remove": "Entfernen",
+        "work-location-remove-aria": "{{- location}} entfernen",
         "work-location-selected": "Ausgewählte Dienstorte"
     },
     "render-form": {

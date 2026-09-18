@@ -17,6 +17,8 @@
 - Career profile: unified the styling of the subtitles in the profile view mode
 - Career profile and browse career profiles: fixed the profile view mode not rendering because of a leftover call to the removed industries section, which for example made the back navigation on the company interest submissions page update the URL without showing the profile
 - Career profile: the "Back to profile" navigation of the company interest submissions page now leads to the career profile overview instead of the profile view mode
+- Browse career profiles: the "View profile" table action button now has a row-specific `aria-label` naming the applicant, while the tooltip stays short
+- Manage job offers: the work location remove buttons now have an `aria-label` and a tooltip naming the location, so the repeated icon buttons can be told apart
 
 ## 0.1.0
 

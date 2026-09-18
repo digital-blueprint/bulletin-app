@@ -815,8 +815,18 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                                                       class="delete-location-button"
                                                       icon-name="trash"
                                                       ?disabled="${this.disabled}"
-                                                      aria-label="${t(
+                                                      title="${t(
                                                           'manage-job-offers.work-location-remove',
+                                                      )}"
+                                                      aria-label="${t(
+                                                          'manage-job-offers.work-location-remove-aria',
+                                                          {
+                                                              location: getWorkLocationLabel(
+                                                                  location,
+                                                                  t,
+                                                                  this.lang,
+                                                              ),
+                                                          },
                                                       )}"
                                                       @click="${() =>
                                                           this._removeLocation(
