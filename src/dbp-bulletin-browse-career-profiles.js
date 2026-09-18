@@ -779,12 +779,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
         return html`
             <span class="back-navigation">
-                <a
+                <button
+                    type="button"
                     @click="${this._backToOverview}"
                     title="${t('browse-career-profiles.back-to-profiles')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
                     ${t('browse-career-profiles.back-to-profiles')}
-                </a>
+                </button>
             </span>
 
             <article class="profile-detail">
@@ -1096,10 +1097,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 padding-top: 1rem;
             }
 
-            .back-navigation a {
+            .back-navigation button {
+                border: 0;
+                padding: 0;
+                background: none;
                 color: inherit;
-                cursor: pointer;
-                text-decoration: none;
+                font: inherit;
             }
 
             .back-navigation dbp-icon {

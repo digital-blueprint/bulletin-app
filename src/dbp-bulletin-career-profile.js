@@ -925,10 +925,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <span class="back-navigation">
-                <a @click="${this._backToOverview}" title="${t('career-profile.back-to-profiles')}">
+                <button
+                    type="button"
+                    @click="${this._backToOverview}"
+                    title="${t('career-profile.back-to-profiles')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
                     ${t('career-profile.back-to-profiles')}
-                </a>
+                </button>
             </span>
 
             <article class="profile-detail">
@@ -1092,10 +1095,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <span class="back-navigation">
-                <a @click="${this._backToOverview}" title="${t('career-profile.back-to-profile')}">
+                <button
+                    type="button"
+                    @click="${this._backToOverview}"
+                    title="${t('career-profile.back-to-profile')}">
                     <dbp-icon name="chevron-left"></dbp-icon>
                     ${t('career-profile.back-to-profile')}
-                </a>
+                </button>
             </span>
 
             <section class="submissions-view">
@@ -1529,10 +1535,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding-top: 1rem;
             }
 
-            .back-navigation a {
+            .back-navigation button {
+                border: 0;
+                padding: 0;
+                background: none;
                 color: inherit;
-                cursor: pointer;
-                text-decoration: none;
+                font: inherit;
             }
 
             .back-navigation dbp-icon {
