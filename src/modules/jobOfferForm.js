@@ -159,8 +159,11 @@ const keepJobOfferAttachmentTranslations = (t) => {
     t('render-form.download-widget.attachment-remove-file-text');
     t('render-form.download-widget.attachment-deletion-warning-text');
     t('render-form.download-widget.view-attachment');
+    t('render-form.download-widget.view-attachment-title');
     t('render-form.download-widget.download-attachment');
+    t('render-form.download-widget.download-attachment-title');
     t('render-form.download-widget.delete-attachment');
+    t('render-form.download-widget.delete-attachment-title');
     t('render-form.download-widget.upload-file-button-label', {
         count: JOB_APPLICATION_ATTACHMENT_LIMIT,
     });
@@ -1568,9 +1571,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 : []}"
                         required
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
-                    
+
             </div>
-                        
+
             </div>
             <div id="optional-data-wrapper" class="optional-data-wrapper">
                 <button
@@ -1593,7 +1596,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 <div
                     class="content
                     ${this.optionalContent ? 'optional-data-visible' : 'optional-data-hidden'}">
-                   
+
                     <div class="translation-row">
                         <dbp-date-element
                             name="application-deadline"
@@ -1610,7 +1613,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             @change="${(e) =>
                                 (this._startDate = e.detail.value)}"></dbp-date-element>
                     </div>
-                       
+
                     <div class="translation-row">
                         <dbp-string-element
                             name="salary"
@@ -1794,7 +1797,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             @change="${(e) =>
                                 (this._linkUrlEn = e.detail.value)}"></dbp-string-element>
                     </div>
-                    
+
                     <div class="translation-row">
                         <dbp-string-element
                             name="link-name"

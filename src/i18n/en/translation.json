@@ -583,10 +583,13 @@
             "attachment-upload-file-text": "Files to upload",
             "attachment-upload-warning-text": "(Documents will be uploaded when the application is submitted.)",
             "delete-attachment": "Delete",
+            "delete-attachment-title": "Delete file {{filename}}",
             "download-attachment": "Download",
+            "download-attachment-title": "Download file {{filename}}",
             "upload-file-button-label_one": "Select file",
             "upload-file-button-label_other": "Select files",
-            "view-attachment": "View"
+            "view-attachment": "View",
+            "view-attachment-title": "View file {{filename}}"
         }
     },
     "success": {
