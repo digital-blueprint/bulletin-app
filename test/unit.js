@@ -1235,7 +1235,7 @@ suite('jobOfferForm validation', () => {
         element.remove();
     });
 
-    test('should require weekly hours and allow an empty application deadline', () => {
+    test('should require at least one weekly hours bound and allow an empty application deadline', () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
         if (!customElements.get(tagName)) {
@@ -1253,10 +1253,13 @@ suite('jobOfferForm validation', () => {
         assert.isFalse(element._isFormValid);
 
         element._weeklyHoursMin = '20';
-        assert.isFalse(element._isFormValid);
+        assert.isTrue(element._isFormValid);
 
         element._weeklyHoursMin = '';
         element._weeklyHoursMax = '40';
+        assert.isTrue(element._isFormValid);
+
+        element._weeklyHoursMax = 'invalid';
         assert.isFalse(element._isFormValid);
 
         element._weeklyHoursMin = '40';
@@ -1279,19 +1282,60 @@ suite('jobOfferForm validation', () => {
 });
 
 suite('hours range validation', () => {
-    test('should accept numeric values in the rendered inputs', async () => {
+    test('should require at least one rendered input', async () => {
         const tagName = 'test-hours-range-element';
         if (!customElements.get(tagName)) {
             customElements.define(tagName, HoursRangeElement);
         }
         const element = document.createElement(tagName);
-        element.min = '20';
-        element.max = '40';
         element.required = true;
         document.body.appendChild(element);
         await element.updateComplete;
 
+        assert.isFalse(element.checkValidity());
+
+        element.min = '20';
+        await element.updateComplete;
         assert.isTrue(element.checkValidity());
+
+        element.min = '';
+        element.max = '40';
+        await element.updateComplete;
+        assert.isTrue(element.checkValidity());
+
+        element.min = '20';
+        await element.updateComplete;
+        assert.isTrue(element.checkValidity());
+
+        element.min = '50';
+        await element.updateComplete;
+        assert.isFalse(element.checkValidity());
+
+        element.remove();
+    });
+
+    test('should emit the updated grouped validity immediately', async () => {
+        const tagName = 'test-hours-range-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, HoursRangeElement);
+        }
+        const element = document.createElement(tagName);
+        element.required = true;
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const minInput = element.renderRoot.querySelector('.hours-range-min');
+        const maxInput = element.renderRoot.querySelector('.hours-range-max');
+        let validity = null;
+        element.addEventListener('change', (event) => {
+            validity = event.detail.valid;
+        });
+
+        minInput.value = '20';
+        minInput.dispatchEvent(new InputEvent('input', {bubbles: true, composed: true}));
+
+        assert.isTrue(validity);
+        assert.isFalse(maxInput.required);
         element.remove();
     });
 

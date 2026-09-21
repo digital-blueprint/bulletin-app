@@ -34,6 +34,7 @@ import WorkLocationsElement, {
 } from './workLocationsElement.js';
 import HoursRangeElement, {
     formatHoursRange,
+    isHoursRangeValid,
     parseOptionalHours,
     sanitizeHoursValue,
 } from './hoursRangeElement.js';
@@ -827,6 +828,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         const hasJobOwner = this._isInternalJob
             ? this._organization.trim() !== ''
             : this._companySubmissionId.trim() !== '' && this._isExternalJobUrlValid();
+        const weeklyHoursMin = this._weeklyHoursMin.trim();
+        const weeklyHoursMax = this._weeklyHoursMax.trim();
+        const hasWeeklyHours = weeklyHoursMin !== '' || weeklyHoursMax !== '';
+        const hasValidWeeklyHours =
+            hasWeeklyHours &&
+            (weeklyHoursMin === '' || parseOptionalHours(weeklyHoursMin) !== null) &&
+            (weeklyHoursMax === '' || parseOptionalHours(weeklyHoursMax) !== null) &&
+            isHoursRangeValid(weeklyHoursMin, weeklyHoursMax);
 
         return (
             this._title.trim() !== '' &&
@@ -835,9 +844,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._deadline.trim() !== '' &&
             !isDeadlineBeforePublishedAt(this._publishedAt, this._deadline) &&
             this._jobOfferType.trim() !== '' &&
-            this._weeklyHoursMin.trim() !== '' &&
-            this._weeklyHoursMax.trim() !== '' &&
-            Number(this._weeklyHoursMin) <= Number(this._weeklyHoursMax) &&
+            hasValidWeeklyHours &&
             hasJobOwner &&
             this._areOptionalLinkUrlsValid()
         );
