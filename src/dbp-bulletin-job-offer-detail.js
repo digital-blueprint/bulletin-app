@@ -11,6 +11,7 @@ import {
     getAreaOfInterestLabels,
     JobOfferFormElement,
     getJobCategoryLabel,
+    hasJobApplicationCreateGrant,
 } from './modules/jobOfferForm.js';
 import {getWorkLocationLabels} from './modules/workLocationsElement.js';
 import {formatHoursRange} from './modules/hoursRangeElement.js';
@@ -563,7 +564,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _canApply() {
-        return /** @type {string[]} */ (this.auth?._roles ?? []).includes(JOB_OFFER_USER_ROLE);
+        const hasJobOfferUserRole = /** @type {string[]} */ (this.auth?._roles ?? []).includes(
+            JOB_OFFER_USER_ROLE,
+        );
+
+        return (
+            hasJobOfferUserRole && (this._isExternalJob() || hasJobApplicationCreateGrant(this.job))
+        );
     }
 
     /**
@@ -1023,6 +1030,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                     <dbp-icon
                                                                         class="btn-icon"
                                                                         name="send-diagonal"
+                                                                        name=${isExternalJob ? 'open-new-window' : 'send-diagonal'}
                                                                         aria-hidden="true"></dbp-icon>
                                                                     <span class="button-label">
                                                                         ${t('job-offer-detail.apply')}

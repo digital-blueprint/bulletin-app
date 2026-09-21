@@ -193,6 +193,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         /** The form identifier is used as the job offer identifier */
                         identifier: form.identifier,
                         dataFeedSchema: form.dataFeedSchema ?? '',
+                        grantedFormActions: Array.isArray(form.grantedFormActions)
+                            ? form.grantedFormActions
+                            : [],
+                        grantedSubmissionCollectionActions: Array.isArray(
+                            form.grantedSubmissionCollectionActions,
+                        )
+                            ? form.grantedSubmissionCollectionActions
+                            : [],
                         /** Localised title: prefer current lang, fall back to name */
                         title: this._getLocalizedName(form.localizedNames) || form.name || '',
                         generatedByJobGenerator: extra.generatedByJobGenerator === true,

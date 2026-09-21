@@ -10,6 +10,7 @@ import JobOfferModule, {
     JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
     JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION,
     getJobApplicationDataFeedSchema,
+    hasJobApplicationCreateGrant,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
     normalizePartnerCompanyValue,
@@ -542,6 +543,8 @@ suite('dbp-bulletin-view-job-offers basics', () => {
                     {
                         identifier: 'deep-job',
                         name: 'Deep linked job',
+                        grantedFormActions: ['create_submissions'],
+                        grantedSubmissionCollectionActions: ['read'],
                         additionalData: {
                             deadline: '2030-01-01',
                             areasOfInterest: ['it'],
@@ -560,6 +563,8 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 
         assert.equal(openedJob?.identifier, 'deep-job');
         assert.isTrue(openedJob?.generatedByJobGenerator);
+        assert.deepEqual(openedJob?.grantedFormActions, ['create_submissions']);
+        assert.deepEqual(openedJob?.grantedSubmissionCollectionActions, ['read']);
     });
 
     test('should only load job offers within their publication window', async () => {
@@ -774,14 +779,95 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 });
 
 suite('dbp-bulletin-job-offer-detail basics', () => {
-    test('should only allow users with the job-offer user role to apply', () => {
+    test('should require the user role and an explicit create grant for internal jobs', () => {
         const element = document.createElement('dbp-bulletin-job-offer-detail');
+        element.job = {jobOfferType: 'internal'};
+
+        element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_MANAGER']};
+        assert.isFalse(element._canApply());
+
+        element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_USER']};
+        assert.isFalse(element._canApply());
+
+        element.job = {
+            jobOfferType: 'internal',
+            grantedSubmissionCollectionActions: ['create_submissions'],
+        };
+        assert.isTrue(element._canApply());
+
+        element.job = {
+            jobOfferType: 'internal',
+            grantedFormActions: ['create_submissions'],
+        };
+        assert.isTrue(element._canApply());
+
+        element.job = {
+            jobOfferType: 'internal',
+            grantedFormActions: ['manage'],
+            grantedSubmissionCollectionActions: ['manage'],
+        };
+        assert.isFalse(element._canApply());
+
+        element.auth = {_roles: []};
+        element.job = {
+            jobOfferType: 'internal',
+            grantedFormActions: ['create_submissions'],
+        };
+        assert.isFalse(element._canApply());
+    });
+
+    test('should keep external application links role-based', () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        element.job = {jobOfferType: 'external'};
 
         element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_MANAGER']};
         assert.isFalse(element._canApply());
 
         element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_USER']};
         assert.isTrue(element._canApply());
+    });
+
+    test('should only render the internal application UI with create permission', async () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        const job = {
+            identifier: 'job-1',
+            title: 'Internal job',
+            description: 'Job description',
+            jobOfferType: 'internal',
+            areasOfInterest: [],
+            publishedAt: '2026-01-01',
+            deadline: '2026-12-31',
+        };
+        element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_USER']};
+        element.job = job;
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isNull(element.shadowRoot.querySelector('dbp-bulletin-job-offer-form'));
+        assert.isNull(element.shadowRoot.querySelector('.apply-anchor-btn'));
+
+        element.job = {...job, grantedFormActions: ['create_submissions']};
+        await element.updateComplete;
+
+        assert.isNotNull(element.shadowRoot.querySelector('dbp-bulletin-job-offer-form'));
+        assert.isNotNull(element.shadowRoot.querySelector('.apply-anchor-btn'));
+        element.remove();
+    });
+
+    test('should recognize only explicit current and legacy create grants', () => {
+        assert.isTrue(hasJobApplicationCreateGrant({grantedFormActions: ['create_submissions']}));
+        assert.isTrue(
+            hasJobApplicationCreateGrant({
+                grantedSubmissionCollectionActions: ['create_submissions'],
+            }),
+        );
+        assert.isFalse(
+            hasJobApplicationCreateGrant({
+                grantedFormActions: ['manage'],
+                grantedSubmissionCollectionActions: ['manage'],
+            }),
+        );
+        assert.isFalse(hasJobApplicationCreateGrant(null));
     });
 
     test('should show remote status in the job description', async () => {

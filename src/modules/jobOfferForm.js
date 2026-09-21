@@ -15,7 +15,11 @@ import {ResourceSelect} from '@dbp-toolkit/resource-select';
 import {FileSource, FileSink} from '@dbp-toolkit/file-handling';
 import {Modal} from '@dbp-toolkit/common/src/modal.js';
 import {PdfViewer} from '@dbp-toolkit/pdf-viewer';
-import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
+import {
+    FORM_PERMISSIONS,
+    SUBMISSION_COLLECTION_PERMISSIONS,
+    SUBMISSION_STATES_BINARY,
+} from '../../vendor/formalize/src/utils.js';
 import {
     ScopedElementsMixin,
     Button,
@@ -61,6 +65,25 @@ const JOB_OFFER_TYPE_EXTERNAL = 'external';
 const JOB_OFFER_TYPES = [JOB_OFFER_TYPE_INTERNAL, JOB_OFFER_TYPE_EXTERNAL];
 export const JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION = true;
 export const JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED = ['read'];
+
+/**
+ * Checks whether a form grants explicit permission to create submissions.
+ * Supports both the current form grant and the legacy submission-collection grant.
+ *
+ * @param {Record<string, any>|null|undefined} form
+ * @returns {boolean}
+ */
+export const hasJobApplicationCreateGrant = (form) => {
+    const formActions = Array.isArray(form?.grantedFormActions) ? form.grantedFormActions : [];
+    const submissionCollectionActions = Array.isArray(form?.grantedSubmissionCollectionActions)
+        ? form.grantedSubmissionCollectionActions
+        : [];
+
+    return (
+        formActions.includes(FORM_PERMISSIONS.CREATE_SUBMISSIONS) ||
+        submissionCollectionActions.includes(SUBMISSION_COLLECTION_PERMISSIONS.CREATE_SUBMISSIONS)
+    );
+};
 
 export function getJobApplicationDataFeedSchema() {
     return JSON.stringify({
