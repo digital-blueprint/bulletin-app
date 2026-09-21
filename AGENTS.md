@@ -4,7 +4,7 @@
 
 - Only use English variables and comments in the code.
 - Always write clear and concise comments for complex logic, start comments with uppercase letters.
-- Don't try to open the webpage, the page is behind an SSO login, so you won't be able to access it.
+- Don't try to login to the webpage, the page is behind an SSO login, so you won't be able to log in. The developer will log in for you.
 - If you can use existing dbp-icons, use them instead of creating new icons.
     - Always loon at `./vendor/toolkit/packages/common/src/demo/icon-names.js` for existing icons.
 - Everything needs to be properly translated with i18next.
