@@ -175,6 +175,10 @@ class JobOfferModule extends BaseObject {
         return 'job-offer';
     }
 
+    getManageFormsOverviewActionIcon() {
+        return 'list';
+    }
+
     /**
      * @returns {typeof BaseFormElement}
      */

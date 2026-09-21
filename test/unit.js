@@ -1143,6 +1143,10 @@ suite('job generator data handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
+    test('should use the list icon for the manage-forms overview action', () => {
+        assert.equal(new JobOfferModule().getManageFormsOverviewActionIcon(), 'list');
+    });
+
     test('should show partially populated optional data when editing', async () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
