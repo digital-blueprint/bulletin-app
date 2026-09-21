@@ -539,6 +539,14 @@ const normalizeStringList = (value) => {
     return parseMultilineList(normalizeMultilineValue(value));
 };
 
+export const toLocalIsoDate = (date = new Date()) => {
+    const year = String(date.getFullYear()).padStart(4, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
+
 export const isDeadlineBeforePublishedAt = (publishedAt, deadline) => {
     if (!publishedAt?.trim() || !deadline?.trim()) {
         return false;
@@ -591,7 +599,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         // Mandatory job detail fields
         this._title = '';
         this._description = '';
-        this._publishedAt = '';
+        this._publishedAt = toLocalIsoDate();
         this._deadline = '';
         this._applicationDeadline = '';
         this._jobOfferType = JOB_OFFER_TYPE_INTERNAL;
@@ -933,7 +941,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     resetForm() {
         this._title = '';
         this._description = '';
-        this._publishedAt = '';
+        this._publishedAt = toLocalIsoDate();
         this._deadline = '';
         this._applicationDeadline = '';
         this._jobOfferType = JOB_OFFER_TYPE_INTERNAL;

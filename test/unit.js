@@ -13,6 +13,7 @@ import JobOfferModule, {
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
     normalizePartnerCompanyValue,
+    toLocalIsoDate,
 } from '../src/modules/jobOfferForm.js';
 import {
     formatStudentStudies as formatCareerProfileStudies,
@@ -1212,6 +1213,41 @@ suite('jobOfferForm validation', () => {
 
         element._externalJobUrl = 'http://www.test.at';
         assert.isTrue(element._isExternalJobUrlValid());
+    });
+
+    test('should preset the local publication date for new and reset forms', () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        assert.equal(toLocalIsoDate(new Date(2026, 8, 21)), '2026-09-21');
+
+        const beforeCreation = toLocalIsoDate();
+        const element = document.createElement(tagName);
+        const afterCreation = toLocalIsoDate();
+        assert.include([beforeCreation, afterCreation], element._publishedAt);
+
+        element._publishedAt = '2020-01-01';
+        element.resetForm();
+        assert.equal(element._publishedAt, toLocalIsoDate());
+    });
+
+    test('should preserve the publication date when editing an existing form', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        element.existingForm = {additionalData: {publishedAt: '2025-04-03'}};
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.equal(element._publishedAt, '2025-04-03');
+        element.remove();
     });
 
     test('should expose job offer URL fields as URL inputs', async () => {
