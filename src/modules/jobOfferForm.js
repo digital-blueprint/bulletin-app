@@ -1575,20 +1575,12 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 : []}"
                         required
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
-
-            </div>
-
+                </div>
             </div>
             <div id="optional-data-wrapper" class="optional-data-wrapper">
-               <div class ="optional-header">
-                    <h3>
-                        ${t('manage-job-offers.optional-data')}
-                    </h3>
-  </div>
+                <h3>${t('manage-job-offers.optional-data')}</h3>
                 <hr aria-hidden="true" />
-                <div
-                    class="content">
-
+                <div class="content">
                     <div class="translation-row">
                         <dbp-date-element
                             name="application-deadline"
@@ -1942,12 +1934,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             }
             .row-three {
                 grid-template-columns: repeat(3, minmax(0px, 1fr));
-            }
-
-            optional-header {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 1rem;
             }
 
             hr {
