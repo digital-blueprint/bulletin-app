@@ -7,6 +7,7 @@ import {createInstance} from '../i18n.js';
 export const HOURS_MIN = 0;
 export const HOURS_MAX = 99;
 export const HOURS_STEP = 1;
+const DEFAULT_WEEKLY_HOURS_MAX = 40;
 
 /**
  * Converts an optional hours value into a comparable integer or null.
@@ -105,7 +106,7 @@ export const isHoursInRange = (weeklyHours, min, max) => {
 /**
  * Checks whether a job-hours range overlaps a filter range.
  *
- * Empty bounds are treated as unbounded. When both job bounds are absent,
+ * Missing bounds default to 0 and 40. When both job bounds are absent,
  * scalarHours is used as a fallback.
  *
  * @param {string|number|null|undefined} jobMin
@@ -133,13 +134,12 @@ export const isHoursRangeInRange = (jobMin, jobMax, filterMin, filterMax, scalar
         return false;
     }
 
-    // At least one offer bound is non-null here, so both fallbacks resolve to a number.
-    const effectiveOfferMin = /** @type {number} */ (offerMin ?? offerMax);
-    const effectiveOfferMax = /** @type {number} */ (offerMax ?? offerMin);
-    return (
-        (selectedMin === null || effectiveOfferMin >= selectedMin) &&
-        (selectedMax === null || effectiveOfferMax <= selectedMax)
-    );
+    const effectiveOfferMin = offerMin ?? HOURS_MIN;
+    const effectiveOfferMax = offerMax ?? DEFAULT_WEEKLY_HOURS_MAX;
+    const effectiveSelectedMin = selectedMin ?? HOURS_MIN;
+    const effectiveSelectedMax = selectedMax ?? DEFAULT_WEEKLY_HOURS_MAX;
+
+    return effectiveOfferMin <= effectiveSelectedMax && effectiveOfferMax >= effectiveSelectedMin;
 };
 
 /**
