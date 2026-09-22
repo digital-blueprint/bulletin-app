@@ -167,6 +167,8 @@
         "interest-title": "Interesse bekunden",
         "required-field-note": "kennzeichnet ein Pflichtfeld",
         "save-profile": "Speichern",
+        "skip-to-close-button": "Zum Schließen-Button springen",
+        "skip-to-save-button": "Zum Button „{{label}}“ springen",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus.",
         "validation-url": "Bitte geben Sie eine gültige Website-URL mit einem Domainnamen ein, zum Beispiel example.org."
     },

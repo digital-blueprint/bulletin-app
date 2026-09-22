@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Create and edit job offer dialog and the career profile edit dialog: added skip links at the end of the form that jump straight to the primary save button and to the close button in the dialog header, so keyboard and screen reader users no longer have to tab back through all fields to save or abort
 - Manage job offers: the open-applications button in the job offers table read as "Stellenangebote verwalten" for every row, because the translation override dropped the form name placeholder; it now names the job offer via a separate `open-forms-aria` override while the tooltip stays short
 - Remember the selected pagination size per user, activity, and browser in browse career profiles, manage job offers, and manage user-defined fields
 - Added a new developer-only activity `generate-career-profiles` that creates random career profiles so more entries are shown on the browse career profiles page

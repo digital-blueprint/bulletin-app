@@ -167,6 +167,8 @@
         "interest-title": "Express interest",
         "required-field-note": "marks a required field",
         "save-profile": "Save",
+        "skip-to-close-button": "Skip to the close button",
+        "skip-to-save-button": "Skip to the {{label}} button",
         "validation-required": "Please fill in all required fields.",
         "validation-url": "Please enter a valid website URL containing a domain name, for example example.org."
     },
