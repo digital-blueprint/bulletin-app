@@ -713,14 +713,15 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 </div>
 
                 <div class="field">
-                    <label class="label" for="filter-profile-work-location">
+                    <span class="label" aria-hidden="true">
                         ${t('career-profile-form.field-locations')}
-                    </label>
+                    </span>
                     <div class="control">
                         <dbp-work-location-select-element
                             id="filter-profile-work-location"
                             lang="${this.lang}"
                             lang-dir="${this.langDir}"
+                            label="${t('career-profile-form.field-locations')}"
                             placeholder="${t('browse-career-profiles.select-placeholder')}"
                             .locations="${this._getAvailableWorkLocations()}"
                             .value="${this.filterWorkLocation}"

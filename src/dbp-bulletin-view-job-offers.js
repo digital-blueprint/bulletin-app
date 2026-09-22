@@ -1333,14 +1333,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                             ? html`
                                   <div class="filters-row">
                                       <div class="field work-location-field">
-                                          <label class="label" for="filter-work-location">
+                                          <span class="label" aria-hidden="true">
                                               ${t('view-job-offers.work-location')}
-                                          </label>
+                                          </span>
                                           <div class="control work-location-control">
                                               <dbp-work-location-select-element
                                                   id="filter-work-location"
                                                   lang="${this.lang}"
                                                   lang-dir="${this.langDir}"
+                                                  label="${t('view-job-offers.work-location')}"
                                                   placeholder="${t('view-job-offers.select-placeholder')}"
                                                   .locations="${availableWorkLocations}"
                                                   .value="${this.filterWorkLocation}"

@@ -222,7 +222,10 @@ export class WorkLocationSelectElement extends DBPLitElement {
         this.disabled = false;
         this.required = true;
         this.placeholder = '';
-        this._selectId = `work-location-filter-${commonUtils.makeId(24)}`;
+        this.label = '';
+        const selectSuffix = commonUtils.makeId(24);
+        this._selectId = `work-location-filter-${selectSuffix}`;
+        this._labelId = `work-location-filter-label-${selectSuffix}`;
 
         select2(window, $);
     }
@@ -237,6 +240,7 @@ export class WorkLocationSelectElement extends DBPLitElement {
             disabled: {type: Boolean, reflect: true},
             required: {type: Boolean, reflect: true},
             placeholder: {type: String},
+            label: {type: String},
         };
     }
 
@@ -269,7 +273,8 @@ export class WorkLocationSelectElement extends DBPLitElement {
             changedProperties.has('value') ||
             changedProperties.has('locations') ||
             changedProperties.has('disabled') ||
-            changedProperties.has('placeholder')
+            changedProperties.has('placeholder') ||
+            changedProperties.has('label')
         ) {
             const availableValues = new Set(this._getLocationItems().map((item) => item.value));
             if (this.value && !availableValues.has(this.value)) {
@@ -332,6 +337,32 @@ export class WorkLocationSelectElement extends DBPLitElement {
             });
 
         select.val(this.value || '').trigger('change.select2');
+
+        this._applyAccessibleName();
+    }
+
+    /**
+     * Select2 replaces the native select with its own combobox markup, which only references
+     * the rendered selection text. Without this the screen reader announces no field name,
+     * because a label outside of the shadow root can never be associated with the select.
+     */
+    _applyAccessibleName() {
+        const accessibleName = this.label || this.placeholder;
+        if (!accessibleName) {
+            return;
+        }
+
+        const selection = this.renderRoot?.querySelector('.select2-selection');
+        if (!selection) {
+            return;
+        }
+
+        const labelledBy = selection.getAttribute('aria-labelledby') || '';
+        const ids = labelledBy.split(/\s+/).filter(Boolean);
+        if (!ids.includes(this._labelId)) {
+            ids.unshift(this._labelId);
+        }
+        selection.setAttribute('aria-labelledby', ids.join(' '));
     }
 
     $(selector) {
@@ -370,6 +401,9 @@ export class WorkLocationSelectElement extends DBPLitElement {
             <link rel="stylesheet" href="${select2CSS}" />
             <div class="select">
                 <div>
+                    <label id="${this._labelId}" class="visually-hidden" for="${this._selectId}">
+                        ${this.label || this.placeholder}
+                    </label>
                     <div class="select2-control control">
                         <select
                             id="${this._selectId}"
@@ -400,6 +434,15 @@ export class WorkLocationSelectElement extends DBPLitElement {
 
             :host {
                 display: block;
+            }
+
+            .visually-hidden {
+                position: absolute !important;
+                clip: rect(1px, 1px, 1px, 1px);
+                overflow: hidden;
+                height: 1px;
+                width: 1px;
+                word-wrap: normal;
             }
 
             .select2-control.control {
