@@ -172,6 +172,7 @@ export class HoursRangeElement extends DBPLitElement {
         this.min = '';
         this.max = '';
         this.label = '';
+        this.description = '';
         this.disabled = false;
         this.required = false;
         this.hoursMin = HOURS_MIN;
@@ -187,6 +188,7 @@ export class HoursRangeElement extends DBPLitElement {
             min: {type: String},
             max: {type: String},
             label: {type: String},
+            description: {type: String},
             disabled: {type: Boolean, reflect: true},
             required: {type: Boolean, reflect: true},
             hoursMin: {type: Number, attribute: 'hours-min'},
@@ -299,6 +301,9 @@ export class HoursRangeElement extends DBPLitElement {
         const label = this.label || t('hours-range.label');
         const minRequired = this.required && String(this.max ?? '').trim() === '';
         const maxRequired = this.required && String(this.min ?? '').trim() === '';
+        // Only reference the description if there is one, otherwise a screen reader would
+        // announce a dangling aria-describedby
+        const describedBy = this.description ? 'hours-range-description' : nothing;
 
         return html`
             <fieldset class="field" ?disabled=${this.disabled}>
@@ -320,6 +325,15 @@ export class HoursRangeElement extends DBPLitElement {
                           `
                         : nothing
                 }
+                ${
+                    this.description
+                        ? html`
+                              <div class="description" id="hours-range-description">
+                                  ${this.description}
+                              </div>
+                          `
+                        : nothing
+                }
 
                 <div class="control hours-range">
                     <input
@@ -335,6 +349,7 @@ export class HoursRangeElement extends DBPLitElement {
                         ?disabled=${this.disabled}
                         ?required=${minRequired}
                         aria-required=${minRequired ? 'true' : 'false'}
+                        aria-describedby=${describedBy}
                         placeholder="${t('hours-range.min-placeholder')}"
                         @input=${this._onMinInput} />
 
@@ -353,6 +368,7 @@ export class HoursRangeElement extends DBPLitElement {
                         ?disabled=${this.disabled}
                         ?required=${maxRequired}
                         aria-required=${maxRequired ? 'true' : 'false'}
+                        aria-describedby=${describedBy}
                         placeholder="${t('hours-range.max-placeholder')}"
                         @input=${this._onMaxInput} />
                 </div>
@@ -385,6 +401,14 @@ export class HoursRangeElement extends DBPLitElement {
                 font-size: var(--hours-range-label-font-size, 1rem);
                 font-weight: var(--hours-range-label-font-weight, normal);
                 margin-bottom: var(--hours-range-label-margin-bottom, 0.25em);
+            }
+
+            /* Matches the description styling of the toolkit form elements */
+            .description {
+                color: var(--dbp-muted);
+                font-size: 0.875rem;
+                line-height: 1.4;
+                margin-bottom: 0.25em;
             }
 
             .hours-range {

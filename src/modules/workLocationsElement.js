@@ -471,6 +471,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         this.langDir = '';
         this.value = [];
         this.label = '';
+        this.description = '';
         this.disabled = false;
         this.disabledButton = false;
         this.required = true;
@@ -479,6 +480,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         this._city = '';
         this._regionSelectId = `work-location-region-${commonUtils.makeId(24)}`;
         this._citySelectId = `work-location-city-${commonUtils.makeId(24)}`;
+        this._descriptionId = `work-locations-description-${commonUtils.makeId(24)}`;
 
         select2(window, $);
     }
@@ -490,6 +492,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             langDir: {type: String, attribute: 'lang-dir'},
             value: {type: Array},
             label: {type: String},
+            description: {type: String},
             disabled: {type: Boolean, reflect: true},
             disabledButton: {type: Boolean},
             required: {type: Boolean, reflect: true},
@@ -530,6 +533,28 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             changedProperties.has('_city')
         ) {
             this._syncSelect2Controls();
+        }
+
+        this._updateAriaDescribedBy();
+    }
+
+    /**
+     * The description is rendered as a plain element above the selectors, so a screen reader
+     * would skip it. Pointing the controls at it via aria-describedby makes it part of the
+     * announcement of the field. Select2 hides the native select and builds its own markup,
+     * so the elements the user actually focuses need the attribute as well.
+     */
+    _updateAriaDescribedBy() {
+        const targets = this.renderRoot.querySelectorAll(
+            'select, dbp-country-select, .select2-search__field, .select2-selection',
+        );
+
+        for (const target of targets) {
+            if (this.description) {
+                target.setAttribute('aria-describedby', this._descriptionId);
+            } else {
+                target.removeAttribute('aria-describedby');
+            }
         }
     }
 
@@ -614,6 +639,10 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         } else {
             this._destroySelect2(this._citySelectId, 'change');
         }
+
+        // Select2 rebuilds its markup outside of the Lit update cycle, so the description
+        // association has to be re-applied to the newly created elements
+        this._updateAriaDescribedBy();
     }
 
     $(selector) {
@@ -695,6 +724,15 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 <h4 class="field-label company-info-title">
                     ${this.label || t('manage-job-offers.field-work-locations')}
                 </h4>
+                ${
+                    this.description
+                        ? html`
+                              <div class="description" id="${this._descriptionId}">
+                                  ${this.description}
+                              </div>
+                          `
+                        : ''
+                }
 
                 <div class="selector-stack">
                     <label class="selector-label">
@@ -869,6 +907,14 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             .field-label {
                 font-weight: bolder;
                 margin: 0;
+            }
+
+            /* Matches the description styling of the toolkit form elements */
+            .description {
+                color: var(--dbp-muted);
+                font-size: 0.875rem;
+                line-height: 1.4;
+                margin-bottom: 0.25em;
             }
 
             .selector-stack {

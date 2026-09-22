@@ -1521,34 +1521,32 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
                 </div>
 
-                <div class="translation-row field-note-wrap">
-                    <div class="field-with-note">
-                        <dbp-string-element
-                            name="description"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-description')}"
-                            placeholder="${t('manage-job-offers.field-description-placeholder')}"
-                            .value="${this._description}"
-                            rows="18"
-                            maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
-                            required
-                            @change="${(e) =>
-                                (this._description = e.detail.value)}"></dbp-string-element>
-                        <div class="field-note">${descriptionMaxLengthNote}</div>
-                    </div>
+                <div class="translation-row description-row">
+                    <dbp-string-element
+                        name="description"
+                        lang="${this.lang}"
+                        label="${t('manage-job-offers.field-description')}"
+                        placeholder="${t('manage-job-offers.field-description-placeholder')}"
+                        .value="${this._description}"
+                        rows="18"
+                        maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
+                        required
+                        @change="${(e) => (this._description = e.detail.value)}">
+                        <!-- Render the note between the label and the input via the description
+                             slot, so that screen readers announce it together with the field -->
+                        <div slot="description">${descriptionMaxLengthNote}</div>
+                    </dbp-string-element>
 
-                    <div class="field-with-note">
-                        <dbp-string-element
-                            name="description-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-description-en')}"
-                            .value="${this._descriptionEn}"
-                            rows="18"
-                            maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
-                            @change="${(e) =>
-                                (this._descriptionEn = e.detail.value)}"></dbp-string-element>
-                        <div class="field-note">${descriptionMaxLengthNote}</div>
-                    </div>
+                    <dbp-string-element
+                        name="description-en"
+                        lang="${this.lang}"
+                        label="${t('manage-job-offers.field-description-en')}"
+                        .value="${this._descriptionEn}"
+                        rows="18"
+                        maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
+                        @change="${(e) => (this._descriptionEn = e.detail.value)}">
+                        <div slot="description">${descriptionMaxLengthNote}</div>
+                    </dbp-string-element>
                 </div>
                 ${
                     this._isInternalJob
@@ -1906,12 +1904,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 margin: 0 0 0.75rem;
             }
 
-            .field-note-wrap {
+            /* The description fields use large textareas, so they are stacked instead of
+               being shown side by side */
+            .description-row {
                 grid-template-columns: auto;
-            }
-
-            .field-with-note {
-                min-width: 0;
             }
 
             .weekly-hours-job-form {
@@ -1922,13 +1918,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 --hours-range-placeholder-font-weight: 450;
                 --hours-range-placholder-color: var(--dbp-content);
                 --hours-range-label-margin-bottom: 0;
-            }
-
-            .field-note {
-                color: var(--dbp-muted);
-                font-size: 0.875rem;
-                line-height: 1.4;
-                margin: -0.35rem 0 0.75rem;
             }
 
             .partner-company-status {
