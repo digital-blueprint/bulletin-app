@@ -691,7 +691,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._weOfferTextEn = '';
 
         this._isSubmitting = false;
-        this.optionalContent = false;
     }
 
     _createAreaOfInterestItems() {
@@ -750,7 +749,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _requiredQualificationTextEn: {state: true},
             _weOfferTextEn: {state: true},
             _isSubmitting: {state: true},
-            optionalContent: {Boolean},
         };
     }
 
@@ -1010,7 +1008,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._requiredQualificationTextEn = '';
         this._weOfferTextEn = '';
         this._isSubmitting = false;
-        this.optionalContent = false;
     }
 
     /**
@@ -1616,26 +1613,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             </div>
             <div id="optional-data-wrapper" class="optional-data-wrapper">
-                <button
-                    id="optional-button"
-                    class="optional-button"
-                    tabindex="0"
-                    @click="${() => (this.optionalContent = !this.optionalContent)}"
-                    aria-label="Optional Data"
-                    aria-expanded="${this.optionalContent}">
+               <div class ="optional-header">
                     <h3>
                         ${t('manage-job-offers.optional-data')}
                     </h3>
-
-                    <dbp-icon
-                        class="optional-data-icon ${this.optionalContent ? 'rotated' : ''}"
-                        name="chevron-down"
-                        aria-hidden="true"></dbp-icon>
-                </button>
+  </div>
                 <hr aria-hidden="true" />
                 <div
-                    class="content
-                    ${this.optionalContent ? 'optional-data-visible' : 'optional-data-hidden'}">
+                    class="content">
 
                     <div class="translation-row">
                         <dbp-date-element
@@ -1701,6 +1686,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
                         <dbp-enum-element
                             name="area-of-interest"
+                            class="area-of-interest-field"
                             lang="${this.lang}"
                             label="${t('manage-job-offers.field-area-of-interest')}"
                             multiple
@@ -1981,44 +1967,25 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             }
 
             #optional-data-wrapper {
-                margin-top: 25px;
+                margin-top: 2rem;
             }
 
+            .area-of-interest-field {
+                margin-top: 1rem;
+            }
             .row-three {
                 grid-template-columns: repeat(3, minmax(0px, 1fr));
             }
-            .optional-button {
-                background-color: var(--dbp-background);
-                border: none;
+
+            optional-header {
                 display: flex;
                 justify-content: space-between;
-                width: 100%;
-                box-sizing: border-box;
-                padding: 0;
-                cursor: pointer;
+                margin-top: 1rem;
             }
+
             hr {
                 margin-top: 0;
-            }
-
-            .optional-data-icon {
-                color: var(--dbp-accent);
-                font-size: 1.3em;
-                transition: transform 0.2s ease;
-            }
-
-            .optional-data-icon.rotated {
-                transform: rotate(180deg);
-            }
-
-            .optional-data-visible {
-                display: block;
-                transition: transform 0.2s ease;
-            }
-
-            .optional-data-hidden {
-                display: none;
-                transition: transform 0.2s ease;
+                margin-bottom: 0.5rem;
             }
 
             @media (max-width: 900px) {
