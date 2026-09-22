@@ -1233,39 +1233,20 @@ suite('jobOfferForm validation', () => {
         assert.equal(new JobOfferModule().getManageFormsOverviewActionIcon(), 'list');
     });
 
-    test('should show partially populated optional data when editing', async () => {
+    test('should render optional fields without requiring expansion', async () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
         if (!customElements.get(tagName)) {
             customElements.define(tagName, JobOfferEditFormElement);
         }
         const element = document.createElement(tagName);
-        element.existingForm = {additionalData: {salaryEn: 'From EUR 50,000'}};
         document.body.appendChild(element);
         await element.updateComplete;
 
-        assert.isTrue(element.optionalContent);
-        assert.equal(
-            element.shadowRoot.querySelector('#optional-button').getAttribute('aria-expanded'),
-            'true',
-        );
-        assert.isNotNull(element.shadowRoot.querySelector('.optional-data-visible'));
-        element.remove();
-    });
-
-    test('should keep optional data hidden when editing without optional values', async () => {
-        const tagName = 'test-job-offer-edit-form-element';
-        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
-        if (!customElements.get(tagName)) {
-            customElements.define(tagName, JobOfferEditFormElement);
+        // Optional fields are always visible, no expand interaction is needed.
+        for (const fieldName of ['application-deadline', 'start-date', 'salary', 'salary-en']) {
+            assert.isNotNull(element.shadowRoot.querySelector(`[name="${fieldName}"]`));
         }
-        const element = document.createElement(tagName);
-        element.existingForm = {additionalData: {title: 'Software developer'}};
-        document.body.appendChild(element);
-        await element.updateComplete;
-
-        assert.isFalse(element.optionalContent);
-        assert.isNotNull(element.shadowRoot.querySelector('.optional-data-hidden'));
         element.remove();
     });
 
@@ -1372,7 +1353,6 @@ suite('jobOfferForm validation', () => {
         }
         const element = document.createElement(tagName);
         element._jobOfferType = 'external';
-        element.optionalContent = true;
         document.body.appendChild(element);
         await element.updateComplete;
 
