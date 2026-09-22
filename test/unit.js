@@ -1340,6 +1340,30 @@ suite('jobOfferForm validation', () => {
         element.remove();
     });
 
+    test('should preserve empty weekly hours bounds when editing an existing form', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        for (const {weeklyHoursMin, weeklyHoursMax} of [
+            {weeklyHoursMin: '20', weeklyHoursMax: ''},
+            {weeklyHoursMin: '', weeklyHoursMax: '20'},
+        ]) {
+            const element = document.createElement(tagName);
+            element.existingForm = {
+                additionalData: {weeklyHours: '20', weeklyHoursMin, weeklyHoursMax},
+            };
+            document.body.appendChild(element);
+            await element.updateComplete;
+
+            assert.equal(element._weeklyHoursMin, weeklyHoursMin);
+            assert.equal(element._weeklyHoursMax, weeklyHoursMax);
+            element.remove();
+        }
+    });
+
     test('should expose job offer URL fields as URL inputs', async () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();

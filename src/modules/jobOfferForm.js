@@ -785,11 +785,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._remote = d.remote === true;
                 this._startDate = d.startDate || '';
                 this._weeklyHours = d.weeklyHours || '';
-                const savedWeeklyHours = parseOptionalHours(d.weeklyHours);
-                this._weeklyHoursMin =
-                    d.weeklyHoursMin || (savedWeeklyHours !== null ? String(savedWeeklyHours) : '');
-                this._weeklyHoursMax =
-                    d.weeklyHoursMax || (savedWeeklyHours !== null ? String(savedWeeklyHours) : '');
+                this._weeklyHoursMin = String(d.weeklyHoursMin ?? '');
+                this._weeklyHoursMax = String(d.weeklyHoursMax ?? '');
                 this._salary = d.salary || '';
                 this._contractDuration = d.contractDuration || '';
                 this._jobCategory = d.jobCategory || d.jobType || '';
