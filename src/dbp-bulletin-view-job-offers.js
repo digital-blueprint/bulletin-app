@@ -10,6 +10,7 @@ import {DbpEnumElement} from '@dbp-toolkit/form-elements';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
+    AREAS_OF_INTEREST,
     getAreaOfInterestLabel,
     getAreaOfInterestLabels,
     getJobCategoryLabel,
@@ -645,16 +646,27 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     getAvailableAreasOfInterest({includeSelected = false} = {}) {
         const jobs = this.getFilteredJobs({includeAreaOfInterest: false});
+        const currentAreasOfInterest = new Set(Object.keys(AREAS_OF_INTEREST));
+
         const availableAreasOfInterest = [
             ...new Set(
-                jobs.flatMap((job) =>
-                    normalizeAreaOfInterestValues(job.areasOfInterest ?? job.areaOfInterest),
-                ),
+                jobs
+                    .flatMap((job) =>
+                        normalizeAreaOfInterestValues(job.areasOfInterest ?? job.areaOfInterest),
+                    )
+                    .filter((value) => currentAreasOfInterest.has(value)),
             ),
         ];
 
         return includeSelected
-            ? [...new Set([...availableAreasOfInterest, ...this.filterAreasOfInterest])]
+            ? [
+                  ...new Set([
+                      ...availableAreasOfInterest,
+                      ...this.filterAreasOfInterest.filter((value) =>
+                          currentAreasOfInterest.has(value),
+                      ),
+                  ]),
+              ]
             : availableAreasOfInterest;
     }
 
