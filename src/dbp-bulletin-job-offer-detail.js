@@ -544,7 +544,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
-    _handleApply() {
+    /**
+     * Handles the apply button at the top of the detail dialog.
+     * For external job offers it opens the company website, for internal ones the button
+     * acts as a skip link: it scrolls to the application form and moves the keyboard focus
+     * into it, so that keyboard and screen reader users end up where the mouse users look.
+     */
+    async _handleApply() {
         if (!this._canApply() || this._hasApplied) {
             return;
         }
@@ -557,8 +563,19 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             return;
         }
 
-        const formEl = this.shadowRoot?.querySelector('dbp-bulletin-job-offer-form');
-        if (formEl) {
+        const formEl = /** @type {any} */ (
+            this.shadowRoot?.querySelector('dbp-bulletin-job-offer-form')
+        );
+
+        if (!formEl) {
+            return;
+        }
+
+        // The form lives in its own shadow root, so it has to move the focus itself.
+        const focused = await formEl.focusApplicationForm?.();
+
+        // Fallback for the (unlikely) case that the form has no focusable target yet.
+        if (!focused) {
             formEl.scrollIntoView({behavior: 'smooth'});
         }
     }
@@ -937,7 +954,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                           </dl>
 
                                           <div class="meta-actions">
-                                              <div class="action-buttons">
+                                              <div id="actionsBar" class="action-buttons">
                                                   <div class="share-button-container">
                                                       <button
                                                           class="button is-secondary"
@@ -1029,8 +1046,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                         this._handleApply()}">
                                                                     <dbp-icon
                                                                         class="btn-icon"
-                                                                        name="send-diagonal"
-                                                                        name=${isExternalJob ? 'open-new-window' : 'send-diagonal'}
+                                                                        name=${
+                                                                            isExternalJob
+                                                                                ? 'open-new-window'
+                                                                                : 'send-diagonal'
+                                                                        }
                                                                         aria-hidden="true"></dbp-icon>
                                                                     <span class="button-label">
                                                                         ${t('job-offer-detail.apply')}

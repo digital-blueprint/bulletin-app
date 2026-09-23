@@ -2658,6 +2658,39 @@ export class JobOfferFormElement extends BaseFormElement {
         }
     }
 
+    /**
+     * Moves the keyboard focus into the application form.
+     * This is used by the "apply" skip link in the job offer detail dialog, so that keyboard
+     * and screen reader users do not have to tab through the whole job description first.
+     * The focus is put on the section heading (and not on the first input), so that the
+     * screen reader announces the context of the form before the user starts typing.
+     * @returns {Promise<boolean>} True when the focus could be moved.
+     */
+    async focusApplicationForm() {
+        // The form can still be rendering (or waiting for the "already applied" check),
+        // so we wait for the current render cycle before looking for the target.
+        await this.updateComplete;
+
+        const target = /** @type {HTMLElement} */ (
+            this.renderRoot?.querySelector('#application-form-heading')
+        );
+
+        if (!target) {
+            return false;
+        }
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Scroll separately from focus(), otherwise the browser jumps instantly
+        // and the smooth scrolling of the dialog content is lost.
+        target.focus({preventScroll: true});
+        target.scrollIntoView({
+            block: 'start',
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+
+        return true;
+    }
+
     static get scopedElements() {
         return {
             ...super.scopedElements,
@@ -2694,7 +2727,7 @@ export class JobOfferFormElement extends BaseFormElement {
         if (this._hasApplied) {
             return html`
                 <div class="apply-form">
-                    <div class="applied-notice">
+                    <div class="applied-notice" id="application-form-heading" tabindex="-1">
                         <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
                         <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
                     </div>
@@ -2705,7 +2738,9 @@ export class JobOfferFormElement extends BaseFormElement {
         return html`
             <form @submit="${this._onApplySubmit}" novalidate>
                 <div class="apply-submit-wrapper">
-                    <h3>${t('job-offer-detail.application-title')}</h3>
+                    <h3 id="application-form-heading" tabindex="-1">
+                        ${t('job-offer-detail.application-title')}
+                    </h3>
                     <hr aria-hidden="true" />
                     <div class="form-row">
                         <div class="form-column">
@@ -2737,6 +2772,7 @@ export class JobOfferFormElement extends BaseFormElement {
                     <div class="form-row-free">
                         <dbp-form-string-element
                             ${ref(this._messageRef)}
+                            id="FormEl-application"
                             subscribe="lang"
                             name="freeText"
                             label="${t('job-offer-detail.message')}"
