@@ -214,7 +214,7 @@ class JobOfferModule extends BaseObject {
             ),
             {
                 id: 'preview-job-offer',
-                iconName: 'eye',
+                iconName: 'keyword-research',
                 title: i18n.t('manage-job-offers.preview-action', {lng: lang}),
                 ariaLabel: i18n.t('manage-job-offers.preview-action-aria', {
                     lng: lang,

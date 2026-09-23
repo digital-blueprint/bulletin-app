@@ -571,7 +571,7 @@
         "job-type-external": "Company",
         "job-type-internal": "TU Graz",
         "optional-data": "Optional data",
-        "preview-action": "Preview",
+        "preview-action": "Preview job offer",
         "preview-action-aria": "Preview job offer {{- title}}",
         "select-placeholder": "Select option",
         "selected-company-is-partner": "The selected company is a partner company.",
