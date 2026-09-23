@@ -1253,27 +1253,57 @@ suite('job generator data handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
-    test('should provide a job offer preview row action', async () => {
+    test('should provide job offer overview row actions', async () => {
         const module = new JobOfferModule();
+        let editedFormId = null;
         const context = {
-            host: {lang: 'en'},
+            host: {
+                lang: 'en',
+                handleOpenEditFormDialog: (formId) => (editedFormId = formId),
+            },
             form: {formId: 'job-1', formName: 'Developer'},
         };
         let openedContext = null;
         module._openManageFormsPreview = (value) => (openedContext = value);
 
         const actions = module.getManageFormsOverviewActions(context, [
-            {id: 'open-submissions', iconName: 'keyword-research'},
+            {
+                id: 'open-submissions',
+                iconName: 'keyword-research',
+                placements: ['row'],
+                title: 'Show submissions',
+                ariaLabel: 'Show submissions',
+                handler: () => {},
+            },
+            {
+                id: 'edit',
+                iconName: 'pencil',
+                placements: ['dropdown'],
+                title: 'Edit',
+                ariaLabel: 'Edit Developer',
+                handler: ({form}) => (editedFormId = form.formId),
+            },
         ]);
         const applicantsAction = actions.find((action) => action.id === 'open-submissions');
         const action = actions.find((action) => action.id === 'preview-job-offer');
+        const editAction = actions.find((action) => action.id === 'edit');
+        assert.deepEqual(
+            actions.map((rowAction) => rowAction.id),
+            ['preview-job-offer', 'edit', 'open-submissions'],
+        );
         assert.equal(applicantsAction.iconName, 'list');
         assert.equal(action.id, 'preview-job-offer');
         assert.equal(action.iconName, 'keyword-research');
         assert.include(action.ariaLabel, 'Developer');
+        assert.equal(editAction.iconName, 'pencil');
+        assert.include(editAction.ariaLabel, 'Developer');
+        assert.deepEqual(editAction.placements, ['row']);
 
         await action.handler(context);
         assert.equal(openedContext, context);
+
+        editAction.handler(context);
+        assert.equal(editedFormId, 'job-1');
     });
 
     test('should render optional fields without requiring expansion', async () => {

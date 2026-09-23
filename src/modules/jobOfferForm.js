@@ -201,20 +201,26 @@ class JobOfferModule extends BaseObject {
 
     /**
      * @param {{host?: Record<string, any>, form?: Record<string, any>}} context
-     * @param {Array<{id: string, iconName: string, title: string, ariaLabel: string, handler: (context: object) => void}>} actions
-     * @returns {Array<{id: string, iconName: string, title: string, ariaLabel: string, handler: (context: object) => void}>}
+     * @param {Array<Record<string, any>>} actions
+     * @returns {Array<Record<string, any>>}
      */
     getManageFormsOverviewActions({host, form} = {}, actions = []) {
         const lang = host?.lang ?? i18n.language;
         const formName = form?.formName ?? '';
+        const editActions = actions
+            .filter((action) => action.id === 'edit')
+            .map((action) => ({...action, placements: ['row']}));
+        const otherActions = actions
+            .filter((action) => action.id !== 'edit')
+            .map((action) =>
+                action.id === 'open-submissions' ? {...action, iconName: 'list'} : action,
+            );
 
         return [
-            ...actions.map((action) =>
-                action.id === 'open-submissions' ? {...action, iconName: 'list'} : action,
-            ),
             {
                 id: 'preview-job-offer',
                 iconName: 'keyword-research',
+                placements: ['row'],
                 title: i18n.t('manage-job-offers.preview-action', {lng: lang}),
                 ariaLabel: i18n.t('manage-job-offers.preview-action-aria', {
                     lng: lang,
@@ -224,6 +230,8 @@ class JobOfferModule extends BaseObject {
                     void this._openManageFormsPreview(context);
                 },
             },
+            ...editActions,
+            ...otherActions,
         ];
     }
 
