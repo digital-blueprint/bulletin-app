@@ -80,35 +80,52 @@ export const CAREER_PROFILE_INDUSTRIES = {
 };
 
 export const CAREER_PROFILE_FIELDS = {
-    'computer-science-sw-development-business':
-        'career-profile-form.field-study-computer-science-sw-development-business',
-    'information-and-computer-engineering':
-        'career-profile-form.field-study-information-and-computer-engineering',
-    architecture: 'career-profile-form.field-study-architecture',
-    'civil-engineering': 'career-profile-form.field-study-civil-engineering',
-    'business-construction': 'career-profile-form.field-study-business-construction',
-    'mechanical-engineering': 'career-profile-form.field-study-mechanical-engineering',
-    'business-mechanical-engineering':
-        'career-profile-form.field-study-business-mechanical-engineering',
-    'electrical-engineering-ee-business':
-        'career-profile-form.field-study-electrical-engineering-ee-business',
-    'technical-mathematics': 'career-profile-form.field-study-technical-mathematics',
-    'technical-physics': 'career-profile-form.field-study-technical-physics',
-    'surveying-geomatics': 'career-profile-form.field-study-surveying-geomatics',
-    'technical-chemistry': 'career-profile-form.field-study-technical-chemistry',
-    biosciences: 'career-profile-form.field-study-biosciences',
-    geosciences: 'career-profile-form.field-study-geosciences',
-    'process-engineering': 'career-profile-form.field-study-process-engineering',
-    'teacher-training': 'career-profile-form.field-study-teacher-training',
-    'bachelor-engineering-sciences':
-        'career-profile-form.field-study-bachelor-engineering-sciences',
-    'bachelor-natural-sciences': 'career-profile-form.field-study-bachelor-natural-sciences',
-    'completed-doctoral-studies': 'career-profile-form.field-study-completed-doctoral-studies',
-    'university-studies-general': 'career-profile-form.field-study-university-studies-general',
-    'advanced-materials-science': 'career-profile-form.field-study-advanced-materials-science',
-    'biomedical-engineering': 'career-profile-form.field-study-biomedical-engineering',
-    'environmental-systems-sciences-natural-sciences-technology':
-        'career-profile-form.field-study-environmental-systems-sciences-natural-sciences-technology',
+    'architecture-engineering-offices':
+        'manage-job-offers.area-of-interest-architecture-engineering-offices',
+
+    'Civil-engineering': 'manage-job-offers.area-of-interest-Civil-engineering',
+
+    'Mechanical-engineering': 'manage-job-offers.area-of-interest-Mechanical-engineering',
+
+    automotive: 'manage-job-offers.area-of-interest-automotive',
+
+    'material-sciences': 'manage-job-offers.area-of-interest-material-sciences',
+
+    electronics: 'manage-job-offers.area-of-interest-electronics',
+
+    Biomedical: 'manage-job-offers.area-of-interest-Biomedical',
+
+    physics: 'manage-job-offers.area-of-interest-physics',
+
+    Mathematics: 'manage-job-offers.area-of-interest-Mathematics',
+
+    geo: 'manage-job-offers.area-of-interest-geo',
+
+    geodesy: 'manage-job-offers.area-of-interest-geodesy',
+
+    'chemistry-pharma': 'manage-job-offers.area-of-interest-chemistry-pharma',
+
+    'Process-engineering': 'manage-job-offers.area-of-interest-Process-engineering',
+
+    Biology: 'manage-job-offers.area-of-interest-Biology',
+
+    'Bio-technology': 'manage-job-offers.area-of-interest-Bio-technology',
+
+    'environmental-sciences': 'manage-job-offers.area-of-interest-environmental-sciences',
+
+    'software-development': 'manage-job-offers.area-of-interest-software-development',
+
+    it: 'manage-job-offers.area-of-interest-it',
+
+    ai: 'manage-job-offers.area-of-interest-ai',
+
+    'data-modeling': 'manage-job-offers.area-of-interest-data-modeling',
+
+    'UI-UX': 'manage-job-offers.area-of-interest-UI-UX',
+
+    administration: 'manage-job-offers.area-of-interest-administration',
+
+    management: 'manage-job-offers.area-of-interest-management',
 };
 
 const parseSelectValues = (value) => {

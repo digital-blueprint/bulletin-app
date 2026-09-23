@@ -13,6 +13,7 @@ import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CareerProfileModule, {
+    CAREER_PROFILE_FIELDS,
     formatStudentStudies,
     getLocalizedStudentStudyLabel,
     getCareerProfileFieldLabels,
@@ -399,13 +400,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     _getAvailableFields() {
-        return [
-            ...new Set(
-                this._getFilteredProfiles({includeField: false}).flatMap((profile) =>
-                    normalizeCareerProfileSelectValues(profile.additionalData?.fields),
-                ),
-            ),
-        ];
+        return Object.keys(CAREER_PROFILE_FIELDS);
     }
 
     _getAvailableWorkLocations() {
