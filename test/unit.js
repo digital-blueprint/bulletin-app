@@ -1269,7 +1269,7 @@ suite('jobOfferForm validation', () => {
         const action = actions.find((action) => action.id === 'preview-job-offer');
         assert.equal(applicantsAction.iconName, 'list');
         assert.equal(action.id, 'preview-job-offer');
-        assert.equal(action.iconName, 'eye');
+        assert.equal(action.iconName, 'keyword-research');
         assert.include(action.ariaLabel, 'Developer');
 
         await action.handler(context);
