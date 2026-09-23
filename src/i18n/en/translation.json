@@ -6,7 +6,7 @@
         "column-previous-experience": "Previous experience",
         "column-skills": "Skills",
         "column-study-program": "Study fields",
-        "description": "Browse the career profiles of students who are looking for a job. The profiles are anonymised, but in case of interest, you can contact the students via our form.",
+        "description": "Browse the career profiles of candidates who are looking for a job. The profiles are anonymised, but in case of interest, you can contact the candidates via our form.",
         "load-error": "The career profiles could not be loaded.",
         "load-error-title": "Loading failed",
         "no-profiles": "No career profile has been generated yet.",
