@@ -24,6 +24,7 @@ import {
 } from '../src/modules/careerProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 import HoursRangeElement, {
+    isHoursRangeInRange,
     isHoursRangeValid,
     parseOptionalHours,
     sanitizeHoursValue,
@@ -779,6 +780,29 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 });
 
 suite('dbp-bulletin-job-offer-detail basics', () => {
+    test('should hide public actions in management preview mode', async () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        element.preview = true;
+        element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_USER']};
+        element.job = {
+            identifier: 'job-1',
+            title: 'Internal job',
+            description: 'Job description',
+            jobOfferType: 'internal',
+            areasOfInterest: [],
+            publishedAt: '2026-01-01',
+            deadline: '2026-12-31',
+            grantedFormActions: ['create_submissions'],
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isTrue(element.shadowRoot.querySelector('.meta-actions').hidden);
+        assert.isNull(element.shadowRoot.querySelector('.apply-anchor-btn'));
+        assert.isNull(element.shadowRoot.querySelector('dbp-bulletin-job-offer-form'));
+        element.remove();
+    });
+
     test('should require the user role and an explicit create grant for internal jobs', () => {
         const element = document.createElement('dbp-bulletin-job-offer-detail');
         element.job = {jobOfferType: 'internal'};
@@ -1229,8 +1253,27 @@ suite('job generator data handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
-    test('should use the list icon for the manage-forms overview action', () => {
-        assert.equal(new JobOfferModule().getManageFormsOverviewActionIcon(), 'list');
+    test('should provide a job offer preview row action', async () => {
+        const module = new JobOfferModule();
+        const context = {
+            host: {lang: 'en'},
+            form: {formId: 'job-1', formName: 'Developer'},
+        };
+        let openedContext = null;
+        module._openManageFormsPreview = (value) => (openedContext = value);
+
+        const actions = module.getManageFormsOverviewActions(context, [
+            {id: 'open-submissions', iconName: 'keyword-research'},
+        ]);
+        const applicantsAction = actions.find((action) => action.id === 'open-submissions');
+        const action = actions.find((action) => action.id === 'preview-job-offer');
+        assert.equal(applicantsAction.iconName, 'list');
+        assert.equal(action.id, 'preview-job-offer');
+        assert.equal(action.iconName, 'eye');
+        assert.include(action.ariaLabel, 'Developer');
+
+        await action.handler(context);
+        assert.equal(openedContext, context);
     });
 
     test('should render optional fields without requiring expansion', async () => {
@@ -1412,6 +1455,23 @@ suite('jobOfferForm validation', () => {
 });
 
 suite('hours range validation', () => {
+    test('should match overlapping hours ranges', () => {
+        assert.isTrue(isHoursRangeInRange('10', '16', '15', '20'));
+        assert.isTrue(isHoursRangeInRange('18', '30', '15', '20'));
+        assert.isTrue(isHoursRangeInRange('10', '30', '15', '20'));
+        assert.isTrue(isHoursRangeInRange('20', '25', '15', '20'));
+
+        assert.isFalse(isHoursRangeInRange('5', '14', '15', '20'));
+        assert.isFalse(isHoursRangeInRange('21', '30', '15', '20'));
+    });
+
+    test('should use zero and forty for missing range bounds', () => {
+        assert.isTrue(isHoursRangeInRange('', '16', '15', '20'));
+        assert.isFalse(isHoursRangeInRange('', '14', '15', '20'));
+        assert.isTrue(isHoursRangeInRange('18', '', '15', '20'));
+        assert.isFalse(isHoursRangeInRange('21', '', '15', '20'));
+    });
+
     test('should require at least one rendered input', async () => {
         const tagName = 'test-hours-range-element';
         if (!customElements.get(tagName)) {

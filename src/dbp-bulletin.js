@@ -3,6 +3,7 @@ import {AppShell} from '@dbp-toolkit/app-shell';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import {Translated} from '@dbp-toolkit/common/src/translated';
 import {FEATURE_FLAGS, initializeFeatureFlags, isFeatureEnabled} from './featureFlags.js';
+import './dbp-bulletin-job-offer-detail.js';
 
 /**
  * @typedef {import('lit').LitElement} LitElement

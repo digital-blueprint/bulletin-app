@@ -558,6 +558,8 @@
         "job-type-external": "Unternehmen",
         "job-type-internal": "TU Graz",
         "optional-data": "Optionale Felder",
+        "preview-action": "Vorschau",
+        "preview-action-aria": "Vorschau für Stellenangebot {{- title}}",
         "select-placeholder": "Option auswählen",
         "selected-company-is-partner": "Die ausgewählte Firma ist ein Partnerunternehmen.",
         "work-location-add": "Hinzufügen",

@@ -45,6 +45,7 @@ import HoursRangeElement, {
 import {pickCompanyData} from './companyForm.js';
 import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from '../featureFlags.js';
 import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
+import {openManagedJobOfferPreview} from './jobOfferPreview.js';
 
 /**
  * @typedef {Record<string, any>} JobOfferData
@@ -198,8 +199,42 @@ class JobOfferModule extends BaseObject {
         return 'job-offer';
     }
 
-    getManageFormsOverviewActionIcon() {
-        return 'list';
+    /**
+     * @param {{host?: Record<string, any>, form?: Record<string, any>}} context
+     * @param {Array<{id: string, iconName: string, title: string, ariaLabel: string, handler: (context: object) => void}>} actions
+     * @returns {Array<{id: string, iconName: string, title: string, ariaLabel: string, handler: (context: object) => void}>}
+     */
+    getManageFormsOverviewActions({host, form} = {}, actions = []) {
+        const lang = host?.lang ?? i18n.language;
+        const formName = form?.formName ?? '';
+
+        return [
+            ...actions.map((action) =>
+                action.id === 'open-submissions' ? {...action, iconName: 'list'} : action,
+            ),
+            {
+                id: 'preview-job-offer',
+                iconName: 'eye',
+                title: i18n.t('manage-job-offers.preview-action', {lng: lang}),
+                ariaLabel: i18n.t('manage-job-offers.preview-action-aria', {
+                    lng: lang,
+                    title: formName,
+                }),
+                handler: (context) => {
+                    void this._openManageFormsPreview(context);
+                },
+            },
+        ];
+    }
+
+    /**
+     * @param {object} context
+     */
+    async _openManageFormsPreview(context) {
+        const {host, form} = /** @type {{host: Record<string, any>, form: Record<string, any>}} */ (
+            context
+        );
+        await openManagedJobOfferPreview(host, form);
     }
 
     /**

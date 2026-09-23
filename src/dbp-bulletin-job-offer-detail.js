@@ -32,6 +32,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         super();
         /** @type {?JobOffer} The job offer to display */
         this.job = null;
+        /** @type {boolean} Whether the dialog is a read-only management preview */
+        this.preview = false;
         /** @type {boolean} Whether the share dropdown is open */
         this._shareDropdownOpen = false;
         this._onDocumentPointerDown = this._handleDocumentPointerDown.bind(this);
@@ -57,6 +59,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return {
             ...super.properties,
             job: {type: Object},
+            preview: {type: Boolean},
             _shareDropdownOpen: {state: true},
             _hasApplied: {state: true},
             _hideApplyAnchor: {state: true},
@@ -953,7 +956,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               </div>
                                           </dl>
 
-                                          <div class="meta-actions">
+                                          <div class="meta-actions" ?hidden="${this.preview}">
                                               <div id="actionsBar" class="action-buttons">
                                                   <div class="share-button-container">
                                                       <button
@@ -1032,6 +1035,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       // For internal jobs the button is only a scroll
                                                       // shortcut, so it is hidden when the content does
                                                       // not overflow (both buttons already visible).
+                                                      this.preview ||
                                                       !this._canApply() ||
                                                       (isExternalJob &&
                                                           !this._getExternalJobUrl(job)) ||
@@ -1306,7 +1310,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                            External job offers are applied for on the company website,
                                            so no application form is shown for them. -->
                                       ${
-                                          isExternalJob || !this._canApply()
+                                          this.preview || isExternalJob || !this._canApply()
                                               ? ''
                                               : html`
                                                     <dbp-bulletin-job-offer-form
