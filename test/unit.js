@@ -2520,6 +2520,15 @@ suite('dbp-bulletin-browse-career-profiles privacy', () => {
     });
 });
 
+suite('dbp-bulletin-browse-career-profiles table', () => {
+    test('should naturally sort candidate aliases containing numbers', () => {
+        const element = document.createElement('dbp-bulletin-browse-career-profiles');
+        const aliasColumn = element._getTableOptions().columns.find(({field}) => field === 'alias');
+
+        assert.equal(aliasColumn.sorter, 'alphanum');
+    });
+});
+
 suite('dbp-bulletin-career-profile routing', () => {
     let node;
 

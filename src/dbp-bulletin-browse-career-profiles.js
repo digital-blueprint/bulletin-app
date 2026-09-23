@@ -519,7 +519,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 {
                     title: t('browse-career-profiles.column-name'),
                     field: 'alias',
-                    sorter: 'string',
+                    sorter: 'alphanum',
                     minWidth: 180,
                 },
                 {
