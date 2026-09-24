@@ -601,6 +601,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
     _getSelectOptions(values, getLabels) {
         const t = (key, opts) => this._i18n.t(key, opts);
+
         return [
             {
                 value: '',
@@ -611,7 +612,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     value,
                     label: getLabels(value, t)[0] ?? value,
                 }))
-                .sort((a, b) => a.label.localeCompare(b.label, this.lang)),
+                .sort((a, b) =>
+                    a.label.localeCompare(b.label, this.lang, {
+                        sensitivity: 'base',
+                    }),
+                ),
         ];
     }
 
