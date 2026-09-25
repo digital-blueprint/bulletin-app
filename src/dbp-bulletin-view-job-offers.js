@@ -1087,9 +1087,29 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
+     * Formats the aria label for the weekly hours range for a filter marker, e.g. "< 20h", "> 20h" or "20 – 30h".
+     * @param {string} min
+     * @param {string} max
+     * @param {(key: string, options?: object) => string} t
+     * @returns {string}
+     */
+    _formatAriaHoursMarker(min, max, t) {
+        const hasMin = String(min).trim() !== '';
+        const hasMax = String(max).trim() !== '';
+
+        if (hasMin && !hasMax) {
+            return t('view-job-offers.weekly-hours-min-marker-aria-label', {hours: min});
+        }
+        if (!hasMin && hasMax) {
+            return t('view-job-offers.weekly-hours-max-marker-aria-label', {hours: max});
+        }
+        return t('view-job-offers.weekly-hours-range-marker-aria-label', {min, max});
+    }
+
+    /**
      * Builds the list of currently active filters shown as removable markers.
      * @param {(key: string, options?: object) => string} t
-     * @returns {Array<{key: string, category: string, value: string, clear: () => void}>}
+     * @returns {Array<{key: string, category: string, value: string, ariaLabel: string, clear: () => void}>}
      */
     _getActiveFilterMarkers(t) {
         const markers = [];
@@ -1123,6 +1143,11 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 key: 'weekly-hours',
                 category: t('view-job-offers.weekly-hours'),
                 value: this._formatHoursMarker(
+                    this.filterWeeklyHoursMin,
+                    this.filterWeeklyHoursMax,
+                    t,
+                ),
+                ariaLabel: this._formatAriaHoursMarker(
                     this.filterWeeklyHoursMin,
                     this.filterWeeklyHoursMax,
                     t,
@@ -1426,13 +1451,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       </div>
                                                       <div class="refinement-value">
                                                           <span
-                                                              class="ais-CurrentRefinements-categoryLabel">
+                                                              class="ais-CurrentRefinements-categoryLabel"
+                                                              aria-label="${marker.ariaLabel ?? marker.value}">
                                                               ${marker.value}
                                                           </span>
                                                           <button
                                                               type="button"
                                                               class="ais-CurrentRefinements-delete"
-                                                              aria-label="${marker.category} ${marker.value}"
                                                               title="${t(
                                                                   'view-job-offers.remove-filter',
                                                                   {filter: marker.value},

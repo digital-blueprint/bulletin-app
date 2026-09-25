@@ -642,9 +642,12 @@
         "select-placeholder": "Alle",
         "view-details": "Anzeigen",
         "weekly-hours": "Wochenstunden",
-        "weekly-hours-max-marker": "=< {{hours}}h",
+        "weekly-hours-max-marker": "<= {{hours}}h",
+        "weekly-hours-max-marker-aria-label": "kleiner oder gleich {{hours}} Wochenstunden",
         "weekly-hours-min-marker": ">= {{hours}}h",
+        "weekly-hours-min-marker-aria-label": "größer oder gleich {{hours}} Wochenstunden",
         "weekly-hours-range-marker": "{{min}} – {{max}}h",
+        "weekly-hours-range-marker-aria-label": "{{min}} bis {{max}} Wochenstunden",
         "work-location": "Dienstort"
     }
 }

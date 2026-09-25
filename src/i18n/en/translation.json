@@ -642,9 +642,12 @@
         "select-placeholder": "All",
         "view-details": "View",
         "weekly-hours": "Hours per week",
-        "weekly-hours-max-marker": "=< {{hours}}h",
+        "weekly-hours-max-marker": "<= {{hours}}h",
+        "weekly-hours-max-marker-aria-label": "less than or equal to {{hours}} hours per week",
         "weekly-hours-min-marker": ">= {{hours}}h",
+        "weekly-hours-min-marker-aria-label": "greater than or equal to {{hours}} hours per week",
         "weekly-hours-range-marker": "{{min}} – {{max}}h",
+        "weekly-hours-range-marker-aria-label": "{{min}} to {{max}} hours per week",
         "work-location": "Place of employment"
     }
 }
