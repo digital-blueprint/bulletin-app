@@ -244,7 +244,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         node.clearFilters();
     });
 
-    test('should match whole words only, not substrings', () => {
+    test('should match partial words with tokenized AND semantics', () => {
         node.clearFilters();
         node._i18n = {
             t: (key) =>
@@ -256,11 +256,11 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         node.lang = 'de';
         node._jobOffers = [
             {
-                identifier: 'engineering-job',
-                title: 'Engineering Position',
+                identifier: 'project-job',
+                title: 'Projektmanager Position',
                 jobOfferType: 'external',
-                companyName: 'Company',
-                description: 'Description',
+                companyName: 'TU Example',
+                description: 'Based in Graz',
                 jobCategory: 'internship',
                 workLocations: [{country: 'AT', region: 'styria', city: 'leoben'}],
                 areasOfInterest: [],
@@ -268,17 +268,24 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             },
         ];
 
-        // Partial words must not match.
-        for (const query of ['engineer', 'categ', 'leob', 'positio']) {
-            node.searchQuery = query;
-            assert.lengthOf(node.getFilteredJobs(), 0, `Expected "${query}" not to match`);
-        }
-
-        // Whole words must still match, including tokens next to punctuation.
-        for (const query of ['engineering', 'category', 'leoben', 'position']) {
+        for (const query of [
+            'projekt',
+            'projekt ',
+            'projekt*',
+            'PROJEKT',
+            'categ',
+            'leob',
+            'positio',
+        ]) {
             node.searchQuery = query;
             assert.lengthOf(node.getFilteredJobs(), 1, `Expected "${query}" to match`);
         }
+
+        node.searchQuery = 'TU Graz projekt';
+        assert.lengthOf(node.getFilteredJobs(), 1);
+
+        node.searchQuery = 'TU Graz projekt missing';
+        assert.lengthOf(node.getFilteredJobs(), 0);
         node.clearFilters();
     });
 
