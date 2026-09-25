@@ -616,9 +616,11 @@
     },
     "view-job-offers": {
         "active-filters-label": "Active filters",
+        "add-area-of-interest": "Add another area of interest",
         "areas-of-interest": "Areas of interest",
         "auth-loading": "Checking login status...",
         "available-positions": "Available positions",
+        "clear-all-filters": "Clear all filters",
         "clear-filters": "Clear filters",
         "dream-job-career-entry": "For career starters",
         "dream-job-label": "My dream job is:",

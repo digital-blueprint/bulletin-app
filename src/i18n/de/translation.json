@@ -616,9 +616,11 @@
     },
     "view-job-offers": {
         "active-filters-label": "Aktive Filter",
+        "add-area-of-interest": "Weiteren Eintrag zu Interessensgebieten hinzufügen",
         "areas-of-interest": "Interessensgebiete",
         "auth-loading": "Anmeldestatus wird geprüft...",
         "available-positions": "Verfügbare Stellen",
+        "clear-all-filters": "Alle Filter löschen",
         "clear-filters": "Filter löschen",
         "dream-job-career-entry": "Für Berufseinsteiger",
         "dream-job-label": "Mein Traumjob ist:",

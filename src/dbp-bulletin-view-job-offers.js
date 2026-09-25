@@ -1251,6 +1251,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             sortedAreasOfInterest.map((value) => [value, getAreaOfInterestLabel(value, t)]),
         );
         const areaOfInterestItemsKey = JSON.stringify(areaOfInterestItems);
+        const areaOfInterestTagAriaLabel = {
+            [this.lang]: t('view-job-offers.add-area-of-interest'),
+        };
 
         // Loading state
         if (this._loading) {
@@ -1422,6 +1425,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                               'view-job-offers.select-placeholder',
                                                           ),
                                                       }}"
+                                                      .tagAriaLabel="${areaOfInterestTagAriaLabel}"
                                                       .items="${areaOfInterestItems}"
                                                       .value="${this.filterAreasOfInterest}"
                                                       @change="${
@@ -1482,6 +1486,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                       <button
                                           type="button"
                                           class="clear-refinements-button"
+                                          aria-label="${t('view-job-offers.clear-all-filters')}"
                                           @click="${this.clearFilters}">
                                           <dbp-icon name="close" aria-hidden="true"></dbp-icon>
                                           <span class="clear-refinements-button-label">
