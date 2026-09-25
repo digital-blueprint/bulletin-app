@@ -1471,7 +1471,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                   ${t(
                                                                       'view-job-offers.remove-filter',
                                                                       {
-                                                                          filter: marker.value,
+                                                                          filter:
+                                                                              marker.ariaLabel ??
+                                                                              marker.value,
                                                                       },
                                                                   )}
                                                               </span>
