@@ -867,6 +867,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                             this.disabledButton ? 'disabled' : ''
                         }"
                         type="button"
+                        aria-label="${t('manage-job-offers.work-location-add-aria')}"
                         ?disabled="${this.disabledButton || !this._country}"
                         @click="${() => {
                             this._addLocation();

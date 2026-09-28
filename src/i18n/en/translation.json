@@ -581,6 +581,7 @@
         "selected-company-is-partner": "The selected company is a partner company.",
         "skip-to-save-button": "Skip to the {{label}} button",
         "work-location-add": "Add",
+        "work-location-add-aria": "Add selection to places of employment",
         "work-location-city": "City",
         "work-location-city-placeholder": "Select a city",
         "work-location-country": "Country",
