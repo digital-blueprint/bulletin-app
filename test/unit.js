@@ -1260,6 +1260,46 @@ suite('job generator data handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
+    test('should focus the first invalid job offer field', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isTrue(element._focusFirstInvalidField());
+        assert.equal(element.shadowRoot.activeElement?.getAttribute('name'), 'title');
+        element.remove();
+    });
+
+    test('should not focus a URL that the application validator accepts', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        element._organization = 'Example organization';
+        element._title = 'Example job';
+        element._description = 'Example description';
+        element._publishedAt = '';
+        element._deadline = '2030-12-31';
+        element._weeklyHoursMin = '20';
+        element._linkUrl = 'https://www.example.at';
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isTrue(element._validateUrlFields());
+        assert.isTrue(element._focusFirstInvalidField());
+        assert.equal(element.shadowRoot.activeElement?.getAttribute('name'), 'published-at');
+        element.remove();
+    });
+
     test('should provide job offer overview row actions', async () => {
         const module = new JobOfferModule();
         let editedFormId = null;
@@ -2052,6 +2092,23 @@ suite('work locations country selection', () => {
         assert.equal(added.region, '');
         assert.equal(added.city, '');
 
+        element.remove();
+    });
+});
+
+suite('careerProfileForm validation focus', () => {
+    test('should focus the first invalid career profile field', async () => {
+        const tagName = 'test-career-profile-edit-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, CareerProfileEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isTrue(element._focusFirstInvalidField());
+        assert.equal(element.shadowRoot.activeElement?.getAttribute('name'), 'summary');
         element.remove();
     });
 });

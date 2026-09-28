@@ -35,6 +35,23 @@ const normalizeTeaserValue = (value) =>
         .slice(0, CAREER_PROFILE_TEASER_MAX_LENGTH)
         .trim();
 
+const focusFormField = (field) => {
+    if (!field) {
+        return false;
+    }
+
+    const target = field.shadowRoot?.querySelector(
+        'input:not([disabled]), textarea:not([disabled]), select:not([disabled]), .select2-search__field, .select2-selection',
+    );
+    if (target) {
+        target.focus();
+        return true;
+    }
+
+    field.focus();
+    return document.activeElement === field;
+};
+
 export const CAREER_PROFILE_INDUSTRIES = {
     'it-software': 'career-profile-form.industry-it-software',
     'management-consulting': 'career-profile-form.industry-management-consulting',
@@ -833,6 +850,27 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         return websiteField.handleErrors();
     }
 
+    _focusFirstInvalidField() {
+        const fields = /** @type {Array<any>} */ ([
+            ...this.renderRoot.querySelectorAll(
+                'dbp-string-element, dbp-enum-element, dbp-date-element',
+            ),
+        ]);
+
+        for (const field of fields) {
+            if (typeof field.handleErrors === 'function') {
+                field.handleErrors();
+            }
+
+            if (field.errorMessages?.length > 0) {
+                focusFormField(field);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     get workLocations() {
         return normalizeWorkLocations(this._workLocations);
     }
@@ -938,6 +976,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 
         this._validateWebsiteField();
         if (!this._isFormValid) {
+            this._focusFirstInvalidField();
             const hasRequiredValues =
                 this._summary.trim() && (this._availableStudies.length === 0 || studies.length > 0);
             sendNotification({
@@ -1599,11 +1638,28 @@ export class CareerProfileInterestFormElement extends BaseFormElement {
         );
     }
 
+    _focusFirstInvalidField() {
+        const fields = /** @type {Array<any>} */ ([
+            ...this.renderRoot.querySelectorAll('dbp-string-element'),
+        ]);
+
+        for (const field of fields) {
+            field.handleErrors();
+            if (field.errorMessages?.length > 0) {
+                focusFormField(field);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     async submitInterest(event) {
         event.preventDefault();
         const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
 
         if (!this._isFormValid) {
+            this._focusFirstInvalidField();
             sendNotification({
                 summary: t('career-profile-form.create-error-title'),
                 body: t('career-profile-form.validation-required'),

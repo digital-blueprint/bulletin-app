@@ -687,6 +687,23 @@ const normalizeMultilineValue = (value) => {
     return typeof value === 'string' ? value : '';
 };
 
+const focusFormField = (field) => {
+    if (!field) {
+        return false;
+    }
+
+    const target = field.shadowRoot?.querySelector(
+        'input:not([disabled]), textarea:not([disabled]), select:not([disabled]), .select2-search__field, .select2-selection',
+    );
+    if (target) {
+        target.focus();
+        return true;
+    }
+
+    field.focus();
+    return document.activeElement === field;
+};
+
 const normalizeStringList = (value) => {
     if (Array.isArray(value)) {
         return value.map((item) => String(item).trim()).filter(Boolean);
@@ -1026,6 +1043,39 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return results.every(Boolean);
     }
 
+    _focusFirstInvalidField() {
+        const fields = /** @type {Array<any>} */ (
+            [
+                ...this.renderRoot.querySelectorAll(
+                    'dbp-string-element, dbp-date-element, dbp-enum-element, dbp-submission-select-element, dbp-hours-range-element',
+                ),
+            ].filter(Boolean)
+        );
+
+        for (const field of fields) {
+            if (typeof field.handleErrors === 'function') {
+                field.handleErrors();
+            }
+
+            const invalidTarget =
+                field.tagName === 'DBP-HOURS-RANGE-ELEMENT'
+                    ? field.shadowRoot?.querySelector(':invalid')
+                    : null;
+            if (field.errorMessages?.length > 0 || invalidTarget) {
+                focusFormField(field);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    _focusWorkLocations() {
+        const workLocations = this.renderRoot.querySelector('dbp-work-locations-element');
+        const countryField = workLocations?.shadowRoot?.querySelector('dbp-country-select');
+        return focusFormField(countryField);
+    }
+
     _handleWeeklyHoursRangeChange(event) {
         this._weeklyHoursMin = sanitizeHoursValue(event.detail?.min);
         this._weeklyHoursMax = sanitizeHoursValue(event.detail?.max);
@@ -1337,6 +1387,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     this.renderRoot.querySelector('dbp-date-element[name="deadline"]')
                 )?.handleErrors();
             }
+            this._focusFirstInvalidField();
             let body = t('create-job-offer.validation-required');
             if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
                 body = t('create-job-offer.validation-deadline-before-published');
@@ -1355,6 +1406,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             });
             return null;
         } else if (selectedLocations.length === 0) {
+            this._focusWorkLocations();
             sendNotification({
                 summary: t('create-job-offer.error-title'),
                 body: t('create-job-offer.select-work-location'),
