@@ -1362,12 +1362,46 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     /**
+     * Returns true when an existing job offer is edited, false when a new one is created.
+     * @returns {boolean}
+     */
+    get _isEditMode() {
+        return this.existingForm !== null && this.existingForm !== undefined;
+    }
+
+    /**
+     * Moves the focus from the skip link after the required fields to the save button
+     * of the surrounding edit form dialog. The button lives in the pinned dialog header,
+     * which is part of the same shadow root this component is mounted in.
+     * Falls back to the action bar while the save button is disabled and not focusable.
+     */
+    _skipToSaveButton() {
+        const root = this.getRootNode();
+        if (!(root instanceof ShadowRoot)) {
+            return;
+        }
+
+        const saveButton = /** @type {HTMLButtonElement|null} */ (
+            root.querySelector('#dialog-save-btn')
+        );
+        if (saveButton && !saveButton.disabled) {
+            saveButton.focus();
+            return;
+        }
+
+        const actionsBar = /** @type {HTMLElement|null} */ (
+            root.querySelector('#dialog-actions-bar')
+        );
+        actionsBar?.focus();
+    }
+
+    /**
      * Builds the form payload and calls apiCreateForm or apiUpdateForm depending on mode.
      * On success dispatches a form event, on failure shows an error notification.
      */
     async submit() {
         const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
-        const isEditMode = this.existingForm !== null && this.existingForm !== undefined;
+        const isEditMode = this._isEditMode;
 
         if (!isEditMode && !isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)) {
             this._jobOfferType = JOB_OFFER_TYPE_INTERNAL;
@@ -1758,6 +1792,29 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
                 </div>
             </div>
+
+            <!--
+                Hidden skip link at the end of the required fields. It allows keyboard and
+                screen reader users to jump directly to the save button in the pinned dialog
+                header, instead of tabbing through all optional fields first.
+            -->
+            <div class="skip-links">
+                <p id="mandatory-fields-end" class="visually-hidden">
+                    ${t('manage-job-offers.mandatory-fields-end')}
+                </p>
+                <button
+                    type="button"
+                    class="skip-link"
+                    aria-describedby="mandatory-fields-end"
+                    @click="${this._skipToSaveButton}">
+                    ${t('manage-job-offers.skip-to-save-button', {
+                        label: this._isEditMode
+                            ? t('manage-job-offers.save')
+                            : t('manage-job-offers.publish'),
+                    })}
+                </button>
+            </div>
+
             <div id="optional-data-wrapper" class="optional-data-wrapper">
                 <h3>${t('manage-job-offers.optional-data')}</h3>
                 <hr aria-hidden="true" />
@@ -2080,6 +2137,48 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             .mandatory,
             .optional-data-wrapper {
                 padding-right: 0.5rem;
+            }
+
+            /* Only available to screen readers */
+            .visually-hidden {
+                position: absolute !important;
+                clip: rect(1px, 1px, 1px, 1px);
+                overflow: hidden;
+                height: 1px;
+                width: 1px;
+                margin: 0;
+                word-wrap: normal;
+            }
+
+            /* Skip links: hidden until they receive keyboard focus */
+            .skip-link {
+                position: absolute !important;
+                clip: rect(1px, 1px, 1px, 1px);
+                overflow: hidden;
+                height: 1px;
+                width: 1px;
+                word-wrap: normal;
+                appearance: none;
+                border: none;
+                padding: 0;
+                background: none;
+                font: inherit;
+                color: var(--dbp-accent);
+                text-decoration: underline;
+                cursor: pointer;
+            }
+
+            .skip-link:focus-visible {
+                position: static !important;
+                clip: auto;
+                overflow: visible;
+                display: inline-block;
+                height: auto;
+                width: auto;
+            }
+
+            .skip-links:focus-within {
+                margin-top: 1rem;
             }
 
             .mandatory-date-wrapper,
