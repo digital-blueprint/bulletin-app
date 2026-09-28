@@ -1370,32 +1370,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     /**
-     * Moves the focus from the skip link after the required fields to the save button
-     * of the surrounding edit form dialog. The button lives in the pinned dialog header,
-     * which is part of the same shadow root this component is mounted in.
-     * Falls back to the action bar while the save button is disabled and not focusable.
-     */
-    _skipToSaveButton() {
-        const root = this.getRootNode();
-        if (!(root instanceof ShadowRoot)) {
-            return;
-        }
-
-        const saveButton = /** @type {HTMLButtonElement|null} */ (
-            root.querySelector('#dialog-save-btn')
-        );
-        if (saveButton && !saveButton.disabled) {
-            saveButton.focus();
-            return;
-        }
-
-        const actionsBar = /** @type {HTMLElement|null} */ (
-            root.querySelector('#dialog-actions-bar')
-        );
-        actionsBar?.focus();
-    }
-
-    /**
      * Builds the form payload and calls apiCreateForm or apiUpdateForm depending on mode.
      * On success dispatches a form event, on failure shows an error notification.
      */
@@ -1804,15 +1778,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         required
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
                 </div>
-                <div class="skiplink-tosave">
-                   
-                    <button
-                        type="button"
-                        class="skip-link"
-                        @click="${this._skipLinkToSaveButton}">
-                        ${t('manage-job-offers.mandatory-fields-end')}
-                    </button>
-                </div>
             </div>
 
             <!--
@@ -1828,8 +1793,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     type="button"
                     class="skip-link"
                     aria-describedby="mandatory-fields-end"
-                    @click="${this._skipToSaveButton}">
-                    ${t('manage-job-offers.skip-to-save-button', {
+                    @click="${this._skipLinkToSaveButton}">
+                    ${t('manage-job-offers.mandatory-fields-end', {
                         label: this._isEditMode
                             ? t('manage-job-offers.save')
                             : t('manage-job-offers.publish'),
@@ -1902,7 +1867,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             .value="${this._jobCategory}"
                             @change="${(e) =>
                                 (this._jobCategory = e.detail.value)}"></dbp-enum-element>
-
                         <dbp-enum-element
                             name="area-of-interest"
                             class="area-of-interest-field"
@@ -2216,40 +2180,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             .mandatory-date-wrapper input {
                 font-weight: 300;
-            }
-
-            .skiplink-tosave {
-                margin-top: 1rem;
-            }
-
-            .skip-link-instructions {
-                margin: 0 0 0.5rem;
-            }
-
-            .skip-link {
-                position: absolute !important;
-                clip: rect(1px, 1px, 1px, 1px);
-                overflow: hidden;
-                height: 1px;
-                width: 1px;
-                word-wrap: normal;
-                appearance: none;
-                border: none;
-                padding: 0;
-                background: none;
-                font: inherit;
-                color: var(--dbp-accent);
-                text-decoration: underline;
-                cursor: pointer;
-            }
-
-            .skip-link:focus-visible {
-                position: static !important;
-                clip: auto;
-                overflow: visible;
-                display: inline-block;
-                height: auto;
-                width: auto;
             }
 
             .fieldset-external {
