@@ -1572,6 +1572,16 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
         return null;
     }
+
+    _skipLinkToSaveButton() {
+        this.dispatchEvent(
+            new CustomEvent('dbp-edit-form-skip-to-save-button', {
+                bubbles: true,
+                composed: true,
+            }),
+        );
+    }
+
     render() {
         const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         keepJobOfferAttachmentTranslations(t);
@@ -1793,6 +1803,15 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 : []}"
                         required
                         @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
+                </div>
+                <div class="skiplink-tosave">
+                   
+                    <button
+                        type="button"
+                        class="skip-link"
+                        @click="${this._skipLinkToSaveButton}">
+                        ${t('manage-job-offers.mandatory-fields-end')}
+                    </button>
                 </div>
             </div>
 
@@ -2197,6 +2216,40 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             .mandatory-date-wrapper input {
                 font-weight: 300;
+            }
+
+            .skiplink-tosave {
+                margin-top: 1rem;
+            }
+
+            .skip-link-instructions {
+                margin: 0 0 0.5rem;
+            }
+
+            .skip-link {
+                position: absolute !important;
+                clip: rect(1px, 1px, 1px, 1px);
+                overflow: hidden;
+                height: 1px;
+                width: 1px;
+                word-wrap: normal;
+                appearance: none;
+                border: none;
+                padding: 0;
+                background: none;
+                font: inherit;
+                color: var(--dbp-accent);
+                text-decoration: underline;
+                cursor: pointer;
+            }
+
+            .skip-link:focus-visible {
+                position: static !important;
+                clip: auto;
+                overflow: visible;
+                display: inline-block;
+                height: auto;
+                width: auto;
             }
 
             .fieldset-external {
