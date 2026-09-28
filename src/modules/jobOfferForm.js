@@ -2914,8 +2914,14 @@ export class JobOfferFormElement extends BaseFormElement {
             return html`
                 <div class="apply-form">
                     <div class="applied-notice" id="application-form-heading" tabindex="-1">
-                        <dbp-icon name="checkmark-circle" class="applied-icon"></dbp-icon>
-                        <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
+                        <dbp-icon
+                            name="checkmark-circle"
+                            class="applied-icon"
+                            aria-hidden="true"></dbp-icon>
+                        <div class="applied-content">
+                            <h3 class="applied-title">${t('job-offer-detail.applied-title')}</h3>
+                            <p class="applied-message">${t('job-offer-detail.already-applied')}</p>
+                        </div>
                     </div>
                 </div>
             `;
@@ -3336,6 +3342,18 @@ export class JobOfferFormElement extends BaseFormElement {
                 .applied-icon {
                     font-size: 1.75rem;
                     flex-shrink: 0;
+                }
+
+                .applied-content {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.25rem;
+                }
+
+                .applied-title {
+                    margin: 0;
+                    font-size: 1.1rem;
+                    color: inherit;
                 }
 
                 .applied-message {

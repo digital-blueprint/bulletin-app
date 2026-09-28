@@ -390,6 +390,7 @@
     "job-offer-detail": {
         "already-applied": "You have already applied for this position. Your application has been submitted successfully.",
         "application-title": "Application",
+        "applied-title": "Application submitted",
         "apply": "Apply",
         "apply-success": "Your application has been submitted successfully.",
         "attachments": "Attachments",
