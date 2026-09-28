@@ -735,9 +735,41 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         this._dispatchChange();
     }
 
-    _removeLocation(index) {
+    async _removeLocation(index) {
         this.value = this.value.filter((location, locationIndex) => locationIndex !== index);
         this._dispatchChange();
+
+        // The focused delete button is removed together with its list item, which would make
+        // the focus fall back to the beginning of the page. Keep it within the work locations.
+        await this.updateComplete;
+        this._focusAfterRemoval(index);
+    }
+
+    /**
+     * Moves the focus to the delete button that took the place of the removed location,
+     * or to the previous one if the last location was removed. If no locations are left,
+     * the heading of the selected locations gets the focus.
+     * @param {number} removedIndex
+     */
+    _focusAfterRemoval(removedIndex) {
+        const deleteButtons = this.renderRoot.querySelectorAll('.delete-location-button');
+
+        if (deleteButtons.length > 0) {
+            const nextButton = deleteButtons[Math.min(removedIndex, deleteButtons.length - 1)];
+            // The icon button does not delegate the focus, so focus its inner button directly
+            const innerButton = /** @type {HTMLButtonElement|null} */ (
+                nextButton.shadowRoot?.querySelector('button')
+            );
+            if (innerButton) {
+                innerButton.focus();
+                return;
+            }
+        }
+
+        const heading = /** @type {HTMLElement|null} */ (
+            this.renderRoot.querySelector('#selected-locations-heading')
+        );
+        heading?.focus();
     }
 
     _dispatchChange() {
@@ -882,7 +914,9 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 </div>
 
                 <div class="selected-locations">
-                    <h5>${t('manage-job-offers.work-location-selected')}</h5>
+                    <h5 id="selected-locations-heading" tabindex="-1">
+                        ${t('manage-job-offers.work-location-selected')}
+                    </h5>
                     ${
                         selectedLocations.length > 0
                             ? html`
@@ -1032,6 +1066,16 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             .selected-locations h5 {
                 font-size: 1rem;
                 font-weight: 400;
+            }
+
+            /* Programmatic focus target after the last location was removed */
+            #selected-locations-heading:focus {
+                outline: none;
+            }
+
+            #selected-locations-heading:focus-visible {
+                outline: 1px solid var(--dbp-accent);
+                outline-offset: 2px;
             }
 
             .selected-location-list {
