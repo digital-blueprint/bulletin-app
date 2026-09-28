@@ -2823,6 +2823,11 @@ export class JobOfferFormElement extends BaseFormElement {
                     composed: true,
                 }),
             );
+
+            // The submit button is removed when the form is replaced by the "applied" infobox,
+            // so we move the focus to the infobox. Otherwise the focus would get lost and
+            // fall back to the beginning of the dialog.
+            await this.focusApplicationForm();
         } catch (error) {
             console.error('Error submitting application:', error);
             sendNotification({
