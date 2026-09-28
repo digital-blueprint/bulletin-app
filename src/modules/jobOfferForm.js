@@ -1745,12 +1745,15 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                       <input
                                           type="checkbox"
                                           name="remote"
+                                          aria-describedby="remote-notice"
                                           .checked="${this._remote}"
                                           @change="${(event) =>
                                               (this._remote = event.target.checked)}" />
                                       <span>${t('manage-job-offers.field-remote')}</span>
                                   </label>
-                                  <p class="remote-notice">
+                                  <!-- Linked to the checkbox via aria-describedby, so that screen
+                                       readers announce the note together with the checkbox -->
+                                  <p class="remote-notice" id="remote-notice">
                                       ${t('manage-job-offers.field-remote-notice')}
                                   </p>
                               </div>
