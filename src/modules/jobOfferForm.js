@@ -2853,6 +2853,12 @@ export class JobOfferFormElement extends BaseFormElement {
      * @returns {Promise<boolean>} True when the focus could be moved.
      */
     async focusApplicationForm() {
+        // A disconnected element never finishes its update cycle, so awaiting
+        // updateComplete would block forever and there would be nothing to focus anyway.
+        if (!this.isConnected) {
+            return false;
+        }
+
         // The form can still be rendering (or waiting for the "already applied" check),
         // so we wait for the current render cycle before looking for the target.
         await this.updateComplete;
