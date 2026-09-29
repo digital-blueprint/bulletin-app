@@ -1442,8 +1442,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 list-style: none;
             }
 
-            /* The area-of-interest tags use the exact same styling as the work location items */
-            .work-location-list-item,
             .job-tag {
                 display: inline-block;
                 border: 1px solid var(--dbp-content);
@@ -1454,6 +1452,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
             .meta-item.tag {
                 margin-top: 0.5rem;
+            }
+
+            .work-location-list-item {
+                display: inline-block;
+                padding: 0.1rem 0.4rem;
+                color: var(--dbp-content);
+                margin-bottom: 0.2rem;
             }
 
             /* Right-side tag and action buttons stay in the second grid column */
