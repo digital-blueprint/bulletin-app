@@ -202,8 +202,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         )
                             ? form.grantedSubmissionCollectionActions
                             : [],
-                        /** Localised title: prefer current lang, fall back to name */
-                        title: this._getLocalizedName(form.localizedNames) || form.name || '',
+                        // Store the primary (German) title independently of the current
+                        // language, so the displayed title can react to language changes
+                        title: this._getLocalizedName(form.localizedNames, 'de') || form.name || '',
                         generatedByJobGenerator: extra.generatedByJobGenerator === true,
                         jobOfferType: extra.jobOfferType ?? '',
                         jobCategory: extra.jobCategory ?? extra.jobType ?? '',
@@ -255,7 +256,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         contactInformation: extra.contactInformation ?? '',
                         contactInformationEn: extra.contactInformationEn ?? '',
                         // Optional English translations
-                        titleEn: extra.titleEn ?? '',
+                        titleEn:
+                            extra.titleEn ||
+                            this._getLocalizedName(form.localizedNames, 'en', false) ||
+                            '',
                         descriptionEn: extra.descriptionEn ?? '',
                         organizationalUnitEn:
                             extra.organizationalUnitEn ??
@@ -401,17 +405,29 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
-     * Picks the localised name matching the current language from the localizedNames array.
-     * Falls back to the first entry if no match is found.
+     * Picks the localised name matching the given language from the localizedNames array.
+     * Falls back to the first entry if no match is found and fallback is enabled.
      * @param {Array<{languageTag: string, name: string}>} localizedNames
+     * @param {string} lang
+     * @param {boolean} [fallback]
      * @returns {string}
      */
-    _getLocalizedName(localizedNames) {
+    _getLocalizedName(localizedNames, lang, fallback = true) {
         if (!Array.isArray(localizedNames) || localizedNames.length === 0) {
             return '';
         }
-        const match = localizedNames.find((n) => n.languageTag === this.lang);
-        return (match ?? localizedNames[0]).name ?? '';
+        const match = localizedNames.find((n) => n.languageTag === lang);
+        return (match ?? (fallback ? localizedNames[0] : null))?.name ?? '';
+    }
+
+    /**
+     * Returns the job title in the current language.
+     * Resolved at render time so the title updates when the language changes.
+     * @param {JobOffer} job
+     * @returns {string}
+     */
+    _getLocalizedTitle(job) {
+        return this._localized(job.title ?? '', job.titleEn ?? '');
     }
 
     /**
@@ -496,7 +512,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         getWorkLocationLabel(location, this._i18n.t.bind(this._i18n), this.lang),
                 );
                 const searchableValues = [
-                    this._localized(job.title ?? '', job.titleEn ?? ''),
+                    this._getLocalizedTitle(job),
                     organizationName,
                     this._getLocalizedDescription(job),
                     jobCategoryLabel,
@@ -1531,7 +1547,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                           <div class="job-card-header">
                                                               <div>
                                                                   <h3 class="job-title">
-                                                                      ${job.title}
+                                                                      ${this._getLocalizedTitle(job)}
                                                                   </h3>
                                                                   ${this._renderGeneratedJobMarker(
                                                                       job,
@@ -1581,7 +1597,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                               @click="${() => this.openJob(job)}"
                                                               aria-label="${t(
                                                                   'view-job-offers.view-details',
-                                                              )} – ${job.title}">
+                                                              )} – ${this._getLocalizedTitle(job)}">
                                                               <dbp-icon
                                                                   class="btn-icon"
                                                                   name="keyword-research"
