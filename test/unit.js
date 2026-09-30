@@ -2659,7 +2659,7 @@ suite('dbp-bulletin-browse-career-profiles privacy', () => {
             element.auth = {
                 token: 'token',
                 'user-id': 'contact-reader',
-                _roles: ['ROLE_BULLETIN_STAFF'],
+                _roles: ['ROLE_BULLETIN_CAREER_PROFILE_STUDENT_CONTACT_READER'],
             };
             element.entryPointUrl = 'https://api.example.com';
             element._profiles = [

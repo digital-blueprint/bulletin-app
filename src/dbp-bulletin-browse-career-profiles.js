@@ -32,7 +32,7 @@ import {
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
 // Users with this role may see the name and contact of the students
-const STUDENT_CONTACT_READER_ROLE = 'ROLE_BULLETIN_STAFF';
+const STUDENT_CONTACT_READER_ROLE = 'ROLE_BULLETIN_CAREER_PROFILE_STUDENT_CONTACT_READER';
 
 // Maximum number of parallel person requests when loading student contacts
 const STUDENT_CONTACT_REQUEST_CONCURRENCY = 5;
