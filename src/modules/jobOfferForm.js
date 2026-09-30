@@ -2531,6 +2531,33 @@ export class JobOfferFormElement extends BaseFormElement {
 
         super.handleFilesToSubmit(event);
         this._attachmentLimitNotified = false;
+
+        void this._scrollToModalBottom();
+    }
+
+    /**
+     * Scrolls the modal content to the bottom after the update is complete.
+     * @returns {Promise<void>}
+     */
+    async _scrollToModalBottom() {
+        await this.updateComplete;
+
+        const root = /** @type {ShadowRoot} */ (this.getRootNode());
+        const modal = /** @type {HTMLElement|null} */ (
+            root.querySelector('dbp-modal.job-offer-detail-dialog')
+        );
+        const modalContent = modal?.shadowRoot?.querySelector(
+            '#job-offer-detail-dialog .modal-content',
+        );
+        if (!modalContent) {
+            return;
+        }
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        modalContent.scrollTo({
+            top: modalContent.scrollHeight,
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
     }
 
     _handleAttachmentPickerClosed(event) {
