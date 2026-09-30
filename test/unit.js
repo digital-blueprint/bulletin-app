@@ -2613,7 +2613,7 @@ suite('dbp-bulletin-browse-career-profiles privacy', () => {
         assert.deepEqual(profile.additionalData, {summary: 'Profile'});
     });
 
-    test('should not load student contacts for users without the employee role', async () => {
+    test('should not load student contacts for users without the student contact reader role', async () => {
         const element = document.createElement('dbp-bulletin-browse-career-profiles');
         const originalFetch = globalThis.fetch;
         let requests = 0;
@@ -2639,7 +2639,7 @@ suite('dbp-bulletin-browse-career-profiles privacy', () => {
         }
     });
 
-    test('should show the student name and email for TU Graz employees', async () => {
+    test('should show the student name and email for student contact readers', async () => {
         const element = document.createElement('dbp-bulletin-browse-career-profiles');
         const originalFetch = globalThis.fetch;
         const requestedUrls = [];
@@ -2650,7 +2650,7 @@ suite('dbp-bulletin-browse-career-profiles privacy', () => {
                 json: async () => ({
                     givenName: 'Erika',
                     familyName: 'Muster',
-                    localData: {email: 'erika.muster@student.tugraz.at'},
+                    localData: {email: 'erika.muster@example.com'},
                 }),
             };
         };
@@ -2658,7 +2658,7 @@ suite('dbp-bulletin-browse-career-profiles privacy', () => {
         try {
             element.auth = {
                 token: 'token',
-                'user-id': 'employee',
+                'user-id': 'contact-reader',
                 _roles: ['ROLE_BULLETIN_STAFF'],
             };
             element.entryPointUrl = 'https://api.example.com';
@@ -2673,7 +2673,7 @@ suite('dbp-bulletin-browse-career-profiles privacy', () => {
             ]);
             assert.deepEqual(element._getStudentContact(element._profiles[0]), {
                 name: 'Erika Muster',
-                email: 'erika.muster@student.tugraz.at',
+                email: 'erika.muster@example.com',
             });
             assert.equal(element._getProfileDisplayName(element._profiles[0]), 'Erika Muster');
             assert.equal(element._getTableData()[0].alias, 'Erika Muster');

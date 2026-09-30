@@ -31,8 +31,8 @@ import {
 } from './modules/workLocationsElement.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
-// Users with this role are TU Graz employees and may see the name and contact of the students
-const TU_GRAZ_EMPLOYEE_ROLE = 'ROLE_BULLETIN_STAFF';
+// Users with this role may see the name and contact of the students
+const STUDENT_CONTACT_READER_ROLE = 'ROLE_BULLETIN_STAFF';
 
 // Maximum number of parallel person requests when loading student contacts
 const STUDENT_CONTACT_REQUEST_CONCURRENCY = 5;
@@ -217,12 +217,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     /**
-     * TU Graz employees are allowed to see the name and contact of the students.
+     * Checks whether the current user is allowed to see the name and contact of the students.
      * @returns {boolean}
      */
-    get _isTuGrazEmployee() {
+    get _canReadStudentContacts() {
         const roles = /** @type {string[]} */ (this.auth?._roles ?? []);
-        return roles.includes(TU_GRAZ_EMPLOYEE_ROLE);
+        return roles.includes(STUDENT_CONTACT_READER_ROLE);
     }
 
     /**
@@ -238,12 +238,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     /**
-     * Returns the loaded contact of the student, but only for TU Graz employees.
+     * Returns the loaded contact of the student, but only for users who may read student contacts.
      * @param {any} profile
      * @returns {{name: string, email: string}|null}
      */
     _getStudentContact(profile) {
-        if (!this._isTuGrazEmployee) {
+        if (!this._canReadStudentContacts) {
             return null;
         }
 
@@ -281,12 +281,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     /**
-     * Loads the name and email of all profile owners for TU Graz employees. The contacts are
+     * Loads the name and email of all profile owners for users who may read student contacts. The contacts are
      * fetched live from the people API, so no personal data needs to be stored in the profile
      * forms, which are also readable by external companies.
      */
     async _loadStudentContacts() {
-        if (!this._isTuGrazEmployee || !this.auth?.token || !this.entryPointUrl) {
+        if (!this._canReadStudentContacts || !this.auth?.token || !this.entryPointUrl) {
             return;
         }
 
@@ -348,7 +348,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     }
 
     /**
-     * Returns the real name of the student for TU Graz employees, otherwise an anonymous alias.
+     * Returns the real name of the student for users who may read student contacts, otherwise an anonymous alias.
      * @param {object} profile
      * @returns {string}
      */
@@ -831,7 +831,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     <h2>${t('browse-career-profiles.title')}</h2>
                     <p>
                         ${
-                            this._isTuGrazEmployee
+                            this._canReadStudentContacts
                                 ? t('browse-career-profiles.description-employee')
                                 : t('browse-career-profiles.description')
                         }
@@ -925,12 +925,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         return `${day}.${month}.${year}`;
     }
     /**
-     * Renders the contact of the student, which is only visible for TU Graz employees.
+     * Renders the contact of the student, which is only visible for users who may read student contacts.
      * @param {object} profile
      * @returns {object|string}
      */
     _renderStudentContact(profile) {
-        if (!this._isTuGrazEmployee) {
+        if (!this._canReadStudentContacts) {
             return '';
         }
 
