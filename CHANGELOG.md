@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Browse career profiles: TU Graz employees (`ROLE_BULLETIN_STAFF`) now see the name and contact email of the students in the table and in the profile view; the data is loaded live from the people API, so no personal data is stored in the publicly readable profile forms. The career profile description tells students about this
 - Generate career profiles: generated profiles now contain German and English study names, so the "Studienfächer" column no longer shows English labels in the German UI
 - Manage job offers: moved Edit from the Actions dropdown into each permitted job-offer row using the centralized Formalize action-placement API; row actions are ordered View, Edit, Show submissions
 - Manage job offers: added a read-only job-offer preview action to the overview table, reusing the public detail modal while hiding sharing and application controls

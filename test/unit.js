@@ -2612,6 +2612,75 @@ suite('dbp-bulletin-browse-career-profiles privacy', () => {
 
         assert.deepEqual(profile.additionalData, {summary: 'Profile'});
     });
+
+    test('should not load student contacts for users without the employee role', async () => {
+        const element = document.createElement('dbp-bulletin-browse-career-profiles');
+        const originalFetch = globalThis.fetch;
+        let requests = 0;
+        globalThis.fetch = async () => {
+            requests++;
+            return {ok: true, json: async () => ({})};
+        };
+
+        try {
+            element.auth = {token: 'token', 'user-id': 'company', _roles: []};
+            element.entryPointUrl = 'https://api.example.com';
+            element._profiles = [{identifier: 'p1', additionalData: {studentCreatorId: 's1'}}];
+            await element._loadStudentContacts();
+
+            assert.equal(requests, 0);
+            assert.isNull(element._getStudentContact(element._profiles[0]));
+            assert.equal(
+                element._getProfileDisplayName(element._profiles[0]),
+                element._getProfileAlias(element._profiles[0]),
+            );
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('should show the student name and email for TU Graz employees', async () => {
+        const element = document.createElement('dbp-bulletin-browse-career-profiles');
+        const originalFetch = globalThis.fetch;
+        const requestedUrls = [];
+        globalThis.fetch = async (url) => {
+            requestedUrls.push(String(url));
+            return {
+                ok: true,
+                json: async () => ({
+                    givenName: 'Erika',
+                    familyName: 'Muster',
+                    localData: {email: 'erika.muster@student.tugraz.at'},
+                }),
+            };
+        };
+
+        try {
+            element.auth = {
+                token: 'token',
+                'user-id': 'employee',
+                _roles: ['ROLE_BULLETIN_STAFF'],
+            };
+            element.entryPointUrl = 'https://api.example.com';
+            element._profiles = [
+                {identifier: 'p1', additionalData: {studentCreatorId: 's1'}},
+                {identifier: 'p2', additionalData: {studentCreatorId: 'generated-student-1'}},
+            ];
+            await element._loadStudentContacts();
+
+            assert.deepEqual(requestedUrls, [
+                'https://api.example.com/base/people/s1?includeLocal=email',
+            ]);
+            assert.deepEqual(element._getStudentContact(element._profiles[0]), {
+                name: 'Erika Muster',
+                email: 'erika.muster@student.tugraz.at',
+            });
+            assert.equal(element._getProfileDisplayName(element._profiles[0]), 'Erika Muster');
+            assert.equal(element._getTableData()[0].alias, 'Erika Muster');
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
 });
 
 suite('dbp-bulletin-browse-career-profiles table', () => {

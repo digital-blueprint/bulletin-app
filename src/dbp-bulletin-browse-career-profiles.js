@@ -31,6 +31,12 @@ import {
 } from './modules/workLocationsElement.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
+// Users with this role are TU Graz employees and may see the name and contact of the students
+const TU_GRAZ_EMPLOYEE_ROLE = 'ROLE_BULLETIN_STAFF';
+
+// Maximum number of parallel person requests when loading student contacts
+const STUDENT_CONTACT_REQUEST_CONCURRENCY = 5;
+
 class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
         return {
@@ -58,6 +64,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         this._loadingProfiles = false;
         this._loadError = false;
         this._profilesLoaded = false;
+        this._studentContacts = {};
+        this._pendingStudentContactIds = new Set();
     }
 
     static get properties() {
@@ -72,6 +80,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             _selectedProfile: {state: true},
             _loadingProfiles: {state: true},
             _loadError: {state: true},
+            _studentContacts: {state: true},
         };
     }
 
@@ -92,8 +101,17 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
             // Token refreshes update auth.token without changing the user. Do not reload the
             // table in that case, otherwise the browse page gets stuck behind a loading flash.
+            if (userChanged) {
+                // Contacts must never leak between different users
+                this._studentContacts = {};
+                this._pendingStudentContactIds = new Set();
+            }
+
             if (!this._profilesLoaded || userChanged) {
                 void this._fetchProfiles();
+            } else {
+                // Roles can arrive after the profiles have been loaded
+                void this._loadStudentContacts();
             }
         }
     }
@@ -114,7 +132,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             changedProperties.has('filterIndustry') ||
             changedProperties.has('filterField') ||
             changedProperties.has('filterWorkLocation') ||
-            changedProperties.has('_selectedProfile')
+            changedProperties.has('_selectedProfile') ||
+            changedProperties.has('_studentContacts')
         ) {
             void this._syncProfileTable(changedProperties);
         }
@@ -162,6 +181,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             this._profiles = (data['hydra:member'] ?? []).map((form) => this._mapProfile(form));
             this._profilesLoaded = true;
             this._handleRoutingUrlChange();
+            void this._loadStudentContacts();
         } catch (error) {
             console.error('Error loading career profiles for company browsing:', error);
             this._loadError = true;
@@ -194,6 +214,146 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
         const match = localizedNames.find((name) => name.languageTag === this.lang);
         return (match ?? localizedNames[0]).name ?? '';
+    }
+
+    /**
+     * TU Graz employees are allowed to see the name and contact of the students.
+     * @returns {boolean}
+     */
+    get _isTuGrazEmployee() {
+        const roles = /** @type {string[]} */ (this.auth?._roles ?? []);
+        return roles.includes(TU_GRAZ_EMPLOYEE_ROLE);
+    }
+
+    /**
+     * Returns the user id of the student who created the profile, which can be used with the
+     * people API.
+     * @param {any} profile
+     * @returns {string}
+     */
+    _getStudentId(profile) {
+        const studentId = String(profile?.additionalData?.studentCreatorId ?? '').trim();
+        // Generated test profiles don't belong to real persons, so there is nothing to load
+        return studentId && !studentId.startsWith('generated-student-') ? studentId : '';
+    }
+
+    /**
+     * Returns the loaded contact of the student, but only for TU Graz employees.
+     * @param {any} profile
+     * @returns {{name: string, email: string}|null}
+     */
+    _getStudentContact(profile) {
+        if (!this._isTuGrazEmployee) {
+            return null;
+        }
+
+        const studentId = this._getStudentId(profile);
+        return studentId ? (this._studentContacts[studentId] ?? null) : null;
+    }
+
+    async _fetchStudentContact(studentId) {
+        try {
+            const response = await fetch(
+                `${this.entryPointUrl}/base/people/${encodeURIComponent(
+                    studentId,
+                )}?includeLocal=email`,
+                {
+                    headers: {
+                        'Content-Type': 'application/ld+json',
+                        Authorization: `Bearer ${this.auth?.token}`,
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                return {name: '', email: ''};
+            }
+
+            const person = await response.json();
+            return {
+                name: [person?.givenName, person?.familyName].filter(Boolean).join(' ').trim(),
+                email: person?.localData?.email ?? '',
+            };
+        } catch (error) {
+            console.error('Error loading student contact for career profile:', error);
+            return {name: '', email: ''};
+        }
+    }
+
+    /**
+     * Loads the name and email of all profile owners for TU Graz employees. The contacts are
+     * fetched live from the people API, so no personal data needs to be stored in the profile
+     * forms, which are also readable by external companies.
+     */
+    async _loadStudentContacts() {
+        if (!this._isTuGrazEmployee || !this.auth?.token || !this.entryPointUrl) {
+            return;
+        }
+
+        const selectedStudentId = this._selectedProfile
+            ? this._getStudentId(this._selectedProfile)
+            : '';
+        const studentIds = [
+            ...new Set(this._profiles.map((profile) => this._getStudentId(profile))),
+        ]
+            .filter(
+                (studentId) =>
+                    studentId &&
+                    !(studentId in this._studentContacts) &&
+                    !this._pendingStudentContactIds.has(studentId),
+            )
+            // Load the currently opened profile first
+            .sort((a, b) => Number(b === selectedStudentId) - Number(a === selectedStudentId));
+
+        if (studentIds.length === 0) {
+            return;
+        }
+
+        const pendingIds = this._pendingStudentContactIds;
+        studentIds.forEach((studentId) => pendingIds.add(studentId));
+        const userId = this.auth['user-id'];
+        const queue = [...studentIds];
+        let results = {};
+
+        // Results are applied in batches, so the table isn't rebuilt for every single request
+        const flush = () => {
+            if (Object.keys(results).length === 0) {
+                return;
+            }
+            // Discard the results if another user logged in meanwhile
+            if (this.auth?.['user-id'] === userId) {
+                this._studentContacts = {...this._studentContacts, ...results};
+            }
+            results = {};
+        };
+
+        const worker = async () => {
+            while (queue.length > 0) {
+                const studentId = queue.shift();
+                results[studentId] = await this._fetchStudentContact(studentId);
+                pendingIds.delete(studentId);
+                if (studentId === selectedStudentId || Object.keys(results).length >= 20) {
+                    flush();
+                }
+            }
+        };
+
+        await Promise.all(
+            Array.from(
+                {length: Math.min(STUDENT_CONTACT_REQUEST_CONCURRENCY, studentIds.length)},
+                worker,
+            ),
+        );
+        flush();
+    }
+
+    /**
+     * Returns the real name of the student for TU Graz employees, otherwise an anonymous alias.
+     * @param {object} profile
+     * @returns {string}
+     */
+    _getProfileDisplayName(profile) {
+        return this._getStudentContact(profile)?.name || this._getProfileAlias(profile);
     }
 
     _handleRoutingUrlChange() {
@@ -361,6 +521,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 !query ||
                 [
                     this._getProfileAlias(profile),
+                    this._getStudentContact(profile)?.name,
+                    this._getStudentContact(profile)?.email,
                     studies,
                     ...workLocationLabels,
                     ...industryLabels,
@@ -440,7 +602,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             const data = profile.additionalData ?? {};
             const skills = this._localizedList(profile, 'skills', 'skillsEn');
             return {
-                alias: this._getProfileAlias(profile),
+                alias: this._getProfileDisplayName(profile),
                 studyProgram: formatStudentStudies(data, this.lang, true),
                 workLocations: this._getWorkLocationLabels(profile).join(', '),
                 availableFrom: data.availability ?? '',
@@ -484,7 +646,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 t('browse-career-profiles.view-profile'),
                 () => this._openProfile(profile),
                 t('browse-career-profiles.view-profile-aria', {
-                    name: this._getProfileAlias(profile),
+                    name: this._getProfileDisplayName(profile),
                 }),
             ),
         );
@@ -667,7 +829,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             <section class="activity-header">
                 <div>
                     <h2>${t('browse-career-profiles.title')}</h2>
-                    <p>${t('browse-career-profiles.description')}</p>
+                    <p>
+                        ${
+                            this._isTuGrazEmployee
+                                ? t('browse-career-profiles.description-employee')
+                                : t('browse-career-profiles.description')
+                        }
+                    </p>
                 </div>
                 ${
                     this._loadingProfiles
@@ -756,6 +924,46 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
         return `${day}.${month}.${year}`;
     }
+    /**
+     * Renders the contact of the student, which is only visible for TU Graz employees.
+     * @param {object} profile
+     * @returns {object|string}
+     */
+    _renderStudentContact(profile) {
+        if (!this._isTuGrazEmployee) {
+            return '';
+        }
+
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const studentId = this._getStudentId(profile);
+        if (studentId && this._pendingStudentContactIds.has(studentId)) {
+            return html`
+                <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
+            `;
+        }
+
+        const contact = this._getStudentContact(profile);
+        if (!contact?.name && !contact?.email) {
+            return '';
+        }
+
+        return html`
+            <dl class="profile-meta-data student-contact">
+                ${this._renderMetaItem(t('browse-career-profiles.contact-name'), contact.name)}
+                ${this._renderMetaItem(
+                    t('career-profile-form.field-contact-email'),
+                    contact.email
+                        ? html`
+                              <a class="web-link" href="mailto:${contact.email}">
+                                  ${contact.email}
+                              </a>
+                          `
+                        : '',
+                )}
+            </dl>
+        `;
+    }
+
     _renderProfileDetail(profile) {
         const t = (key, opts) => this._i18n.t(key, opts);
         const data = profile.additionalData ?? {};
@@ -791,9 +999,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
             <article class="profile-detail">
                 <header>
-                    <h2 class="profile-title">${this._getProfileAlias(profile)}</h2>
+                    <h2 class="profile-title">${this._getProfileDisplayName(profile)}</h2>
                 </header>
 
+                ${this._renderStudentContact(profile)}
                 ${
                     teaser
                         ? html`
