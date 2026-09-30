@@ -13,17 +13,18 @@ const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const PROFILE_COUNT_OPTIONS = ['5', '10', '20', '50', '100'];
 const MS_PER_DAY = 86400000;
 
+// Studies need both a German and an English name, otherwise the German UI shows English labels
 const SAMPLE_STUDIES = [
-    'Computer Science',
-    'Information and Computer Engineering',
-    'Architecture',
-    'Civil Engineering',
-    'Mechanical Engineering',
-    'Electrical Engineering',
-    'Technical Mathematics',
-    'Technical Physics',
-    'Biomedical Engineering',
-    'Environmental Systems Sciences',
+    {name: 'Informatik', nameEn: 'Computer Science'},
+    {name: 'Information and Computer Engineering', nameEn: 'Information and Computer Engineering'},
+    {name: 'Architektur', nameEn: 'Architecture'},
+    {name: 'Bauingenieurwissenschaften', nameEn: 'Civil Engineering'},
+    {name: 'Maschinenbau', nameEn: 'Mechanical Engineering'},
+    {name: 'Elektrotechnik', nameEn: 'Electrical Engineering'},
+    {name: 'Technische Mathematik', nameEn: 'Technical Mathematics'},
+    {name: 'Technische Physik', nameEn: 'Technical Physics'},
+    {name: 'Biomedical Engineering', nameEn: 'Biomedical Engineering'},
+    {name: 'Umweltsystemwissenschaften', nameEn: 'Environmental Systems Sciences'},
 ];
 
 const SAMPLE_SUMMARIES = [
@@ -166,7 +167,7 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
     _buildRandomCareerProfile(index) {
         const module = new CareerProfileModule();
         const uniqueSuffix = `#${Date.now().toString().slice(-5)}-${index + 1}`;
-        const studies = randomSubset(SAMPLE_STUDIES, 2).map((name) => ({name, nameEn: name}));
+        const studies = randomSubset(SAMPLE_STUDIES, 2).map((study) => ({...study}));
         const skillIndexes = randomSubset(
             Array.from({length: SAMPLE_SKILLS.length}, (_value, skillIndex) => skillIndex),
             4,
