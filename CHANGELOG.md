@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Import companies: after a dry run the CSV file stays loaded, so the real import can be started with "Jetzt importieren" (in the import card and at the end of the dry-run report) without selecting the file again; a confirmation dialog shows how many companies will be created and overwritten. Changing an option after the dry run marks the report as outdated and requires a "Testlauf wiederholen" on the loaded file. The loaded file is cleared after the real import
+- Import companies: added a "Testlauf (nichts speichern)" checkbox that is checked by default; in a dry run the CSV file is evaluated with all selected options, but no companies are created or overwritten, and the report shows how many companies would be imported, overwritten or skipped
 - Import companies: added an optional "Nach letzter Stellenanzeige filtern" checkbox that reveals a date selector; when enabled, only companies whose "Letzte Stellenanzeige" CSV column is on or after the selected date are imported, all others (including empty dates) are listed in a new "Wegen letzter Stellenanzeige übersprungen" report section
 - Browse career profiles: users with the role `ROLE_BULLETIN_CAREER_PROFILE_STUDENT_CONTACT_READER` now see the name and contact email of the students in the table and in the profile view; the data is loaded live from the people API, so no personal data is stored in the publicly readable profile forms. The career profile description tells students about this
 - Generate career profiles: generated profiles now contain German and English study names, so the "Studienfächer" column no longer shows English labels in the German UI

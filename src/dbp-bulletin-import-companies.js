@@ -1,7 +1,7 @@
 import {css, html} from 'lit';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
 import {FileSource} from '@dbp-toolkit/file-handling';
-import {Button, DBPSelect, sendNotification} from '@dbp-toolkit/common';
+import {Button, DBPSelect, Modal, sendNotification} from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
@@ -10,6 +10,12 @@ import CompanyModule, {pickCompanyData} from './modules/companyForm.js';
 /**
  * @typedef {{rowNumber: number, name: string}} ImportRow
  * @typedef {{rowNumber: number, name: string, message: string}} ImportError
+ * @typedef {{
+ *     includeDeactivated: boolean,
+ *     overwriteExisting: boolean,
+ *     importLimit: string,
+ *     lastJobOfferFrom: string,
+ * }} ImportOptions
  */
 
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
@@ -130,6 +136,10 @@ const normalizeIsoDate = (value) => {
 };
 
 const keepImportCompaniesTranslations = (t) => {
+    t('import-companies.dry-run-imported-empty');
+    t('import-companies.dry-run-imported-title');
+    t('import-companies.dry-run-overwritten-empty');
+    t('import-companies.dry-run-overwritten-title');
     t('import-companies.errors-empty');
     t('import-companies.errors-title');
     t('import-companies.imported-empty');
@@ -152,6 +162,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             'dbp-button': Button,
             'dbp-select': DBPSelect,
             'dbp-file-source': FileSource,
+            'dbp-modal': Modal,
         };
     }
 
@@ -162,6 +173,10 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         this.nextcloudName = '';
         this.nextcloudFileUrl = '';
         this._isImporting = false;
+        // Whether the currently running job is a dry run (independent of the checkbox)
+        this._isDryRunRunning = false;
+        // Dry run is enabled by default so nothing gets written by accident
+        this._dryRun = true;
         this._includeDeactivatedCompanies = false;
         this._overwriteExistingCompanies = false;
         this._importLimit = 'all';
@@ -169,6 +184,13 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         this._lastJobOfferFrom = '';
         this._report = null;
         this._selectedFileName = '';
+        // Parsed CSV rows kept after a dry run, so the real import needs no new file selection
+        /** @type {string[][] | null} */
+        this._cachedRows = null;
+        // Options used by the last successful dry run on the cached rows
+        /** @type {ImportOptions | null} */
+        this._dryRunOptions = null;
+        this._confirmCounts = {imported: 0, overwritten: 0};
     }
 
     static get properties() {
@@ -179,6 +201,8 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             nextcloudName: {type: String, attribute: 'nextcloud-name'},
             nextcloudFileUrl: {type: String, attribute: 'nextcloud-file-url'},
             _isImporting: {state: true},
+            _isDryRunRunning: {state: true},
+            _dryRun: {state: true},
             _includeDeactivatedCompanies: {state: true},
             _overwriteExistingCompanies: {state: true},
             _importLimit: {state: true},
@@ -186,6 +210,9 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             _lastJobOfferFrom: {state: true},
             _report: {state: true},
             _selectedFileName: {state: true},
+            _cachedRows: {state: true},
+            _dryRunOptions: {state: true},
+            _confirmCounts: {state: true},
         };
     }
 
@@ -202,56 +229,197 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         return this._filterByLastJobOffer && !normalizeIsoDate(this._lastJobOfferFrom);
     }
 
+    /**
+     * Snapshot of all options that influence the import result.
+     * The dry-run checkbox itself is not part of it, because "Import now" ignores it.
+     * @returns {ImportOptions}
+     */
+    _getCurrentOptions() {
+        return {
+            includeDeactivated: this._includeDeactivatedCompanies,
+            overwriteExisting: this._overwriteExistingCompanies,
+            importLimit: this._importLimit,
+            lastJobOfferFrom: this._filterByLastJobOffer
+                ? normalizeIsoDate(this._lastJobOfferFrom)
+                : '',
+        };
+    }
+
+    /**
+     * True if options were changed after the last successful dry run.
+     * @returns {boolean}
+     */
+    get _isDryRunOutdated() {
+        const dryRunOptions = this._dryRunOptions;
+        if (!dryRunOptions) {
+            return false;
+        }
+        const current = this._getCurrentOptions();
+        return Object.keys(current).some((key) => current[key] !== dryRunOptions[key]);
+    }
+
+    /**
+     * The real import can be started from the cached file if the latest report is a
+     * successful, up-to-date dry run with at least one company to create or overwrite.
+     * @returns {boolean}
+     */
+    get _canImportCachedRows() {
+        const report = this._report;
+        if (!this._cachedRows || !this._dryRunOptions || !report?.dryRun) {
+            return false;
+        }
+        return !this._isDryRunOutdated && report.imported.length + report.overwritten.length > 0;
+    }
+
+    /**
+     * A dry run can be repeated on the cached file when the options changed or the
+     * previous dry run did not produce a usable result.
+     * @returns {boolean}
+     */
+    get _canRepeatDryRun() {
+        return Boolean(this._cachedRows) && (!this._dryRunOptions || this._isDryRunOutdated);
+    }
+
     async _handleFileSelected(event) {
         const file = event.detail?.file;
         if (!file || this._isImporting || this._isLastJobOfferFilterIncomplete) {
             return;
         }
 
+        // A new file always invalidates the cached rows of the previous file
         this._selectedFileName = file.name;
+        this._cachedRows = null;
+        this._dryRunOptions = null;
+        this._report = null;
+
+        let rows;
+        try {
+            const csvText = await this._readCsvFile(file);
+            rows = this._parseCsv(csvText);
+        } catch (error) {
+            this._handleImportFailure(error, this._dryRun);
+            return;
+        }
+
+        if (this._dryRun) {
+            // Keep the parsed rows so the real import can run without selecting the file again
+            this._cachedRows = rows;
+        }
+        await this._runImport(rows, this._getCurrentOptions(), this._dryRun);
+    }
+
+    _handleRepeatDryRun() {
+        if (!this._cachedRows || this._isImporting || this._isLastJobOfferFilterIncomplete) {
+            return;
+        }
+        void this._runImport(this._cachedRows, this._getCurrentOptions(), true);
+    }
+
+    _openConfirmImportDialog() {
+        const report = this._report;
+        if (!report || !this._canImportCachedRows || this._isImporting) {
+            return;
+        }
+        // Freeze the counts shown in the dialog to the dry run that is confirmed
+        this._confirmCounts = {
+            imported: report.imported.length,
+            overwritten: report.overwritten.length,
+        };
+        /** @type {Modal} */ (this.renderRoot.querySelector('#confirm-import-modal'))?.open();
+    }
+
+    _closeConfirmImportDialog() {
+        /** @type {Modal} */ (this.renderRoot.querySelector('#confirm-import-modal'))?.close();
+    }
+
+    async _handleConfirmImport() {
+        this._closeConfirmImportDialog();
+        const rows = this._cachedRows;
+        const options = this._dryRunOptions;
+        if (!rows || !options || !this._canImportCachedRows || this._isImporting) {
+            return;
+        }
+        // Use the exact options of the confirmed dry run
+        await this._runImport(rows, {...options}, false);
+    }
+
+    /**
+     * Runs a dry run or the real import on already parsed CSV rows and updates report,
+     * cache and notifications.
+     * @param {string[][]} rows
+     * @param {ImportOptions} options
+     * @param {boolean} dryRun
+     */
+    async _runImport(rows, options, dryRun) {
         this._isImporting = true;
+        this._isDryRunRunning = dryRun;
         this._report = null;
 
         try {
-            const csvText = await this._readCsvFile(file);
-            const rows = this._parseCsv(csvText);
-            const report = await this._importRows(rows);
+            const report = await this._importRows(rows, options, dryRun);
             this._report = report;
 
+            if (dryRun) {
+                this._dryRunOptions = options;
+            } else {
+                // Clear the cache so the same file cannot be imported twice by accident
+                this._cachedRows = null;
+                this._dryRunOptions = null;
+            }
+
             sendNotification({
-                summary: this._i18n.t('import-companies.import-finished-title'),
-                body: this._i18n.t('import-companies.import-finished-body', {
-                    imported: report.imported.length,
-                    overwritten: report.overwritten.length,
-                    skipped: report.skipped.length,
-                    skippedDeactivated: report.skippedDeactivated.length,
-                    skippedLastJobOffer: report.skippedLastJobOffer.length,
-                    skippedLimit: report.skippedLimit.length,
-                    errors: report.errors.length,
-                }),
+                summary: report.dryRun
+                    ? this._i18n.t('import-companies.dry-run-finished-title')
+                    : this._i18n.t('import-companies.import-finished-title'),
+                body: this._i18n.t(
+                    report.dryRun
+                        ? 'import-companies.dry-run-finished-body'
+                        : 'import-companies.import-finished-body',
+                    {
+                        imported: report.imported.length,
+                        overwritten: report.overwritten.length,
+                        skipped: report.skipped.length,
+                        skippedDeactivated: report.skippedDeactivated.length,
+                        skippedLastJobOffer: report.skippedLastJobOffer.length,
+                        skippedLimit: report.skippedLimit.length,
+                        errors: report.errors.length,
+                    },
+                ),
                 type: report.errors.length > 0 ? 'warning' : 'success',
                 timeout: 8,
             });
         } catch (error) {
-            console.error('Company import failed:', error);
-            this._report = {
-                imported: [],
-                overwritten: [],
-                skipped: [],
-                skippedDeactivated: [],
-                skippedLastJobOffer: [],
-                skippedLimit: [],
-                errors: [{rowNumber: '-', name: this._selectedFileName, message: error.message}],
-            };
-            sendNotification({
-                summary: this._i18n.t('import-companies.import-error-title'),
-                body: error.message,
-                type: 'danger',
-                timeout: 0,
-            });
+            // Keep the cached rows, so a new dry run can be started without selecting the file again
+            this._dryRunOptions = null;
+            this._handleImportFailure(error, dryRun);
         } finally {
             this._isImporting = false;
         }
+    }
+
+    /**
+     * Shows a failure that prevented the whole import (or dry run) from running.
+     * @param {Error} error
+     * @param {boolean} dryRun
+     */
+    _handleImportFailure(error, dryRun) {
+        console.error('Company import failed:', error);
+        this._report = {
+            dryRun,
+            imported: [],
+            overwritten: [],
+            skipped: [],
+            skippedDeactivated: [],
+            skippedLastJobOffer: [],
+            skippedLimit: [],
+            errors: [{rowNumber: '-', name: this._selectedFileName, message: error.message}],
+        };
+        sendNotification({
+            summary: this._i18n.t('import-companies.import-error-title'),
+            body: error.message,
+            type: 'danger',
+            timeout: 0,
+        });
     }
 
     async _readCsvFile(file) {
@@ -351,7 +519,12 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         return rows;
     }
 
-    async _importRows(rows) {
+    /**
+     * @param {string[][]} rows Parsed CSV rows including the header row
+     * @param {ImportOptions} options
+     * @param {boolean} dryRun If true, nothing is written to the API
+     */
+    async _importRows(rows, options, dryRun) {
         if (!this._isDeveloper) {
             throw new Error(this._i18n.t('import-companies.error-not-authorized'));
         }
@@ -363,15 +536,14 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         const existingCompanies = await this._fetchExistingCompanies(formIdentifier);
         const headers = rows[0].map((header) => CSV_HEADER_MAP[normalizeKey(header)] ?? null);
         const maxImports =
-            this._importLimit === 'all' ? Number.POSITIVE_INFINITY : Number(this._importLimit);
+            options.importLimit === 'all' ? Number.POSITIVE_INFINITY : Number(options.importLimit);
         // Empty string means the last job offer filter is not active
-        const lastJobOfferFrom = this._filterByLastJobOffer
-            ? normalizeIsoDate(this._lastJobOfferFrom)
-            : '';
+        const lastJobOfferFrom = options.lastJobOfferFrom;
         if (lastJobOfferFrom && !headers.includes(LAST_JOB_OFFER_FIELD)) {
             throw new Error(this._i18n.t('import-companies.error-missing-last-job-offer-column'));
         }
         const report = {
+            dryRun,
             imported: /** @type {ImportRow[]} */ ([]),
             overwritten: /** @type {ImportRow[]} */ ([]),
             skipped: /** @type {ImportRow[]} */ ([]),
@@ -398,7 +570,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                 return;
             }
 
-            if (!isActive && !this._includeDeactivatedCompanies) {
+            if (!isActive && !options.includeDeactivated) {
                 report.skippedDeactivated.push({rowNumber, name});
                 return;
             }
@@ -413,13 +585,34 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                 }
             }
 
-            if (existingCompany && !this._overwriteExistingCompanies) {
+            if (existingCompany && !options.overwriteExisting) {
                 report.skipped.push({rowNumber, name});
                 return;
             }
 
             if (report.imported.length + report.overwritten.length >= maxImports) {
                 report.skippedLimit.push({rowNumber, name});
+                return;
+            }
+
+            if (dryRun) {
+                // Dry run: only count what would happen, never write to the API.
+                // Mirror the real import so the numbers match a later real run.
+                if (existingCompany) {
+                    if (!existingCompany.identifier && !existingCompany.createdInDryRun) {
+                        report.errors.push({
+                            rowNumber,
+                            name,
+                            message: this._i18n.t('import-companies.error-missing-submission-id'),
+                        });
+                        return;
+                    }
+                    report.overwritten.push({rowNumber, name});
+                } else {
+                    // Remember the company so later CSV rows with the same name count as duplicates
+                    existingCompanies.set(duplicateName, {identifier: null, createdInDryRun: true});
+                    report.imported.push({rowNumber, name});
+                }
                 return;
             }
 
@@ -627,6 +820,99 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         }));
     }
 
+    _getStartButtonLabel() {
+        const t = (key) => this._i18n.t(key);
+        if (this._isImporting) {
+            return this._isDryRunRunning
+                ? t('import-companies.dry-run-running')
+                : t('import-companies.importing');
+        }
+        if (this._cachedRows) {
+            return this._dryRun
+                ? t('import-companies.dry-run-select-other-file')
+                : t('import-companies.select-other-file');
+        }
+        return this._dryRun
+            ? t('import-companies.dry-run-select-file')
+            : t('import-companies.select-file');
+    }
+
+    /**
+     * Buttons to continue with the cached file, shown in the import card and the report.
+     * @returns {import('lit').TemplateResult | string}
+     */
+    _renderCachedFileActions() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const canImport = this._canImportCachedRows;
+        const canRepeat = this._canRepeatDryRun;
+        if (!canImport && !canRepeat) {
+            return '';
+        }
+
+        return html`
+            <div class="cached-file-actions">
+                ${
+                    canImport
+                        ? html`
+                              <dbp-button
+                                  type="is-primary"
+                                  value="${t('import-companies.import-now')}"
+                                  ?disabled="${this._isImporting}"
+                                  @click="${this._openConfirmImportDialog}"></dbp-button>
+                          `
+                        : ''
+                }
+                ${
+                    canRepeat
+                        ? html`
+                              <dbp-button
+                                  type="is-primary"
+                                  value="${t('import-companies.repeat-dry-run')}"
+                                  ?disabled="${this._isImporting || this._isLastJobOfferFilterIncomplete}"
+                                  @click="${this._handleRepeatDryRun}"></dbp-button>
+                          `
+                        : ''
+                }
+            </div>
+        `;
+    }
+
+    _renderConfirmImportDialog() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        return html`
+            <dbp-modal
+                id="confirm-import-modal"
+                modal-id="confirm-import-modal"
+                subscribe="lang"
+                class="confirm-modal">
+                <div slot="title">
+                    <h2 class="modal-title">${t('import-companies.confirm-import-title')}</h2>
+                </div>
+                <div slot="content">
+                    <p>
+                        ${t('import-companies.confirm-import-body', {
+                            imported: this._confirmCounts.imported,
+                            overwritten: this._confirmCounts.overwritten,
+                            file: this._selectedFileName,
+                        })}
+                    </p>
+                </div>
+                <div slot="footer" class="confirm-modal-actions">
+                    <button class="button" type="button" @click="${this._closeConfirmImportDialog}">
+                        ${t('import-companies.confirm-import-cancel')}
+                    </button>
+                    <button
+                        class="button is-primary"
+                        type="button"
+                        ?disabled="${this._isImporting}"
+                        @click="${this._handleConfirmImport}">
+                        ${t('import-companies.confirm-import-confirm')}
+                    </button>
+                </div>
+            </dbp-modal>
+        `;
+    }
+
     _getImportLimitLabel() {
         return this._importLimit === 'all'
             ? this._i18n.t('import-companies.import-limit-all')
@@ -654,6 +940,19 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
 
             <section class="import-card">
                 <p class="hint">${t('import-companies.file-hint')}</p>
+                <div class="checkbox-option">
+                    <label for="dry-run">${t('import-companies.dry-run-label')}</label>
+                    <p id="dry-run-description">${t('import-companies.dry-run-description')}</p>
+                    <input
+                        id="dry-run"
+                        type="checkbox"
+                        aria-describedby="dry-run-description"
+                        .checked="${this._dryRun}"
+                        ?disabled="${this._isImporting}"
+                        @change="${(event) => {
+                            this._dryRun = event.target.checked;
+                        }}" />
+                </div>
                 <div class="checkbox-option">
                     <label for="include-deactivated-companies">
                         ${t('import-companies.include-deactivated-label')}
@@ -752,13 +1051,34 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                             this._importLimit = event.detail.value;
                         }}"></dbp-select>
                 </div>
+                ${
+                    this._cachedRows
+                        ? html`
+                              <div class="cached-file">
+                                  <p>
+                                      ${t('import-companies.loaded-file', {
+                                          file: this._selectedFileName,
+                                      })}
+                                  </p>
+                                  <p class="dry-run-outdated" role="status">
+                                      ${
+                                          this._isDryRunOutdated
+                                              ? html`
+                                                    <span>
+                                                        ${t('import-companies.dry-run-outdated')}
+                                                    </span>
+                                                `
+                                              : ''
+                                      }
+                                  </p>
+                                  ${this._renderCachedFileActions()}
+                              </div>
+                          `
+                        : ''
+                }
                 <dbp-button
-                    type="is-primary"
-                    value="${
-                        this._isImporting
-                            ? t('import-companies.importing')
-                            : t('import-companies.select-file')
-                    }"
+                    type="${this._cachedRows ? '' : 'is-primary'}"
+                    value="${this._getStartButtonLabel()}"
                     ?disabled="${this._isImporting || this._isLastJobOfferFilterIncomplete}"
                     @click="${() =>
                         /** @type {FileSource} */ (
@@ -782,7 +1102,28 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                 this._report
                     ? html`
                           <section class="report-card">
-                              <h2>${t('import-companies.report-title')}</h2>
+                              <h2>
+                                  ${
+                                      this._report.dryRun
+                                          ? t('import-companies.dry-run-report-title')
+                                          : t('import-companies.report-title')
+                                  }
+                              </h2>
+                              ${
+                                  this._report.dryRun
+                                      ? html`
+                                            <p class="dry-run-notice" role="note">
+                                                ${
+                                                    this._isDryRunOutdated
+                                                        ? t('import-companies.dry-run-outdated')
+                                                        : t(
+                                                              'import-companies.dry-run-report-notice',
+                                                          )
+                                                }
+                                            </p>
+                                        `
+                                      : ''
+                              }
                               ${
                                   this._selectedFileName
                                       ? html`
@@ -797,11 +1138,25 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                               <div class="summary-grid">
                                   <div>
                                       <strong>${this._report.imported.length}</strong>
-                                      <span>${t('import-companies.summary-imported')}</span>
+                                      <span>
+                                          ${
+                                              this._report.dryRun
+                                                  ? t('import-companies.summary-dry-run-imported')
+                                                  : t('import-companies.summary-imported')
+                                          }
+                                      </span>
                                   </div>
                                   <div>
                                       <strong>${this._report.overwritten.length}</strong>
-                                      <span>${t('import-companies.summary-overwritten')}</span>
+                                      <span>
+                                          ${
+                                              this._report.dryRun
+                                                  ? t(
+                                                        'import-companies.summary-dry-run-overwritten',
+                                                    )
+                                                  : t('import-companies.summary-overwritten')
+                                          }
+                                      </span>
                                   </div>
                                   <div>
                                       <strong>${this._report.skipped.length}</strong>
@@ -829,9 +1184,13 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                   </div>
                               </div>
                               ${this._renderReportList(
-                                  'import-companies.imported-title',
+                                  this._report.dryRun
+                                      ? 'import-companies.dry-run-imported-title'
+                                      : 'import-companies.imported-title',
                                   this._report.imported,
-                                  'import-companies.imported-empty',
+                                  this._report.dryRun
+                                      ? 'import-companies.dry-run-imported-empty'
+                                      : 'import-companies.imported-empty',
                                   (item) =>
                                       t('import-companies.report-row', {
                                           row: item.rowNumber,
@@ -839,9 +1198,13 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                       }),
                               )}
                               ${this._renderReportList(
-                                  'import-companies.overwritten-title',
+                                  this._report.dryRun
+                                      ? 'import-companies.dry-run-overwritten-title'
+                                      : 'import-companies.overwritten-title',
                                   this._report.overwritten,
-                                  'import-companies.overwritten-empty',
+                                  this._report.dryRun
+                                      ? 'import-companies.dry-run-overwritten-empty'
+                                      : 'import-companies.overwritten-empty',
                                   (item) =>
                                       t('import-companies.report-row', {
                                           row: item.rowNumber,
@@ -899,10 +1262,12 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                           message: item.message,
                                       }),
                               )}
+                              ${this._report.dryRun ? this._renderCachedFileActions() : ''}
                           </section>
                       `
                     : ''
             }
+            ${this._renderConfirmImportDialog()}
         `;
     }
 
@@ -937,6 +1302,52 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
 
                 .hint {
                     margin-top: 0;
+                }
+
+                .cached-file {
+                    max-width: 42rem;
+                    margin-bottom: 1.25rem;
+                }
+
+                .cached-file p {
+                    margin: 0 0 0.5rem;
+                }
+
+                /* Live region stays in the DOM, so changes are announced by screen readers */
+                .cached-file .dry-run-outdated {
+                    margin: 0;
+                }
+
+                .dry-run-outdated span {
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: bold;
+                    color: var(--dbp-warning, #c15500);
+                }
+
+                .cached-file-actions,
+                .confirm-modal-actions {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.75rem;
+                    margin-top: 1rem;
+                }
+
+                .confirm-modal-actions {
+                    justify-content: flex-end;
+                    margin-top: 0;
+                }
+
+                .confirm-modal {
+                    --dbp-modal-min-width: min(95vw, 500px);
+                    --dbp-modal-max-width: min(95vw, 600px);
+                }
+
+                .dry-run-notice {
+                    padding: 0.75rem 1rem;
+                    border-left: 4px solid var(--dbp-info, #38808a);
+                    background: var(--dbp-info-surface, #e8f4f6);
+                    color: var(--dbp-on-info-surface, inherit);
                 }
 
                 .checkbox-option {
