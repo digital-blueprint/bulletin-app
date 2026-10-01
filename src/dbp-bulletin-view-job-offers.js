@@ -2209,7 +2209,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .internal-logo-text {
                 background-color: var(--dbp-content);
-                /* Keep the overlay on the TU Graz lettering, not either red mark. */
                 clip-path: inset(0 8.625% 0 61.125%);
             }
 
