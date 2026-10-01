@@ -289,6 +289,7 @@ export const JOB_CATEGORIES = {
     'seasonal-position': 'manage-job-offers.job-category-seasonal-position',
     internship: 'manage-job-offers.job-category-internship',
     fulltime: 'manage-job-offers.job-category-fulltime',
+    other: 'manage-job-offers.job-category-other',
 };
 
 export const AREAS_OF_INTEREST = {
