@@ -1893,6 +1893,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 word-break: keep-all;
             }
 
+            .ais-CurrentRefinements-categoryLabel {
+                padding: 4px 0 4px 6px;
+            }
+
             .ais-CurrentRefinements-delete {
                 position: relative;
                 background: none;
@@ -1901,9 +1905,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 color: var(--dbp-content);
                 display: flex;
                 align-items: center;
+                padding: 4px 6px 4px 0;
             }
 
-            .ais-CurrentRefinements-category:hover .filter-close-icon {
+            .ais-CurrentRefinements-category .filter-close-icon:hover {
                 transform: rotate(90deg);
             }
 
@@ -1911,8 +1916,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: block;
                 transition: transform 0.1s ease-in;
                 mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3E%3C/svg%3E");
-                width: 10px;
-                height: 10px;
+                width: 13px;
+                height: 13px;
                 background-size: 10px;
                 color: var(--dbp-muted);
                 background: var(--dbp-muted);
@@ -1926,7 +1931,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             .refinement-value {
-                padding: 4px 6px;
                 justify-content: space-between;
                 display: flex;
                 gap: 0.5em;
