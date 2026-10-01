@@ -21,6 +21,7 @@ import CareerProfileModule, {
     CareerProfileInterestFormElement,
     normalizeStudentStudies,
     normalizeCareerProfileSelectValues,
+    isCareerProfileVisibleFor,
 } from './modules/careerProfileForm.js';
 import {
     getLocationHierarchy,
@@ -59,7 +60,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         this.filterIndustry = '';
         this.filterField = '';
         this.filterWorkLocation = '';
+        // All loaded profiles, including the ones the current user isn't allowed to see
+        this._allProfiles = [];
+        // Profiles the current user is allowed to see, based on the visibility chosen by the student
         this._profiles = [];
+        this._profilesVisibleForStaff = false;
         this._selectedProfile = null;
         this._loadingProfiles = false;
         this._loadError = false;
@@ -111,6 +116,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 void this._fetchProfiles();
             } else {
                 // Roles can arrive after the profiles have been loaded
+                if (this._profilesVisibleForStaff !== this._canReadStudentContacts) {
+                    this._applyProfileVisibility();
+                    this._handleRoutingUrlChange();
+                }
                 void this._loadStudentContacts();
             }
         }
@@ -178,7 +187,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             }
 
             const data = await response.json();
-            this._profiles = (data['hydra:member'] ?? []).map((form) => this._mapProfile(form));
+            this._allProfiles = (data['hydra:member'] ?? []).map((form) => this._mapProfile(form));
+            this._applyProfileVisibility();
             this._profilesLoaded = true;
             this._handleRoutingUrlChange();
             void this._loadStudentContacts();
@@ -206,6 +216,19 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             additionalData,
             dataFeedSchema: form.dataFeedSchema ?? '',
         };
+    }
+
+    /**
+     * Only keeps the profiles the student has released for the current user: users who may read student contacts
+     * see profiles released for employees, everybody else only sees profiles released for
+     * external companies.
+     */
+    _applyProfileVisibility() {
+        const isStaff = this._canReadStudentContacts;
+        this._profilesVisibleForStaff = isStaff;
+        this._profiles = this._allProfiles.filter((profile) =>
+            isCareerProfileVisibleFor(profile.additionalData, isStaff),
+        );
     }
 
     _getLocalizedName(localizedNames) {

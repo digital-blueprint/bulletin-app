@@ -20,6 +20,9 @@ import {
     formatStudentStudies as formatCareerProfileStudies,
     getLocalizedStudentStudyLabel,
     CareerProfileEditFormElement,
+    CAREER_PROFILE_VISIBILITY,
+    getCareerProfileVisibility,
+    isCareerProfileVisibleFor,
     mergeLocalizedStudentStudies,
 } from '../src/modules/careerProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
@@ -2357,6 +2360,45 @@ suite('career profile student studies', () => {
         assert.equal(requestBody.additionalData.teaser, 'Deutscher Teaser');
         assert.equal(requestBody.additionalData.teaserEn, 'English teaser');
         assert.notProperty(requestBody.additionalData, 'contactEmail');
+        // Nobody is preselected for new profiles
+        assert.equal(requestBody.additionalData.visibility, CAREER_PROFILE_VISIBILITY.NOBODY);
+    });
+
+    test('should render the visibility options and keep the stored visibility', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        let requestBody;
+        element.lang = 'en';
+        element.auth = {token: 'token'};
+        element.entryPointUrl = 'https://example.invalid';
+        element.existingForm = {
+            formId: 'profile-1',
+            additionalData: {summary: 'Profile', visibility: CAREER_PROFILE_VISIBILITY.STAFF},
+        };
+        globalThis.fetch = async (_url, options) => {
+            requestBody = JSON.parse(options.body);
+            return {ok: true, json: async () => ({identifier: 'profile-1'})};
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        try {
+            const field = element.shadowRoot.querySelector('dbp-enum-element[name="visibility"]');
+            assert.isTrue(field.required);
+            assert.deepEqual(Object.keys(field.items), [
+                CAREER_PROFILE_VISIBILITY.NOBODY,
+                CAREER_PROFILE_VISIBILITY.STAFF,
+                CAREER_PROFILE_VISIBILITY.STAFF_AND_COMPANIES,
+            ]);
+            assert.equal(field.value, CAREER_PROFILE_VISIBILITY.STAFF);
+
+            await element.submit();
+        } finally {
+            globalThis.fetch = originalFetch;
+            element.remove();
+        }
+
+        assert.equal(requestBody.additionalData.visibility, CAREER_PROFILE_VISIBILITY.STAFF);
     });
 
     test('should remove a stored contact email when updating a profile', async () => {
@@ -2599,7 +2641,62 @@ suite('career profile student studies', () => {
     });
 });
 
+suite('career profile visibility', () => {
+    test('should treat profiles without a valid visibility as visible for nobody', () => {
+        assert.equal(getCareerProfileVisibility({}), CAREER_PROFILE_VISIBILITY.NOBODY);
+        assert.equal(
+            getCareerProfileVisibility({visibility: 'everybody'}),
+            CAREER_PROFILE_VISIBILITY.NOBODY,
+        );
+    });
+
+    test('should only show profiles to the audience chosen by the student', () => {
+        const nobody = {visibility: CAREER_PROFILE_VISIBILITY.NOBODY};
+        const staff = {visibility: CAREER_PROFILE_VISIBILITY.STAFF};
+        const all = {visibility: CAREER_PROFILE_VISIBILITY.STAFF_AND_COMPANIES};
+
+        assert.isFalse(isCareerProfileVisibleFor(nobody, true));
+        assert.isFalse(isCareerProfileVisibleFor(nobody, false));
+        assert.isTrue(isCareerProfileVisibleFor(staff, true));
+        assert.isFalse(isCareerProfileVisibleFor(staff, false));
+        assert.isTrue(isCareerProfileVisibleFor(all, true));
+        assert.isTrue(isCareerProfileVisibleFor(all, false));
+        assert.isFalse(isCareerProfileVisibleFor({}, true));
+    });
+});
+
 suite('dbp-bulletin-browse-career-profiles privacy', () => {
+    test('should filter the profiles by the visibility chosen by the student', () => {
+        const element = document.createElement('dbp-bulletin-browse-career-profiles');
+        element._allProfiles = [
+            {identifier: 'legacy', additionalData: {}},
+            {identifier: 'nobody', additionalData: {visibility: CAREER_PROFILE_VISIBILITY.NOBODY}},
+            {identifier: 'staff', additionalData: {visibility: CAREER_PROFILE_VISIBILITY.STAFF}},
+            {
+                identifier: 'all',
+                additionalData: {visibility: CAREER_PROFILE_VISIBILITY.STAFF_AND_COMPANIES},
+            },
+        ];
+
+        element.auth = {token: 'token', 'user-id': 'company', _roles: []};
+        element._applyProfileVisibility();
+        assert.deepEqual(
+            element._profiles.map(({identifier}) => identifier),
+            ['all'],
+        );
+
+        element.auth = {
+            token: 'token',
+            'user-id': 'contact-reader',
+            _roles: ['ROLE_BULLETIN_CAREER_PROFILE_STUDENT_CONTACT_READER'],
+        };
+        element._applyProfileVisibility();
+        assert.deepEqual(
+            element._profiles.map(({identifier}) => identifier),
+            ['staff', 'all'],
+        );
+    });
+
     test('should discard legacy profile contact emails', () => {
         const element = document.createElement('dbp-bulletin-browse-career-profiles');
         const profile = element._mapProfile({

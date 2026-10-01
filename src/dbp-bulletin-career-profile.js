@@ -16,6 +16,7 @@ import CareerProfileModule, {
     CareerProfileEditFormElement,
     CareerProfileInterestFormElement,
     getCareerProfileFieldLabels,
+    getCareerProfileVisibilityLabel,
     getLocalizedStudentStudyLabel,
     mergeLocalizedStudentStudies,
     normalizeStudentStudies,
@@ -744,6 +745,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             : ''
                     }
                     <dl>
+                        <dt>${t('career-profile-form.field-visibility-view-mode')}:</dt>
+                        <dd class="profile-visibility">
+                            ${getCareerProfileVisibilityLabel(data, t)}
+                        </dd>
                         ${this._renderStudiesMeta(profile)}
                         ${
                             workLocationLabels && workLocationLabels.length
@@ -968,6 +973,14 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 }
 
                 <dl class="profile-meta">
+                    ${
+                        isOwnProfile
+                            ? this._renderMetaItem(
+                                  t('career-profile-form.field-visibility-view-mode'),
+                                  getCareerProfileVisibilityLabel(data, t),
+                              )
+                            : ''
+                    }
                     ${this._renderMetaItem(
                         t('career-profile-form.field-availability'),
                         data.availability,
