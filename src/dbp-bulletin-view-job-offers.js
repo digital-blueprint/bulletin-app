@@ -682,16 +682,18 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     getInternalFavicon(job) {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
-        let getfaviconURL = commonUtils.getAssetURL(
+        const faviconUrl = commonUtils.getAssetURL(
             '@digital-blueprint/bulletin-app',
             'icon/favicon.svg',
         );
 
         if (!job.externalJobUrl) {
             return html`
-                <img
-                    src="${getfaviconURL}"
-                    aria-label="${t('manage-job-offers.job-type-internal')}" />
+                <div
+                    class="internal-favicon"
+                    role="img"
+                    aria-label="${t('manage-job-offers.job-type-internal')}"
+                    style="background-image: url('${faviconUrl}'); mask-image: url('${faviconUrl}'); -webkit-mask-image: url('${faviconUrl}')"></div>
             `;
         }
     }
@@ -704,11 +706,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         // Only for internal TU Graz jobs (no externalJobUrl)
         if (!job.externalJobUrl) {
             return html`
-                <img
-                    src="${logoUrl}"
-                    alt="${t('manage-job-offers.job-type-internal')}"
+                <div
                     class="internal-logo"
-                    loading="lazy" />
+                    role="img"
+                    aria-label="${t('manage-job-offers.job-type-internal')}">
+                    <div
+                        class="internal-logo-art"
+                        aria-hidden="true"
+                        style="background-image: url('${logoUrl}'); mask-image: url('${logoUrl}'); -webkit-mask-image: url('${logoUrl}')"></div>
+                    <div
+                        class="internal-logo-text"
+                        aria-hidden="true"
+                        style="mask-image: url('${logoUrl}'); -webkit-mask-image: url('${logoUrl}')"></div>
+                </div>
             `;
         }
         return '';
@@ -2151,15 +2161,52 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 justify-content: space-between;
             }
 
-            .job-card-header img {
-                max-height: 28px;
-                object-fit: cover;
+            .internal-favicon,
+            .internal-logo {
+                position: relative;
+                display: block;
+                background-color: var(--dbp-background);
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+                mask-repeat: no-repeat;
+                -webkit-mask-repeat: no-repeat;
+                mask-position: center;
+                -webkit-mask-position: center;
+                mask-size: contain;
+                -webkit-mask-size: contain;
+            }
+
+            .internal-favicon {
+                width: 1.25rem;
+                height: 1.25rem;
             }
 
             .internal-logo {
                 height: 28px;
-                width: auto;
-                object-fit: contain;
+                width: 56px;
+            }
+
+            .internal-logo-art,
+            .internal-logo-text {
+                position: absolute;
+                inset: 0;
+                background-color: var(--dbp-background);
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+                mask-repeat: no-repeat;
+                -webkit-mask-repeat: no-repeat;
+                mask-position: center;
+                -webkit-mask-position: center;
+                mask-size: contain;
+                -webkit-mask-size: contain;
+            }
+
+            .internal-logo-text {
+                background-color: var(--dbp-content);
+                /* Keep the overlay on the TU Graz lettering, not either red mark. */
+                clip-path: inset(0 8.625% 0 61.125%);
             }
 
             .job-source-marker {

@@ -775,16 +775,18 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     getInternalFavicon(job) {
         const i18n = this._i18n;
         const t = (key) => (i18n ? i18n.t(key) : key);
-        let getfaviconURL = commonUtils.getAssetURL(
+        const faviconUrl = commonUtils.getAssetURL(
             '@digital-blueprint/bulletin-app',
             'icon/favicon.svg',
         );
 
         if (!job.externalJobUrl) {
             return html`
-                <img
-                    src="${getfaviconURL}"
-                    aria-label="${t('manage-job-offers.job-type-internal')}" />
+                <div
+                    class="internal-favicon"
+                    role="img"
+                    aria-label="${t('manage-job-offers.job-type-internal')}"
+                    style="background-image: url('${faviconUrl}'); mask-image: url('${faviconUrl}'); -webkit-mask-image: url('${faviconUrl}')"></div>
             `;
         }
     }
@@ -796,11 +798,19 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         if (!job.externalJobUrl) {
             return html`
-                <img
-                    src="${logoUrl}"
-                    alt="${t('manage-job-offers.job-type-internal')} Job"
+                <div
                     class="internal-logo"
-                    loading="lazy" />
+                    role="img"
+                    aria-label="${t('manage-job-offers.job-type-internal')} Job">
+                    <div
+                        class="internal-logo-art"
+                        aria-hidden="true"
+                        style="background-image: url('${logoUrl}'); mask-image: url('${logoUrl}'); -webkit-mask-image: url('${logoUrl}')"></div>
+                    <div
+                        class="internal-logo-text"
+                        aria-hidden="true"
+                        style="mask-image: url('${logoUrl}'); -webkit-mask-image: url('${logoUrl}')"></div>
+                </div>
             `;
         }
         return '';
@@ -1386,13 +1396,52 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 font-weight: bolder;
             }
 
-            .meta-item img {
-                width: 100px;
+            .internal-favicon,
+            .internal-logo {
+                position: relative;
+                display: block;
+                background-color: var(--dbp-background);
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+                mask-repeat: no-repeat;
+                -webkit-mask-repeat: no-repeat;
+                mask-position: center;
+                -webkit-mask-position: center;
+                mask-size: contain;
+                -webkit-mask-size: contain;
+            }
+
+            .internal-favicon {
+                width: 1.25rem;
+                height: 1.25rem;
             }
 
             .internal-logo {
-                width: auto;
-                object-fit: contain;
+                width: 100px;
+                height: 50px;
+            }
+
+            .internal-logo-art,
+            .internal-logo-text {
+                position: absolute;
+                inset: 0;
+                background-color: var(--dbp-background);
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+                mask-repeat: no-repeat;
+                -webkit-mask-repeat: no-repeat;
+                mask-position: center;
+                -webkit-mask-position: center;
+                mask-size: contain;
+                -webkit-mask-size: contain;
+            }
+
+            .internal-logo-text {
+                background-color: var(--dbp-content);
+                /* Keep the overlay on the TU Graz lettering, not either red mark. */
+                clip-path: inset(0 8.625% 0 61.125%);
             }
 
             .job-meta-type {
