@@ -15,6 +15,8 @@ import CompanyModule, {pickCompanyData} from './modules/companyForm.js';
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const SUBMISSION_STATE_SUBMITTED = 4;
 const IMPORT_LIMIT_OPTIONS = ['10', '20', '50', '100', '200', '500', '1000', 'all'];
+// Import-only column, it is not part of the company form and gets dropped by pickCompanyData().
+const LAST_JOB_OFFER_FIELD = 'letzte_stellenanzeige';
 // Target field names are taken from CompanyFormElement.render() in src/modules/companyForm.js.
 const CSV_HEADER_MAP = {
     abteilung: 'abteilung',
@@ -37,6 +39,8 @@ const CSV_HEADER_MAP = {
     'employees total': 'mitarbeiter_gesamt',
     industries: 'branchen',
     kontaktperson: 'kontaktperson',
+    'last job offer': LAST_JOB_OFFER_FIELD,
+    'letzte stellenanzeige': LAST_JOB_OFFER_FIELD,
     locations: 'standorte',
     'linked industries': 'branchen',
     'mitarbeiter gesamt': 'mitarbeiter_gesamt',
@@ -100,6 +104,31 @@ const normalizeArrayValue = (value) =>
         .map((item) => item.trim())
         .filter(Boolean);
 
+/**
+ * Extracts an ISO date (YYYY-MM-DD) from a CSV value like "2014-06-05" or "2014-06-05 12:00:00".
+ * Returns an empty string for missing or invalid dates (e.g. "0000-00-00").
+ * @param {string} value
+ * @returns {string}
+ */
+const normalizeIsoDate = (value) => {
+    const match = normalizeText(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) {
+        return '';
+    }
+    const [, year, month, day] = match;
+    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+    // Reject impossible dates like 0000-00-00 or 2014-02-31
+    if (
+        Number(year) < 1 ||
+        date.getUTCFullYear() !== Number(year) ||
+        date.getUTCMonth() !== Number(month) - 1 ||
+        date.getUTCDate() !== Number(day)
+    ) {
+        return '';
+    }
+    return `${year}-${month}-${day}`;
+};
+
 const keepImportCompaniesTranslations = (t) => {
     t('import-companies.errors-empty');
     t('import-companies.errors-title');
@@ -110,6 +139,8 @@ const keepImportCompaniesTranslations = (t) => {
     t('import-companies.skipped-deactivated-empty');
     t('import-companies.skipped-deactivated-title');
     t('import-companies.skipped-empty');
+    t('import-companies.skipped-last-job-offer-empty');
+    t('import-companies.skipped-last-job-offer-title');
     t('import-companies.skipped-limit-empty');
     t('import-companies.skipped-limit-title');
     t('import-companies.skipped-title');
@@ -134,6 +165,8 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         this._includeDeactivatedCompanies = false;
         this._overwriteExistingCompanies = false;
         this._importLimit = 'all';
+        this._filterByLastJobOffer = false;
+        this._lastJobOfferFrom = '';
         this._report = null;
         this._selectedFileName = '';
     }
@@ -149,6 +182,8 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             _includeDeactivatedCompanies: {state: true},
             _overwriteExistingCompanies: {state: true},
             _importLimit: {state: true},
+            _filterByLastJobOffer: {state: true},
+            _lastJobOfferFrom: {state: true},
             _report: {state: true},
             _selectedFileName: {state: true},
         };
@@ -159,9 +194,17 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         return roles.includes(BULLETIN_ADMIN_ROLE);
     }
 
+    /**
+     * The date filter can only be applied when it is enabled and a valid date is selected.
+     * @returns {boolean}
+     */
+    get _isLastJobOfferFilterIncomplete() {
+        return this._filterByLastJobOffer && !normalizeIsoDate(this._lastJobOfferFrom);
+    }
+
     async _handleFileSelected(event) {
         const file = event.detail?.file;
-        if (!file || this._isImporting) {
+        if (!file || this._isImporting || this._isLastJobOfferFilterIncomplete) {
             return;
         }
 
@@ -182,6 +225,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                     overwritten: report.overwritten.length,
                     skipped: report.skipped.length,
                     skippedDeactivated: report.skippedDeactivated.length,
+                    skippedLastJobOffer: report.skippedLastJobOffer.length,
                     skippedLimit: report.skippedLimit.length,
                     errors: report.errors.length,
                 }),
@@ -195,6 +239,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                 overwritten: [],
                 skipped: [],
                 skippedDeactivated: [],
+                skippedLastJobOffer: [],
                 skippedLimit: [],
                 errors: [{rowNumber: '-', name: this._selectedFileName, message: error.message}],
             };
@@ -319,11 +364,19 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         const headers = rows[0].map((header) => CSV_HEADER_MAP[normalizeKey(header)] ?? null);
         const maxImports =
             this._importLimit === 'all' ? Number.POSITIVE_INFINITY : Number(this._importLimit);
+        // Empty string means the last job offer filter is not active
+        const lastJobOfferFrom = this._filterByLastJobOffer
+            ? normalizeIsoDate(this._lastJobOfferFrom)
+            : '';
+        if (lastJobOfferFrom && !headers.includes(LAST_JOB_OFFER_FIELD)) {
+            throw new Error(this._i18n.t('import-companies.error-missing-last-job-offer-column'));
+        }
         const report = {
             imported: /** @type {ImportRow[]} */ ([]),
             overwritten: /** @type {ImportRow[]} */ ([]),
             skipped: /** @type {ImportRow[]} */ ([]),
             skippedDeactivated: /** @type {ImportRow[]} */ ([]),
+            skippedLastJobOffer: /** @type {ImportRow[]} */ ([]),
             skippedLimit: /** @type {ImportRow[]} */ ([]),
             errors: /** @type {ImportError[]} */ ([]),
         };
@@ -348,6 +401,16 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             if (!isActive && !this._includeDeactivatedCompanies) {
                 report.skippedDeactivated.push({rowNumber, name});
                 return;
+            }
+
+            if (lastJobOfferFrom) {
+                // ISO dates (YYYY-MM-DD) can be compared as strings.
+                // Companies without a valid last job offer date are skipped as well.
+                const lastJobOffer = normalizeIsoDate(company[LAST_JOB_OFFER_FIELD]);
+                if (!lastJobOffer || lastJobOffer < lastJobOfferFrom) {
+                    report.skippedLastJobOffer.push({rowNumber, name});
+                    return;
+                }
             }
 
             if (existingCompany && !this._overwriteExistingCompanies) {
@@ -625,6 +688,51 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                             this._overwriteExistingCompanies = event.target.checked;
                         }}" />
                 </div>
+                <div class="checkbox-option">
+                    <label for="filter-by-last-job-offer">
+                        ${t('import-companies.filter-last-job-offer-label')}
+                    </label>
+                    <p id="filter-by-last-job-offer-description">
+                        ${t('import-companies.filter-last-job-offer-description')}
+                    </p>
+                    <input
+                        id="filter-by-last-job-offer"
+                        type="checkbox"
+                        aria-describedby="filter-by-last-job-offer-description"
+                        aria-controls="last-job-offer-from-option"
+                        .checked="${this._filterByLastJobOffer}"
+                        ?disabled="${this._isImporting}"
+                        @change="${(event) => {
+                            this._filterByLastJobOffer = event.target.checked;
+                        }}" />
+                </div>
+                ${
+                    this._filterByLastJobOffer
+                        ? html`
+                              <div id="last-job-offer-from-option" class="date-option">
+                                  <label for="last-job-offer-from">
+                                      ${t('import-companies.last-job-offer-from-label')}
+                                  </label>
+                                  <p id="last-job-offer-from-description">
+                                      ${t('import-companies.last-job-offer-from-description')}
+                                  </p>
+                                  <input
+                                      id="last-job-offer-from"
+                                      type="date"
+                                      required
+                                      aria-describedby="last-job-offer-from-description"
+                                      .value="${this._lastJobOfferFrom}"
+                                      ?disabled="${this._isImporting}"
+                                      @input="${(event) => {
+                                          this._lastJobOfferFrom = event.target.value;
+                                      }}"
+                                      @change="${(event) => {
+                                          this._lastJobOfferFrom = event.target.value;
+                                      }}" />
+                              </div>
+                          `
+                        : ''
+                }
                 <div class="select-option">
                     <label for="company-import-limit">
                         ${t('import-companies.import-limit-label')}
@@ -651,7 +759,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                             ? t('import-companies.importing')
                             : t('import-companies.select-file')
                     }"
-                    ?disabled="${this._isImporting}"
+                    ?disabled="${this._isImporting || this._isLastJobOfferFilterIncomplete}"
                     @click="${() =>
                         /** @type {FileSource} */ (
                             this.renderRoot.querySelector('dbp-file-source')
@@ -706,6 +814,12 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                       </span>
                                   </div>
                                   <div>
+                                      <strong>${this._report.skippedLastJobOffer.length}</strong>
+                                      <span>
+                                          ${t('import-companies.summary-skipped-last-job-offer')}
+                                      </span>
+                                  </div>
+                                  <div>
                                       <strong>${this._report.skippedLimit.length}</strong>
                                       <span>${t('import-companies.summary-skipped-limit')}</span>
                                   </div>
@@ -748,6 +862,16 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                   'import-companies.skipped-deactivated-title',
                                   this._report.skippedDeactivated,
                                   'import-companies.skipped-deactivated-empty',
+                                  (item) =>
+                                      t('import-companies.report-row', {
+                                          row: item.rowNumber,
+                                          name: item.name,
+                                      }),
+                              )}
+                              ${this._renderReportList(
+                                  'import-companies.skipped-last-job-offer-title',
+                                  this._report.skippedLastJobOffer,
+                                  'import-companies.skipped-last-job-offer-empty',
                                   (item) =>
                                       t('import-companies.report-row', {
                                           row: item.rowNumber,
@@ -840,18 +964,27 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                     height: 1.25rem;
                 }
 
-                .select-option {
+                .select-option,
+                .date-option {
                     max-width: 42rem;
                     margin-bottom: 1.25rem;
                 }
 
-                .select-option label {
+                .select-option label,
+                .date-option label {
                     display: block;
                     font-weight: bold;
                 }
 
-                .select-option p {
+                .select-option p,
+                .date-option p {
                     margin: 0 0 0.5rem;
+                }
+
+                .date-option input {
+                    min-width: 10rem;
+                    padding: 0.25rem 0.5rem;
+                    font: inherit;
                 }
 
                 .select-option dbp-select {
@@ -861,7 +994,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
 
                 .summary-grid {
                     display: grid;
-                    grid-template-columns: repeat(6, minmax(0, 1fr));
+                    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
                     gap: 1rem;
                     margin: 1.5rem 0;
                 }

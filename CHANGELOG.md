@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Import companies: added an optional "Nach letzter Stellenanzeige filtern" checkbox that reveals a date selector; when enabled, only companies whose "Letzte Stellenanzeige" CSV column is on or after the selected date are imported, all others (including empty dates) are listed in a new "Wegen letzter Stellenanzeige übersprungen" report section
 - Browse career profiles: users with the role `ROLE_BULLETIN_CAREER_PROFILE_STUDENT_CONTACT_READER` now see the name and contact email of the students in the table and in the profile view; the data is loaded live from the people API, so no personal data is stored in the publicly readable profile forms. The career profile description tells students about this
 - Generate career profiles: generated profiles now contain German and English study names, so the "Studienfächer" column no longer shows English labels in the German UI
 - Manage job offers: moved Edit from the Actions dropdown into each permitted job-offer row using the centralized Formalize action-placement API; row actions are ordered View, Edit, Show submissions
