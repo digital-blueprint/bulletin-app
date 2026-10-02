@@ -5,7 +5,7 @@ import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {createInstance} from '../i18n.js';
 
 export const HOURS_MIN = 0;
-export const HOURS_MAX = 99;
+export const HOURS_MAX = 60;
 export const HOURS_STEP = 1;
 const DEFAULT_WEEKLY_HOURS_MAX = 40;
 
