@@ -14,5 +14,6 @@
 - For building the whitelabel app the folder `assets/` is used for configuration and assets
 - For building the TU Graz app the folder `assets_custom/` is used for configuration and assets
 - For metadata changes you probably need to update files in `app-templates/`, `assets/` and `assets_custom/`
+- Never mention "TU Graz" anywhere other than in the `assets_custom/` folder (e.g. not in `src/`, `assets/`, `app-templates/`, translations or comments). Use general terms like "University" instead.
 - Never use the every-word-capitalization form of writing because it's not consistent with the rest of the code!
 - In forms always put field descriptions between the field name and input field, so that the order of information is fitting for screen readers.
