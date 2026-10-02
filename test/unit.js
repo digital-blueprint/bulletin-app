@@ -817,14 +817,22 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
         element.remove();
     });
 
-    test('should require the user role and an explicit create grant for internal jobs', () => {
+    test('should require the user role and an application grant for internal jobs', () => {
         const element = document.createElement('dbp-bulletin-job-offer-detail');
         element.job = {jobOfferType: 'internal'};
 
         element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_MANAGER']};
         assert.isFalse(element._canApply());
 
+        element.job = {
+            jobOfferType: 'internal',
+            grantedFormActions: ['manage'],
+            grantedSubmissionCollectionActions: ['manage'],
+        };
+        assert.isFalse(element._canApply());
+
         element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_USER']};
+        element.job = {jobOfferType: 'internal'};
         assert.isFalse(element._canApply());
 
         element.job = {
@@ -844,6 +852,14 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
             grantedFormActions: ['manage'],
             grantedSubmissionCollectionActions: ['manage'],
         };
+        assert.isTrue(element._canApply());
+
+        element.auth = {
+            _roles: ['ROLE_BULLETIN_JOB_OFFER_USER', 'ROLE_BULLETIN_JOB_OFFER_MANAGER'],
+        };
+        assert.isTrue(element._canApply());
+
+        element.auth = {_roles: ['ROLE_BULLETIN_JOB_OFFER_MANAGER']};
         assert.isFalse(element._canApply());
 
         element.auth = {_roles: []};
@@ -865,7 +881,7 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
         assert.isTrue(element._canApply());
     });
 
-    test('should only render the internal application UI with create permission', async () => {
+    test('should only render the internal application UI with an application grant', async () => {
         const element = document.createElement('dbp-bulletin-job-offer-detail');
         const job = {
             identifier: 'job-1',
@@ -889,21 +905,25 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
 
         assert.isNotNull(element.shadowRoot.querySelector('dbp-bulletin-job-offer-form'));
         assert.isNotNull(element.shadowRoot.querySelector('.apply-anchor-btn'));
+
+        element.job = {...job, grantedSubmissionCollectionActions: ['manage']};
+        await element.updateComplete;
+
+        assert.isNotNull(element.shadowRoot.querySelector('dbp-bulletin-job-offer-form'));
+        assert.isNotNull(element.shadowRoot.querySelector('.apply-anchor-btn'));
         element.remove();
     });
 
-    test('should recognize only explicit current and legacy create grants', () => {
+    test('should recognize current and legacy create or manage grants', () => {
         assert.isTrue(hasJobApplicationCreateGrant({grantedFormActions: ['create_submissions']}));
         assert.isTrue(
             hasJobApplicationCreateGrant({
                 grantedSubmissionCollectionActions: ['create_submissions'],
             }),
         );
-        assert.isFalse(
-            hasJobApplicationCreateGrant({
-                grantedFormActions: ['manage'],
-                grantedSubmissionCollectionActions: ['manage'],
-            }),
+        assert.isTrue(hasJobApplicationCreateGrant({grantedFormActions: ['manage']}));
+        assert.isTrue(
+            hasJobApplicationCreateGrant({grantedSubmissionCollectionActions: ['manage']}),
         );
         assert.isFalse(hasJobApplicationCreateGrant(null));
     });

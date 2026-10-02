@@ -82,7 +82,11 @@ export const hasJobApplicationCreateGrant = (form) => {
 
     return (
         formActions.includes(FORM_PERMISSIONS.CREATE_SUBMISSIONS) ||
-        submissionCollectionActions.includes(SUBMISSION_COLLECTION_PERMISSIONS.CREATE_SUBMISSIONS)
+        formActions.includes(FORM_PERMISSIONS.MANAGE) ||
+        submissionCollectionActions.includes(
+            SUBMISSION_COLLECTION_PERMISSIONS.CREATE_SUBMISSIONS,
+        ) ||
+        submissionCollectionActions.includes(SUBMISSION_COLLECTION_PERMISSIONS.MANAGE)
     );
 };
 
