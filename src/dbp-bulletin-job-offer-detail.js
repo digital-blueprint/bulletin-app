@@ -648,11 +648,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         if ('share' in navigator) {
             try {
                 const {subject, body} = this._getShareEmailData();
+                const url = this.getShareUrl();
                 // Don't pass `url` separately — body already contains `Apply here: {{url}}`.
                 // Passing url additionally would append it again (e.g. after "Viel Erfolg!").
                 await navigator.share({
                     title: subject,
                     text: body,
+                    url,
                 });
             } catch (error) {
                 if (error.name !== 'AbortError') {
