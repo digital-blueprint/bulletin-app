@@ -519,7 +519,9 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 
         assert.isFalse(element._filtersOpen);
         assert.isNull(element.shadowRoot.querySelector('.filters-row'));
-        assert.lengthOf(element.shadowRoot.querySelectorAll('.ais-CurrentRefinements-category'), 2);
+        // Work location, weekly hours and university jobs only markers
+        assert.isTrue(element.filterUniversityJobsOnly);
+        assert.lengthOf(element.shadowRoot.querySelectorAll('.ais-CurrentRefinements-category'), 3);
 
         element.toggleFilters();
         await element.updateComplete;
