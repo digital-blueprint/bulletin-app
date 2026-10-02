@@ -611,6 +611,7 @@
         "job-category-student-teaching-assistantship": "Student teaching assistantship",
         "job-type-external": "Company",
         "job-type-internal": "TU Graz",
+        "language-requirement-note": "Position title and description only have to be filled in one language, either German or English. Missing translations are shown in the other language.",
         "mandatory-fields-end": "End of required fields. To continue with the optional fields, skip this button.",
         "optional-data": "Optional data",
         "preview-action": "Preview job offer",

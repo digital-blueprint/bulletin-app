@@ -566,6 +566,34 @@ export const getJobCategoryLabel = (value, t) => {
     return translationKey ? t(translationKey) : value;
 };
 
+/**
+ * Returns the job offer text in the current language. Because title and description only
+ * have to be filled in one language, it falls back to the other language in both directions.
+ * @param {string} primary - The German (primary language) value
+ * @param {string} en - The English value
+ * @param {string} lang - The current language
+ * @returns {string}
+ */
+export const getLocalizedJobOfferValue = (primary, en, lang) =>
+    lang === 'en' ? en || primary || '' : primary || en || '';
+
+/**
+ * Returns the job offer list in the current language, falling back to the list of the other
+ * language in both directions when the list of the current language is empty.
+ * @param {unknown} primary - The German (primary language) list
+ * @param {unknown} en - The English list
+ * @param {string} lang - The current language
+ * @returns {Array<string>}
+ */
+export const getLocalizedJobOfferList = (primary, en, lang) => {
+    const primaryItems = Array.isArray(primary) ? primary : [];
+    const enItems = Array.isArray(en) ? en : [];
+    const [preferredItems, fallbackItems] =
+        lang === 'en' ? [enItems, primaryItems] : [primaryItems, enItems];
+
+    return preferredItems.length > 0 ? preferredItems : fallbackItems;
+};
+
 export const getJobCategoryItems = (t, placeholder) =>
     withEmptySelectOption(
         Object.fromEntries(
@@ -985,8 +1013,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             isHoursRangeValid(weeklyHoursMin, weeklyHoursMax);
 
         return (
-            this._title.trim() !== '' &&
-            this._description.trim() !== '' &&
+            (this._isGermanTextComplete || this._isEnglishTextComplete) &&
             this._publishedAt.trim() !== '' &&
             this._deadline.trim() !== '' &&
             !isDeadlineBeforePublishedAt(this._publishedAt, this._deadline) &&
@@ -995,6 +1022,55 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             hasJobOwner &&
             this._areOptionalLinkUrlsValid()
         );
+    }
+
+    /**
+     * Returns true when both the German title and the German description are filled.
+     * @returns {boolean}
+     */
+    get _isGermanTextComplete() {
+        return this._title.trim() !== '' && this._description.trim() !== '';
+    }
+
+    /**
+     * Returns true when both the English title and the English description are filled.
+     * @returns {boolean}
+     */
+    get _isEnglishTextComplete() {
+        return this._titleEn.trim() !== '' && this._descriptionEn.trim() !== '';
+    }
+
+    /**
+     * Title and description only have to be filled in one language (German or English).
+     * The German fields are required until the English ones are complete.
+     * @returns {boolean}
+     */
+    get _isGermanTextRequired() {
+        return !this._isEnglishTextComplete;
+    }
+
+    /**
+     * The English fields become required once the user started filling them,
+     * unless the German ones are already complete.
+     * @returns {boolean}
+     */
+    get _isEnglishTextRequired() {
+        const hasEnglishText = this._titleEn.trim() !== '' || this._descriptionEn.trim() !== '';
+        return hasEnglishText && !this._isGermanTextComplete;
+    }
+
+    /**
+     * Re-validates the title and description fields of both languages once they are rendered,
+     * so that outdated "required" errors disappear when the other language gets completed.
+     */
+    async _revalidateLanguageTextFields() {
+        await this.updateComplete;
+        this.renderRoot
+            .querySelectorAll(
+                'dbp-string-element[name="title"], dbp-string-element[name="title-en"], ' +
+                    'dbp-string-element[name="description"], dbp-string-element[name="description-en"]',
+            )
+            .forEach((/** @type {any} */ field) => field.handleErrorsIfAny?.());
     }
 
     get _isInternalJob() {
@@ -1434,7 +1510,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
         // All job detail fields are stored in the form's additionalData JSON field
         // so the public view can read them back via GET /formalize/forms.
-        // English fields are optional; only stored when non-empty.
+        // Title and description are required in at least one language (German or English),
+        // all other English fields are optional.
         const additionalData = {
             generatedByJobGenerator:
                 this.existingForm?.additionalData?.generatedByJobGenerator === true,
@@ -1485,13 +1562,15 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             weOfferEn: this._parseWeOfferEn(),
         };
 
-        // Use the English title for the 'en' localizedName when provided, otherwise fall back to the primary title
-        const titleEn = this._titleEn.trim() || this._title.trim();
+        // The title only has to be filled in one language, so each localized name
+        // falls back to the title of the other language when its own one is empty
+        const formNameDe = this._title.trim() || this._titleEn.trim();
+        const formNameEn = this._titleEn.trim() || this._title.trim();
         const formData = {
-            name: this._title.trim(),
+            name: formNameDe,
             localizedNames: [
-                {languageTag: 'de', name: this._title.trim()},
-                {languageTag: 'en', name: titleEn},
+                {languageTag: 'de', name: formNameDe},
+                {languageTag: 'en', name: formNameEn},
             ],
             frontendKey: new JobOfferModule().getFormFrontendKey(),
             grantBasedSubmissionAuthorization: JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION,
@@ -1666,15 +1745,21 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                           e.detail.value)}"></dbp-string-element>
                           `
                 }
+                <p class="language-requirement-note">
+                    ${t('manage-job-offers.language-requirement-note')}
+                </p>
                 <div class="translation-row">
                     <dbp-string-element
                         name="title"
                         lang="${this.lang}"
                         label="${t('manage-job-offers.field-job-title')}"
-                        .value="${this._title}" JOB_TITLE_MAX_LENGTH
+                        .value="${this._title}"
                         maxlength="${JOB_TITLE_MAX_LENGTH}"
-                        required
-                        @change="${(e) => (this._title = e.detail.value)}"></dbp-string-element>
+                        ?required="${this._isGermanTextRequired}"
+                        @change="${(e) => {
+                            this._title = e.detail.value;
+                            void this._revalidateLanguageTextFields();
+                        }}"></dbp-string-element>
 
                     <dbp-string-element
                         name="title-en"
@@ -1682,7 +1767,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         label="${t('manage-job-offers.field-job-title-en')}"
                         .value="${this._titleEn}"
                         maxlength="${JOB_TITLE_MAX_LENGTH}"
-                        @change="${(e) => (this._titleEn = e.detail.value)}"></dbp-string-element>
+                        ?required="${this._isEnglishTextRequired}"
+                        @change="${(e) => {
+                            this._titleEn = e.detail.value;
+                            void this._revalidateLanguageTextFields();
+                        }}"></dbp-string-element>
                 </div>
 
                 <div class="translation-row description-row">
@@ -1694,8 +1783,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         .value="${this._description}"
                         rows="18"
                         maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
-                        required
-                        @change="${(e) => (this._description = e.detail.value)}">
+                        ?required="${this._isGermanTextRequired}"
+                        @change="${(e) => {
+                            this._description = e.detail.value;
+                            void this._revalidateLanguageTextFields();
+                        }}">
                         <!-- Render the note between the label and the input via the description
                              slot, so that screen readers announce it together with the field -->
                         <div slot="description">${descriptionMaxLengthNote}</div>
@@ -1708,7 +1800,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                         .value="${this._descriptionEn}"
                         rows="18"
                         maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
-                        @change="${(e) => (this._descriptionEn = e.detail.value)}">
+                        ?required="${this._isEnglishTextRequired}"
+                        @change="${(e) => {
+                            this._descriptionEn = e.detail.value;
+                            void this._revalidateLanguageTextFields();
+                        }}">
                         <div slot="description">${descriptionMaxLengthNote}</div>
                     </dbp-string-element>
                 </div>
@@ -2067,7 +2163,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 gap: 0 1rem;
             }
 
-            .required-field-note {
+            .required-field-note,
+            .language-requirement-note {
                 color: var(--dbp-muted);
                 font-size: 0.875rem;
                 line-height: 1.4;
@@ -2691,23 +2788,27 @@ export class JobOfferFormElement extends BaseFormElement {
     }
 
     /**
-     * Returns the English value when the current language is English and a translation exists.
+     * Returns the value in the current language, falling back to the other language.
      * @param {string} primary
      * @param {string} en
      * @returns {string}
      */
     _localized(primary, en = '') {
-        return this.lang === 'en' && en ? en : primary;
+        return getLocalizedJobOfferValue(primary, en, this.lang);
     }
 
     /**
-     * Returns the English list when the current language is English and translated items exist.
+     * Returns the list in the current language, falling back to the other language.
      * @param {unknown} primary
      * @param {unknown} en
-     * @returns {unknown}
+     * @returns {Array<string>}
      */
     _localizedList(primary, en) {
-        return this.lang === 'en' && normalizeStringList(en).length > 0 ? en : primary;
+        return getLocalizedJobOfferList(
+            normalizeStringList(primary),
+            normalizeStringList(en),
+            this.lang,
+        );
     }
 
     /**

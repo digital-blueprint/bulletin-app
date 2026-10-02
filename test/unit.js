@@ -10,6 +10,8 @@ import JobOfferModule, {
     JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
     JOB_OFFER_GRANT_BASED_SUBMISSION_AUTHORIZATION,
     getJobApplicationDataFeedSchema,
+    getLocalizedJobOfferList,
+    getLocalizedJobOfferValue,
     hasJobApplicationCreateGrant,
     hasSubmissionCheckContextChanged,
     normalizeAreaOfInterestValues,
@@ -1533,6 +1535,69 @@ suite('jobOfferForm validation', () => {
 
         element._linkUrlEn = 'localhost';
         assert.isFalse(element._isFormValid);
+    });
+
+    test('should require title and description in either German or English', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        element._publishedAt = '2026-07-22';
+        element._deadline = '2026-08-22';
+        element._organization = 'Example organization';
+        element._weeklyHoursMin = '20';
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const field = (name) => element.shadowRoot.querySelector(`[name="${name}"]`);
+
+        // Without any text the German fields are required, the English ones are not
+        assert.isFalse(element._isFormValid);
+        assert.isTrue(field('title').required);
+        assert.isTrue(field('description').required);
+        assert.isFalse(field('title-en').required);
+        assert.isFalse(field('description-en').required);
+
+        // Once English text was started, both languages are required until one is complete
+        element._titleEn = 'Software developer';
+        await element.updateComplete;
+        assert.isFalse(element._isFormValid);
+        assert.isTrue(field('title').required);
+        assert.isTrue(field('description-en').required);
+
+        // A complete English text makes the German fields optional
+        element._descriptionEn = 'Job description';
+        await element.updateComplete;
+        assert.isTrue(element._isFormValid);
+        assert.isFalse(field('title').required);
+        assert.isFalse(field('description').required);
+
+        // Mixing a German title with an English description is not enough
+        element._titleEn = '';
+        element._title = 'Softwareentwickler';
+        assert.isFalse(element._isFormValid);
+
+        // A complete German text is valid without English text
+        element._descriptionEn = '';
+        element._description = 'Stellenbeschreibung';
+        await element.updateComplete;
+        assert.isTrue(element._isFormValid);
+        assert.isFalse(field('title-en').required);
+        element.remove();
+    });
+
+    test('should fall back to the other language for job offer texts', () => {
+        assert.equal(getLocalizedJobOfferValue('Deutsch', 'English', 'de'), 'Deutsch');
+        assert.equal(getLocalizedJobOfferValue('Deutsch', 'English', 'en'), 'English');
+        assert.equal(getLocalizedJobOfferValue('', 'English', 'de'), 'English');
+        assert.equal(getLocalizedJobOfferValue('Deutsch', '', 'en'), 'Deutsch');
+        assert.equal(getLocalizedJobOfferValue(undefined, undefined, 'de'), '');
+        assert.deepEqual(getLocalizedJobOfferList([], ['English'], 'de'), ['English']);
+        assert.deepEqual(getLocalizedJobOfferList(['Deutsch'], null, 'en'), ['Deutsch']);
+        assert.deepEqual(getLocalizedJobOfferList(['Deutsch'], ['English'], 'en'), ['English']);
     });
 });
 

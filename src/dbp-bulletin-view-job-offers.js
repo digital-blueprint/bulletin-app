@@ -14,6 +14,8 @@ import JobOfferModule, {
     getAreaOfInterestLabel,
     getAreaOfInterestLabels,
     getJobCategoryLabel,
+    getLocalizedJobOfferList,
+    getLocalizedJobOfferValue,
     normalizeAreaOfInterestValues,
     normalizePartnerCompanyValue,
 } from './modules/jobOfferForm.js';
@@ -846,27 +848,25 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
-     * Returns the English value when the current language is English and the English text is
-     * non-empty; otherwise returns the primary value.
+     * Returns the value in the current language. Falls back to the other language
+     * (in both directions) when the value of the current language is empty.
      * @param {string} primary
      * @param {string} en
      * @returns {string}
      */
     _localized(primary, en) {
-        return this.lang === 'en' && en ? en : primary;
+        return getLocalizedJobOfferValue(primary, en, this.lang);
     }
 
     /**
-     * Returns the English list when available in English, otherwise returns the primary list.
+     * Returns the list in the current language. Falls back to the list of the other
+     * language (in both directions) when the list of the current language is empty.
      * @param {Array<string>|null|undefined} primary
      * @param {Array<string>|null|undefined} en
      * @returns {Array<string>}
      */
     _localizedList(primary, en) {
-        const primaryItems = Array.isArray(primary) ? primary : [];
-        const enItems = Array.isArray(en) ? en : [];
-
-        return this.lang === 'en' && enItems.length > 0 ? enItems : primaryItems;
+        return getLocalizedJobOfferList(primary, en, this.lang);
     }
 
     /**

@@ -11,6 +11,8 @@ import {
     getAreaOfInterestLabels,
     JobOfferFormElement,
     getJobCategoryLabel,
+    getLocalizedJobOfferList,
+    getLocalizedJobOfferValue,
     hasJobApplicationCreateGrant,
 } from './modules/jobOfferForm.js';
 import {getWorkLocationLabels} from './modules/workLocationsElement.js';
@@ -164,21 +166,25 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
 
     /**
-     * Returns the English value when the current language is English and the English text is
-     * non-empty; otherwise returns the primary (default-language) value.
+     * Returns the value in the current language. Falls back to the other language
+     * (in both directions) when the value of the current language is empty.
      * @param {string} primary - The primary language value.
      * @param {string} en - The English language value (may be empty string).
      * @returns {string}
      */
     _localized(primary, en) {
-        return this.lang === 'en' && en ? en : primary;
+        return getLocalizedJobOfferValue(primary, en, this.lang);
     }
 
+    /**
+     * Returns the list in the current language. Falls back to the list of the other
+     * language (in both directions) when the list of the current language is empty.
+     * @param {Array<string>|null|undefined} primary
+     * @param {Array<string>|null|undefined} en
+     * @returns {Array<string>}
+     */
     _localizedList(primary, en) {
-        const primaryItems = Array.isArray(primary) ? primary : [];
-        const enItems = Array.isArray(en) ? en : [];
-
-        return this.lang === 'en' && enItems.length > 0 ? enItems : primaryItems;
+        return getLocalizedJobOfferList(primary, en, this.lang);
     }
 
     _getLocalizedTitle(job) {
@@ -207,7 +213,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _getLocalizedLink(job) {
         const linkURL = this._getLocalizedLinkURL(job);
-        const linkName = this._getLocalizedLinkName(job);
+        // Take the link name from the same language as the URL, so that a fallback URL
+        // of the other language is not shown with a name that belongs to a different link
+        const isEnglishLink = this.lang === 'en' ? Boolean(job.linkUrlEn) : !job.linkUrl;
+        const linkName = isEnglishLink
+            ? job.linkNameEn || job.linkName || ''
+            : job.linkName || job.linkNameEn || '';
 
         return html`
             <a class="meta-job-link" href="${linkURL}" target="_blank" rel="noopener noreferrer">
