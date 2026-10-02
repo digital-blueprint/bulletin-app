@@ -42,11 +42,13 @@ const LOAD_MORE_BATCH_SIZE = 12;
 // The keys match the option values of the dream job dropdown.
 const DREAM_JOB_PRESETS = {
     'study-accompanying': {
-        // Steiermark (Styria) as work location, remote allowed, at most 20 hours per week
+        // Steiermark (Styria) as work location, remote allowed, at most 20 hours per week,
+        // only jobs offered by the university itself
         workLocation: 'AT|styria|',
         includeRemote: true,
         weeklyHoursMin: '',
         weeklyHoursMax: '20',
+        universityJobsOnly: true,
     },
     'career-entry': {
         // Any work location, on-site only, at least 20 hours per week
@@ -54,6 +56,7 @@ const DREAM_JOB_PRESETS = {
         includeRemote: false,
         weeklyHoursMin: '20',
         weeklyHoursMax: '',
+        universityJobsOnly: false,
     },
 };
 
@@ -74,6 +77,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         super();
         this.searchQuery = '';
         this.filterDreamJob = 'all';
+        /** @type {boolean} Whether only job offers of the university itself are shown */
+        this.filterUniversityJobsOnly = false;
         this.filterAreasOfInterest = [];
         this.filterWorkLocation = '';
         this.filterIncludeRemote = false;
@@ -105,6 +110,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             ...super.properties,
             searchQuery: {type: String, state: true},
             filterDreamJob: {type: String, state: true},
+            filterUniversityJobsOnly: {type: Boolean, state: true},
             filterAreasOfInterest: {type: Array, state: true},
             filterWorkLocation: {type: String, state: true},
             filterIncludeRemote: {type: Boolean, state: true},
@@ -575,8 +581,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     job.weeklyHours,
                 );
 
+                const matchesUniversityJobsOnly =
+                    !this._isUniversityJobsOnlyFilterActive() || job.jobOfferType === 'internal';
+
                 return (
                     matchesSearch &&
+                    matchesUniversityJobsOnly &&
                     matchesAreaOfInterest &&
                     matchesWorkLocation &&
                     matchesRemote &&
@@ -590,6 +600,16 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
             ? this._jobOffers
             : this._jobOffers.filter((job) => job.jobOfferType === 'internal');
+    }
+
+    /**
+     * Returns true when only job offers of the university itself should be shown.
+     * Without external jobs all visible jobs are university jobs anyway, so the filter
+     * (including its checkbox and marker) only takes effect when external jobs are enabled.
+     * @returns {boolean}
+     */
+    _isUniversityJobsOnlyFilterActive() {
+        return this.filterUniversityJobsOnly && isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG);
     }
 
     /**
@@ -1021,8 +1041,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         this.filterIncludeRemote = preset.includeRemote ?? false;
         this.filterWeeklyHoursMin = preset.weeklyHoursMin;
         this.filterWeeklyHoursMax = preset.weeklyHoursMax;
+        this.filterUniversityJobsOnly = preset.universityJobsOnly ?? false;
         this._clearUnavailableAreaOfInterest();
 
+        this._resetVisibleCount();
+    }
+
+    onUniversityJobsOnlyChange(e) {
+        this.filterUniversityJobsOnly = e.target.checked;
+        this._clearUnavailableAreaOfInterest();
         this._resetVisibleCount();
     }
 
@@ -1044,6 +1071,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     clearFilters() {
         this.searchQuery = '';
         this.filterDreamJob = 'all';
+        this.filterUniversityJobsOnly = false;
         this.filterAreasOfInterest = [];
         this.filterWorkLocation = '';
         this.filterIncludeRemote = false;
@@ -1139,6 +1167,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     _getActiveFilterMarkers(t) {
         const markers = [];
+
+        if (this._isUniversityJobsOnlyFilterActive()) {
+            markers.push({
+                key: 'university-jobs-only',
+                category: t('view-job-offers.employer'),
+                value: this.universityShortName,
+                clear: () => {
+                    this.filterUniversityJobsOnly = false;
+                    this._clearUnavailableAreaOfInterest();
+                    this._resetVisibleCount();
+                },
+            });
+        }
 
         // Work location and the "include remote" checkbox are shown as a single combined marker,
         // e.g. "Steiermark / Remote", "Steiermark" or "Remote".
@@ -1316,7 +1357,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                             <label class="label" for="filter-dream-job">
                                 ${t('view-job-offers.dream-job-label')}
                             </label>
-                            <div class="control">
+                            <div class="control dream-job-control">
                                 <select
                                     id="filter-dream-job"
                                     @change="${this.onDreamJobChange}"
@@ -1345,6 +1386,24 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                             : ''
                                     }
                                 </select>
+                                ${
+                                    isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
+                                        ? html`
+                                              <label class="filter-checkbox">
+                                                  <input
+                                                      type="checkbox"
+                                                      class="filter-checkbox-input"
+                                                      .checked="${this.filterUniversityJobsOnly}"
+                                                      @change="${this.onUniversityJobsOnlyChange}" />
+                                                  <span class="filter-checkbox-label">
+                                                      ${t('view-job-offers.university-jobs-only', {
+                                                          university: this.universityShortName,
+                                                      })}
+                                                  </span>
+                                              </label>
+                                          `
+                                        : ''
+                                }
                             </div>
                         </div>
 
@@ -1407,13 +1466,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   @change="${
                                                       this.onWorkLocationChange
                                                   }"></dbp-work-location-select-element>
-                                              <label class="remote-checkbox">
+                                              <label class="filter-checkbox">
                                                   <input
                                                       type="checkbox"
-                                                      class="remote-checkbox-input"
+                                                      class="filter-checkbox-input"
                                                       .checked="${this.filterIncludeRemote}"
                                                       @change="${this.onIncludeRemoteChange}" />
-                                                  <span class="remote-checkbox-label">
+                                                  <span class="filter-checkbox-label">
                                                       ${t('view-job-offers.include-remote')}
                                                   </span>
                                               </label>
@@ -1747,9 +1806,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 --filter-control-height: 2.1rem;
             }
 
-            /* Primary row: dream job dropdown, search field and the filter toggle */
+            /* Primary row: dream job dropdown (+ university jobs checkbox), search field and the filter toggle */
             .search-filter-row {
-                grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+                grid-template-columns: minmax(0, 1.5fr) minmax(0, 2fr) auto;
                 align-items: end;
             }
 
@@ -1777,12 +1836,19 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             /* Work location select and the "100% remote" box are attached to each other so they
                look like a single control with a shared border, mirroring the design mockup. */
-            .work-location-control {
+            .work-location-control,
+            .dream-job-control {
                 display: flex;
                 align-items: stretch;
             }
 
-            .remote-checkbox {
+            /* The dream job select shares its row with the "only university jobs" checkbox */
+            .dream-job-control select {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            .filter-checkbox {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
@@ -1797,7 +1863,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
 
             /* Custom bordered checkbox instead of the default (blue) browser checkbox */
-            .remote-checkbox-input {
+            .filter-checkbox-input {
                 appearance: none;
                 -webkit-appearance: none;
                 -moz-appearance: none;
@@ -1812,7 +1878,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 flex: none;
             }
 
-            .remote-checkbox-input:checked::after {
+            .filter-checkbox-input:checked::after {
                 content: '';
                 position: absolute;
                 left: 0.28em;
@@ -1824,7 +1890,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 transform: rotate(45deg);
             }
 
-            .remote-checkbox-label {
+            .filter-checkbox-label {
                 cursor: pointer;
             }
 
@@ -2127,11 +2193,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .job-grid {
                     grid-template-columns: 1fr;
                 }
-                .work-location-control {
+                .work-location-control,
+                .dream-job-control {
                     flex-direction: column;
                 }
 
-                .remote-checkbox {
+                .filter-checkbox {
                     border-top: 0;
                     margin-left: 0;
                     height: var(--filter-control-height);
