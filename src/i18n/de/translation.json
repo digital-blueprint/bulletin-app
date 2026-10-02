@@ -251,8 +251,9 @@
     "create-job-offer": {
         "error-title": "Fehler",
         "external-url-invalid": "Bitte geben Sie eine gültige URL mit einem Domainnamen ein, zum Beispiel example.org.",
-        "select-work-location": "Bitte wählen sie mindestens einen bevorzugten Dienstort aus",
         "validation-deadline-before-published": "Das Ende der Veröffentlichung darf nicht vor dem Datum der Veröffentlichung liegen.",
+        "validation-missing-fields_one": "Folgendes Pflichtfeld fehlt oder ist ungültig:",
+        "validation-missing-fields_other": "Folgende {{count}} Pflichtfelder fehlen oder sind ungültig:",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder korrekt aus."
     },
     "edit-form": {
@@ -617,6 +618,7 @@
         "preview-action": "Stellenangebot in der Vorschau anzeigen",
         "preview-action-aria": "Vorschau für Stellenangebot {{- title}}",
         "publish": "Veröffentlichen",
+        "required-field-error": "Bitte füllen Sie das Pflichtfeld aus!",
         "save": "Speichern",
         "select-placeholder": "Option auswählen",
         "selected-company-is-partner": "Die ausgewählte Firma ist ein Partnerunternehmen.",

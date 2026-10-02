@@ -251,8 +251,9 @@
     "create-job-offer": {
         "error-title": "Error",
         "external-url-invalid": "Please enter a valid URL containing a domain name, for example example.org.",
-        "select-work-location": "Please select at least one preferred work location.",
         "validation-deadline-before-published": "The end of publication cannot be before the publication date.",
+        "validation-missing-fields_one": "The following required field is missing or invalid:",
+        "validation-missing-fields_other": "The following {{count}} required fields are missing or invalid:",
         "validation-required": "Please fill in all required fields."
     },
     "edit-form": {
@@ -617,6 +618,7 @@
         "preview-action": "Preview job offer",
         "preview-action-aria": "Preview job offer {{- title}}",
         "publish": "Publish",
+        "required-field-error": "Please fill out the required field!",
         "save": "Save",
         "select-placeholder": "Select option",
         "selected-company-is-partner": "The selected company is a partner company.",

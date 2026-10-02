@@ -870,6 +870,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._weOfferTextEn = '';
 
         this._isSubmitting = false;
+        /** @type {boolean} Whether a failed submit attempt should reveal inline errors of custom fields */
+        this._showValidationErrors = false;
     }
 
     _createAreaOfInterestItems() {
@@ -928,6 +930,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _requiredQualificationTextEn: {state: true},
             _weOfferTextEn: {state: true},
             _isSubmitting: {state: true},
+            _showValidationErrors: {state: true},
         };
     }
 
@@ -1026,6 +1029,106 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             hasJobOwner &&
             this._areOptionalLinkUrlsValid()
         );
+    }
+
+    /**
+     * Returns the labels of all required fields that are empty or invalid,
+     * in the order in which they appear in the form.
+     * @param {(key: string, options?: object) => string} t
+     * @returns {string[]}
+     */
+    _getMissingRequiredFieldLabels(t) {
+        const isEmpty = (value) => String(value ?? '').trim() === '';
+        const weeklyHoursMin = this._weeklyHoursMin.trim();
+        const weeklyHoursMax = this._weeklyHoursMax.trim();
+        const hasValidWeeklyHours =
+            (weeklyHoursMin !== '' || weeklyHoursMax !== '') &&
+            (weeklyHoursMin === '' || parseOptionalHours(weeklyHoursMin) !== null) &&
+            (weeklyHoursMax === '' || parseOptionalHours(weeklyHoursMax) !== null) &&
+            isHoursRangeValid(weeklyHoursMin, weeklyHoursMax);
+
+        /** @type {Array<[boolean, string]>} Pairs of "is missing or invalid" and the field label */
+        const checks = [
+            [isEmpty(this._jobOfferType), t('manage-job-offers.field-job-type')],
+            [
+                this._isInternalJob && isEmpty(this._organization),
+                t('manage-job-offers.field-organization'),
+            ],
+            [
+                this._isExternalJob && isEmpty(this._companySubmissionId),
+                t('manage-job-offers.field-company'),
+            ],
+            [
+                this._isExternalJob && !this._isExternalJobUrlValid(),
+                t('manage-job-offers.field-external-job-url'),
+            ],
+            [
+                this._isGermanTextRequired && isEmpty(this._title),
+                t('manage-job-offers.field-job-title'),
+            ],
+            [
+                this._isEnglishTextRequired && isEmpty(this._titleEn),
+                t('manage-job-offers.field-job-title-en'),
+            ],
+            [
+                this._isGermanTextRequired && isEmpty(this._description),
+                t('manage-job-offers.field-description'),
+            ],
+            [
+                this._isEnglishTextRequired && isEmpty(this._descriptionEn),
+                t('manage-job-offers.field-description-en'),
+            ],
+            [
+                this._isExternalJob && normalizeWorkLocations(this._workLocations).length === 0,
+                t('manage-job-offers.field-work-locations'),
+            ],
+            [!hasValidWeeklyHours, t('hours-range.label')],
+            [isEmpty(this._publishedAt), t('manage-job-offers.field-published-at')],
+            [
+                isEmpty(this._deadline) ||
+                    isDeadlineBeforePublishedAt(this._publishedAt, this._deadline),
+                t('manage-job-offers.field-deadline'),
+            ],
+        ];
+
+        return checks.filter(([isMissing]) => isMissing).map(([, label]) => label);
+    }
+
+    /**
+     * Builds the notification text for a failed submit. It lists the missing required fields
+     * and adds explanations for errors that are not obvious from the field name alone.
+     * @param {(key: string, options?: object) => string} t
+     * @returns {string}
+     */
+    _getValidationNotificationBody(t) {
+        const messages = [];
+        const missingFieldLabels = this._getMissingRequiredFieldLabels(t);
+
+        if (missingFieldLabels.length > 0) {
+            messages.push(
+                [
+                    t('create-job-offer.validation-missing-fields', {
+                        count: missingFieldLabels.length,
+                    }),
+                    ...missingFieldLabels.map((label) => `• ${label}`),
+                ].join('\n'),
+            );
+        }
+        if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
+            messages.push(t('create-job-offer.validation-deadline-before-published'));
+        }
+        if (
+            (this._isExternalJob &&
+                this._externalJobUrl.trim() !== '' &&
+                !this._isExternalJobUrlValid()) ||
+            !this._areOptionalLinkUrlsValid()
+        ) {
+            messages.push(t('create-job-offer.external-url-invalid'));
+        }
+
+        return messages.length > 0
+            ? messages.join('\n\n')
+            : t('create-job-offer.validation-required');
     }
 
     /**
@@ -1128,33 +1231,57 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         const fields = /** @type {Array<any>} */ (
             [
                 ...this.renderRoot.querySelectorAll(
-                    'dbp-string-element, dbp-date-element, dbp-enum-element, dbp-submission-select-element, dbp-hours-range-element',
+                    'dbp-string-element, dbp-date-element, dbp-enum-element, dbp-submission-select-element, dbp-work-locations-element, dbp-hours-range-element',
                 ),
             ].filter(Boolean)
         );
 
+        // Reveal the inline errors of all fields, so the user sees every missed field at once,
+        // but only move the focus to the first invalid one
+        /** @type {any} */
+        let firstInvalidField = null;
         for (const field of fields) {
             if (typeof field.handleErrors === 'function') {
                 field.handleErrors();
+            }
+
+            if (field.tagName === 'DBP-WORK-LOCATIONS-ELEMENT') {
+                // The work locations element has no inline validation, so check its value here
+                if (
+                    !firstInvalidField &&
+                    normalizeWorkLocations(this._workLocations).length === 0
+                ) {
+                    firstInvalidField = field.shadowRoot?.querySelector('dbp-country-select');
+                }
+                continue;
             }
 
             const invalidTarget =
                 field.tagName === 'DBP-HOURS-RANGE-ELEMENT'
                     ? field.shadowRoot?.querySelector(':invalid')
                     : null;
-            if (field.errorMessages?.length > 0 || invalidTarget) {
-                focusFormField(field);
-                return true;
+            if (!firstInvalidField && (field.errorMessages?.length > 0 || invalidTarget)) {
+                firstInvalidField = field;
             }
         }
 
-        return false;
-    }
+        // The organization select has no inline validation, so it is checked separately
+        // because it is placed before all other invalid fields
+        if (this._isInternalJob && this._organization.trim() === '') {
+            const organizationSelect = this.renderRoot.querySelector(
+                'dbp-resource-select[name="organization"]',
+            );
+            if (organizationSelect) {
+                firstInvalidField = organizationSelect;
+            }
+        }
 
-    _focusWorkLocations() {
-        const workLocations = this.renderRoot.querySelector('dbp-work-locations-element');
-        const countryField = workLocations?.shadowRoot?.querySelector('dbp-country-select');
-        return focusFormField(countryField);
+        if (firstInvalidField) {
+            focusFormField(firstInvalidField);
+            return true;
+        }
+
+        return false;
     }
 
     _handleWeeklyHoursRangeChange(event) {
@@ -1235,6 +1362,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._requiredQualificationTextEn = '';
         this._weOfferTextEn = '';
         this._isSubmitting = false;
+        this._showValidationErrors = false;
     }
 
     /**
@@ -1467,38 +1595,16 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             : getDefaultInternalWorkLocations();
         const areUrlsValid = this._validateUrlFields();
 
-        if (!this._isFormValid || !areUrlsValid) {
+        if (!this._isFormValid || !areUrlsValid || selectedLocations.length === 0) {
+            this._showValidationErrors = true;
+            await this.updateComplete;
             /** @type {HoursRangeElement} */ (
                 this.renderRoot.querySelector('dbp-hours-range-element')
             )?.reportValidity();
-            if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
-                /** @type {DbpDateElement} */ (
-                    this.renderRoot.querySelector('dbp-date-element[name="deadline"]')
-                )?.handleErrors();
-            }
             this._focusFirstInvalidField();
-            let body = t('create-job-offer.validation-required');
-            if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
-                body = t('create-job-offer.validation-deadline-before-published');
-            } else if (
-                (this._isExternalJob && !this._isExternalJobUrlValid()) ||
-                !this._areOptionalLinkUrlsValid()
-            ) {
-                body = t('create-job-offer.external-url-invalid');
-            }
             sendNotification({
                 summary: t('create-job-offer.error-title'),
-                body,
-                type: 'warning',
-                timeout: 0,
-                targetNotificationId: 'edit-form-dialog-notification',
-            });
-            return null;
-        } else if (selectedLocations.length === 0) {
-            this._focusWorkLocations();
-            sendNotification({
-                summary: t('create-job-offer.error-title'),
-                body: t('create-job-offer.select-work-location'),
+                body: this._getValidationNotificationBody(t),
                 type: 'warning',
                 timeout: 0,
                 targetNotificationId: 'edit-form-dialog-notification',
@@ -1695,6 +1801,19 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                               : rawValue;
                                           this._organization = obj?.name ?? rawValue;
                                       }}"></dbp-resource-select>
+                                  ${
+                                      // The resource select has no inline validation of its own,
+                                      // so show the same error as the toolkit form elements
+                                      this._showValidationErrors && this._organization.trim() === ''
+                                          ? html`
+                                                <ul class="validation-errors" role="alert">
+                                                    <li>
+                                                        ${t('manage-job-offers.required-field-error')}
+                                                    </li>
+                                                </ul>
+                                            `
+                                          : null
+                                  }
                               </div>
                           `
                         : html`
@@ -2333,6 +2452,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             /* Required field asterisk — matches dbp form element convention */
             .required-star {
                 color: var(--dbp-danger, red);
+            }
+
+            /* Inline error of fields without own validation, matches the toolkit form elements */
+            .organization-field .validation-errors {
+                color: var(--dbp-danger);
+                list-style: none;
+                padding-left: 0;
+                margin-block: 0.25em;
             }
         `;
     }

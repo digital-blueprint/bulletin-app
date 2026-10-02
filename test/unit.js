@@ -1298,9 +1298,79 @@ suite('jobOfferForm validation', () => {
         document.body.appendChild(element);
         await element.updateComplete;
 
+        // The organization select has no inline validation, so its error is rendered by the form
+        assert.isNull(element.shadowRoot.querySelector('.organization-field .validation-errors'));
+        element._showValidationErrors = true;
+        await element.updateComplete;
+        assert.isNotNull(
+            element.shadowRoot.querySelector('.organization-field .validation-errors'),
+        );
+
+        element._organization = 'Example organization';
+        await element.updateComplete;
+        assert.isNull(element.shadowRoot.querySelector('.organization-field .validation-errors'));
         assert.isTrue(element._focusFirstInvalidField());
         assert.equal(element.shadowRoot.activeElement?.getAttribute('name'), 'title');
+
+        // All invalid fields show their inline error, not only the focused one
+        const errorFields = [
+            ...element.shadowRoot.querySelectorAll('dbp-string-element, dbp-date-element'),
+        ]
+            .filter((field) => field.errorMessages?.length > 0)
+            .map((field) => field.getAttribute('name'));
+        assert.includeMembers(errorFields, ['title', 'description', 'deadline']);
         element.remove();
+    });
+
+    test('should list the missing required fields in the validation notification', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        const t = (key, options) => (options?.count ? `${key}:${options.count}` : key);
+
+        // The publication date is prefilled with today
+        assert.deepEqual(element._getMissingRequiredFieldLabels(t), [
+            'manage-job-offers.field-organization',
+            'manage-job-offers.field-job-title',
+            'manage-job-offers.field-description',
+            'hours-range.label',
+            'manage-job-offers.field-deadline',
+        ]);
+
+        element._organization = 'Example organization';
+        element._titleEn = 'Software developer';
+        element._weeklyHoursMin = '20';
+        element._publishedAt = '2026-08-22';
+        element._deadline = '2026-07-22';
+
+        // Started English text requires the English description, the German fields stay required
+        assert.deepEqual(element._getMissingRequiredFieldLabels(t), [
+            'manage-job-offers.field-job-title',
+            'manage-job-offers.field-description',
+            'manage-job-offers.field-description-en',
+            'manage-job-offers.field-deadline',
+        ]);
+        assert.equal(
+            element._getValidationNotificationBody(t),
+            [
+                'create-job-offer.validation-missing-fields:4',
+                '• manage-job-offers.field-job-title',
+                '• manage-job-offers.field-description',
+                '• manage-job-offers.field-description-en',
+                '• manage-job-offers.field-deadline',
+                '',
+                'create-job-offer.validation-deadline-before-published',
+            ].join('\n'),
+        );
+
+        element._descriptionEn = 'Job description';
+        element._deadline = '2026-09-22';
+        assert.deepEqual(element._getMissingRequiredFieldLabels(t), []);
+        assert.isTrue(element._isFormValid);
     });
 
     test('should not focus a URL that the application validator accepts', async () => {
