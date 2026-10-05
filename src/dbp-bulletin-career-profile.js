@@ -582,7 +582,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul>
+            <ul class="bulletpoints-list">
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
@@ -598,7 +598,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul>
+            <ul class="bulletpoints-list">
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
@@ -1496,6 +1496,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .tag {
                 margin-bottom: 5px;
+            }
+
+            .bulletpoints-list {
+                margin: 0;
+                padding-left: 20px;
             }
 
             .industry-list,
