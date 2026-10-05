@@ -1386,27 +1386,26 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                             : ''
                                     }
                                 </select>
-                                ${
-                                    isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
-                                        ? html`
-                                              <label class="filter-checkbox">
-                                                  <input
-                                                      type="checkbox"
-                                                      class="filter-checkbox-input"
-                                                      .checked="${this.filterUniversityJobsOnly}"
-                                                      @change="${this.onUniversityJobsOnlyChange}" />
-                                                  <span class="filter-checkbox-label">
-                                                      ${t('view-job-offers.university-jobs-only', {
-                                                          university: this.universityShortName,
-                                                      })}
-                                                  </span>
-                                              </label>
-                                          `
-                                        : ''
-                                }
                             </div>
                         </div>
-
+                        ${
+                            isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
+                                ? html`
+                                      <label class="filter-checkbox">
+                                          <input
+                                              type="checkbox"
+                                              class="filter-checkbox-input"
+                                              .checked="${this.filterUniversityJobsOnly}"
+                                              @change="${this.onUniversityJobsOnlyChange}" />
+                                          <span class="filter-checkbox-label">
+                                              ${t('view-job-offers.university-jobs-only', {
+                                                  university: this.universityShortName,
+                                              })}
+                                          </span>
+                                      </label>
+                                  `
+                                : ''
+                        }
                         <!-- Search bar -->
                         <div class="field search-field">
                             <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
@@ -1808,8 +1807,9 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             /* Primary row: dream job dropdown (+ university jobs checkbox), search field and the filter toggle */
             .search-filter-row {
-                grid-template-columns: minmax(0, 1.5fr) minmax(0, 2fr) auto;
+                grid-template-columns: minmax(0, 1.5fr) auto minmax(0, 2fr) auto;
                 align-items: end;
+                --filter-control-height: 2.1rem;
             }
 
             /* Additional filters: work location (+ remote) and weekly hours */
@@ -1851,6 +1851,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             .filter-checkbox {
                 display: flex;
                 align-items: center;
+                justify-content: center;
                 gap: 0.5rem;
                 white-space: nowrap;
                 cursor: pointer;
@@ -1858,8 +1859,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 0 0.75rem;
                 border: var(--dbp-border);
                 border-radius: var(--dbp-border-radius);
+                height: 33px;
                 /* Overlap the select's right border so only a single divider line is visible */
-                margin-left: -1px;
             }
 
             /* Custom bordered checkbox instead of the default (blue) browser checkbox */
@@ -2199,7 +2200,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 }
 
                 .filter-checkbox {
-                    border-top: 0;
                     margin-left: 0;
                     height: var(--filter-control-height);
                 }
