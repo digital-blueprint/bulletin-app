@@ -3672,6 +3672,13 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: flex;
                     flex-direction: column;
                 }
+
+                /* Align the label styling of the toolkit form element with the formalize forms */
+                .form-row-free dbp-form-string-element {
+                    --dbp-label-font-weight: 600;
+                    --dbp-label-margin-bottom: 0.5em;
+                }
+
                 .file-upload-container {
                     margin-top: 1rem;
                 }
