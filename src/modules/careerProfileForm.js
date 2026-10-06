@@ -469,11 +469,8 @@ const keepCareerProfileTranslations = (t) => {
     t('career-profile-form.field-study-program');
     t('career-profile-form.field-study-program-description');
     t('career-profile-form.field-teaser-description');
-    t('career-profile-form.field-teaser-placeholder');
-    t('career-profile-form.field-teaser-placeholder-en');
     t('career-profile-form.field-teaser-title');
     t('career-profile-form.field-teaser-title-en');
-    t('career-profile-form.field-text-placeholder');
     t('career-profile-form.field-website');
     t('career-profile-form.field-website-identity-warning');
     t('career-profile-form.field-website-placeholder');
@@ -1240,7 +1237,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => this._setTeaser(value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-teaser-placeholder',
                         descriptionKey: 'career-profile-form.field-teaser-description',
                         maxlength: CAREER_PROFILE_TEASER_MAX_LENGTH,
                     },
@@ -1252,7 +1248,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => this._setTeaserEn(value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-teaser-placeholder-en',
                         descriptionKey: 'career-profile-form.field-teaser-description',
                         maxlength: CAREER_PROFILE_TEASER_MAX_LENGTH,
                     },
@@ -1335,7 +1330,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._previousExperience = value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
                         descriptionKey: 'career-profile-form.field-previous-experience-description',
                     },
                 )}
@@ -1346,7 +1340,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._previousExperienceEn = value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
                         descriptionKey:
                             'career-profile-form.field-previous-experience-en-description',
                     },
@@ -1360,7 +1353,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._furtherQualifications = value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
                         descriptionKey: 'career-profile-form.field-qualification-description',
                     },
                 )}
@@ -1371,7 +1363,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._furtherQualificationsEn = value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
                         descriptionKey: 'career-profile-form.field-qualification-en-description',
                     },
                 )}
@@ -1384,7 +1375,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._skillsText = value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
                         descriptionKey: 'career-profile-form.field-skills-description',
                     },
                 )}
@@ -1395,7 +1385,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._skillsTextEn = value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
                         descriptionKey: 'career-profile-form.field-skills-en-description',
                     },
                 )}
@@ -1409,7 +1398,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._personalInterests = value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
                         descriptionKey: 'career-profile-form.field-personal-interests-description',
                     },
                 )}
@@ -1420,7 +1408,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     (value) => (this._personalInterestsEn = value),
                     {
                         rows: 4,
-                        placeholderKey: 'career-profile-form.field-text-placeholder',
                         descriptionKey:
                             'career-profile-form.field-personal-interests-en-description',
                     },
@@ -1451,7 +1438,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     this._website,
                     (value) => (this._website = value),
                     {
-                        placeholderKey: 'career-profile-form.field-website-placeholder',
                         descriptionKey: 'career-profile-form.field-website-identity-warning',
                         type: 'url',
                     },
