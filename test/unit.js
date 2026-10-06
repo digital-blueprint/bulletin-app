@@ -992,8 +992,21 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
 
         const companyInformation =
             element.shadowRoot.querySelector('.company-info-list').textContent;
-        assert.include(companyInformation, element._i18n.t('company-form.industry-19'));
-        assert.include(companyInformation, element._i18n.t('company-form.industry-20'));
+        const sectorInformation = element.shadowRoot.querySelector('.sector-tags').textContent;
+        assert.include(sectorInformation, element._i18n.t('company-form.industry-19'));
+        assert.include(sectorInformation, element._i18n.t('company-form.industry-20'));
+        assert.equal(element.shadowRoot.querySelectorAll('.sector-tags .job-tag').length, 2);
+
+        // Industries are rendered as a full width entry of the company description list
+        assert.isNotNull(
+            element.shadowRoot.querySelector('.company-info-list .company-info-wide .sector-tags'),
+        );
+
+        // Every label of the company description list is a definition term ending with a colon
+        const labels = Array.from(element.shadowRoot.querySelectorAll('.company-info-list dt'));
+        assert.isAbove(labels.length, 0);
+        labels.forEach((label) => assert.match(label.textContent.trim(), /:$/));
+
         assert.include(companyInformation, '2750');
         assert.include(companyInformation, '6200');
 

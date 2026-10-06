@@ -402,28 +402,75 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
-    _renderCompanyTextBlock(title, value) {
+    /**
+     * Renders one label-value pair that spans the full width of the company information
+     * list, so longer values (industries, texts) are not squeezed into a single column.
+     * The label is rendered as a definition term and therefore always ends with a colon.
+     * @param {string} label
+     * @param {import('lit').TemplateResult} content
+     * @returns {import('lit').TemplateResult}
+     */
+    _renderCompanyWideItem(label, content) {
+        return html`
+            <div class="company-info-item company-info-wide">
+                <dt>${label}:</dt>
+                <dd>${content}</dd>
+            </div>
+        `;
+    }
+
+    /**
+     * Renders the company industries as outlined tags inside a full width list entry.
+     * @param {string} label
+     * @param {string[]} sectors
+     * @returns {import('lit').TemplateResult|string}
+     */
+    _renderCompanySectors(label, sectors) {
+        if (!sectors.length) {
+            return '';
+        }
+
+        return this._renderCompanyWideItem(
+            label,
+            html`
+                <ul class="sector-tags" role="list">
+                    ${sectors.map(
+                        (sector) => html`
+                            <li class="job-tag sector-tag" role="listitem">${sector}</li>
+                        `,
+                    )}
+                </ul>
+            `,
+        );
+    }
+
+    /**
+     * Renders a multi line company text as a full width list entry, preserving the
+     * line breaks from the stored text.
+     * @param {string} label
+     * @param {string} value
+     * @returns {import('lit').TemplateResult|string}
+     */
+    _renderCompanyTextBlock(label, value) {
         if (!value) {
             return '';
         }
 
         const lines = value.split(/\r?\n/);
 
-        return html`
-            <section class="company-info-block">
-                <h4 class="company-info-title">${title}</h4>
-                <p>
-                    ${lines.map((line, index) =>
-                        index === 0
-                            ? line
-                            : html`
-                                  <br />
-                                  ${line}
-                              `,
-                    )}
-                </p>
-            </section>
-        `;
+        return this._renderCompanyWideItem(
+            label,
+            html`
+                ${lines.map((line, index) =>
+                    index === 0
+                        ? line
+                        : html`
+                              <br />
+                              ${line}
+                          `,
+                )}
+            `,
+        );
     }
 
     _renderCompanyInformation(job, t) {
@@ -450,8 +497,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         )
             .map((value) => String(value).trim())
             .filter(Boolean)
-            .map((value) => t(`company-form.industry-${value}`, {defaultValue: value}))
-            .join(', ');
+            .map((value) => t(`company-form.industry-${value}`, {defaultValue: value}));
         const location = [postalCode, city].filter(Boolean).join(' ');
 
         if (
@@ -459,7 +505,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             !department &&
             !address &&
             !location &&
-            !sectors &&
+            !sectors.length &&
             !employeesNational &&
             !employeesTotal &&
             !email &&
@@ -510,7 +556,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                               `
                             : '',
                     )}
-                    ${this._renderCompanyMetaItem(t('company-form.field-industries'), sectors)}
                     ${this._renderCompanyMetaItem(
                         t('company-form.field-employees-national'),
                         employeesNational,
@@ -519,11 +564,12 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                         t('company-form.field-employees-total'),
                         employeesTotal,
                     )}
+                    ${this._renderCompanySectors(t('company-form.field-industries'), sectors)}
+                    ${this._renderCompanyTextBlock(t('company-form.field-teaser'), teaser)}
+                    ${this._renderCompanyTextBlock(t('company-form.field-description'), description)}
+                    ${this._renderCompanyTextBlock(t('company-form.field-products'), products)}
+                    ${this._renderCompanyTextBlock(t('company-form.field-locations'), locations)}
                 </dl>
-                ${this._renderCompanyTextBlock(t('company-form.field-teaser'), teaser)}
-                ${this._renderCompanyTextBlock(t('company-form.field-description'), description)}
-                ${this._renderCompanyTextBlock(t('company-form.field-products'), products)}
-                ${this._renderCompanyTextBlock(t('company-form.field-locations'), locations)}
             </div>
         `;
     }
@@ -1405,8 +1451,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .meta-item-label,
             .tag-label,
-            .company-info-item dt,
-            .company-info-block h4 {
+            .company-info-item dt {
                 font-weight: bolder;
             }
 
@@ -1645,8 +1690,17 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin: 0 0 0.75rem 0;
             }
 
-            .company-info-block {
-                margin-top: 0.5rem;
+            /* Industries are shown as outlined tags spanning the full width */
+            .sector-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.35rem 0.25rem;
+                list-style: none;
+                margin: 0;
+            }
+
+            .sector-tags .job-tag {
+                margin-bottom: 0;
             }
 
             .company-info-list {
@@ -1661,8 +1715,11 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 align-content: start;
             }
 
-            .company-info-item dd,
-            .company-info-block p {
+            .company-info-wide {
+                grid-column: 1 / -1;
+            }
+
+            .company-info-item dd {
                 margin: 0;
             }
 
