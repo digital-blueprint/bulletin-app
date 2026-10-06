@@ -999,6 +999,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 display: flex;
                 gap: 10px;
                 align-items: flex-end;
+                justify-content: space-between;
             }
 
             .selector-stack button {
@@ -1010,6 +1011,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 grid-template-columns: minmax(0, 1fr);
                 flex: 1 1 auto;
                 min-width: 0;
+                max-width: 50%;
             }
 
             .selector-label .select,
