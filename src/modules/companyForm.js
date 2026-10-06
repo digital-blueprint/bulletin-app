@@ -70,8 +70,6 @@ const keepCompanyFormTranslations = (t) => {
     t('company-form.field-products');
     t('company-form.field-show-partner-company');
     t('company-form.field-teaser');
-    t('company-form.field-url');
-    t('company-form.field-url-placeholder');
     t('company-form.industry-12');
     t('company-form.industry-13');
     t('company-form.industry-14');
@@ -259,9 +257,7 @@ class CompanyFormElement extends BaseFormElement {
                         rows: 2,
                     })}
                     ${this.renderStringField('email', 'company-form.field-email')}
-                    ${this.renderStringField('url', 'company-form.field-url', {
-                        placeholderKey: 'company-form.field-url-placeholder',
-                    })}
+                    ${this.renderStringField('url', 'company-form.field-url', {})}
                 </section>
 
                 <section class="form-section">
