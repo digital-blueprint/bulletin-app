@@ -221,56 +221,6 @@ export const getCareerProfileFieldItems = (t) =>
 export const getCareerProfileFieldLabels = (value, t) =>
     getCareerProfileSelectLabels(CAREER_PROFILE_FIELDS, value, t);
 
-// Who is allowed to view a career profile and express interest in it
-export const CAREER_PROFILE_VISIBILITY = {
-    NOBODY: 'nobody',
-    STAFF: 'staffOnly',
-    STAFF_AND_COMPANIES: 'staffAndCompanies',
-};
-
-const CAREER_PROFILE_VISIBILITY_LABEL_KEYS = {
-    [CAREER_PROFILE_VISIBILITY.NOBODY]: 'career-profile-form.visibility-nobody',
-    [CAREER_PROFILE_VISIBILITY.STAFF]: 'career-profile-form.visibility-staff',
-    [CAREER_PROFILE_VISIBILITY.STAFF_AND_COMPANIES]:
-        'career-profile-form.visibility-staff-and-companies',
-};
-
-/**
- * Returns the stored visibility of a profile. Profiles without a valid visibility (e.g. profiles
- * saved before the visibility was introduced) are treated as visible for nobody, so no profile
- * is shown to anyone without the student's explicit consent.
- * @param {any} data The additionalData of the profile
- * @returns {string}
- */
-export const getCareerProfileVisibility = (data) => {
-    const visibility = data?.visibility;
-    return Object.values(CAREER_PROFILE_VISIBILITY).includes(visibility)
-        ? visibility
-        : CAREER_PROFILE_VISIBILITY.NOBODY;
-};
-
-/**
- * Checks whether a profile may be shown to the current user.
- * @param {any} data The additionalData of the profile
- * @param {boolean} isStaff Whether the current user may read student contacts
- * @returns {boolean}
- */
-export const isCareerProfileVisibleFor = (data, isStaff) => {
-    const visibility = getCareerProfileVisibility(data);
-    if (visibility === CAREER_PROFILE_VISIBILITY.STAFF_AND_COMPANIES) {
-        return true;
-    }
-    return isStaff && visibility === CAREER_PROFILE_VISIBILITY.STAFF;
-};
-
-export const getCareerProfileVisibilityItems = (t) =>
-    Object.fromEntries(
-        Object.entries(CAREER_PROFILE_VISIBILITY_LABEL_KEYS).map(([value, key]) => [value, t(key)]),
-    );
-
-export const getCareerProfileVisibilityLabel = (data, t) =>
-    t(CAREER_PROFILE_VISIBILITY_LABEL_KEYS[getCareerProfileVisibility(data)]);
-
 export const normalizeStudentStudies = (localData) => {
     const value =
         localData.studies ??
@@ -540,9 +490,6 @@ const keepCareerProfileTranslations = (t) => {
     t('career-profile-form.required-field-note');
     t('career-profile-form.validation-required');
     t('career-profile-form.validation-url');
-    t('career-profile-form.visibility-nobody');
-    t('career-profile-form.visibility-staff');
-    t('career-profile-form.visibility-staff-and-companies');
 };
 
 // The generic Formalize helpers do not expose maxNumSubmissionsPerCreator yet,
@@ -658,7 +605,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._website = '';
         this._teaser = '';
         this._teaserEn = '';
-        this._visibility = CAREER_PROFILE_VISIBILITY.NOBODY;
         this._loadingStudentData = false;
         this._isSubmitting = false;
     }
@@ -697,7 +643,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             _website: {state: true},
             _teaser: {state: true},
             _teaserEn: {state: true},
-            _visibility: {state: true},
             _loadingStudentData: {state: true},
             _isSubmitting: {state: true},
         };
@@ -730,8 +675,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._website = '';
         this._teaser = '';
         this._teaserEn = '';
-        // Nobody is preselected, so a new profile is only published after an explicit choice
-        this._visibility = CAREER_PROFILE_VISIBILITY.NOBODY;
     }
 
     resetForCreate() {
@@ -778,7 +721,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     this._website = data.website || data.linkUrl || '';
                     this._teaser = normalizeTeaserValue(data.teaser);
                     this._teaserEn = normalizeTeaserValue(data.teaserEn);
-                    this._visibility = getCareerProfileVisibility(data);
                 }
             }
         });
@@ -884,7 +826,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     get _isFormValid() {
         return (
             this._summary.trim() !== '' &&
-            Boolean(this._visibility) &&
             (this._availableStudies.length === 0 || this._getDisplayStudies().length > 0) &&
             this._isWebsiteUrlValid()
         );
@@ -1037,9 +978,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         if (!this._isFormValid) {
             this._focusFirstInvalidField();
             const hasRequiredValues =
-                this._summary.trim() &&
-                this._visibility &&
-                (this._availableStudies.length === 0 || studies.length > 0);
+                this._summary.trim() && (this._availableStudies.length === 0 || studies.length > 0);
             sendNotification({
                 summary: t('career-profile-form.create-error-title'),
                 body: hasRequiredValues
@@ -1094,7 +1033,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             website: normalizeHttpUrl(this._website),
             teaser: normalizeTeaserValue(this._teaser),
             teaserEn: normalizeTeaserValue(this._teaserEn),
-            visibility: getCareerProfileVisibility({visibility: this._visibility}),
             studentCreatorId: this.auth?.['user-id'] || '',
             studentPersonIdentifier: this.auth?.person_id || '',
         };
@@ -1294,16 +1232,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         keepCareerProfileTranslations(t);
 
         return html`
-            <dbp-enum-element
-                name="visibility"
-                lang="${this.lang}"
-                label="${t('career-profile-form.field-visibility')}"
-                display-mode="list"
-                .items="${getCareerProfileVisibilityItems(t)}"
-                .value="${this._visibility}"
-                required
-                @change="${(event) => (this._visibility = event.detail.value)}"></dbp-enum-element>
-
             <div class="translation-row">
                 ${this.renderTextField(
                     'teaser',

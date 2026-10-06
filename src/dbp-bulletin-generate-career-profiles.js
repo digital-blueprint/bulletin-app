@@ -7,7 +7,6 @@ import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CareerProfileModule, {
     CAREER_PROFILE_FIELDS,
     CAREER_PROFILE_INDUSTRIES,
-    CAREER_PROFILE_VISIBILITY,
 } from './modules/careerProfileForm.js';
 
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
@@ -210,11 +209,6 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             website: `https://profiles.example.org/career-${Date.now()}-${index + 1}`,
             teaser: SAMPLE_SUMMARIES_DE[summaryIndex].slice(0, 100).trim(),
             teaserEn: SAMPLE_SUMMARIES[summaryIndex].slice(0, 100).trim(),
-            // Every third profile is only visible for TU Graz employees, to test both cases
-            visibility:
-                index % 3 === 2
-                    ? CAREER_PROFILE_VISIBILITY.STAFF
-                    : CAREER_PROFILE_VISIBILITY.STAFF_AND_COMPANIES,
             studentCreatorId: `generated-student-${Date.now()}-${index + 1}`,
             studentPersonIdentifier: '',
         };
