@@ -1002,13 +1002,20 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             }
 
             .selector-stack button {
-                margin-left: auto;
+                flex-shrink: 0;
             }
 
             .selector-label {
                 display: grid;
-                flex: 1;
-                max-width: 50%;
+                grid-template-columns: minmax(0, 1fr);
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            .selector-label .select,
+            .selector-label .field,
+            .selector-label .select2-control {
+                min-width: 0;
             }
 
             .selector-label,
@@ -1032,13 +1039,20 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
 
             .selector-label .select2-container--default .select2-selection--single {
                 position: relative;
+                flex-wrap: nowrap;
             }
 
             .selector-label
                 .select2-container--default
                 .select2-selection--single
                 .select2-selection__rendered {
-                padding-right: 1rem;
+                display: block;
+                flex: 1 1 0;
+                min-width: 0;
+                overflow: hidden;
+                padding-right: 0;
+                white-space: nowrap !important;
+                text-overflow: ellipsis !important;
             }
 
             #work-location-region-dropdown,
@@ -1100,18 +1114,17 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 margin: 0;
             }
 
-            @media (max-width: 650px) {
+            @media (max-width: 700px) {
                 .selector-stack {
                     flex-direction: column;
                     align-items: stretch;
                 }
 
                 .selector-label {
-                    max-width: 100%;
+                    flex: none;
                 }
 
                 .selector-stack button {
-                    margin-left: 0;
                     align-self: flex-end;
                 }
                 .work-locations {
