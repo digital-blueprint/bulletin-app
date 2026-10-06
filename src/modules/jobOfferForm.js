@@ -1002,6 +1002,62 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             }
         });
         super.update(changedProperties);
+
+        const oldOptionalContent = changedProperties.get('optionalContent');
+        if (oldOptionalContent === false && this.optionalContent) {
+            void this._scrollToOptionalData();
+        } else if (oldOptionalContent === true && !this.optionalContent) {
+            void this._scrollToModalTop();
+        }
+    }
+
+    /**
+     * Scrolls the edit dialog to the optional-data section after it is expanded.
+     * @returns {Promise<void>}
+     */
+    async _scrollToOptionalData() {
+        await this.updateComplete;
+
+        const root = /** @type {Document|ShadowRoot} */ (this.getRootNode());
+        const modal = /** @type {HTMLElement|null} */ (
+            root.querySelector('dbp-modal[modal-id="edit-form-dialog"]')
+        );
+        const modalContent = modal?.shadowRoot?.querySelector('.modal-content');
+        const optionalData = this.renderRoot?.querySelector('#optional-data-wrapper');
+        if (!modalContent || !optionalData) {
+            return;
+        }
+
+        const modalContentRect = modalContent.getBoundingClientRect();
+        const optionalDataRect = optionalData.getBoundingClientRect();
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        modalContent.scrollTo({
+            top: modalContent.scrollTop + optionalDataRect.top - modalContentRect.top,
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+    }
+
+    /**
+     * Scrolls the edit dialog to the top after the optional-data section is collapsed.
+     * @returns {Promise<void>}
+     */
+    async _scrollToModalTop() {
+        await this.updateComplete;
+
+        const root = /** @type {Document|ShadowRoot} */ (this.getRootNode());
+        const modal = /** @type {HTMLElement|null} */ (
+            root.querySelector('dbp-modal[modal-id="edit-form-dialog"]')
+        );
+        const modalContent = modal?.shadowRoot?.querySelector('.modal-content');
+        if (!modalContent) {
+            return;
+        }
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        modalContent.scrollTo({
+            top: 0,
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
     }
 
     /**
