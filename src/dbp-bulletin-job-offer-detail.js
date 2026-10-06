@@ -46,6 +46,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         /** @type {ResizeObserver|null} Observes the modal content to detect scrollability */
         this._modalResizeObserver = null;
         this._onModalResize = this._handleModalResize.bind(this);
+        // Detect the Web Share API once so the "other apps" share button can be shown or hidden.
+        this.navigatorShare = typeof navigator !== 'undefined' && 'share' in navigator;
     }
 
     static get scopedElements() {
@@ -66,6 +68,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             _hasApplied: {state: true},
             _hideApplyAnchor: {state: true},
             universityShortName: {type: String, attribute: 'university-short-name'},
+            navigatorShare: {type: Boolean},
         };
     }
 
@@ -699,36 +702,33 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     /**
-     * Handles the share button — uses native share if available, otherwise toggles the custom share dropdown.
+     * Shares the job offer via the native Web Share API (only rendered when available).
      * Uses the same i18n template as mailto for consistency.
      */
     async onShare() {
-        if ('share' in navigator) {
-            try {
-                const {subject, body} = this._getShareEmailData();
-                const url = this.getShareUrl();
-                // Don't pass `url` separately — body already contains `Apply here: {{url}}`.
-                // Passing url additionally would append it again (e.g. after "Viel Erfolg!").
-                await navigator.share({
-                    title: subject,
-                    text: body,
-                    url,
+        try {
+            const {subject, body} = this._getShareEmailData();
+            const url = this.getShareUrl();
+            // Don't pass `url` separately — body already contains `Apply here: {{url}}`.
+            // Passing url additionally would append it again (e.g. after "Viel Erfolg!").
+            await navigator.share({
+                title: subject,
+                text: body,
+                url,
+            });
+            this._shareDropdownOpen = false;
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('Error:', error);
+                sendNotification({
+                    summary: this._i18n.t('job-offer-detail.notification.error-heading'),
+                    body: this._i18n.t('job-offer-detail.notification.error-body'),
+                    type: 'danger',
+                    timeout: 0,
+                    replaceId: 'dbp-notification-apply',
+                    targetNotificationId: 'dbp-notification-apply',
                 });
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Error:', error);
-                    sendNotification({
-                        summary: this._i18n.t('job-offer-detail.notification.error-heading'),
-                        body: this._i18n.t('job-offer-detail.notification.error-body'),
-                        type: 'danger',
-                        timeout: 0,
-                        replaceId: 'dbp-notification-apply',
-                        targetNotificationId: 'dbp-notification-apply',
-                    });
-                }
             }
-        } else {
-            this._shareDropdownOpen = !this._shareDropdownOpen;
         }
     }
 
@@ -932,6 +932,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     render() {
         const job = this.job;
+
         const i18n = this._i18n;
         const t = (key, options) => (i18n ? i18n.t(key, options) : key);
         const isExternalJob = this._isExternalJob(job);
@@ -1032,7 +1033,10 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       <button
                                                           class="button is-secondary"
                                                           type="button"
-                                                          @click="${this.onShare}">
+                                                          aria-expanded="${this._shareDropdownOpen}"
+                                                          @click="${() =>
+                                                              (this._shareDropdownOpen =
+                                                                  !this._shareDropdownOpen)}">
                                                           <dbp-icon
                                                               class="btn-icon"
                                                               name="share2"
@@ -1041,6 +1045,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                               ${t('job-offer-detail.share')}
                                                           </span>
                                                       </button>
+
                                                       ${
                                                           this._shareDropdownOpen
                                                               ? html`
@@ -1052,9 +1057,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                 name="link"
                                                                                 aria-hidden="true"
                                                                                 class="btn-icon"></dbp-icon>
-                                                                            ${t(
-                                                                                'job-offer-detail.share-copy',
-                                                                            )}
+                                                                            ${t('job-offer-detail.share-copy')}
                                                                         </button>
                                                                         <button
                                                                             class="button"
@@ -1063,34 +1066,17 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                 name="envelope"
                                                                                 aria-hidden="true"
                                                                                 class="btn-icon"></dbp-icon>
-                                                                            ${t(
-                                                                                'job-offer-detail.share-email',
-                                                                            )}
+                                                                            ${t('job-offer-detail.share-email')}
                                                                         </button>
                                                                         <button
-                                                                            class="button"
-                                                                            @click="${
-                                                                                this.shareOnWhatsApp
-                                                                            }">
+                                                                            class="button ${this.navigatorShare ? 'navigator-visible' : 'navigator-hidden'}"
+                                                                            @click="${this.onShare}">
                                                                             <dbp-icon
-                                                                                name="whatsapp"
+                                                                                name="open-new-window"
                                                                                 aria-hidden="true"
                                                                                 class="btn-icon"></dbp-icon>
                                                                             ${t(
-                                                                                'job-offer-detail.share-whatsapp',
-                                                                            )}
-                                                                        </button>
-                                                                        <button
-                                                                            class="button"
-                                                                            @click="${
-                                                                                this.shareOnLinkedIn
-                                                                            }">
-                                                                            <dbp-icon
-                                                                                name="linkedin-original"
-                                                                                aria-hidden="true"
-                                                                                class="btn-icon"></dbp-icon>
-                                                                            ${t(
-                                                                                'job-offer-detail.share-linkedin',
+                                                                                'job-offer-detail.share-other-apps',
                                                                             )}
                                                                         </button>
                                                                     </div>
@@ -1801,6 +1787,14 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 border: none;
                 padding: 10px 10px;
                 gap: 10px;
+            }
+
+            .share-dropdown .button.navigator-visible {
+                display: flex;
+            }
+
+            .share-dropdown .button.navigator-hidden {
+                display: none;
             }
 
             .share-button-container {
