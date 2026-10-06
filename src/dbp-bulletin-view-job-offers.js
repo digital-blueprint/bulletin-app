@@ -1465,7 +1465,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   @change="${
                                                       this.onWorkLocationChange
                                                   }"></dbp-work-location-select-element>
-                                              <label class="filter-checkbox">
+                                              <label class="remote-checkbox ">
                                                   <input
                                                       type="checkbox"
                                                       class="filter-checkbox-input"
@@ -1862,6 +1862,20 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 height: 33px;
                 /* Overlap the select's right border so only a single divider line is visible */
             }
+            .remote-checkbox {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                white-space: nowrap;
+                cursor: pointer;
+                box-sizing: border-box;
+                padding: 0 0.75rem;
+                border: var(--dbp-border);
+                border-radius: var(--dbp-border-radius);
+                height: 32px;
+                margin-left: -1px;
+            }
 
             /* Custom bordered checkbox instead of the default (blue) browser checkbox */
             .filter-checkbox-input {
@@ -2084,8 +2098,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             @media (max-width: 900px) {
                 .search-filter-row {
-                    grid-template-columns: minmax(0, 1fr) auto;
-                    gap: 1em;
+                    grid-template-columns: minmax(0, 1fr) auto auto;
+                    gap: 0.75em;
                 }
 
                 .search-filter-row .search-field {
@@ -2201,6 +2215,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 }
 
                 .filter-checkbox {
+                    margin-left: 0;
+                    height: var(--filter-control-height);
+                }
+
+                .remote-checkbox {
+                    margin-top: -1px;
                     margin-left: 0;
                     height: var(--filter-control-height);
                 }
