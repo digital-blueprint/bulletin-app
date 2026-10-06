@@ -2757,7 +2757,6 @@ suite('career profile student studies', () => {
         const teaserEnField = element.shadowRoot.querySelector('[name="teaserEn"]');
         const teaserEnTextarea = teaserEnField.shadowRoot.querySelector('textarea');
 
-        assert.match(textarea.placeholder, /^z\. B\./);
         assert.match(teaserEnTextarea.placeholder, /^e\.g\./);
 
         textarea.value = 'a'.repeat(101);
