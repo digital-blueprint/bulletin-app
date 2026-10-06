@@ -1913,9 +1913,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                   class="fieldset-external"
                                   lang="${this.lang}"
                                   label="${t('manage-job-offers.field-external-job-url')}"
-                                  placeholder="${t(
-                                      'manage-job-offers.field-external-job-url-placeholder',
-                                  )}"
                                   type="url"
                                   .value="${this._externalJobUrl}"
                                   required
