@@ -872,6 +872,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._isSubmitting = false;
         /** @type {boolean} Whether a failed submit attempt should reveal inline errors of custom fields */
         this._showValidationErrors = false;
+        this.optionalContent = false;
     }
 
     _createAreaOfInterestItems() {
@@ -930,6 +931,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _requiredQualificationTextEn: {state: true},
             _weOfferTextEn: {state: true},
             _isSubmitting: {state: true},
+            optionalContent: {Boolean},
             _showValidationErrors: {state: true},
         };
     }
@@ -1363,6 +1365,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._weOfferTextEn = '';
         this._isSubmitting = false;
         this._showValidationErrors = false;
+        this.optionalContent = false;
     }
 
     /**
@@ -2023,9 +2026,12 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             </div>
 
             <div id="optional-data-wrapper" class="optional-data-wrapper">
+                <button id="optional-button" class="optional-button" tabindex="0"  @click="${() => (this.optionalContent = !this.optionalContent)}" aria-label="Optional Data" aria-expanded="${this.optionalContent}">
+                <dbp-icon name="chevron-down" aria-hidden="true" class="optional-data-icon ${this.optionalContent ? 'rotated' : ''}"></dbp-icon>
                 <h3>${t('manage-job-offers.optional-data')}</h3>
+                </button>
                 <hr aria-hidden="true" />
-                <div class="content">
+                <div class="content  ${this.optionalContent ? 'optional-data-visible' : 'optional-data-hidden'}">
                     <div class="translation-row">
                         <dbp-date-element
                             name="application-deadline"
@@ -2421,6 +2427,48 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             }
             .row-three {
                 grid-template-columns: repeat(3, minmax(0px, 1fr));
+            }
+
+            .optional-button {
+                background-color: var(--dbp-background);
+                border: none;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                width: 100%;
+                gap: 0.4rem;
+            }
+
+            .optional-data-icon {
+                color: var(--dbp-accent);
+                font-size: 1.3em;
+                transition: transform 0.2s ease;
+                padding-bottom: 0.2rem;
+            }
+
+            .optional-data-icon.rotated {
+                transform: rotate(180deg);
+            }
+
+            .optional-data-visible {
+                display: block;
+                transition: transform 0.2s ease;
+            }
+
+            .optional-data-hidden {
+                display: none;
+                transition: transform 0.2s ease;
+                margin-bottom: 0.5rem;
+            }
+
+            .optional-header {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                box-sizing: border-box;
+                padding: 0;
+                cursor: pointer;
+                margin-top: 1rem;
             }
 
             hr {
