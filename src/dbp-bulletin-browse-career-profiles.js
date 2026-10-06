@@ -21,6 +21,7 @@ import CareerProfileModule, {
     CareerProfileInterestFormElement,
     normalizeStudentStudies,
     normalizeCareerProfileSelectValues,
+    isCareerProfileVisibleFor,
 } from './modules/careerProfileForm.js';
 import {
     getLocationHierarchy,
@@ -30,6 +31,11 @@ import {
     WorkLocationSelectElement,
 } from './modules/workLocationsElement.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
+
+// Users with this role may read the profiles students released for university employees
+const INTERNAL_CAREER_PROFILE_READER_ROLE = 'ROLE_BULLETIN_INTERNAL_CAREER_PROFILE_READER';
+// Users with this role may read the profiles students released for external companies
+const EXTERNAL_CAREER_PROFILE_READER_ROLE = 'ROLE_BULLETIN_EXTERNAL_CAREER_PROFILE_READER';
 
 class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     static get scopedElements() {
@@ -53,7 +59,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         this.filterIndustry = '';
         this.filterField = '';
         this.filterWorkLocation = '';
+        // All loaded profiles, including the ones the current user isn't allowed to see
+        this._allProfiles = [];
+        // Profiles the current user is allowed to see, based on the audiences chosen by the student
         this._profiles = [];
+        // Key of the reader roles the profiles were filtered with, to detect role changes
+        this._appliedReaderKey = '';
         this._selectedProfile = null;
         this._loadingProfiles = false;
         this._loadError = false;
@@ -94,6 +105,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             // table in that case, otherwise the browse page gets stuck behind a loading flash.
             if (!this._profilesLoaded || userChanged) {
                 void this._fetchProfiles();
+            } else if (this._appliedReaderKey !== this._getReaderKey(this._readers)) {
+                // Roles can arrive after the profiles have been loaded
+                this._applyProfileVisibility();
+                this._handleRoutingUrlChange();
             }
         }
     }
@@ -159,7 +174,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             }
 
             const data = await response.json();
-            this._profiles = (data['hydra:member'] ?? []).map((form) => this._mapProfile(form));
+            this._allProfiles = (data['hydra:member'] ?? []).map((form) => this._mapProfile(form));
+            this._applyProfileVisibility();
             this._profilesLoaded = true;
             this._handleRoutingUrlChange();
         } catch (error) {
@@ -186,6 +202,34 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             additionalData,
             dataFeedSchema: form.dataFeedSchema ?? '',
         };
+    }
+
+    /**
+     * Returns which released profiles the current user may read, based on their roles.
+     * @returns {{internal: boolean, external: boolean}}
+     */
+    get _readers() {
+        const roles = /** @type {string[]} */ (this.auth?._roles ?? []);
+        return {
+            internal: roles.includes(INTERNAL_CAREER_PROFILE_READER_ROLE),
+            external: roles.includes(EXTERNAL_CAREER_PROFILE_READER_ROLE),
+        };
+    }
+
+    _getReaderKey({internal, external}) {
+        return `${internal}:${external}`;
+    }
+
+    /**
+     * Only keeps the profiles the student has released for an audience the current user may
+     * read. Users without any reader role don't see any profiles.
+     */
+    _applyProfileVisibility() {
+        const readers = this._readers;
+        this._appliedReaderKey = this._getReaderKey(readers);
+        this._profiles = this._allProfiles.filter((profile) =>
+            isCareerProfileVisibleFor(profile.additionalData, readers),
+        );
     }
 
     _getLocalizedName(localizedNames) {

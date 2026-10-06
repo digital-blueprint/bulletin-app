@@ -33,6 +33,11 @@ These templates will be converted to div containers when the page is loaded and 
 
 Enables you to explore student career profiles for potential job candidates.
 
+Students choose for whom their anonymized profile is visible. The activity only shows the profiles released for an audience the user may read:
+
+- `ROLE_BULLETIN_INTERNAL_CAREER_PROFILE_READER`: profiles released for university employees
+- `ROLE_BULLETIN_EXTERNAL_CAREER_PROFILE_READER`: profiles released for external companies
+
 Note that you will need a Keycloak server along with a client ID for the domain you are running this HTML on.
 
 #### Attributes

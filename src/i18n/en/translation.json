@@ -28,7 +28,7 @@
         "delete-profile": "Delete profile",
         "delete-success-body": "The career profile was deleted.",
         "delete-success-title": "Profile deleted",
-        "description": "Employers registered with us can then view your anonymous profile and express their interest, in which case you will receive an e-mail notice and can contact the employer personally.",
+        "description": "You decide who may view your anonymized profile: university employees, external companies registered with us, or both. They can express their interest without obligation, in which case you will receive an e-mail notice and can contact them personally.",
         "edit-profile": "Edit profile",
         "load-error": "The career profiles could not be loaded.",
         "no-profiles": "No career profile has been generated yet.",
@@ -108,6 +108,9 @@
         "field-teaser-description": "Add a short sentence or slogan (max. 100 characters) that makes partner companies curious at first glance. This will be displayed prominently above your profile.",
         "field-teaser-title": "Stand out - optional teaser",
         "field-teaser-title-en": "Stand out - optional teaser (en)",
+        "field-visibility": "Who should be allowed to view this anonymized profile and express interest?",
+        "field-visibility-description": "If no option is selected, only you can see your profile.",
+        "field-visibility-view-mode": "Visible for",
         "field-website": "Website",
         "field-website-identity-warning": "If you add a link to your website, please keep in mind that this will reveal your identity to companies or organizations that see your profile.",
         "field-website-placeholder": "https://...",
@@ -167,7 +170,10 @@
         "skip-to-close-button": "Skip to the close button",
         "skip-to-save-button": "Skip to the {{label}} button",
         "validation-required": "Please fill in all required fields.",
-        "validation-url": "Please enter a valid website URL containing a domain name, for example example.org."
+        "validation-url": "Please enter a valid website URL containing a domain name, for example example.org.",
+        "visibility-companies": "external companies",
+        "visibility-nobody": "only you",
+        "visibility-staff": "University employees"
     },
     "company-form": {
         "field-address": "Address",

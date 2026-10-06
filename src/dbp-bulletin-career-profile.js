@@ -11,11 +11,13 @@ import {Modal} from '@dbp-toolkit/common/src/modal.js';
 import {Notification} from '@dbp-toolkit/notification';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
+import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CareerProfileModule, {
     CareerProfileEditFormElement,
     CareerProfileInterestFormElement,
     getCareerProfileFieldLabels,
+    getCareerProfileVisibilityLabel,
     getLocalizedStudentStudyLabel,
     mergeLocalizedStudentStudies,
     normalizeStudentStudies,
@@ -87,6 +89,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     update(changedProperties) {
+        // Apply the translation overrides of the app, e.g. for the name of the university
+        if ((changedProperties.has('lang') || changedProperties.has('langDir')) && this.langDir) {
+            void setOverridesByGlobalCache(this._i18n, this);
+        }
+
         super.update(changedProperties);
 
         if (changedProperties.has('routingUrl')) {
@@ -744,6 +751,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             : ''
                     }
                     <dl>
+                        <dt>${t('career-profile-form.field-visibility-view-mode')}:</dt>
+                        <dd class="profile-visibility">
+                            ${getCareerProfileVisibilityLabel(data, t)}
+                        </dd>
                         ${this._renderStudiesMeta(profile)}
                         ${
                             workLocationLabels && workLocationLabels.length
@@ -968,6 +979,14 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 }
 
                 <dl class="profile-meta">
+                    ${
+                        isOwnProfile
+                            ? this._renderMetaItem(
+                                  t('career-profile-form.field-visibility-view-mode'),
+                                  getCareerProfileVisibilityLabel(data, t),
+                              )
+                            : ''
+                    }
                     ${this._renderMetaItem(
                         t('career-profile-form.field-availability'),
                         data.availability,

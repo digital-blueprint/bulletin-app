@@ -28,7 +28,7 @@
         "delete-profile": "Profil löschen",
         "delete-success-body": "Das Karriereprofil wurde gelöscht.",
         "delete-success-title": "Profil gelöscht",
-        "description": "Bei uns registrierte Arbeitgeber*innen können Ihr anonymes Profil ansehen und unverbindliches Interesse vermitteln. In diesem Fall erhalten Sie eine Benachrichtigung per E-Mail und können sich persönlich an die potenziellen Arbeitgeber*innen wenden.",
+        "description": "Sie entscheiden selbst, wer Ihr anonymisiertes Profil sehen darf: Mitarbeitende der Universität, bei uns registrierte externe Unternehmen oder beide. Diese können unverbindlich Interesse bekunden. In diesem Fall erhalten Sie eine Benachrichtigung per E-Mail und können sich persönlich an die Interessent*innen wenden.",
         "edit-profile": "Profil bearbeiten",
         "load-error": "Die Karriereprofile konnten nicht geladen werden.",
         "no-profiles": "Es wurde noch kein Karriereprofil erstellt.",
@@ -108,6 +108,9 @@
         "field-teaser-description": "Ergänze einen kurzen Satz oder Slogan (max. 100 Zeichen), der Partnerfirmen auf den ersten Blick neugierig macht. Dieser wird prominent über deinem Profil angezeigt.",
         "field-teaser-title": "Mach auf dich aufmerksam - optionaler Teaser",
         "field-teaser-title-en": "Mach auf dich aufmerksam - optionaler Teaser (en)",
+        "field-visibility": "Wer darf dieses anonymisierte Profil einsehen und Interesse daran bekunden?",
+        "field-visibility-description": "Falls keine Option ausgewählt ist, ist dieses Profil nur für Sie sichtbar.",
+        "field-visibility-view-mode": "Sichtbar für",
         "field-website": "Website",
         "field-website-identity-warning": "Wenn Sie einen Link zu Ihrer Website hinzufügen, beachten Sie bitte, dass dadurch Ihre Identität für Firmen oder Organisationen sichtbar wird, die Ihr Profil sehen.",
         "field-website-placeholder": "https://...",
@@ -167,7 +170,10 @@
         "skip-to-close-button": "Zum Schließen-Button springen",
         "skip-to-save-button": "Zum Button „{{label}}“ springen",
         "validation-required": "Bitte füllen Sie alle Pflichtfelder aus.",
-        "validation-url": "Bitte geben Sie eine gültige Website-URL mit einem Domainnamen ein, zum Beispiel example.org."
+        "validation-url": "Bitte geben Sie eine gültige Website-URL mit einem Domainnamen ein, zum Beispiel example.org.",
+        "visibility-companies": "externe Unternehmen",
+        "visibility-nobody": "nur Sie",
+        "visibility-staff": "Mitarbeitende der Universität"
     },
     "company-form": {
         "field-address": "Adresse",

@@ -52,5 +52,18 @@
         "manage-job-offers": {
             "job-type-internal": "TU Graz"
         }
+    },
+    "dbp-bulletin-career-profile": {
+        "career-profile": {
+            "description": "Sie entscheiden selbst, wer Ihr anonymisiertes Profil sehen darf: Mitarbeitende der TU Graz, bei uns registrierte externe Unternehmen oder beide. Diese können unverbindlich Interesse bekunden. In diesem Fall erhalten Sie eine Benachrichtigung per E-Mail und können sich persönlich an die Interessent*innen wenden."
+        },
+        "career-profile-form": {
+            "visibility-staff": "Mitarbeitende der TU Graz"
+        }
+    },
+    "dbp-career-profile-edit-form": {
+        "career-profile-form": {
+            "visibility-staff": "Mitarbeitende der TU Graz"
+        }
     }
 }
