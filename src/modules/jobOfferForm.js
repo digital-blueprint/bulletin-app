@@ -2487,7 +2487,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 border: none;
                 cursor: pointer;
                 display: flex;
-                align-items: center;
+                align-items: baseline;
                 width: 100%;
                 gap: 0.4rem;
             }
@@ -2496,7 +2496,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 color: var(--dbp-accent);
                 font-size: 1.3em;
                 transition: transform 0.2s ease;
-                padding-bottom: 0.2rem;
             }
 
             .optional-data-icon.rotated {
