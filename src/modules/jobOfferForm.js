@@ -46,6 +46,7 @@ import {pickCompanyData} from './companyForm.js';
 import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from '../featureFlags.js';
 import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
 import {openManagedJobOfferPreview} from './jobOfferPreview.js';
+import {getFileUploadLimitHint} from '../utils/fileUploadHint.js';
 
 /**
  * @typedef {Record<string, any>} JobOfferData
@@ -175,10 +176,6 @@ const keepJobOfferAttachmentTranslations = (t) => {
     t('edit-form.success-updated', 'Job offer updated successfully');
     t('errors.error-title', 'Error');
     t('success.success-title', 'Success');
-    t('job-offer-detail.attachments-help', {
-        count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-        size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
-    });
     t('job-offer-detail.notification.attachment-limit-body', {
         count: JOB_APPLICATION_ATTACHMENT_LIMIT,
     });
@@ -3432,9 +3429,10 @@ export class JobOfferFormElement extends BaseFormElement {
                         <div class="file-upload-title-container">
                             <h5 class="attachments-title">${t('job-offer-detail.attachments')}</h5>
                             <span class="file-upload-limit-warning">
-                                ${t('job-offer-detail.attachments-help', {
-                                    count: JOB_APPLICATION_ATTACHMENT_LIMIT,
-                                    size: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                                ${getFileUploadLimitHint(t, {
+                                    maxFiles: JOB_APPLICATION_ATTACHMENT_LIMIT,
+                                    maxSizeMb: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
+                                    examples: t('job-offer-detail.attachments-examples'),
                                 })}
                             </span>
                         </div>

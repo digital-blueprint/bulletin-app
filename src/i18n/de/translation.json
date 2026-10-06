@@ -256,6 +256,15 @@
     "errors": {
         "error-title": "Fehler"
     },
+    "file-upload": {
+        "hint": "({{- content}})",
+        "hint-with-examples": "({{- examples}}; {{- limits}})",
+        "limit-files_one": "max. {{count}} Datei",
+        "limit-files_other": "max. {{count}} Dateien",
+        "limit-files-and-size_one": "max. {{count}} Datei und {{size}} MB pro Datei",
+        "limit-files-and-size_other": "max. {{count}} Dateien und {{size}} MB pro Datei",
+        "limit-size": "max. {{size}} MB pro Datei"
+    },
     "generate-career-profiles": {
         "count-description": "Wählen Sie, wie viele zufällige Karriereprofile erstellt werden sollen.",
         "count-label": "Anzahl der zu generierenden Karriereprofile",
@@ -427,8 +436,7 @@
         "apply": "Bewerben",
         "apply-success": "Ihre Bewerbung wurde erfolgreich übermittelt.",
         "attachments": "Anhänge",
-        "attachments-help_one": "(max. {{count}} Dateien) (max. {{size}} MB pro Datei)",
-        "attachments-help_other": "(max. {{count}} Dateien) (max. {{size}} MB pro Datei)",
+        "attachments-examples": "z. B. Lebenslauf, Zeugnisse, Portfolio usw.",
         "company": "Firmeninformationen",
         "contact-information": "Kontaktinformationen",
         "contract-duration": "Befristung",

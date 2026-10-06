@@ -6,6 +6,7 @@ import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CompanyModule, {pickCompanyData} from './modules/companyForm.js';
+import {getFileUploadLimitHint} from './utils/fileUploadHint.js';
 
 /**
  * @typedef {{rowNumber: number, name: string}} ImportRow
@@ -20,6 +21,7 @@ import CompanyModule, {pickCompanyData} from './modules/companyForm.js';
 
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const SUBMISSION_STATE_SUBMITTED = 4;
+const IMPORT_FILE_LIMIT = 1;
 const IMPORT_LIMIT_OPTIONS = ['10', '20', '50', '100', '200', '500', '1000', 'all'];
 // Import-only column, it is not part of the company form and gets dropped by pickCompanyData().
 const LAST_JOB_OFFER_FIELD = 'letzte_stellenanzeige';
@@ -939,7 +941,10 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             </section>
 
             <section class="import-card">
-                <p class="hint">${t('import-companies.file-hint')}</p>
+                <p class="hint">
+                    ${t('import-companies.file-hint')}
+                    ${getFileUploadLimitHint(t, {maxFiles: IMPORT_FILE_LIMIT})}
+                </p>
                 <div class="checkbox-option">
                     <label for="dry-run">${t('import-companies.dry-run-label')}</label>
                     <p id="dry-run-description">${t('import-companies.dry-run-description')}</p>
@@ -1088,7 +1093,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                     context="${t('import-companies.file-source-title')}"
                     button-label="${t('import-companies.select-file')}"
                     enabled-targets="local"
-                    number-of-files="1"
+                    number-of-files="${IMPORT_FILE_LIMIT}"
                     lang="${this.lang}"
                     nextcloud-auth-url="${this.nextcloudAuthUrl}"
                     nextcloud-web-dav-url="${this.nextcloudWebDavUrl}"
