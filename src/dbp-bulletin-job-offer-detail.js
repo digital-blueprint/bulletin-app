@@ -551,7 +551,8 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <span class="meta-item-label">${t('manage-job-offers.field-work-locations')}:</span>
             ${labels.map(
-                (label) => html`
+                (label, index) => html`
+                    ${index > 0 ? '/ ' : ''}
                     <span class="work-location-list-item">${label}</span>
                 `,
             )}
@@ -1517,9 +1518,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .work-location-list-item {
                 display: inline-block;
-                padding: 0.1rem 0.4rem;
                 color: var(--dbp-content);
-                margin-bottom: 0.2rem;
             }
 
             /* Right-side tag and action buttons stay in the second grid column */
