@@ -2269,7 +2269,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             name="link-url"
                             lang="${this.lang}"
                             label="${t('manage-job-offers.field-link-url')}"
-                            placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
                             type="url"
                             .value="${this._linkUrl}"
                             @change="${(e) =>
@@ -2279,7 +2278,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             name="link-url-en"
                             lang="${this.lang}"
                             label="${t('manage-job-offers.field-link-url-en')}"
-                            placeholder="${t('manage-job-offers.field-link-url-placeholder')}"
                             type="url"
                             .value="${this._linkUrlEn}"
                             @change="${(e) =>
