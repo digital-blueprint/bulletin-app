@@ -1915,8 +1915,8 @@ suite('jobOfferForm application submission', () => {
             en: 'Title',
         });
         assert.deepEqual(schema.properties.freeText.localizedName, {
-            de: 'Warum haben Sie Interesse an diesem Stellenangebot?',
-            en: 'Why are you interested in this job offer?',
+            de: 'Optional können Sie auf sich aufmerksam machen, indem Sie Ihr Interesse an dieser Stelle begründen oder weiter unten Dateien hochladen.',
+            en: 'Optionally, you can draw attention to yourself by explaining your interest in this job or uploading files below.',
         });
     });
 
