@@ -467,7 +467,7 @@
         "share-email-body-organization-suffix": " on {{- organization}}",
         "share-email-subject": "{{- title}}{{- organizationSuffix}}",
         "share-good-luck": "Good luck!",
-        "share-other-apps": "Share with other apps",
+        "share-other-apps": "Use device apps",
         "share-TuGraz-job-hub": "TU Graz Job Hub",
         "start-date": "Start of employment",
         "submit": "Submit application",
