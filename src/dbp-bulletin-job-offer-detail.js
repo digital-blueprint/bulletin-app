@@ -1072,7 +1072,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                             class="button ${this.navigatorShare ? 'navigator-visible' : 'navigator-hidden'}"
                                                                             @click="${this.onShare}">
                                                                             <dbp-icon
-                                                                                name="open-new-window"
+                                                                                name="share"
                                                                                 aria-hidden="true"
                                                                                 class="btn-icon"></dbp-icon>
                                                                             ${t(
