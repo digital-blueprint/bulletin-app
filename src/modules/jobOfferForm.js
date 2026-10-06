@@ -3367,12 +3367,10 @@ export class JobOfferFormElement extends BaseFormElement {
                             subscribe="lang"
                             name="freeText"
                             label="${t('job-offer-detail.message')}"
+                            description="${t('job-offer-detail.max-characters')}"
                             .value="${this.formData?.freeText ?? ''}"
                             rows="4"
                             maxlength="2000"></dbp-form-string-element>
-                        <div class="job-offer-character-limit">
-                            ${t('job-offer-detail.max-characters')}
-                        </div>
                     </div>
                     <div class="file-upload-container">
                         <div class="file-upload-title-container">
@@ -3618,13 +3616,6 @@ export class JobOfferFormElement extends BaseFormElement {
                     display: flex;
                     flex-direction: column;
                 }
-                .job-offer-character-limit {
-                    color: var(--dbp-muted);
-                    font-size: 0.875rem;
-                    line-height: 1.4;
-                    margin: -0.35rem 0 0.75rem;
-                }
-
                 .file-upload-container {
                     margin-top: 1rem;
                 }
