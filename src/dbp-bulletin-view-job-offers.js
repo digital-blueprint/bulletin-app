@@ -1893,6 +1893,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .filter-checkbox-label {
                 cursor: pointer;
+                font-weight: bolder;
             }
 
             /* Filter toggle button in the primary row */
