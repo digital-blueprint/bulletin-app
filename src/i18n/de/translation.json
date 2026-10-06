@@ -441,7 +441,7 @@
         "job-description": "Beschreibung der Stellenanzeige",
         "link": "Link",
         "max-characters": "Maximal 2000 Zeichen",
-        "message": "Warum haben Sie Interesse an diesem Stellenangebot?",
+        "message": "Optional können Sie auf sich aufmerksam machen, indem Sie Ihr Interesse an dieser Stelle begründen oder weiter unten Dateien hochladen.",
         "monthly-salary": "Gehalt",
         "notification": {
             "attachment-limit-body_one": "Sie können maximal {{count}} PDF-Datei hochladen.",

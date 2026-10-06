@@ -441,7 +441,7 @@
         "job-description": "Job description",
         "link": "Link",
         "max-characters": "Maximum 2000 characters",
-        "message": "Why are you interested in this job offer?",
+        "message": "Optionally, you can draw attention to yourself by explaining your interest in this job or uploading files below.",
         "monthly-salary": "Salary",
         "notification": {
             "attachment-limit-body_one": "You can upload at most {{count}} PDF file.",
