@@ -3413,6 +3413,7 @@ export class JobOfferFormElement extends BaseFormElement {
                             id="FormEl-application"
                             subscribe="lang"
                             name="freeText"
+                            class="job-offer-detail-message"
                             label="${t('job-offer-detail.message')}"
                             description="${t('job-offer-detail.max-characters')}"
                             .value="${this.formData?.freeText ?? ''}"
@@ -3663,6 +3664,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 .form-row-free {
                     display: flex;
                     flex-direction: column;
+                    margin-top: 0.5em;
                 }
 
                 /* Align the label styling of the toolkit form element with the formalize forms */
@@ -3673,6 +3675,10 @@ export class JobOfferFormElement extends BaseFormElement {
 
                 .file-upload-container {
                     margin-top: 1rem;
+                }
+
+                .form-row-free dbp-form-string-element {
+                    --dbp-label-font-weight: 100;
                 }
 
                 .file-upload-title-container {
