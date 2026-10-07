@@ -97,6 +97,14 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 You use template tags to inject slots into the activity.
 These templates will be converted to div containers when the page is loaded and will not show up before that.
 
+### dbp-bulletin-manage-career-profiles
+
+Lists all career profiles accessible through the API in a paginated table, including unreleased profiles. Requires `ROLE_BULLETIN_CAREER_PROFILE_ADMIN` and the `career-profiles` feature flag. Edit and delete actions respect each form's API grants. Editing preserves the student's ownership and uses only the profile's saved studies.
+
+Supports `lang`, `lang-dir`, `entry-point-url`, `auth` and `base-path`. The middleware initially grants this role only to developers.
+
+The table supports checkbox selection across pages and bulk deletion of the selected profiles that have delete permission (deleting all profiles at once is intentionally not offered). Bulk deletion requires confirmation and reports successful and failed deletions separately.
+
 ### dbp-bulletin-generate-career-profiles
 
 Generates random career profiles for testing purposes. This activity requires the `ROLE_BULLETIN_ADMIN` role.

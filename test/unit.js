@@ -3,6 +3,7 @@ import {assert} from 'chai';
 import '../src/dbp-bulletin-view-job-offers';
 import '../src/dbp-bulletin-career-profile.js';
 import '../src/dbp-bulletin-browse-career-profiles.js';
+import '../src/dbp-bulletin-manage-career-profiles.js';
 import '../src/dbp-bulletin-job-offer-detail.js';
 import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
@@ -48,6 +49,161 @@ import {
     FEATURE_FLAGS,
     initializeFeatureFlags,
 } from '../src/featureFlags.js';
+
+suite('manage career profiles administration', () => {
+    test('bulk deletion should skip profiles without grants and report partial failures', async () => {
+        const element = document.createElement('dbp-bulletin-manage-career-profiles');
+        element.updated = () => {};
+        element.render = () => '';
+        element.initialize = () => {};
+        document.body.appendChild(element);
+        await element.updateComplete;
+        element.auth = {token: 'token', _roles: ['ROLE_BULLETIN_CAREER_PROFILE_ADMIN']};
+        element.entryPointUrl = 'https://example.invalid';
+        const profiles = [
+            {identifier: 'deletable', grantedActions: ['delete']},
+            {identifier: 'read-only', grantedActions: ['read']},
+            {identifier: 'failing', grantedActions: ['manage']},
+        ];
+        element._handleSelectionChanged({
+            detail: {rows: profiles.map((profile) => ({getData: () => ({profile})}))},
+        });
+        assert.lengthOf(element._selectedProfiles, 3);
+        // The actions dropdown only offers deleting the selection, never all profiles
+        assert.deepEqual(
+            element._getBulkActionOptions().map((option) => [option.value, option.disabled]),
+            [['delete-selected', false]],
+        );
+        await element._openBulkDelete(element._selectedProfiles);
+        assert.deepEqual(
+            element._bulkDeleteProfiles.map((profile) => profile.identifier),
+            ['deletable', 'failing'],
+        );
+        const originalFetch = globalThis.fetch;
+        const deletedUrls = [];
+        let feedback;
+        element._notify = (body, type) => {
+            feedback = {body, type};
+        };
+        element._i18n = {t: (key, options) => ({key, options})};
+        globalThis.fetch = async (url, options) => {
+            if (options.method === 'DELETE') {
+                deletedUrls.push(url);
+                return {ok: !url.endsWith('/failing'), status: 403};
+            }
+            return {ok: true, json: async () => ({'hydra:member': [profiles[1], profiles[2]]})};
+        };
+        try {
+            await element._confirmDelete();
+            assert.lengthOf(deletedUrls, 2);
+            assert.isFalse(deletedUrls.some((url) => url.endsWith('/read-only')));
+            assert.equal(feedback.type, 'danger');
+            assert.deepEqual(feedback.body.options, {deleted: 1, failed: 1});
+            assert.lengthOf(element._profiles, 2);
+            assert.lengthOf(element._selectedProfiles, 0);
+            assert.isFalse(element._deleting);
+        } finally {
+            globalThis.fetch = originalFetch;
+            element.remove();
+        }
+    });
+
+    test('should require the admin role and respect individual form grants', async () => {
+        const element = document.createElement('dbp-bulletin-manage-career-profiles');
+        element.updated = () => {};
+        element.render = () => '';
+        document.body.appendChild(element);
+        await element.updateComplete;
+        const profile = {identifier: 'profile', grantedActions: ['update']};
+        assert.isFalse(element._canAct(profile, 'update'));
+        element.auth = {_roles: ['ROLE_BULLETIN_CAREER_PROFILE_ADMIN']};
+        assert.isTrue(element._canAct(profile, 'update'));
+        assert.isFalse(element._canAct(profile, 'delete'));
+        assert.lengthOf(element._createActions(profile).children, 1);
+        assert.isTrue(element._canAct({grantedActions: ['manage']}, 'delete'));
+        assert.isFalse(element._canAct({}, 'update'));
+        element.remove();
+    });
+
+    test('should fetch all visible profiles including unreleased profiles and subsequent pages', async () => {
+        const element = document.createElement('dbp-bulletin-manage-career-profiles');
+        element.auth = {token: 'token', _roles: ['ROLE_BULLETIN_CAREER_PROFILE_ADMIN']};
+        element.entryPointUrl = 'https://example.invalid';
+        const originalFetch = globalThis.fetch;
+        const urls = [];
+        globalThis.fetch = async (url) => {
+            urls.push(url);
+            return {
+                ok: true,
+                json: async () =>
+                    urls.length === 1
+                        ? {
+                              'hydra:member': [
+                                  {
+                                      identifier: 'unreleased',
+                                      additionalData: {visibility: []},
+                                      grantedActions: ['manage'],
+                                  },
+                              ],
+                              'hydra:view': {'hydra:next': '/formalize/forms?page=2'},
+                          }
+                        : {
+                              'hydra:member': [
+                                  {
+                                      identifier: 'released',
+                                      additionalData: {visibility: ['staff']},
+                                      grantedActions: ['manage'],
+                                  },
+                              ],
+                          },
+            };
+        };
+        try {
+            await element._fetchProfiles();
+            assert.lengthOf(urls, 2);
+            assert.include(urls[0], 'whereFrontendKeyIn[]=career-profile');
+            assert.equal(urls[1], 'https://example.invalid/formalize/forms?page=2');
+            assert.deepEqual(
+                element._profiles.map((profile) => profile.identifier),
+                ['unreleased', 'released'],
+            );
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('should delete the selected profile and refresh the table', async () => {
+        const element = document.createElement('dbp-bulletin-manage-career-profiles');
+        element.updated = () => {};
+        element.initialize = () => {};
+        element.render = () => '';
+        document.body.appendChild(element);
+        await element.updateComplete;
+        element.auth = {token: 'token', _roles: ['ROLE_BULLETIN_CAREER_PROFILE_ADMIN']};
+        element.entryPointUrl = 'https://example.invalid';
+        element._deleteProfile = {identifier: 'student-profile', grantedActions: ['delete']};
+        const originalFetch = globalThis.fetch;
+        const requests = [];
+        globalThis.fetch = async (url, options) => {
+            requests.push({url, options});
+            return {ok: true, json: async () => ({'hydra:member': []})};
+        };
+        try {
+            await element._confirmDelete();
+            assert.equal(
+                requests[0].url,
+                'https://example.invalid/formalize/forms/student-profile',
+            );
+            assert.equal(requests[0].options.method, 'DELETE');
+            assert.equal(requests[0].options.headers.Authorization, 'Bearer token');
+            assert.lengthOf(requests, 2);
+            assert.isNull(element._deleteProfile);
+        } finally {
+            globalThis.fetch = originalFetch;
+            element.remove();
+        }
+    });
+});
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
@@ -2296,6 +2452,49 @@ suite('career profile student studies', () => {
         }
     });
 
+    test('admin editing should preserve ownership and exclude the administrator studies', async () => {
+        const element = document.createElement(tagName);
+        const originalFetch = globalThis.fetch;
+        const requests = [];
+        const savedStudies = [
+            {key: 'student-study', name: 'Student study', nameEn: 'Student study'},
+        ];
+        element.adminMode = true;
+        element.auth = {token: 'token', 'user-id': 'admin', person_id: 'admin-person'};
+        element.entryPointUrl = 'https://example.invalid';
+        element.currentStudentStudies = [{key: 'admin-study', name: 'Admin study'}];
+        element.existingForm = {
+            formId: 'student-profile',
+            additionalData: {
+                summary: 'Student profile',
+                studentCreatorId: 'student',
+                studentPersonIdentifier: 'student-person',
+                studies: savedStudies,
+            },
+        };
+        globalThis.fetch = async (url, options) => {
+            requests.push({url, options});
+            return {ok: true, json: async () => ({identifier: 'student-profile'})};
+        };
+        try {
+            document.body.appendChild(element);
+            await element.updateComplete;
+            assert.deepEqual(element._availableStudies, savedStudies);
+            assert.isFalse(element.shadowRoot.querySelector('[name="study-program"]').required);
+            assert.lengthOf(requests, 0);
+            await element.submit();
+            assert.lengthOf(requests, 1);
+            assert.equal(requests[0].options.method, 'PATCH');
+            const patch = JSON.parse(requests[0].options.body).additionalData;
+            assert.notProperty(patch, 'studentCreatorId');
+            assert.notProperty(patch, 'studentPersonIdentifier');
+            assert.deepEqual(patch.studies, savedStudies);
+        } finally {
+            globalThis.fetch = originalFetch;
+            element.remove();
+        }
+    });
+
     test('should format multiple fetched studies for the saved profile', () => {
         const studies = [
             {key: 'UF 874', name: 'Telematik'},
@@ -2608,6 +2807,9 @@ suite('career profile student studies', () => {
 
         assert.equal(requestMethod, 'PATCH');
         assert.isNull(requestBody.additionalData.contactEmail);
+        // Editing must keep the existing profile name instead of resetting it to the default
+        assert.notProperty(requestBody, 'name');
+        assert.notProperty(requestBody, 'localizedNames');
     });
 
     test('should add HTTPS to a profile website without a scheme', async () => {
