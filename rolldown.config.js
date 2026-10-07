@@ -300,6 +300,10 @@ export default (async () => {
                             src: customAssetsPath + 'translation-overrides',
                             dest: 'dist/' + (await getDistPath(pkg.name)),
                         },
+                        {
+                            src: customAssetsPath + 'images/*',
+                            dest: 'dist/' + (await getDistPath(pkg.name, 'images')),
+                        },
                         {src: customAssetsPath + '*.metadata.json', dest: 'dist'},
                         {src: customAssetsPath + 'modules.json', dest: 'dist'},
                         {
@@ -339,6 +343,10 @@ export default (async () => {
                         {
                             src: 'assets/translation-overrides',
                             dest: 'dist/' + (await getDistPath(pkg.name)),
+                        },
+                        {
+                            src: 'assets/images/*',
+                            dest: 'dist/' + (await getDistPath(pkg.name, 'images')),
                         },
                         {src: 'src/*.metadata.json', dest: 'dist'},
                         {src: 'assets/modules.json', dest: 'dist'},

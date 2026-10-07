@@ -22,8 +22,8 @@
         "matomoSiteId": "131",
         "universityShortName": "dbp",
         "universityFullName": "Digital Blueprint",
-        "nextcloudBaseURL": "http://localhost:8081",
-        "nextcloudName": "cloud"
+        "nextcloudBaseURL": "https://cloud-dev.tugraz.at",
+        "nextcloudName": "TU Graz cloud"
     },
     "localCustom": {
         "basePath": "/dist/",
@@ -36,8 +36,8 @@
         "matomoSiteId": "131",
         "universityShortName": "TU Graz",
         "universityFullName": "Technische Universität Graz",
-        "nextcloudBaseURL": "http://localhost:8081",
-        "nextcloudName": "cloud"
+        "nextcloudBaseURL": "https://cloud-dev.tugraz.at",
+        "nextcloudName": "TU Graz cloud"
     },
     "development": {
         "basePath": "/apps/bulletin/",
@@ -51,7 +51,7 @@
         "universityShortName": "dbp",
         "universityFullName": "Digital Blueprint",
         "nextcloudBaseURL": "https://cloud-dev.tugraz.at",
-        "nextcloudName": "cloud"
+        "nextcloudName": "TU Graz cloud"
     },
     "developmentCustom": {
         "basePath": "/tugapps/bulletin/",
@@ -65,7 +65,7 @@
         "universityShortName": "TU Graz",
         "universityFullName": "Technische Universität Graz",
         "nextcloudBaseURL": "https://cloud-dev.tugraz.at",
-        "nextcloudName": "cloud"
+        "nextcloudName": "TU Graz cloud"
     },
     "demo": {
         "basePath": "/apps/bulletin/",
@@ -77,7 +77,9 @@
         "matomoUrl": "https://analytics.tugraz.at/",
         "matomoSiteId": "131",
         "universityShortName": "dbp",
-        "universityFullName": "Digital Blueprint"
+        "universityFullName": "Digital Blueprint",
+        "nextcloudBaseURL": "https://cloud-demo.tugraz.at",
+        "nextcloudName": "TU Graz cloud"
     },
     "demoCustom": {
         "basePath": "/tugapps/bulletin/",
@@ -91,7 +93,7 @@
         "universityShortName": "TU Graz",
         "universityFullName": "Technische Universität Graz",
         "nextcloudBaseURL": "https://cloud-demo.tugraz.at",
-        "nextcloudName": "dbp cloud"
+        "nextcloudName": "TU Graz cloud"
     },
     "staging": {
         "basePath": "/",
