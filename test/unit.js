@@ -1933,8 +1933,8 @@ suite('jobOfferForm application submission', () => {
             maxSizeMb: 10,
             allowedMimeTypes: ['application/pdf'],
             localizedName: {
-                de: 'Anhänge',
-                en: 'Attachments',
+                de: 'Dateien hochladen',
+                en: 'Upload files',
             },
         });
     });
