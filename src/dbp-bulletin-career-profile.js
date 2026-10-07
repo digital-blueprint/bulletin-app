@@ -14,7 +14,6 @@ import * as commonUtils from '@dbp-toolkit/common/utils';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CareerProfileModule, {
-    CareerProfileEditFormElement,
     CareerProfileInterestFormElement,
     getCareerProfileFieldLabels,
     getCareerProfileVisibilityLabel,
@@ -22,6 +21,7 @@ import CareerProfileModule, {
     mergeLocalizedStudentStudies,
     normalizeStudentStudies,
 } from './modules/careerProfileForm.js';
+import {CareerProfileEditDialogElement} from './modules/careerProfileEditDialog.js';
 import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
 
 /**
@@ -36,7 +36,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             'dbp-mini-spinner': MiniSpinner,
             'dbp-modal': Modal,
             'dbp-notification': Notification,
-            'dbp-career-profile-edit-form': CareerProfileEditFormElement,
+            'dbp-career-profile-edit-dialog': CareerProfileEditDialogElement,
             'dbp-career-profile-interest-form': CareerProfileInterestFormElement,
             'dbp-login-required-warning': DBPLoginRequiredWarning,
         };
@@ -52,7 +52,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._loadingSubmissions = false;
         this._loadError = false;
         this._submissionsLoadError = false;
-        this._editDialogProfile = null;
         this._deleteDialogProfile = null;
         this._isDeletingProfile = false;
         this._profilesLoaded = false;
@@ -60,7 +59,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         this._currentStudentStudiesUserId = '';
         this._loadingCurrentStudentStudies = false;
         this._currentStudentStudiesPromise = null;
-        this._isSubmitting = false;
     }
 
     static get properties() {
@@ -74,12 +72,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             _loadingSubmissions: {state: true},
             _loadError: {state: true},
             _submissionsLoadError: {state: true},
-            _editDialogProfile: {state: true},
             _deleteDialogProfile: {state: true},
             _isDeletingProfile: {state: true},
             _currentStudentStudies: {state: true},
             _loadingCurrentStudentStudies: {state: true},
-            _isSubmitting: {state: true},
         };
     }
 
@@ -378,16 +374,13 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         await this._fetchCurrentStudentStudies();
-        this._editDialogProfile = profile;
         await this.updateComplete;
-        if (!profile) {
-            this._('#career-profile-edit-form')?.resetForCreate();
-        }
-        this._('#career-profile-edit-modal')?.open();
+        await /** @type {CareerProfileEditDialogElement} */ (
+            this._('#career-profile-edit-dialog')
+        )?.open(profile);
     }
 
     async _handleProfileSaved() {
-        this._('#career-profile-edit-modal')?.close();
         await this._fetchProfiles();
     }
 
@@ -1192,125 +1185,16 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         `;
     }
 
-    async _saveProfile() {
-        const formElement = this._('#career-profile-edit-form');
-
-        if (!formElement) {
-            return;
-        }
-
-        this._isSubmitting = true;
-        try {
-            await formElement.submit();
-        } finally {
-            this._isSubmitting = false;
-        }
-    }
-
-    /**
-     * Moves focus from the skip link at the end of the profile form to the primary
-     * save button in the pinned modal header. Falls back to the action bar while the
-     * save button is disabled and therefore not focusable.
-     */
-    _skipToProfileSaveButton() {
-        const saveButton = this._('#career-profile-save-button');
-        if (saveButton && !saveButton.disabled) {
-            saveButton.focus();
-            return;
-        }
-
-        this._('#career-profile-actions-bar')?.focus();
-    }
-
-    /**
-     * Moves focus to the modal's close button. It lives inside the modal's shadow
-     * root, so we have to go through the modal's public API.
-     */
-    _skipToProfileCloseButton() {
-        this._('#career-profile-edit-modal')?.focusCloseButton();
-    }
-
-    _renderEditModal() {
-        const t = (key, opts) => this._i18n.t(key, opts);
-        const title = this._editDialogProfile
-            ? t('career-profile.edit-profile')
-            : t('career-profile.create-profile');
-
+    _renderEditDialog() {
         return html`
-            <dbp-modal
-                id="career-profile-edit-modal"
-                modal-id="career-profile-edit-modal"
-                subscribe="lang"
-                class="modal-width">
-                <div slot="title">
-                    <h2 class="modal-title">${title}</h2>
-                </div>
-                <div slot="header" class="modal-header">
-                    <div id="career-profile-actions-bar" class="dialog-actions-bar" tabindex="-1">
-                        <p class="required-field-note">
-                            <span class="required-asterisk">*</span>
-                            ${t('career-profile-form.required-field-note')}
-                        </p>
-                        <button
-                            id="career-profile-save-button"
-                            class="button is-primary save-button"
-                            type="button"
-                            ?disabled="${this._isSubmitting}"
-                            @click="${() => this._saveProfile()}">
-                            ${
-                                this._isSubmitting
-                                    ? html`
-                                          <dbp-mini-spinner></dbp-mini-spinner>
-                                      `
-                                    : html`
-                                          <dbp-icon name="save" aria-hidden="true"></dbp-icon>
-                                      `
-                            }
-                            <span class="button-label">
-                                ${t('career-profile-form.save-profile')}
-                            </span>
-                        </button>
-                    </div>
-                </div>
-                <div slot="content">
-                    <dbp-notification
-                        id="career-profile-form-notification"
-                        lang="${this.lang}"></dbp-notification>
-                    <dbp-career-profile-edit-form
-                        id="career-profile-edit-form"
-                        class="career-profile-edit-form"
-                        lang="${this.lang}"
-                        lang-dir="${this.langDir}"
-                        .auth="${this.auth}"
-                        entry-point-url="${this.entryPointUrl}"
-                        .existingForm="${this._editDialogProfile}"
-                        .currentStudentStudies="${this._currentStudentStudies}"
-                        @dbp-edit-form-saved="${
-                            this._handleProfileSaved
-                        }"></dbp-career-profile-edit-form>
-
-                    <!--
-                        Skip links to the dialog actions, which sit in the pinned modal header
-                        and therefore come before the form in the tab order.
-                    -->
-                    <div class="skip-links">
-                        <button
-                            type="button"
-                            class="skip-link"
-                            @click="${this._skipToProfileSaveButton}">
-                            ${t('career-profile-form.skip-to-save-button', {
-                                label: t('career-profile-form.save-profile'),
-                            })}
-                        </button>
-                        <button
-                            type="button"
-                            class="skip-link"
-                            @click="${this._skipToProfileCloseButton}">
-                            ${t('career-profile-form.skip-to-close-button')}
-                        </button>
-                    </div>
-                </div>
-            </dbp-modal>
+            <dbp-career-profile-edit-dialog
+                id="career-profile-edit-dialog"
+                lang="${this.lang}"
+                lang-dir="${this.langDir}"
+                .auth="${this.auth}"
+                entry-point-url="${this.entryPointUrl}"
+                .currentStudentStudies="${this._currentStudentStudies}"
+                @dbp-edit-form-saved="${this._handleProfileSaved}"></dbp-career-profile-edit-dialog>
         `;
     }
 
@@ -1377,7 +1261,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         : this._renderProfileDetail(this._selectedProfile)
                     : this._renderOverview()
             }
-            ${this._renderEditModal()} ${this._renderDeleteModal()}
+            ${this._renderEditDialog()} ${this._renderDeleteModal()}
         `;
     }
 
@@ -1632,67 +1516,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin-top: 1rem;
             }
 
-            .required-field-note {
-                margin-top: 0;
-            }
-
-            .required-asterisk {
-                color: var(--dbp-accent);
-            }
-
-            .dialog-actions-bar {
-                display: flex;
-                justify-content: space-between;
-                padding-bottom: 1em;
-            }
-
-            .save-button {
-                height: max-content;
-            }
-
-            /* Fallback focus target while the save button is disabled */
-            #career-profile-actions-bar:focus {
-                outline: none;
-            }
-
-            #career-profile-actions-bar:focus-visible {
-                outline: 1px solid var(--dbp-accent);
-                outline-offset: 2px;
-            }
-
-            /* Skip links: hidden until they receive keyboard focus */
-            .skip-link {
-                position: absolute !important;
-                clip: rect(1px, 1px, 1px, 1px);
-                overflow: hidden;
-                height: 1px;
-                width: 1px;
-                word-wrap: normal;
-                appearance: none;
-                border: none;
-                padding: 0;
-                background: none;
-                font: inherit;
-                color: var(--dbp-accent);
-                text-decoration: underline;
-                cursor: pointer;
-            }
-
-            .skip-link:focus-visible {
-                position: static !important;
-                clip: auto;
-                overflow: visible;
-                display: inline-block;
-                height: auto;
-                width: auto;
-            }
-
-            /* Only the focused link becomes visible, so the gap never shows twice */
-            .skip-links:focus-within {
-                display: flex;
-                margin-top: 1rem;
-            }
-
             .delete-dialog-actions {
                 display: flex;
                 flex-wrap: wrap;
@@ -1710,10 +1533,6 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 --dbp-modal-max-width: min(95vw, 900px);
                 --dbp-modal-max-height: 90vh;
                 --dbp-modal-content-overflow-y: auto;
-            }
-
-            .career-profile-edit-form {
-                --dbp-label-margin-bottom: 3px;
             }
 
             @media (max-width: 720px) {

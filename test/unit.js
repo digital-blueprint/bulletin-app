@@ -51,6 +51,32 @@ import {
 } from '../src/featureFlags.js';
 
 suite('manage career profiles administration', () => {
+    test('should edit profiles in the shared career profile dialog in admin mode', async () => {
+        const element = document.createElement('dbp-bulletin-manage-career-profiles');
+        element.isLoggedIn = () => true;
+        element.isAuthPending = () => false;
+        element.initialize = () => {};
+        element.auth = {token: 'token', _roles: ['ROLE_BULLETIN_CAREER_PROFILE_ADMIN']};
+        document.body.appendChild(element);
+        await element.updateComplete;
+        try {
+            const dialog = element.shadowRoot.querySelector('#career-profile-edit-dialog');
+            assert.isTrue(dialog.adminMode);
+            await element._openEdit({
+                identifier: 'profile',
+                formId: 'profile',
+                grantedActions: ['update'],
+                additionalData: {summary: 'Profile'},
+            });
+            const form = dialog.shadowRoot.querySelector('#career-profile-edit-form');
+            assert.isTrue(form.adminMode);
+            assert.equal(form.existingForm.formId, 'profile');
+            assert.isNotNull(dialog.shadowRoot.querySelector('#career-profile-save-button'));
+        } finally {
+            element.remove();
+        }
+    });
+
     test('bulk deletion should skip profiles without grants and report partial failures', async () => {
         const element = document.createElement('dbp-bulletin-manage-career-profiles');
         element.updated = () => {};
