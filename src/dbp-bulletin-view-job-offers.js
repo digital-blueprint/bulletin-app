@@ -1352,7 +1352,12 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             <div class="job-board">
                 <!-- Primary filter row: dream job, search and the toggle for the remaining filters -->
                 <div class="search-filter-wrapper">
-                    <div class="search-filter-row">
+                    <div
+                        class="search-filter-row ${
+                            isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
+                                ? ''
+                                : 'search-filter-row--no-checkbox'
+                        }">
                         <div class="field">
                             <label class="label" for="filter-dream-job">
                                 ${t('view-job-offers.dream-job-label')}
@@ -1812,6 +1817,14 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 --filter-control-height: 2.1rem;
             }
 
+            /* Without the university jobs checkbox the search field takes the free space
+               and the filter toggle only uses the width it needs */
+            .search-filter-row--no-checkbox {
+                /* The search column also absorbs the space of the missing checkbox, so the
+                   dream job select keeps roughly the same width as with the checkbox */
+                grid-template-columns: minmax(0, 1.5fr) minmax(0, 2.6fr) auto;
+            }
+
             /* Additional filters: work location (+ remote) and weekly hours */
             .filters-row {
                 grid-template-columns: minmax(0, 1fr) auto;
@@ -2100,6 +2113,10 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .search-filter-row {
                     grid-template-columns: minmax(0, 1fr) auto auto;
                     gap: 0.75em;
+                }
+
+                .search-filter-row--no-checkbox {
+                    grid-template-columns: minmax(0, 1fr) auto;
                 }
 
                 .search-filter-row .search-field {
