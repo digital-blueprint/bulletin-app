@@ -99,7 +99,7 @@ These templates will be converted to div containers when the page is loaded and 
 
 ### dbp-bulletin-manage-career-profiles
 
-Lists all career profiles accessible through the API in a paginated table, including unreleased profiles. Requires `ROLE_BULLETIN_CAREER_PROFILE_ADMIN` and the `career-profiles` feature flag. Edit and delete actions respect each form's API grants. Editing uses the same dialog as the career profile page, preserves the student's ownership and uses only the profile's saved studies.
+Lists all career profiles accessible through the API in a paginated table, including unreleased profiles. Requires `ROLE_BULLETIN_CAREER_PROFILE_ADMIN` and the `career-profiles` feature flag. Edit and delete actions respect each form's API grants. Editing preserves the student's ownership and uses only the profile's saved studies.
 
 Supports `lang`, `lang-dir`, `entry-point-url`, `auth` and `base-path`. The middleware initially grants this role only to developers.
 

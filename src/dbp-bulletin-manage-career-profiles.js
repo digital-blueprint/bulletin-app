@@ -9,15 +9,16 @@ import {
     sendNotification,
 } from '@dbp-toolkit/common';
 import {Modal} from '@dbp-toolkit/common/src/modal.js';
+import {Notification} from '@dbp-toolkit/notification';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
 import CareerProfileModule, {
+    CareerProfileEditFormElement,
     formatStudentStudies,
     getCareerProfileVisibilityLabel,
 } from './modules/careerProfileForm.js';
-import {CareerProfileEditDialogElement} from './modules/careerProfileEditDialog.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 
 export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
@@ -29,7 +30,8 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
             'dbp-mini-spinner': MiniSpinner,
             'dbp-login-required-warning': DBPLoginRequiredWarning,
             'dbp-modal': Modal,
-            'dbp-career-profile-edit-dialog': CareerProfileEditDialogElement,
+            'dbp-notification': Notification,
+            'dbp-career-profile-edit-form': CareerProfileEditFormElement,
             'dbp-tabulator-table': CustomTabulatorTable,
         };
     }
@@ -41,7 +43,9 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
             _profiles: {state: true},
             _loading: {state: true},
             _loadError: {state: true},
+            _editProfile: {state: true},
             _deleteProfile: {state: true},
+            _saving: {state: true},
             _deleting: {state: true},
             _selectedProfiles: {state: true},
             _bulkDeleteProfiles: {state: true},
@@ -54,7 +58,9 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
         this._profiles = [];
         this._loading = false;
         this._loadError = false;
+        this._editProfile = null;
         this._deleteProfile = null;
+        this._saving = false;
         this._deleting = false;
         this._requestId = 0;
         this._selectedProfiles = [];
@@ -81,6 +87,7 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
                 this._requestId++;
                 this._profiles = [];
                 this._loading = false;
+                this._editProfile = null;
                 this._deleteProfile = null;
                 this._selectedProfiles = [];
                 this._bulkDeleteProfiles = [];
@@ -164,12 +171,12 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
         actions.style.display = 'flex';
         actions.style.gap = '0.5rem';
         actions.style.justifyContent = 'flex-end';
-        const addButton = (action, icon, title, callback) => {
+        const addButton = (action, icon, key, callback) => {
             if (!this._canAct(profile, action)) return;
             const button = this.createScopedElement('dbp-icon-button');
             button.setAttribute('icon-name', icon);
             button.setAttribute('lang', this.lang);
-            button.title = title;
+            button.title = this._i18n.t(key);
             button.setAttribute(
                 'aria-label',
                 `${button.title}: ${this._getName(profile)} (${profile.identifier})`,
@@ -180,10 +187,8 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
             });
             actions.append(button);
         };
-        addButton('update', 'pencil', this._i18n.t('manage-career-profiles.edit'), () =>
-            this._openEdit(profile),
-        );
-        addButton('delete', 'trash', this._i18n.t('manage-career-profiles.delete'), () =>
+        addButton('update', 'pencil', 'manage-career-profiles.edit', () => this._openEdit(profile));
+        addButton('delete', 'trash', 'manage-career-profiles.delete', () =>
             this._openDelete(profile),
         );
         return actions;
@@ -302,10 +307,10 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
 
     async _openEdit(profile) {
         if (!this._canAct(profile, 'update')) return;
-        // Same dialog as on the career profile page, in admin mode to keep the student's ownership
-        await /** @type {CareerProfileEditDialogElement} */ (
-            this._('#career-profile-edit-dialog')
-        )?.open({...profile});
+        this._editProfile = {...profile};
+        await this.updateComplete;
+        await this._('#admin-profile-form')?.updateComplete;
+        this._('#admin-edit-modal')?.open();
     }
 
     async _openDelete(profile) {
@@ -354,7 +359,21 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
         this._('#admin-delete-modal')?.open();
     }
 
+    async _saveProfile() {
+        if (this._saving || !this._canAct(this._editProfile, 'update')) return;
+        this._saving = true;
+        try {
+            const form = /** @type {CareerProfileEditFormElement} */ (
+                this.renderRoot.querySelector('#admin-profile-form')
+            );
+            await form?.submit();
+        } finally {
+            this._saving = false;
+        }
+    }
+
     async _handleSaved() {
+        this._('#admin-edit-modal')?.close();
         await this._fetchProfiles();
     }
 
@@ -502,14 +521,36 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
                 .columnConfigurationStorageKey=${storageKey}
                 .columnConfigurationExcludedFields=${['actions']}
                 .options=${this._getTableOptions()}></dbp-tabulator-table>
-            <dbp-career-profile-edit-dialog
-                id="career-profile-edit-dialog"
-                admin-mode
+            <dbp-modal
+                id="admin-edit-modal"
+                modal-id="admin-career-profile-edit"
                 lang=${this.lang}
-                lang-dir=${this.langDir}
-                .auth=${this.auth}
-                entry-point-url=${this.entryPointUrl}
-                @dbp-edit-form-saved=${this._handleSaved}></dbp-career-profile-edit-dialog>
+                class="modal-width">
+                <h2 slot="title">${t('manage-career-profiles.edit')}</h2>
+                <div slot="header">
+                    <p>${t('career-profile-form.required-field-note')}</p>
+                    <button
+                        class="button is-primary"
+                        ?disabled=${this._saving}
+                        @click=${this._saveProfile}>
+                        ${t('career-profile-form.save-profile')}
+                    </button>
+                </div>
+                <div slot="content">
+                    <dbp-notification
+                        id="career-profile-form-notification"
+                        lang=${this.lang}></dbp-notification>
+                    <dbp-career-profile-edit-form
+                        id="admin-profile-form"
+                        admin-mode
+                        lang=${this.lang}
+                        lang-dir=${this.langDir}
+                        .auth=${this.auth}
+                        entry-point-url=${this.entryPointUrl}
+                        .existingForm=${this._editProfile}
+                        @dbp-edit-form-saved=${this._handleSaved}></dbp-career-profile-edit-form>
+                </div>
+            </dbp-modal>
             <dbp-modal
                 id="admin-delete-modal"
                 class="modal modal--confirmation"

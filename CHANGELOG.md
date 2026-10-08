@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-- Career profiles: the create/edit dialog is now a shared component (`src/modules/careerProfileEditDialog.js`), so the career profile page and the manage career profiles activity use the exact same editor
 - Career profile: editing a career profile no longer resets its name to the default "Karriereprofil" / "Career profile"; the name is only set when a profile is created
 - Manage career profiles: added row selection and an "Actions" dropdown (like in the other tables) to delete the selected permitted profiles (there is intentionally no way to delete all profiles at once), with a compact confirmation dialog like the other delete confirmations and partial-failure feedback. The row actions column is pinned to the right and hosts the column configuration. Increased the spacing above the toolbar
 - Manage career profiles: added the `manage-career-profiles` activity with a paginated table and permission-aware edit and delete dialogs, gated by `ROLE_BULLETIN_CAREER_PROFILE_ADMIN` and the `career-profiles` feature flag. Administrator edits preserve student ownership and use only the profile's saved studies
