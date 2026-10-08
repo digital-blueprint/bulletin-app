@@ -513,8 +513,6 @@
         "no-profiles": "No career profiles available.",
         "not-authorized": "You do not have permission to manage career profiles.",
         "refresh": "Refresh",
-        "search-label": "Search career profiles",
-        "search-placeholder": "Search in visible columns",
         "title": "Manage career profiles"
     },
     "manage-job-offers": {

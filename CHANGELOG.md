@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-- Manage career profiles: added a search field above the table that filters the profiles by all visible columns; selected profiles hidden by the search are deselected, so bulk deletion only affects visible selections
 - Career profiles: the create/edit dialog is now a shared component (`src/modules/careerProfileEditDialog.js`), so the career profile page and the manage career profiles activity use the exact same editor
 - Career profile: editing a career profile no longer resets its name to the default "Karriereprofil" / "Career profile"; the name is only set when a profile is created
 - Manage career profiles: added row selection and an "Actions" dropdown (like in the other tables) to delete the selected permitted profiles (there is intentionally no way to delete all profiles at once), with a compact confirmation dialog like the other delete confirmations and partial-failure feedback. The row actions column is pinned to the right and hosts the column configuration. Increased the spacing above the toolbar

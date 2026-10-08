@@ -198,59 +198,6 @@ suite('manage career profiles administration', () => {
         }
     });
 
-    test('search should filter visible columns and deselect hidden rows', async () => {
-        const element = document.createElement('dbp-bulletin-manage-career-profiles');
-        element.updated = () => {};
-        element.render = () => '';
-        document.body.appendChild(element);
-        await element.updateComplete;
-        const column = (field, visible = true) => ({
-            getField: () => field,
-            isVisible: () => visible,
-        });
-        const visibleRow = {id: 'visible'};
-        const hiddenRow = {id: 'hidden'};
-        const calls = {filters: null, cleared: 0, deselected: null};
-        const tabulator = {
-            getColumns: () => [
-                column(undefined),
-                column('name'),
-                column('teaser', false),
-                column('identifier'),
-                column('actions'),
-            ],
-            getRows: () => [visibleRow],
-            getSelectedRows: () => [visibleRow, hiddenRow],
-            deselectRow: (rows) => {
-                calls.deselected = rows;
-            },
-        };
-        element._getTable = () => ({
-            tabulatorTable: tabulator,
-            setFilter: (filters) => {
-                calls.filters = filters;
-            },
-            clearFilter: () => {
-                calls.cleared++;
-            },
-        });
-        try {
-            element._applySearch('anna');
-            assert.deepEqual(calls.filters, [
-                [
-                    {field: 'name', type: 'like', value: 'anna'},
-                    {field: 'identifier', type: 'like', value: 'anna'},
-                ],
-            ]);
-            assert.deepEqual(calls.deselected, [hiddenRow]);
-            element._applySearch('');
-            assert.equal(calls.cleared, 1);
-            assert.equal(element._searchQuery, '');
-        } finally {
-            element.remove();
-        }
-    });
-
     test('should delete the selected profile and refresh the table', async () => {
         const element = document.createElement('dbp-bulletin-manage-career-profiles');
         element.updated = () => {};

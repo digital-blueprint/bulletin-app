@@ -59,7 +59,6 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
         this._requestId = 0;
         this._selectedProfiles = [];
         this._bulkDeleteProfiles = [];
-        this._searchQuery = '';
     }
 
     get _isAuthorized() {
@@ -284,7 +283,9 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
     }
 
     async _syncTable() {
-        const table = this._getTable();
+        const table = /** @type {CustomTabulatorTable} */ (
+            this.renderRoot.querySelector('#manage-career-profiles-table')
+        );
         if (!table) return;
         const options = this._getTableOptions();
         table.options = options;
@@ -297,52 +298,6 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
         table.tabulatorTable.setLocale(this.lang);
         table.tabulatorTable.setColumns(options.columns);
         await table.tabulatorTable.replaceData(options.data);
-        this._applySearch(this._searchQuery);
-    }
-
-    _getTable() {
-        return /** @type {CustomTabulatorTable | null} */ (
-            this.renderRoot.querySelector('#manage-career-profiles-table')
-        );
-    }
-
-    _handleSearchInput(event) {
-        this._applySearch(/** @type {HTMLInputElement} */ (event.target).value.trim());
-    }
-
-    _handleSearchSubmit(event) {
-        event.preventDefault();
-        const input = /** @type {HTMLInputElement | null} */ (
-            this._('#manage-career-profiles-search')
-        );
-        this._applySearch(input?.value.trim() ?? '');
-    }
-
-    _applySearch(query) {
-        this._searchQuery = query;
-        const table = this._getTable();
-        const tabulator = table?.tabulatorTable;
-        if (!tabulator) return;
-        if (query === '') {
-            table.clearFilter();
-            return;
-        }
-        // Match the query in any visible data column (nested array = OR conjunction)
-        const filters = tabulator
-            .getColumns()
-            .filter(
-                (column) =>
-                    column.isVisible() && column.getField() && column.getField() !== 'actions',
-            )
-            .map((column) => ({field: column.getField(), type: 'like', value: query}));
-        table.setFilter([filters]);
-
-        // Deselect rows hidden by the search, so bulk actions only affect visible selections
-        const activeRows = new Set(tabulator.getRows('active'));
-        const hiddenSelectedRows = tabulator
-            .getSelectedRows()
-            .filter((row) => !activeRows.has(row));
-        if (hiddenSelectedRows.length) tabulator.deselectRow(hiddenSelectedRows);
     }
 
     async _openEdit(profile) {
@@ -511,23 +466,6 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
                     align="left"
                     allow-expand
                     .options=${this._getBulkActionOptions()}></dbp-select>
-                <form class="search-form" role="search" @submit=${this._handleSearchSubmit}>
-                    <label for="manage-career-profiles-search" class="visually-hidden">
-                        ${t('manage-career-profiles.search-label')}
-                    </label>
-                    <div class="control search-control">
-                        <input
-                            type="search"
-                            id="manage-career-profiles-search"
-                            class="input"
-                            placeholder="${t('manage-career-profiles.search-placeholder')}"
-                            .value=${this._searchQuery}
-                            @input=${this._handleSearchInput} />
-                        <span class="search-icon" aria-hidden="true">
-                            <dbp-icon name="search"></dbp-icon>
-                        </span>
-                    </div>
-                </form>
                 <button
                     class="button"
                     ?disabled=${this._loading || this._deleting}
@@ -656,35 +594,6 @@ export class ManageCareerProfilesActivity extends ScopedElementsMixin(DBPBulleti
                     align-items: center;
                     gap: 1rem;
                     margin-top: 1.5rem;
-                }
-                .search-form {
-                    flex: 1 1 16rem;
-                    max-width: 30rem;
-                }
-                .search-control {
-                    position: relative;
-                }
-                .search-control .input {
-                    width: 100%;
-                    padding-right: 2.5rem;
-                    box-sizing: border-box;
-                }
-                .search-icon {
-                    position: absolute;
-                    right: 0.75rem;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    color: var(--dbp-muted);
-                    pointer-events: none;
-                }
-                .visually-hidden {
-                    clip: rect(0 0 0 0);
-                    clip-path: inset(50%);
-                    height: 1px;
-                    overflow: hidden;
-                    position: absolute;
-                    white-space: nowrap;
-                    width: 1px;
                 }
                 .modal-width {
                     --dbp-modal-max-width: 70rem;
