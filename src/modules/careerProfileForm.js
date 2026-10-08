@@ -644,7 +644,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this.auth = {};
         this.entryPointUrl = '';
         this.existingForm = null;
-        this.adminMode = false;
         this.currentStudentStudies = [];
         this._localizedStudentStudies = [];
         this._summary = '';
@@ -686,7 +685,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             auth: {type: Object},
             entryPointUrl: {type: String, attribute: 'entry-point-url'},
             existingForm: {type: Object, attribute: false},
-            adminMode: {type: Boolean, attribute: 'admin-mode'},
             currentStudentStudies: {type: Array, attribute: false},
             _summary: {state: true},
             _summaryEn: {state: true},
@@ -802,7 +800,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 
         if (
             changedProperties.has('currentStudentStudies') ||
-            changedProperties.has('adminMode') ||
             changedProperties.has('existingForm')
         ) {
             this._setAvailableStudies(this.currentStudentStudies);
@@ -824,7 +821,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         const hasSavedStudies = Array.isArray(this.existingForm?.additionalData?.studies);
         const hasCompleteStudentData = this._contactEmail && this._studies.length > 0;
         if (
-            this.adminMode ||
             !userId ||
             !this.auth?.token ||
             !this.entryPointUrl ||
@@ -903,9 +899,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     get _isFormValid() {
         return (
             this._summary.trim() !== '' &&
-            (this.adminMode ||
-                this._availableStudies.length === 0 ||
-                this._getDisplayStudies().length > 0) &&
+            (this._availableStudies.length === 0 || this._getDisplayStudies().length > 0) &&
             this._isWebsiteUrlValid()
         );
     }
@@ -979,13 +973,6 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
     }
 
     _setAvailableStudies(studies) {
-        if (this.adminMode) {
-            // Administrators must only see the profile owner's saved studies.
-            this._availableStudies = normalizeStudentStudies(
-                this.existingForm?.additionalData ?? {},
-            );
-            return;
-        }
         const fetchedStudies = normalizeStudentStudies({studies});
         const localizedStudies =
             this._studentDataPrefillUserId === this.auth?.['user-id']
@@ -1064,8 +1051,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         if (!this._isFormValid) {
             this._focusFirstInvalidField();
             const hasRequiredValues =
-                this._summary.trim() &&
-                (this.adminMode || this._availableStudies.length === 0 || studies.length > 0);
+                this._summary.trim() && (this._availableStudies.length === 0 || studies.length > 0);
             sendNotification({
                 summary: t('career-profile-form.create-error-title'),
                 body: hasRequiredValues
@@ -1094,7 +1080,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             required: ['companyName', 'contactName', 'contactEmail'],
         });
 
-        const additionalData = /** @type {Record<string, any>} */ ({
+        const additionalData = {
             summary: this._summary.trim(),
             summaryEn: this._summaryEn.trim(),
             studyProgram,
@@ -1121,14 +1107,9 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             teaser: normalizeTeaserValue(this._teaser),
             teaserEn: normalizeTeaserValue(this._teaserEn),
             visibility: getCareerProfileAudiences({visibility: this._visibility}),
-            // Editing another student's profile must never transfer ownership.
-            ...(!isEditMode
-                ? {
-                      studentCreatorId: this.auth?.['user-id'] || '',
-                      studentPersonIdentifier: this.auth?.person_id || '',
-                  }
-                : {}),
-        });
+            studentCreatorId: this.auth?.['user-id'] || '',
+            studentPersonIdentifier: this.auth?.person_id || '',
+        };
         if (isEditMode) {
             // JSON Merge Patch requires null to remove contactEmail from existing profiles.
             additionalData.contactEmail = null;
@@ -1137,15 +1118,11 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         // The profile itself is a Formalize form; the public profile fields live in additionalData.
         const formName = new CareerProfileModule().getFormName(this.lang);
         const formData = {
-            // Only new profiles get the default name. With JSON Merge Patch, omitted (undefined)
-            // fields stay unchanged, so editing never overwrites an existing profile name.
-            name: isEditMode ? undefined : formName,
-            localizedNames: isEditMode
-                ? undefined
-                : [
-                      {languageTag: 'de', name: new CareerProfileModule().getFormName('de')},
-                      {languageTag: 'en', name: new CareerProfileModule().getFormName('en')},
-                  ],
+            name: formName,
+            localizedNames: [
+                {languageTag: 'de', name: new CareerProfileModule().getFormName('de')},
+                {languageTag: 'en', name: new CareerProfileModule().getFormName('en')},
+            ],
             frontendKey: CAREER_PROFILE_FRONTEND_KEY,
             additionalData,
             dataFeedSchema,
@@ -1307,7 +1284,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     }}"
                     .items="${studyItems}"
                     .value="${this._selectedStudyKeys}"
-                    ?required="${!this.adminMode}"
+                    required
                     @change="${(event) => this._selectStudies(event.detail.value)}">
                     <div slot="description">
                         ${t('career-profile-form.field-study-program-description')}
