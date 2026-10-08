@@ -513,6 +513,8 @@
         "no-profiles": "Keine Karriereprofile verfügbar.",
         "not-authorized": "Sie haben keine Berechtigung, Karriereprofile zu verwalten.",
         "refresh": "Aktualisieren",
+        "search-label": "Karriereprofile durchsuchen",
+        "search-placeholder": "In sichtbaren Spalten suchen",
         "title": "Karriereprofile verwalten"
     },
     "manage-job-offers": {
