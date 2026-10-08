@@ -1916,9 +1916,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                   type="url"
                                   .value="${this._externalJobUrl}"
                                   required
-                                  @change="${(e) =>
-                                      (this._externalJobUrl =
-                                          e.detail.value)}"></dbp-string-element>
+                                  @change="${(e) => (this._externalJobUrl = e.detail.value)}">
+                                  <div slot="description">
+                                      ${t('manage-job-offers.field-external-job-url-description')}
+                                  </div>
+                              </dbp-string-element>
                           `
                 }
                 <p class="language-requirement-note">
@@ -2345,7 +2347,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 color: var(--dbp-muted);
                 font-size: 0.875rem;
                 line-height: 1.4;
-                margin: 0 0 0.75rem;
+                margin: 1rem 0 0 0;
             }
 
             /* The description fields use large textareas, so they are stacked instead of
