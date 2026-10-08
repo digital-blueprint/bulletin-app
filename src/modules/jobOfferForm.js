@@ -703,6 +703,10 @@ export const hasSubmissionCheckContextChanged = (previousAuth, nextAuth) => {
     );
 };
 
+const JOB_OFFER_FORM_TAB_MANDATORY = 'mandatory';
+const JOB_OFFER_FORM_TAB_OPTIONAL = 'optional';
+const JOB_OFFER_FORM_TABS = [JOB_OFFER_FORM_TAB_MANDATORY, JOB_OFFER_FORM_TAB_OPTIONAL];
+
 const parseMultilineList = (value) =>
     value
         .split('\n')
@@ -869,7 +873,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._isSubmitting = false;
         /** @type {boolean} Whether a failed submit attempt should reveal inline errors of custom fields */
         this._showValidationErrors = false;
-        this.optionalContent = false;
+        /** @type {'mandatory'|'optional'} Currently shown tab of the form */
+        this._activeTab = JOB_OFFER_FORM_TAB_MANDATORY;
     }
 
     _createAreaOfInterestItems() {
@@ -928,7 +933,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _requiredQualificationTextEn: {state: true},
             _weOfferTextEn: {state: true},
             _isSubmitting: {state: true},
-            optionalContent: {Boolean},
+            _activeTab: {state: true},
             _showValidationErrors: {state: true},
         };
     }
@@ -999,62 +1004,57 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             }
         });
         super.update(changedProperties);
+    }
 
-        const oldOptionalContent = changedProperties.get('optionalContent');
-        if (oldOptionalContent === false && this.optionalContent) {
-            void this._scrollToOptionalData();
-        } else if (oldOptionalContent === true && !this.optionalContent) {
-            void this._scrollToModalTop();
+    /**
+     * Shows the given tab of the form and optionally moves the focus to its tab button.
+     * @param {'mandatory'|'optional'} tab
+     * @param {boolean} [focusTab]
+     * @returns {Promise<void>}
+     */
+    async _selectTab(tab, focusTab = false) {
+        if (tab !== this._activeTab) {
+            this._activeTab = tab;
+            await this.updateComplete;
+        }
+
+        if (focusTab) {
+            /** @type {HTMLElement|null} */ (
+                this.renderRoot.querySelector(`#job-offer-tab-${tab}`)
+            )?.focus();
         }
     }
 
     /**
-     * Scrolls the edit dialog to the optional-data section after it is expanded.
-     * @returns {Promise<void>}
+     * Implements the arrow key navigation of the WAI-ARIA tabs pattern.
+     * @param {KeyboardEvent} event
      */
-    async _scrollToOptionalData() {
-        await this.updateComplete;
-
-        const root = /** @type {Document|ShadowRoot} */ (this.getRootNode());
-        const modal = /** @type {HTMLElement|null} */ (
-            root.querySelector('dbp-modal[modal-id="edit-form-dialog"]')
-        );
-        const modalContent = modal?.shadowRoot?.querySelector('.modal-content');
-        const optionalData = this.renderRoot?.querySelector('#optional-data-wrapper');
-        if (!modalContent || !optionalData) {
-            return;
+    _handleTabKeydown(event) {
+        const currentIndex = JOB_OFFER_FORM_TABS.indexOf(this._activeTab);
+        const lastIndex = JOB_OFFER_FORM_TABS.length - 1;
+        let nextIndex;
+        switch (event.key) {
+            case 'ArrowRight':
+                nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
+                break;
+            case 'ArrowLeft':
+                nextIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
+                break;
+            case 'Home':
+                nextIndex = 0;
+                break;
+            case 'End':
+                nextIndex = lastIndex;
+                break;
+            default:
+                return;
         }
 
-        const modalContentRect = modalContent.getBoundingClientRect();
-        const optionalDataRect = optionalData.getBoundingClientRect();
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        modalContent.scrollTo({
-            top: modalContent.scrollTop + optionalDataRect.top - modalContentRect.top,
-            behavior: prefersReducedMotion ? 'auto' : 'smooth',
-        });
-    }
-
-    /**
-     * Scrolls the edit dialog to the top after the optional-data section is collapsed.
-     * @returns {Promise<void>}
-     */
-    async _scrollToModalTop() {
-        await this.updateComplete;
-
-        const root = /** @type {Document|ShadowRoot} */ (this.getRootNode());
-        const modal = /** @type {HTMLElement|null} */ (
-            root.querySelector('dbp-modal[modal-id="edit-form-dialog"]')
+        event.preventDefault();
+        void this._selectTab(
+            /** @type {'mandatory'|'optional'} */ (JOB_OFFER_FORM_TABS[nextIndex]),
+            true,
         );
-        const modalContent = modal?.shadowRoot?.querySelector('.modal-content');
-        if (!modalContent) {
-            return;
-        }
-
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        modalContent.scrollTo({
-            top: 0,
-            behavior: prefersReducedMotion ? 'auto' : 'smooth',
-        });
     }
 
     /**
@@ -1332,7 +1332,18 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         }
 
         if (firstInvalidField) {
-            focusFormField(firstInvalidField);
+            // Fields in the hidden tab can't receive focus, so switch to the tab of the field first.
+            // Fields with nested shadow roots are resolved via the host element of their root.
+            const panel =
+                firstInvalidField.closest('[role="tabpanel"]') ??
+                firstInvalidField.getRootNode()?.host?.closest('[role="tabpanel"]');
+            const tab = panel?.dataset.tab;
+            if (tab && tab !== this._activeTab) {
+                const field = firstInvalidField;
+                void this._selectTab(tab).then(() => focusFormField(field));
+            } else {
+                focusFormField(firstInvalidField);
+            }
             return true;
         }
 
@@ -1418,7 +1429,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._weOfferTextEn = '';
         this._isSubmitting = false;
         this._showValidationErrors = false;
-        this.optionalContent = false;
+        this._activeTab = JOB_OFFER_FORM_TAB_MANDATORY;
     }
 
     /**
@@ -1813,516 +1824,578 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             [this.lang]: t('manage-job-offers.field-area-of-interest-placeholder'),
         };
 
+        const isMandatoryTabActive = this._activeTab === JOB_OFFER_FORM_TAB_MANDATORY;
+        const isOptionalTabActive = this._activeTab === JOB_OFFER_FORM_TAB_OPTIONAL;
+
         return html`
-            <div class="mandatory">
-                <dbp-enum-element
-                    class="job-offer-type-field"
-                    name="job-offer-type"
-                    lang="${this.lang}"
-                    label="${t('manage-job-offers.field-job-type')}"
-                    display-mode="list"
-                    layout-type="inline"
-                    .items="${jobTypeItems}"
-                    .value="${this._jobOfferType}"
-                    required
-                    @change="${(e) => (this._jobOfferType = e.detail.value)}"></dbp-enum-element>
-
-                ${
-                    this._isInternalJob
-                        ? html`
-                              <div class="organization-field">
-                                  <label>
-                                      ${t('manage-job-offers.field-organization')}
-                                      <span class="required-star" aria-hidden="true">*</span>
-                                  </label>
-                                  <dbp-resource-select
-                                      name="organization"
-                                      lang="${this.lang}"
-                                      resource-path="/base/organizations?perPage=99999"
-                                      entry-point-url="${this.entryPointUrl}"
-                                      .auth="${this.auth}"
-                                      .value="${
-                                          this._organizationId
-                                              ? `/base/organizations/${this._organizationId}`
-                                              : null
-                                      }"
-                                      @change="${(e) => {
-                                          // Store both the OE identifier and its display name.
-                                          const obj = e.detail?.object;
-                                          const rawValue = e.detail?.value ?? e.target?.value ?? '';
-                                          this._organizationId = rawValue.startsWith(
-                                              '/base/organizations/',
-                                          )
-                                              ? rawValue.replace('/base/organizations/', '')
-                                              : rawValue;
-                                          this._organization = obj?.name ?? rawValue;
-                                      }}"></dbp-resource-select>
-                                  ${
-                                      // The resource select has no inline validation of its own,
-                                      // so show the same error as the toolkit form elements
-                                      this._showValidationErrors && this._organization.trim() === ''
-                                          ? html`
-                                                <ul class="validation-errors" role="alert">
-                                                    <li>
-                                                        ${t('manage-job-offers.required-field-error')}
-                                                    </li>
-                                                </ul>
-                                            `
-                                          : null
-                                  }
-                              </div>
-                          `
-                        : html`
-                              <dbp-submission-select-element
-                                  name="company-submission"
-                                  lang="${this.lang}"
-                                  label="${t('manage-job-offers.field-company')}"
-                                  entry-point-url="${this.entryPointUrl}"
-                                  frontend-key="bulletin-company"
-                                  submission-element-name="name"
-                                  .auth="${this.auth}"
-                                  .value="${this._companySubmissionId}"
-                                  required
-                                  @change="${(e) => {
-                                      this._companySubmissionId = e.detail.value;
-                                      // Store the display name of the selected company so it can still be shown
-                                      // in the detail view even after the company submission is deleted.
-                                      this._companyName = this._resolveCompanyName(
-                                          e.target,
-                                          e.detail.value,
-                                      );
-                                      this._setCompanyData(
-                                          this._resolveCompanyData(e.target, e.detail.value),
-                                      );
-                                  }}"></dbp-submission-select-element>
-
-                              ${
-                                  this._isFromPartnerCompany
-                                      ? html`
-                                            <p class="partner-company-status" role="status">
-                                                ${t(
-                                                    'manage-job-offers.selected-company-is-partner',
-                                                )}
-                                            </p>
-                                        `
-                                      : null
-                              }
-
-                              <dbp-string-element
-                                  name="external-job-url"
-                                  class="fieldset-external"
-                                  lang="${this.lang}"
-                                  label="${t('manage-job-offers.field-external-job-url')}"
-                                  type="url"
-                                  .value="${this._externalJobUrl}"
-                                  required
-                                  @change="${(e) => (this._externalJobUrl = e.detail.value)}">
-                                  <div slot="description">
-                                      ${t('manage-job-offers.field-external-job-url-description')}
-                                  </div>
-                              </dbp-string-element>
-                          `
-                }
-                <p class="language-requirement-note">
-                    ${t('manage-job-offers.language-requirement-note')}
-                </p>
-                <div class="translation-row">
-                    <dbp-string-element
-                        name="title"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-job-title')}"
-                        .value="${this._title}"
-                        maxlength="${JOB_TITLE_MAX_LENGTH}"
-                        ?required="${this._isGermanTextRequired}"
-                        @change="${(e) => {
-                            this._title = e.detail.value;
-                            void this._revalidateLanguageTextFields();
-                        }}"></dbp-string-element>
-
-                    <dbp-string-element
-                        name="title-en"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-job-title-en')}"
-                        .value="${this._titleEn}"
-                        maxlength="${JOB_TITLE_MAX_LENGTH}"
-                        ?required="${this._isEnglishTextRequired}"
-                        @change="${(e) => {
-                            this._titleEn = e.detail.value;
-                            void this._revalidateLanguageTextFields();
-                        }}"></dbp-string-element>
-                </div>
-
-                <div class="translation-row description-row">
-                    <dbp-string-element
-                        name="description"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-description')}"
-                        placeholder="${t('manage-job-offers.field-description-placeholder')}"
-                        .value="${this._description}"
-                        rows="18"
-                        maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
-                        ?required="${this._isGermanTextRequired}"
-                        @change="${(e) => {
-                            this._description = e.detail.value;
-                            void this._revalidateLanguageTextFields();
-                        }}">
-                        <!-- Render the note between the label and the input via the description
-                             slot, so that screen readers announce it together with the field -->
-                        <div slot="description">${descriptionMaxLengthNote}</div>
-                    </dbp-string-element>
-
-                    <dbp-string-element
-                        name="description-en"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-description-en')}"
-                        .value="${this._descriptionEn}"
-                        rows="18"
-                        maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
-                        ?required="${this._isEnglishTextRequired}"
-                        @change="${(e) => {
-                            this._descriptionEn = e.detail.value;
-                            void this._revalidateLanguageTextFields();
-                        }}">
-                        <div slot="description">${descriptionMaxLengthNote}</div>
-                    </dbp-string-element>
-                </div>
-                ${
-                    this._isInternalJob
-                        ? null
-                        : html`
-                              <dbp-work-locations-element
-                                  lang="${this.lang}"
-                                  lang-dir="${this.langDir}"
-                                  .required="${true}"
-                                  .value="${this._workLocations}"
-                                  @change="${(e) =>
-                                      (this._workLocations = normalizeWorkLocations(
-                                          e.detail.value,
-                                      ))}"></dbp-work-locations-element>
-                              <div class="remote-field">
-                                  <label class="checkbox-field">
-                                      <input
-                                          type="checkbox"
-                                          name="remote"
-                                          aria-describedby="remote-notice"
-                                          .checked="${this._remote}"
-                                          @change="${(event) =>
-                                              (this._remote = event.target.checked)}" />
-                                      <span>${t('manage-job-offers.field-remote')}</span>
-                                  </label>
-                                  <!-- Linked to the checkbox via aria-describedby, so that screen
-                                       readers announce the note together with the checkbox -->
-                                  <p class="remote-notice" id="remote-notice">
-                                      ${t('manage-job-offers.field-remote-notice')}
-                                  </p>
-                              </div>
-                          `
-                }
-                <div class="translation-row row-three">
-                    <dbp-hours-range-element
-                        name="weekly-hours"
-                        class="weekly-hours-job-form"
-                        lang="${this.lang}"
-                        lang-dir="${this.langDir}"
-                        label="${t('hours-range.label')}"
-                        .min="${this._weeklyHoursMin}"
-                        .max="${this._weeklyHoursMax}"
-                        required
-                        @change="${this._handleWeeklyHoursRangeChange}"></dbp-hours-range-element>
-                    <dbp-date-element
-                        name="published-at"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-published-at')}"
-                        .value="${this._publishedAt}"
-                        required
-                        @change="${(e) => {
-                            this._publishedAt = e.detail.value;
-                            this.shadowRoot?.querySelector('dbp-date-element[name="deadline"]');
-                        }}"></dbp-date-element>
-
-                    <dbp-date-element
-                        name="deadline"
-                        lang="${this.lang}"
-                        label="${t('manage-job-offers.field-deadline')}"
-                        .value="${this._deadline}"
-                        min="${this._publishedAt}"
-                        .customValidator="${(value) =>
-                            isDeadlineBeforePublishedAt(this._publishedAt, value)
-                                ? [t('create-job-offer.validation-deadline-before-published')]
-                                : []}"
-                        required
-                        @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
-                </div>
-            </div>
-
-            <!--
-                Hidden skip link at the end of the required fields. It allows keyboard and
-                screen reader users to jump directly to the save button in the pinned dialog
-                header, instead of tabbing through all optional fields first.
-            -->
-            <div class="skip-links">
-                <p id="mandatory-fields-end" class="visually-hidden">
-                    ${t('manage-job-offers.mandatory-fields-end')}
-                </p>
+            <div
+                class="form-tabs"
+                role="tablist"
+                aria-label="${t('manage-job-offers.form-tabs-label')}"
+                @keydown="${this._handleTabKeydown}">
                 <button
                     type="button"
-                    class="skip-link"
-                    aria-describedby="mandatory-fields-end"
-                    @click="${this._skipLinkToSaveButton}">
-                    ${t('manage-job-offers.mandatory-fields-end', {
-                        label: this._isEditMode
-                            ? t('manage-job-offers.save')
-                            : t('manage-job-offers.publish'),
-                    })}
+                    id="job-offer-tab-mandatory"
+                    class="form-tab ${isMandatoryTabActive ? 'active' : ''}"
+                    role="tab"
+                    aria-selected="${isMandatoryTabActive}"
+                    aria-controls="job-offer-panel-mandatory"
+                    tabindex="${isMandatoryTabActive ? '0' : '-1'}"
+                    @click="${() => this._selectTab(JOB_OFFER_FORM_TAB_MANDATORY)}">
+                    ${t('manage-job-offers.tab-mandatory-fields')}
+                </button>
+                <button
+                    type="button"
+                    id="job-offer-tab-optional"
+                    class="form-tab ${isOptionalTabActive ? 'active' : ''}"
+                    role="tab"
+                    aria-selected="${isOptionalTabActive}"
+                    aria-controls="job-offer-panel-optional"
+                    tabindex="${isOptionalTabActive ? '0' : '-1'}"
+                    @click="${() => this._selectTab(JOB_OFFER_FORM_TAB_OPTIONAL)}">
+                    ${t('manage-job-offers.tab-optional-fields')}
                 </button>
             </div>
 
-            <div id="optional-data-wrapper" class="optional-data-wrapper">
-                <button id="optional-button" class="optional-button" tabindex="0"  @click="${() => (this.optionalContent = !this.optionalContent)}" aria-label="Optional Data" aria-expanded="${this.optionalContent}">
-                <dbp-icon name="chevron-down" aria-hidden="true" class="optional-data-icon ${this.optionalContent ? 'rotated' : ''}"></dbp-icon>
-                <h3>${t('manage-job-offers.optional-data')}</h3>
-                </button>
-                <hr aria-hidden="true" />
-                <div class="content  ${this.optionalContent ? 'optional-data-visible' : 'optional-data-hidden'}">
-                    <div class="translation-row">
-                        <dbp-date-element
-                            name="application-deadline"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-application-deadline')}"
-                            .value="${this._applicationDeadline}"
-                            @change="${(e) =>
-                                (this._applicationDeadline = e.detail.value)}"></dbp-date-element>
-                        <dbp-date-element
-                            name="start-date"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-start-date')}"
-                            .value="${this._startDate}"
-                            @change="${(e) =>
-                                (this._startDate = e.detail.value)}"></dbp-date-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="salary"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-salary')}"
-                            .value="${this._salary}"
-                            @change="${(e) =>
-                                (this._salary = e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="salary-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-salary-en')}"
-                            .value="${this._salaryEn}"
-                            @change="${(e) =>
-                                (this._salaryEn = e.detail.value)}"></dbp-string-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="contract-duration"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-contract-duration')}"
-                            .value="${this._contractDuration}"
-                            @change="${(e) =>
-                                (this._contractDuration = e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="contract-duration-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-contract-duration-en')}"
-                            .value="${this._contractDurationEn}"
-                            @change="${(e) =>
-                                (this._contractDurationEn = e.detail.value)}"></dbp-string-element>
-                    </div>
-                    <div >
+            <div class="tab-panels">
+                <!-- Inactive panels are only hidden, so their fields keep their values and validation state -->
+                <div
+                    id="job-offer-panel-mandatory"
+                    class="tab-panel"
+                    role="tabpanel"
+                    aria-labelledby="job-offer-tab-mandatory"
+                    data-tab="${JOB_OFFER_FORM_TAB_MANDATORY}"
+                    ?hidden="${!isMandatoryTabActive}">
+                    <div class="mandatory">
                         <dbp-enum-element
-                            name="job-category"
+                            class="job-offer-type-field"
+                            name="job-offer-type"
                             lang="${this.lang}"
-                            label="${t('manage-job-offers.field-job-category')}"
-                            .items="${jobCategoryItems}"
-                            .value="${this._jobCategory}"
-                            @change="${(e) =>
-                                (this._jobCategory = e.detail.value)}"></dbp-enum-element>
-                        <dbp-enum-element
-                            name="area-of-interest"
-                            class="area-of-interest-field"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-area-of-interest')}"
-                            multiple
-                            display-mode="tags"
-                            .tagPlaceholder="${areaOfInterestPlaceholder}"
-                            .items="${this._areaOfInterestItems}"
-                            .value="${this._areasOfInterest}"
-                            @change="${(e) => {
-                                const nextAreasOfInterest = normalizeAreaOfInterestValues(
-                                    e.detail.value,
-                                );
+                            label="${t('manage-job-offers.field-job-type')}"
+                            display-mode="list"
+                            layout-type="inline"
+                            .items="${jobTypeItems}"
+                            .value="${this._jobOfferType}"
+                            required
+                            @change="${(e) => (this._jobOfferType = e.detail.value)}"></dbp-enum-element>
 
-                                // Avoid rewriting the same selection and retriggering Select2.
-                                if (
-                                    !areStringArraysEqual(
-                                        this._areasOfInterest,
-                                        nextAreasOfInterest,
-                                    )
-                                ) {
-                                    this._areasOfInterest = nextAreasOfInterest;
-                                }
-                            }}"></dbp-enum-element>
+                        ${
+                            this._isInternalJob
+                                ? html`
+                                      <div class="organization-field">
+                                          <label>
+                                              ${t('manage-job-offers.field-organization')}
+                                              <span class="required-star" aria-hidden="true">
+                                                  *
+                                              </span>
+                                          </label>
+                                          <dbp-resource-select
+                                              name="organization"
+                                              lang="${this.lang}"
+                                              resource-path="/base/organizations?perPage=99999"
+                                              entry-point-url="${this.entryPointUrl}"
+                                              .auth="${this.auth}"
+                                              .value="${
+                                                  this._organizationId
+                                                      ? `/base/organizations/${this._organizationId}`
+                                                      : null
+                                              }"
+                                              @change="${(e) => {
+                                                  // Store both the OE identifier and its display name.
+                                                  const obj = e.detail?.object;
+                                                  const rawValue =
+                                                      e.detail?.value ?? e.target?.value ?? '';
+                                                  this._organizationId = rawValue.startsWith(
+                                                      '/base/organizations/',
+                                                  )
+                                                      ? rawValue.replace('/base/organizations/', '')
+                                                      : rawValue;
+                                                  this._organization = obj?.name ?? rawValue;
+                                              }}"></dbp-resource-select>
+                                          ${
+                                              // The resource select has no inline validation of its own,
+                                              // so show the same error as the toolkit form elements
+                                              this._showValidationErrors &&
+                                              this._organization.trim() === ''
+                                                  ? html`
+                                                        <ul class="validation-errors" role="alert">
+                                                            <li>
+                                                                ${t('manage-job-offers.required-field-error')}
+                                                            </li>
+                                                        </ul>
+                                                    `
+                                                  : null
+                                          }
+                                      </div>
+                                  `
+                                : html`
+                                      <dbp-submission-select-element
+                                          name="company-submission"
+                                          lang="${this.lang}"
+                                          label="${t('manage-job-offers.field-company')}"
+                                          entry-point-url="${this.entryPointUrl}"
+                                          frontend-key="bulletin-company"
+                                          submission-element-name="name"
+                                          .auth="${this.auth}"
+                                          .value="${this._companySubmissionId}"
+                                          required
+                                          @change="${(e) => {
+                                              this._companySubmissionId = e.detail.value;
+                                              // Store the display name of the selected company so it can still be shown
+                                              // in the detail view even after the company submission is deleted.
+                                              this._companyName = this._resolveCompanyName(
+                                                  e.target,
+                                                  e.detail.value,
+                                              );
+                                              this._setCompanyData(
+                                                  this._resolveCompanyData(
+                                                      e.target,
+                                                      e.detail.value,
+                                                  ),
+                                              );
+                                          }}"></dbp-submission-select-element>
+
+                                      ${
+                                          this._isFromPartnerCompany
+                                              ? html`
+                                                    <p class="partner-company-status" role="status">
+                                                        ${t(
+                                                            'manage-job-offers.selected-company-is-partner',
+                                                        )}
+                                                    </p>
+                                                `
+                                              : null
+                                      }
+
+                                      <dbp-string-element
+                                          name="external-job-url"
+                                          class="fieldset-external"
+                                          lang="${this.lang}"
+                                          label="${t('manage-job-offers.field-external-job-url')}"
+                                          type="url"
+                                          .value="${this._externalJobUrl}"
+                                          required
+                                          @change="${(e) => (this._externalJobUrl = e.detail.value)}">
+                                          <div slot="description">
+                                              ${t('manage-job-offers.field-external-job-url-description')}
+                                          </div>
+                                      </dbp-string-element>
+                                  `
+                        }
+                        <p class="language-requirement-note">
+                            ${t('manage-job-offers.language-requirement-note')}
+                        </p>
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="title"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-job-title')}"
+                                .value="${this._title}"
+                                maxlength="${JOB_TITLE_MAX_LENGTH}"
+                                ?required="${this._isGermanTextRequired}"
+                                @change="${(e) => {
+                                    this._title = e.detail.value;
+                                    void this._revalidateLanguageTextFields();
+                                }}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="title-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-job-title-en')}"
+                                .value="${this._titleEn}"
+                                maxlength="${JOB_TITLE_MAX_LENGTH}"
+                                ?required="${this._isEnglishTextRequired}"
+                                @change="${(e) => {
+                                    this._titleEn = e.detail.value;
+                                    void this._revalidateLanguageTextFields();
+                                }}"></dbp-string-element>
+                        </div>
+
+                        <div class="translation-row description-row">
+                            <dbp-string-element
+                                name="description"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-description')}"
+                                placeholder="${t('manage-job-offers.field-description-placeholder')}"
+                                .value="${this._description}"
+                                rows="18"
+                                maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
+                                ?required="${this._isGermanTextRequired}"
+                                @change="${(e) => {
+                                    this._description = e.detail.value;
+                                    void this._revalidateLanguageTextFields();
+                                }}">
+                                <!-- Render the note between the label and the input via the description
+                             slot, so that screen readers announce it together with the field -->
+                                <div slot="description">${descriptionMaxLengthNote}</div>
+                            </dbp-string-element>
+
+                            <dbp-string-element
+                                name="description-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-description-en')}"
+                                .value="${this._descriptionEn}"
+                                rows="18"
+                                maxlength="${JOB_DESCRIPTION_MAX_LENGTH}"
+                                ?required="${this._isEnglishTextRequired}"
+                                @change="${(e) => {
+                                    this._descriptionEn = e.detail.value;
+                                    void this._revalidateLanguageTextFields();
+                                }}">
+                                <div slot="description">${descriptionMaxLengthNote}</div>
+                            </dbp-string-element>
+                        </div>
+                        ${
+                            this._isInternalJob
+                                ? null
+                                : html`
+                                      <dbp-work-locations-element
+                                          lang="${this.lang}"
+                                          lang-dir="${this.langDir}"
+                                          .required="${true}"
+                                          .value="${this._workLocations}"
+                                          @change="${(e) =>
+                                              (this._workLocations = normalizeWorkLocations(
+                                                  e.detail.value,
+                                              ))}"></dbp-work-locations-element>
+                                      <div class="remote-field">
+                                          <label class="checkbox-field">
+                                              <input
+                                                  type="checkbox"
+                                                  name="remote"
+                                                  aria-describedby="remote-notice"
+                                                  .checked="${this._remote}"
+                                                  @change="${(event) =>
+                                                      (this._remote = event.target.checked)}" />
+                                              <span>${t('manage-job-offers.field-remote')}</span>
+                                          </label>
+                                          <!-- Linked to the checkbox via aria-describedby, so that screen
+                                       readers announce the note together with the checkbox -->
+                                          <p class="remote-notice" id="remote-notice">
+                                              ${t('manage-job-offers.field-remote-notice')}
+                                          </p>
+                                      </div>
+                                  `
+                        }
+                        <div class="translation-row row-three">
+                            <dbp-hours-range-element
+                                name="weekly-hours"
+                                class="weekly-hours-job-form"
+                                lang="${this.lang}"
+                                lang-dir="${this.langDir}"
+                                label="${t('hours-range.label')}"
+                                .min="${this._weeklyHoursMin}"
+                                .max="${this._weeklyHoursMax}"
+                                required
+                                @change="${this._handleWeeklyHoursRangeChange}"></dbp-hours-range-element>
+                            <dbp-date-element
+                                name="published-at"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-published-at')}"
+                                .value="${this._publishedAt}"
+                                required
+                                @change="${(e) => {
+                                    this._publishedAt = e.detail.value;
+                                    this.shadowRoot?.querySelector(
+                                        'dbp-date-element[name="deadline"]',
+                                    );
+                                }}"></dbp-date-element>
+
+                            <dbp-date-element
+                                name="deadline"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-deadline')}"
+                                .value="${this._deadline}"
+                                min="${this._publishedAt}"
+                                .customValidator="${(value) =>
+                                    isDeadlineBeforePublishedAt(this._publishedAt, value)
+                                        ? [
+                                              t(
+                                                  'create-job-offer.validation-deadline-before-published',
+                                              ),
+                                          ]
+                                        : []}"
+                                required
+                                @change="${(e) => (this._deadline = e.detail.value)}"></dbp-date-element>
+                        </div>
                     </div>
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="requirements"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-requirements')}"
-                            description="${multilineHint}"
-                            .value="${this._requirementsText}"
-                            rows="4"
-                            @change="${(e) =>
-                                (this._requirementsText = e.detail.value)}"></dbp-string-element>
 
-                        <dbp-string-element
-                            name="requirements-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-requirements-en')}"
-                            description="${multilineHint}"
-                            .value="${this._requirementsTextEn}"
-                            rows="4"
-                            @change="${(e) =>
-                                (this._requirementsTextEn = e.detail.value)}"></dbp-string-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="responsibilities"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-responsibilities')}"
-                            description="${multilineHint}"
-                            .value="${this._responsibilitiesText}"
-                            rows="4"
-                            @change="${(e) =>
-                                (this._responsibilitiesText =
-                                    e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="responsibilities-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-responsibilities-en')}"
-                            description="${multilineHint}"
-                            .value="${this._responsibilitiesTextEn}"
-                            rows="4"
-                            @change="${(e) =>
-                                (this._responsibilitiesTextEn =
-                                    e.detail.value)}"></dbp-string-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="required-qualification"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-required-qualification')}"
-                            description="${multilineHint}"
-                            .value="${this._requiredQualificationText}"
-                            rows="4"
-                            @change="${(e) =>
-                                (this._requiredQualificationText =
-                                    e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="required-qualification-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-required-qualification-en')}"
-                            description="${multilineHint}"
-                            .value="${this._requiredQualificationTextEn}"
-                            rows="4"
-                            @change="${(e) =>
-                                (this._requiredQualificationTextEn =
-                                    e.detail.value)}"></dbp-string-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="we-offer"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-we-offer')}"
-                            description="${multilineHint}"
-                            .value="${this._weOfferText}"
-                            rows="4"
-                            @change="${(e) =>
-                                (this._weOfferText = e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="we-offer-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-we-offer-en')}"
-                            description="${multilineHint}"
-                            .value="${this._weOfferTextEn}"
-                            rows="4"
-                            @change="${(e) =>
-                                (this._weOfferTextEn = e.detail.value)}"></dbp-string-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="link-url"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-link-url')}"
-                            type="url"
-                            .value="${this._linkUrl}"
-                            @change="${(e) =>
-                                (this._linkUrl = e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="link-url-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-link-url-en')}"
-                            type="url"
-                            .value="${this._linkUrlEn}"
-                            @change="${(e) =>
-                                (this._linkUrlEn = e.detail.value)}"></dbp-string-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="link-name"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-link-name')}"
-                            .value="${this._linkName}"
-                            @change="${(e) =>
-                                (this._linkName = e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="link-name-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-link-name-en')}"
-                            .value="${this._linkNameEn}"
-                            @change="${(e) =>
-                                (this._linkNameEn = e.detail.value)}"></dbp-string-element>
-                    </div>
-
-                    <div class="translation-row">
-                        <dbp-string-element
-                            name="contact-information"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-contact-information')}"
-                            .value="${this._contactInformation}"
-                            rows="3"
-                            @change="${(e) =>
-                                (this._contactInformation = e.detail.value)}"></dbp-string-element>
-
-                        <dbp-string-element
-                            name="contact-information-en"
-                            lang="${this.lang}"
-                            label="${t('manage-job-offers.field-contact-information-en')}"
-                            .value="${this._contactInformationEn}"
-                            rows="3"
-                            @change="${(e) =>
-                                (this._contactInformationEn =
-                                    e.detail.value)}"></dbp-string-element>
+                    <!--
+                Hidden skip link at the end of the required fields. It allows keyboard and
+                screen reader users to jump directly to the save button in the pinned dialog
+                header, instead of tabbing back through all fields.
+            -->
+                    <div class="skip-links">
+                        <p id="mandatory-fields-end" class="visually-hidden">
+                            ${t('manage-job-offers.mandatory-fields-end')}
+                        </p>
+                        <button
+                            type="button"
+                            class="skip-link"
+                            aria-describedby="mandatory-fields-end"
+                            @click="${this._skipLinkToSaveButton}">
+                            ${t('manage-job-offers.skip-to-save-button', {
+                                label: this._isEditMode
+                                    ? t('manage-job-offers.save')
+                                    : t('manage-job-offers.publish'),
+                            })}
+                        </button>
                     </div>
                 </div>
-            </div>
+
+                <div
+                    id="job-offer-panel-optional"
+                    class="tab-panel"
+                    role="tabpanel"
+                    aria-labelledby="job-offer-tab-optional"
+                    data-tab="${JOB_OFFER_FORM_TAB_OPTIONAL}"
+                    ?hidden="${!isOptionalTabActive}">
+                    <div class="optional-data">
+                        <div class="translation-row">
+                            <dbp-date-element
+                                name="application-deadline"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-application-deadline')}"
+                                .value="${this._applicationDeadline}"
+                                @change="${(e) =>
+                                    (this._applicationDeadline =
+                                        e.detail.value)}"></dbp-date-element>
+                            <dbp-date-element
+                                name="start-date"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-start-date')}"
+                                .value="${this._startDate}"
+                                @change="${(e) =>
+                                    (this._startDate = e.detail.value)}"></dbp-date-element>
+                        </div>
+
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="salary"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-salary')}"
+                                .value="${this._salary}"
+                                @change="${(e) =>
+                                    (this._salary = e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="salary-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-salary-en')}"
+                                .value="${this._salaryEn}"
+                                @change="${(e) =>
+                                    (this._salaryEn = e.detail.value)}"></dbp-string-element>
+                        </div>
+
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="contract-duration"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-contract-duration')}"
+                                .value="${this._contractDuration}"
+                                @change="${(e) =>
+                                    (this._contractDuration =
+                                        e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="contract-duration-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-contract-duration-en')}"
+                                .value="${this._contractDurationEn}"
+                                @change="${(e) =>
+                                    (this._contractDurationEn =
+                                        e.detail.value)}"></dbp-string-element>
+                        </div>
+                        <div>
+                            <dbp-enum-element
+                                name="job-category"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-job-category')}"
+                                .items="${jobCategoryItems}"
+                                .value="${this._jobCategory}"
+                                @change="${(e) =>
+                                    (this._jobCategory = e.detail.value)}"></dbp-enum-element>
+                            <dbp-enum-element
+                                name="area-of-interest"
+                                class="area-of-interest-field"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-area-of-interest')}"
+                                multiple
+                                display-mode="tags"
+                                .tagPlaceholder="${areaOfInterestPlaceholder}"
+                                .items="${this._areaOfInterestItems}"
+                                .value="${this._areasOfInterest}"
+                                @change="${(e) => {
+                                    const nextAreasOfInterest = normalizeAreaOfInterestValues(
+                                        e.detail.value,
+                                    );
+
+                                    // Avoid rewriting the same selection and retriggering Select2.
+                                    if (
+                                        !areStringArraysEqual(
+                                            this._areasOfInterest,
+                                            nextAreasOfInterest,
+                                        )
+                                    ) {
+                                        this._areasOfInterest = nextAreasOfInterest;
+                                    }
+                                }}"></dbp-enum-element>
+                        </div>
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="requirements"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-requirements')}"
+                                description="${multilineHint}"
+                                .value="${this._requirementsText}"
+                                rows="4"
+                                @change="${(e) =>
+                                    (this._requirementsText =
+                                        e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="requirements-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-requirements-en')}"
+                                description="${multilineHint}"
+                                .value="${this._requirementsTextEn}"
+                                rows="4"
+                                @change="${(e) =>
+                                    (this._requirementsTextEn =
+                                        e.detail.value)}"></dbp-string-element>
+                        </div>
+
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="responsibilities"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-responsibilities')}"
+                                description="${multilineHint}"
+                                .value="${this._responsibilitiesText}"
+                                rows="4"
+                                @change="${(e) =>
+                                    (this._responsibilitiesText =
+                                        e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="responsibilities-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-responsibilities-en')}"
+                                description="${multilineHint}"
+                                .value="${this._responsibilitiesTextEn}"
+                                rows="4"
+                                @change="${(e) =>
+                                    (this._responsibilitiesTextEn =
+                                        e.detail.value)}"></dbp-string-element>
+                        </div>
+
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="required-qualification"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-required-qualification')}"
+                                description="${multilineHint}"
+                                .value="${this._requiredQualificationText}"
+                                rows="4"
+                                @change="${(e) =>
+                                    (this._requiredQualificationText =
+                                        e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="required-qualification-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-required-qualification-en')}"
+                                description="${multilineHint}"
+                                .value="${this._requiredQualificationTextEn}"
+                                rows="4"
+                                @change="${(e) =>
+                                    (this._requiredQualificationTextEn =
+                                        e.detail.value)}"></dbp-string-element>
+                        </div>
+
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="we-offer"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-we-offer')}"
+                                description="${multilineHint}"
+                                .value="${this._weOfferText}"
+                                rows="4"
+                                @change="${(e) =>
+                                    (this._weOfferText = e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="we-offer-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-we-offer-en')}"
+                                description="${multilineHint}"
+                                .value="${this._weOfferTextEn}"
+                                rows="4"
+                                @change="${(e) =>
+                                    (this._weOfferTextEn = e.detail.value)}"></dbp-string-element>
+                        </div>
+
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="link-url"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-link-url')}"
+                                type="url"
+                                .value="${this._linkUrl}"
+                                @change="${(e) =>
+                                    (this._linkUrl = e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="link-url-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-link-url-en')}"
+                                type="url"
+                                .value="${this._linkUrlEn}"
+                                @change="${(e) =>
+                                    (this._linkUrlEn = e.detail.value)}"></dbp-string-element>
+                        </div>
+
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="link-name"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-link-name')}"
+                                .value="${this._linkName}"
+                                @change="${(e) =>
+                                    (this._linkName = e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="link-name-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-link-name-en')}"
+                                .value="${this._linkNameEn}"
+                                @change="${(e) =>
+                                    (this._linkNameEn = e.detail.value)}"></dbp-string-element>
+                        </div>
+
+                        <div class="translation-row">
+                            <dbp-string-element
+                                name="contact-information"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-contact-information')}"
+                                .value="${this._contactInformation}"
+                                rows="3"
+                                @change="${(e) =>
+                                    (this._contactInformation =
+                                        e.detail.value)}"></dbp-string-element>
+
+                            <dbp-string-element
+                                name="contact-information-en"
+                                lang="${this.lang}"
+                                label="${t('manage-job-offers.field-contact-information-en')}"
+                                .value="${this._contactInformationEn}"
+                                rows="3"
+                                @change="${(e) =>
+                                    (this._contactInformationEn =
+                                        e.detail.value)}"></dbp-string-element>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -2398,8 +2471,89 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             }
 
             .mandatory,
-            .optional-data-wrapper {
+            .optional-data {
                 padding-right: 0.5rem;
+            }
+
+            /* Tab bar to switch between the mandatory and the optional fields.
+               Styled like the document sub-tabs of the cabinet selection dialog. */
+            .form-tabs {
+                display: flex;
+                z-index: 3;
+                position: relative;
+                border-radius: 0;
+                container-name: formtabs;
+                container-type: inline-size;
+                min-width: 0;
+            }
+
+            /* Sits directly below the tabs and above them, so it covers the shadow of the
+               active tab that would otherwise bleed out as a line below it */
+            .tab-panels {
+                padding-top: 1.5em;
+                background-color: var(--dbp-background);
+                position: relative;
+                z-index: 3;
+            }
+
+            .form-tab:focus-visible {
+                outline: 0px !important;
+                box-shadow: inset 0px 0px 3px 1px var(--dbp-primary) !important;
+            }
+
+            .form-tab {
+                width: 50%;
+                min-width: 0;
+                padding: 10px 20px;
+                background-color: var(--dbp-background);
+                border: none;
+                cursor: pointer;
+                color: var(--dbp-content);
+                font-size: 1rem;
+                display: flex;
+                align-items: center;
+                border-radius: 0;
+            }
+
+            @container formtabs (max-width: 500px) {
+                .form-tab {
+                    padding: 2px 6px;
+                    text-align: center;
+                }
+                .form-tab.active {
+                    width: 75%;
+                    padding-left: 15px;
+                }
+                .form-tab:not(.active) {
+                    line-height: 1.2;
+                    font-size: 15px;
+                }
+            }
+
+            .form-tab:hover {
+                background-color: var(--dbp-hover-background-color);
+            }
+
+            .form-tab.active {
+                border-left: 3px solid var(--dbp-accent);
+                font-weight: bold;
+                border-bottom: none;
+                background-color: var(--dbp-background);
+                box-shadow:
+                    2px 0 6px -2px rgba(0, 0, 0, 0.12),
+                    /* right */ 1px -2px 6px -2px rgba(0, 0, 0, 0.12); /* top */
+                z-index: 2;
+                border-top: 1px solid #ffffff;
+                border-right: 1px solid #ffffff;
+            }
+
+            .form-tab:not(.active) {
+                box-shadow: rgb(0, 0, 0) 0px -6px 9px -11px inset; /* bottom */
+                border-bottom: 1px solid #ffffff;
+            }
+
+            .tab-panel[hidden] {
+                display: none;
             }
 
             /* Only available to screen readers */
@@ -2462,67 +2616,12 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             .fieldset-external {
                 margin-top: 10px;
             }
-            h3 {
-                margin: 0px;
-                font-size: 1.3rem;
-                font-weight: 400;
-            }
-
-            #optional-data-wrapper {
-                margin-top: 2rem;
-            }
 
             .area-of-interest-field {
                 margin-top: 1rem;
             }
             .row-three {
                 grid-template-columns: repeat(3, minmax(0px, 1fr));
-            }
-
-            .optional-button {
-                background-color: var(--dbp-background);
-                border: none;
-                cursor: pointer;
-                display: flex;
-                align-items: baseline;
-                width: 100%;
-                gap: 0.4rem;
-            }
-
-            .optional-data-icon {
-                color: var(--dbp-accent);
-                font-size: 1.3em;
-                transition: transform 0.2s ease;
-            }
-
-            .optional-data-icon.rotated {
-                transform: rotate(180deg);
-            }
-
-            .optional-data-visible {
-                display: block;
-                transition: transform 0.2s ease;
-            }
-
-            .optional-data-hidden {
-                display: none;
-                transition: transform 0.2s ease;
-                margin-bottom: 0.5rem;
-            }
-
-            .optional-header {
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-                box-sizing: border-box;
-                padding: 0;
-                cursor: pointer;
-                margin-top: 1rem;
-            }
-
-            hr {
-                margin-top: 0;
-                margin-bottom: 0.5rem;
             }
 
             @media (max-width: 900px) {

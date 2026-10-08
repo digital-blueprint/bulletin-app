@@ -1464,7 +1464,7 @@ suite('jobOfferForm validation', () => {
         assert.equal(editedFormId, 'job-1');
     });
 
-    test('should render optional fields without requiring expansion', async () => {
+    test('should switch between the mandatory and optional fields with tabs', async () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
         if (!customElements.get(tagName)) {
@@ -1474,10 +1474,37 @@ suite('jobOfferForm validation', () => {
         document.body.appendChild(element);
         await element.updateComplete;
 
-        // Optional fields are always visible, no expand interaction is needed.
+        const root = element.shadowRoot;
+        const mandatoryTab = root.querySelector('#job-offer-tab-mandatory');
+        const optionalTab = root.querySelector('#job-offer-tab-optional');
+        const mandatoryPanel = root.querySelector('#job-offer-panel-mandatory');
+        const optionalPanel = root.querySelector('#job-offer-panel-optional');
+
+        // The mandatory fields are shown first
+        assert.equal(mandatoryTab.getAttribute('aria-selected'), 'true');
+        assert.isFalse(mandatoryPanel.hidden);
+        assert.isTrue(optionalPanel.hidden);
+
+        // Optional fields stay rendered in the hidden panel, so their values are kept
         for (const fieldName of ['application-deadline', 'start-date', 'salary', 'salary-en']) {
-            assert.isNotNull(element.shadowRoot.querySelector(`[name="${fieldName}"]`));
+            assert.isNotNull(optionalPanel.querySelector(`[name="${fieldName}"]`));
         }
+
+        optionalTab.click();
+        await element.updateComplete;
+        assert.equal(optionalTab.getAttribute('aria-selected'), 'true');
+        assert.equal(mandatoryTab.getAttribute('aria-selected'), 'false');
+        assert.isTrue(mandatoryPanel.hidden);
+        assert.isFalse(optionalPanel.hidden);
+
+        // Arrow keys move the selection and the focus to the other tab
+        optionalTab.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowLeft', bubbles: true}));
+        await element.updateComplete;
+        // The focus is moved after the re-render has finished
+        await new Promise((resolve) => setTimeout(resolve));
+        assert.equal(mandatoryTab.getAttribute('aria-selected'), 'true');
+        assert.equal(root.activeElement, mandatoryTab);
+
         element.remove();
     });
 
