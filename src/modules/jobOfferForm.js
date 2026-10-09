@@ -1030,7 +1030,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
      * @param {KeyboardEvent} event
      */
     _handleTabKeydown(event) {
-        const currentIndex = JOB_OFFER_FORM_TABS.indexOf(this._activeTab);
+        // Navigate from the focused tab, which can differ from the selected one when a
+        // screen reader moved the focus in browse mode
+        const focusedTab = /** @type {HTMLElement|null} */ (
+            /** @type {HTMLElement} */ (event.target).closest('[role="tab"]')
+        );
+        const currentIndex = JOB_OFFER_FORM_TABS.indexOf(
+            focusedTab?.dataset.tab ?? this._activeTab,
+        );
         const lastIndex = JOB_OFFER_FORM_TABS.length - 1;
         let nextIndex;
         switch (event.key) {
@@ -1838,6 +1845,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     id="job-offer-tab-mandatory"
                     class="form-tab ${isMandatoryTabActive ? 'active' : ''}"
                     role="tab"
+                    data-tab="${JOB_OFFER_FORM_TAB_MANDATORY}"
                     aria-selected="${isMandatoryTabActive}"
                     aria-controls="job-offer-panel-mandatory"
                     tabindex="${isMandatoryTabActive ? '0' : '-1'}"
@@ -1849,6 +1857,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     id="job-offer-tab-optional"
                     class="form-tab ${isOptionalTabActive ? 'active' : ''}"
                     role="tab"
+                    data-tab="${JOB_OFFER_FORM_TAB_OPTIONAL}"
                     aria-selected="${isOptionalTabActive}"
                     aria-controls="job-offer-panel-optional"
                     tabindex="${isOptionalTabActive ? '0' : '-1'}"
@@ -2496,8 +2505,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 z-index: 3;
             }
 
+            /* The transparent outline is invisible normally, but becomes the focus indicator
+               in forced colors mode (e.g. Windows high contrast), which removes box shadows */
             .form-tab:focus-visible {
-                outline: 0px !important;
+                outline: 2px solid transparent !important;
+                outline-offset: -2px;
                 box-shadow: inset 0px 0px 3px 1px var(--dbp-primary) !important;
             }
 

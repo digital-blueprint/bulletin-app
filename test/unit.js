@@ -1505,6 +1505,29 @@ suite('jobOfferForm validation', () => {
         assert.equal(mandatoryTab.getAttribute('aria-selected'), 'true');
         assert.equal(root.activeElement, mandatoryTab);
 
+        // Only the selected tab is in the tab sequence (roving tabindex)
+        assert.equal(mandatoryTab.getAttribute('tabindex'), '0');
+        assert.equal(optionalTab.getAttribute('tabindex'), '-1');
+
+        // End and Home jump to the last and first tab
+        mandatoryTab.dispatchEvent(new KeyboardEvent('keydown', {key: 'End', bubbles: true}));
+        await element.updateComplete;
+        await new Promise((resolve) => setTimeout(resolve));
+        assert.equal(root.activeElement, optionalTab);
+        optionalTab.dispatchEvent(new KeyboardEvent('keydown', {key: 'Home', bubbles: true}));
+        await element.updateComplete;
+        await new Promise((resolve) => setTimeout(resolve));
+        assert.equal(root.activeElement, mandatoryTab);
+
+        // Arrow keys navigate from the focused tab, even if it isn't the selected one,
+        // e.g. after a screen reader moved the focus in browse mode
+        optionalTab.focus();
+        optionalTab.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowLeft', bubbles: true}));
+        await element.updateComplete;
+        await new Promise((resolve) => setTimeout(resolve));
+        assert.equal(mandatoryTab.getAttribute('aria-selected'), 'true');
+        assert.equal(root.activeElement, mandatoryTab);
+
         element.remove();
     });
 
