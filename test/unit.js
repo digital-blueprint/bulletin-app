@@ -1482,6 +1482,14 @@ suite('jobOfferForm validation', () => {
 
         // The mandatory fields are shown first
         assert.equal(mandatoryTab.getAttribute('aria-selected'), 'true');
+        assert.equal(optionalTab.getAttribute('aria-selected'), 'false');
+        // Both tabs are reachable with Tab, including the inactive one
+        assert.equal(mandatoryTab.tabIndex, 0);
+        assert.equal(optionalTab.tabIndex, 0);
+        assert.equal(mandatoryTab.getAttribute('aria-controls'), mandatoryPanel.id);
+        assert.equal(optionalTab.getAttribute('aria-controls'), optionalPanel.id);
+        assert.equal(mandatoryPanel.getAttribute('aria-labelledby'), mandatoryTab.id);
+        assert.equal(optionalPanel.getAttribute('aria-labelledby'), optionalTab.id);
         assert.isFalse(mandatoryPanel.hidden);
         assert.isTrue(optionalPanel.hidden);
 
@@ -1494,6 +1502,8 @@ suite('jobOfferForm validation', () => {
         await element.updateComplete;
         assert.equal(optionalTab.getAttribute('aria-selected'), 'true');
         assert.equal(mandatoryTab.getAttribute('aria-selected'), 'false');
+        assert.equal(mandatoryTab.tabIndex, 0);
+        assert.equal(optionalTab.tabIndex, 0);
         assert.isTrue(mandatoryPanel.hidden);
         assert.isFalse(optionalPanel.hidden);
 
@@ -1504,10 +1514,6 @@ suite('jobOfferForm validation', () => {
         await new Promise((resolve) => setTimeout(resolve));
         assert.equal(mandatoryTab.getAttribute('aria-selected'), 'true');
         assert.equal(root.activeElement, mandatoryTab);
-
-        // Only the selected tab is in the tab sequence (roving tabindex)
-        assert.equal(mandatoryTab.getAttribute('tabindex'), '0');
-        assert.equal(optionalTab.getAttribute('tabindex'), '-1');
 
         // End and Home jump to the last and first tab
         mandatoryTab.dispatchEvent(new KeyboardEvent('keydown', {key: 'End', bubbles: true}));
