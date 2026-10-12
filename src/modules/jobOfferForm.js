@@ -1087,6 +1087,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._deadline.trim() !== '' &&
             !isDeadlineBeforePublishedAt(this._publishedAt, this._deadline) &&
             this._jobOfferType.trim() !== '' &&
+            this._areasOfInterest.length > 0 &&
             hasValidWeeklyHours &&
             hasJobOwner &&
             this._areOptionalLinkUrlsValid()
@@ -1144,6 +1145,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._isExternalJob && normalizeWorkLocations(this._workLocations).length === 0,
                 t('manage-job-offers.field-work-locations'),
             ],
+            [this._areasOfInterest.length === 0, t('manage-job-offers.field-area-of-interest')],
             [!hasValidWeeklyHours, t('hours-range.label')],
             [isEmpty(this._publishedAt), t('manage-job-offers.field-published-at')],
             [
@@ -2085,6 +2087,32 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                       </div>
                                   `
                         }
+                        <dbp-enum-element
+                            name="area-of-interest"
+                            class="area-of-interest-field"
+                            lang="${this.lang}"
+                            label="${t('manage-job-offers.field-area-of-interest')}"
+                            multiple
+                            required
+                            display-mode="tags"
+                            .tagPlaceholder="${areaOfInterestPlaceholder}"
+                            .items="${this._areaOfInterestItems}"
+                            .value="${this._areasOfInterest}"
+                            @change="${(e) => {
+                                const nextAreasOfInterest = normalizeAreaOfInterestValues(
+                                    e.detail.value,
+                                );
+
+                                // Avoid rewriting the same selection and retriggering Select2.
+                                if (
+                                    !areStringArraysEqual(
+                                        this._areasOfInterest,
+                                        nextAreasOfInterest,
+                                    )
+                                ) {
+                                    this._areasOfInterest = nextAreasOfInterest;
+                                }
+                            }}"></dbp-enum-element>
                         <div class="translation-row row-three">
                             <dbp-hours-range-element
                                 name="weekly-hours"
@@ -2223,31 +2251,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 .value="${this._jobCategory}"
                                 @change="${(e) =>
                                     (this._jobCategory = e.detail.value)}"></dbp-enum-element>
-                            <dbp-enum-element
-                                name="area-of-interest"
-                                class="area-of-interest-field"
-                                lang="${this.lang}"
-                                label="${t('manage-job-offers.field-area-of-interest')}"
-                                multiple
-                                display-mode="tags"
-                                .tagPlaceholder="${areaOfInterestPlaceholder}"
-                                .items="${this._areaOfInterestItems}"
-                                .value="${this._areasOfInterest}"
-                                @change="${(e) => {
-                                    const nextAreasOfInterest = normalizeAreaOfInterestValues(
-                                        e.detail.value,
-                                    );
-
-                                    // Avoid rewriting the same selection and retriggering Select2.
-                                    if (
-                                        !areStringArraysEqual(
-                                            this._areasOfInterest,
-                                            nextAreasOfInterest,
-                                        )
-                                    ) {
-                                        this._areasOfInterest = nextAreasOfInterest;
-                                    }
-                                }}"></dbp-enum-element>
                         </div>
                         <div class="translation-row">
                             <dbp-string-element

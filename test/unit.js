@@ -1312,6 +1312,19 @@ suite('jobOfferForm validation', () => {
         document.body.appendChild(element);
         await element.updateComplete;
 
+        const mandatoryPanel = element.shadowRoot.querySelector('#job-offer-panel-mandatory');
+        const areaOfInterestField = mandatoryPanel.querySelector('[name="area-of-interest"]');
+        assert.isTrue(areaOfInterestField.required);
+        assert.isBelow(
+            [...mandatoryPanel.querySelectorAll('[name]')].indexOf(areaOfInterestField),
+            [...mandatoryPanel.querySelectorAll('[name]')].findIndex(
+                (field) => field.getAttribute('name') === 'weekly-hours',
+            ),
+        );
+        assert.isNull(
+            element.shadowRoot.querySelector('#job-offer-panel-optional [name="area-of-interest"]'),
+        );
+
         // The organization select has no inline validation, so its error is rendered by the form
         assert.isNull(element.shadowRoot.querySelector('.organization-field .validation-errors'));
         element._showValidationErrors = true;
@@ -1351,6 +1364,7 @@ suite('jobOfferForm validation', () => {
             'manage-job-offers.field-organization',
             'manage-job-offers.field-job-title',
             'manage-job-offers.field-description',
+            'manage-job-offers.field-area-of-interest',
             'hours-range.label',
             'manage-job-offers.field-deadline',
         ]);
@@ -1366,15 +1380,17 @@ suite('jobOfferForm validation', () => {
             'manage-job-offers.field-job-title',
             'manage-job-offers.field-description',
             'manage-job-offers.field-description-en',
+            'manage-job-offers.field-area-of-interest',
             'manage-job-offers.field-deadline',
         ]);
         assert.equal(
             element._getValidationNotificationBody(t),
             [
-                'create-job-offer.validation-missing-fields:4',
+                'create-job-offer.validation-missing-fields:5',
                 '• manage-job-offers.field-job-title',
                 '• manage-job-offers.field-description',
                 '• manage-job-offers.field-description-en',
+                '• manage-job-offers.field-area-of-interest',
                 '• manage-job-offers.field-deadline',
                 '',
                 'create-job-offer.validation-deadline-before-published',
@@ -1383,6 +1399,8 @@ suite('jobOfferForm validation', () => {
 
         element._descriptionEn = 'Job description';
         element._deadline = '2026-09-22';
+        assert.isFalse(element._isFormValid);
+        element._areasOfInterest = ['it'];
         assert.deepEqual(element._getMissingRequiredFieldLabels(t), []);
         assert.isTrue(element._isFormValid);
     });
@@ -1400,6 +1418,7 @@ suite('jobOfferForm validation', () => {
         element._description = 'Example description';
         element._publishedAt = '';
         element._deadline = '2030-12-31';
+        element._areasOfInterest = ['it'];
         element._weeklyHoursMin = '20';
         element._linkUrl = 'https://www.example.at';
         document.body.appendChild(element);
@@ -1666,6 +1685,7 @@ suite('jobOfferForm validation', () => {
         element._deadline = '2026-08-22';
         element._applicationDeadline = '';
         element._organization = 'TU Graz';
+        element._areasOfInterest = ['it'];
 
         assert.isFalse(element._isFormValid);
 
@@ -1708,6 +1728,7 @@ suite('jobOfferForm validation', () => {
         element._publishedAt = '2026-07-22';
         element._deadline = '2026-08-22';
         element._organization = 'Example organization';
+        element._areasOfInterest = ['it'];
         element._weeklyHoursMin = '20';
         document.body.appendChild(element);
         await element.updateComplete;
