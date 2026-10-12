@@ -1735,7 +1735,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                The vertical and left padding match the ".input" fields so the dream job select
                lines up with the search input and the other filters. */
             select:not(.select) {
-                background-size: 1em !important;
+                background-size: 0.75em !important;
+                background-position-x: calc(100% - 10px);
                 padding-top: calc(0.375em - 1px);
                 padding-bottom: calc(0.375em - 1px);
                 padding-left: calc(0.625em - 1px);
