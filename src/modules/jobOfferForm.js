@@ -1847,6 +1847,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     role="tab"
                     data-tab="${JOB_OFFER_FORM_TAB_MANDATORY}"
                     aria-selected="${isMandatoryTabActive}"
+                    tabindex="${isMandatoryTabActive ? 0 : -1}"
                     aria-controls="job-offer-panel-mandatory"
                     @click="${() => this._selectTab(JOB_OFFER_FORM_TAB_MANDATORY)}">
                     ${t('manage-job-offers.tab-mandatory-fields')}
@@ -1858,6 +1859,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                     role="tab"
                     data-tab="${JOB_OFFER_FORM_TAB_OPTIONAL}"
                     aria-selected="${isOptionalTabActive}"
+                    tabindex="${isOptionalTabActive ? 0 : -1}"
                     aria-controls="job-offer-panel-optional"
                     @click="${() => this._selectTab(JOB_OFFER_FORM_TAB_OPTIONAL)}">
                     ${t('manage-job-offers.tab-optional-fields')}
