@@ -1902,6 +1902,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                               resource-path="/base/organizations?perPage=99999"
                                               entry-point-url="${this.entryPointUrl}"
                                               .auth="${this.auth}"
+                                              no-default
                                               .value="${
                                                   this._organizationId
                                                       ? `/base/organizations/${this._organizationId}`
