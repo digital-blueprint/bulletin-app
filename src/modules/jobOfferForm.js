@@ -2425,10 +2425,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
             .required-field-note,
             .language-requirement-note {
-                color: var(--dbp-muted);
-                font-size: 0.875rem;
                 line-height: 1.4;
-                margin: 1rem 0 0 0;
+                margin: 2rem 0 0 0;
             }
 
             /* The description fields use large textareas, so they are stacked instead of
