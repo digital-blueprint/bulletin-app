@@ -1401,10 +1401,8 @@ suite('jobOfferForm validation', () => {
         element._publishedAt = '2026-08-22';
         element._deadline = '2026-07-22';
 
-        // Started English text requires the English description, the German fields stay required
+        // Started English text only requires the missing English description
         assert.deepEqual(element._getMissingRequiredFieldLabels(t), [
-            'manage-job-offers.field-job-title',
-            'manage-job-offers.field-description',
             'manage-job-offers.field-description-en',
             'manage-job-offers.field-area-of-interest',
             'manage-job-offers.field-deadline',
@@ -1412,9 +1410,7 @@ suite('jobOfferForm validation', () => {
         assert.equal(
             element._getValidationNotificationBody(t),
             [
-                'create-job-offer.validation-missing-fields:5',
-                '• manage-job-offers.field-job-title',
-                '• manage-job-offers.field-description',
+                'create-job-offer.validation-missing-fields:3',
                 '• manage-job-offers.field-description-en',
                 '• manage-job-offers.field-area-of-interest',
                 '• manage-job-offers.field-deadline',
@@ -1768,11 +1764,12 @@ suite('jobOfferForm validation', () => {
         assert.isFalse(field('title-en').required);
         assert.isFalse(field('description-en').required);
 
-        // Once English text was started, both languages are required until one is complete
+        // Once English text was started, only the English fields are required
         element._titleEn = 'Software developer';
         await element.updateComplete;
         assert.isFalse(element._isFormValid);
-        assert.isTrue(field('title').required);
+        assert.isFalse(field('title').required);
+        assert.isFalse(field('description').required);
         assert.isTrue(field('description-en').required);
 
         // A complete English text makes the German fields optional
@@ -1794,6 +1791,53 @@ suite('jobOfferForm validation', () => {
         assert.isTrue(element._isFormValid);
         assert.isFalse(field('title-en').required);
         element.remove();
+    });
+
+    test('should clear required errors when moving a title or description to the other language', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const field = (name) => element.shadowRoot.querySelector(`[name="${name}"]`);
+        const enterText = async (name, value) => {
+            const textField = field(name);
+            await textField.updateComplete;
+            const input = textField.shadowRoot.querySelector('input, textarea');
+            input.value = value;
+            input.dispatchEvent(new InputEvent('input', {bubbles: true, composed: true}));
+            await element._revalidateLanguageTextFields();
+        };
+
+        try {
+            for (const name of ['title', 'description']) {
+                await enterText(name, 'Example text');
+                await enterText(name, '');
+                assert.isNotEmpty(field(name).errorMessages);
+
+                await enterText(`${name}-en`, 'Example text');
+                assert.isFalse(field(name).required);
+                assert.isEmpty(field(name).errorMessages);
+                assert.notInclude(
+                    element._getMissingRequiredFieldLabels((key) => key),
+                    `manage-job-offers.field-${name === 'title' ? 'job-title' : name}`,
+                );
+
+                await enterText(`${name}-en`, '');
+                await enterText(name, 'Example text');
+                assert.isFalse(field(`${name}-en`).required);
+                assert.isEmpty(field(`${name}-en`).errorMessages);
+
+                await enterText(name, '');
+            }
+        } finally {
+            element.remove();
+        }
     });
 
     test('should fall back to the other language for job offer texts', () => {

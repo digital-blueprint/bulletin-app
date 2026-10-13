@@ -1199,11 +1199,14 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
 
     /**
      * Title and description only have to be filled in one language (German or English).
-     * The German fields are required until the English ones are complete.
+     * Require German text when it was started or neither language was started,
+     * unless the English text is already complete.
      * @returns {boolean}
      */
     get _isGermanTextRequired() {
-        return !this._isEnglishTextComplete;
+        const hasGermanText = this._title.trim() !== '' || this._description.trim() !== '';
+        const hasEnglishText = this._titleEn.trim() !== '' || this._descriptionEn.trim() !== '';
+        return !this._isEnglishTextComplete && (hasGermanText || !hasEnglishText);
     }
 
     /**
