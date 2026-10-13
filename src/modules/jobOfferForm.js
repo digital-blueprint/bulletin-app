@@ -588,9 +588,12 @@ export const getAreaOfInterestLabel = (value, t) => {
     return translationKey ? t(translationKey) : value;
 };
 
-export const getAreaOfInterestItems = (t, placeholder = null) => {
+export const getAreaOfInterestItems = (t, placeholder = null, lang = 'en') => {
+    const sortedAreasOfInterest = Object.keys(AREAS_OF_INTEREST).sort((a, b) =>
+        getAreaOfInterestLabel(a, t).localeCompare(getAreaOfInterestLabel(b, t), lang),
+    );
     const items = Object.fromEntries(
-        Object.keys(AREAS_OF_INTEREST).map((value) => [value, getAreaOfInterestLabel(value, t)]),
+        sortedAreasOfInterest.map((value) => [value, getAreaOfInterestLabel(value, t)]),
     );
 
     return placeholder ? withEmptySelectOption(items, placeholder) : items;
@@ -857,7 +860,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     _createAreaOfInterestItems() {
-        return getAreaOfInterestItems((key, opts) => this._i18n.t(key, opts));
+        return getAreaOfInterestItems(
+            (key, opts) => this._i18n.t(key, {...opts, lng: this.lang}),
+            null,
+            this.lang,
+        );
     }
 
     static get properties() {

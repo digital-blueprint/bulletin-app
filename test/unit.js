@@ -1301,6 +1301,32 @@ suite('job generator data handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
+    test('should show translated areas of interest in alphabetical order', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, new JobOfferModule().getEditFormComponent());
+        }
+
+        const element = document.createElement(tagName);
+        element.lang = 'de';
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const field = element.shadowRoot.querySelector('[name="area-of-interest"]');
+        await field.updateComplete;
+        const labels = [...field.shadowRoot.querySelectorAll('select option')].map((option) =>
+            option.textContent.trim(),
+        );
+
+        assert.isAbove(labels.length, 1);
+        assert.deepEqual(
+            labels,
+            [...labels].sort((a, b) => a.localeCompare(b, 'de')),
+        );
+        assert.equal(field.items.physics, 'Physik');
+        element.remove();
+    });
+
     test('should focus the first invalid job offer field', async () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
