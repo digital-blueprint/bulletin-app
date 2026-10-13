@@ -294,52 +294,31 @@ export const JOB_CATEGORIES = {
 };
 
 export const AREAS_OF_INTEREST = {
+    administration: 'manage-job-offers.area-of-interest-administration',
+    ai: 'manage-job-offers.area-of-interest-ai',
     'architecture-engineering-offices':
         'manage-job-offers.area-of-interest-architecture-engineering-offices',
-
-    'Civil-engineering': 'manage-job-offers.area-of-interest-Civil-engineering',
-
-    'Mechanical-engineering': 'manage-job-offers.area-of-interest-Mechanical-engineering',
-
     automotive: 'manage-job-offers.area-of-interest-automotive',
-
-    'material-sciences': 'manage-job-offers.area-of-interest-material-sciences',
-
-    electronics: 'manage-job-offers.area-of-interest-electronics',
-
-    Biomedical: 'manage-job-offers.area-of-interest-Biomedical',
-
-    physics: 'manage-job-offers.area-of-interest-physics',
-
-    Mathematics: 'manage-job-offers.area-of-interest-Mathematics',
-
-    geo: 'manage-job-offers.area-of-interest-geo',
-
-    geodesy: 'manage-job-offers.area-of-interest-geodesy',
-
-    'chemistry-pharma': 'manage-job-offers.area-of-interest-chemistry-pharma',
-
-    'Process-engineering': 'manage-job-offers.area-of-interest-Process-engineering',
-
-    Biology: 'manage-job-offers.area-of-interest-Biology',
-
     'Bio-technology': 'manage-job-offers.area-of-interest-Bio-technology',
-
-    'environmental-sciences': 'manage-job-offers.area-of-interest-environmental-sciences',
-
-    'software-development': 'manage-job-offers.area-of-interest-software-development',
-
-    it: 'manage-job-offers.area-of-interest-it',
-
-    ai: 'manage-job-offers.area-of-interest-ai',
-
+    Biology: 'manage-job-offers.area-of-interest-Biology',
+    Biomedical: 'manage-job-offers.area-of-interest-Biomedical',
+    'chemistry-pharma': 'manage-job-offers.area-of-interest-chemistry-pharma',
+    'Civil-engineering': 'manage-job-offers.area-of-interest-Civil-engineering',
     'data-modeling': 'manage-job-offers.area-of-interest-data-modeling',
-
-    'UI-UX': 'manage-job-offers.area-of-interest-UI-UX',
-
-    administration: 'manage-job-offers.area-of-interest-administration',
-
+    electronics: 'manage-job-offers.area-of-interest-electronics',
+    'environmental-sciences': 'manage-job-offers.area-of-interest-environmental-sciences',
+    geo: 'manage-job-offers.area-of-interest-geo',
+    geodesy: 'manage-job-offers.area-of-interest-geodesy',
+    it: 'manage-job-offers.area-of-interest-it',
     management: 'manage-job-offers.area-of-interest-management',
+    'material-sciences': 'manage-job-offers.area-of-interest-material-sciences',
+    Mathematics: 'manage-job-offers.area-of-interest-Mathematics',
+    'Mechanical-engineering': 'manage-job-offers.area-of-interest-Mechanical-engineering',
+    other: 'manage-job-offers.area-of-interest-other',
+    physics: 'manage-job-offers.area-of-interest-physics',
+    'Process-engineering': 'manage-job-offers.area-of-interest-Process-engineering',
+    'software-development': 'manage-job-offers.area-of-interest-software-development',
+    'UI-UX': 'manage-job-offers.area-of-interest-UI-UX',
 };
 
 const LEGACY_AREA_OF_INTERESTS = {
