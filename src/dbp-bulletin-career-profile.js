@@ -876,7 +876,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <p>${t('career-profile.description')}</p>
                 </div>
                 <button
-                    class="button is-primary"
+                    class="button is-primary career-profile-btn"
                     type="button"
                     ?disabled="${ownProfiles.length > 0}"
                     @click="${() => this._openEditDialog()}">
@@ -1402,6 +1402,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             }
             .career-profile-h2 {
                 display: block;
+            }
+
+            .career-profile-btn {
+                margin-top: 0.75em;
             }
             .submissions-view h2 {
                 margin-bottom: 20px;
