@@ -171,8 +171,8 @@
         "skip-to-save-button": "Skip to the {{label}} button",
         "validation-required": "Please fill in all required fields.",
         "validation-url": "Please enter a valid website URL containing a domain name, for example example.org.",
-        "visibility-companies": "external companies",
-        "visibility-nobody": "only you",
+        "visibility-companies": "External companies",
+        "visibility-nobody": "Only you",
         "visibility-staff": "University employees"
     },
     "company-form": {
