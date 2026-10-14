@@ -714,7 +714,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 <div
                     class="internal-favicon"
                     role="img"
-                    aria-label="${t('manage-job-offers.job-type-internal')}"
+                    aria-label="${this.universityShortName || t('manage-job-offers.job-type-internal')}"
                     style="background-image: url('${faviconUrl}'); mask-image: url('${faviconUrl}'); -webkit-mask-image: url('${faviconUrl}')"></div>
             `;
         }
@@ -725,13 +725,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const t = (key) => (i18n ? i18n.t(key) : key);
         const logoUrl = commonUtils.getAssetURL('@digital-blueprint/bulletin-app', 'icon/logo.svg');
 
-        // Only for internal TU Graz jobs (no externalJobUrl)
+        // Only for internal university jobs (no externalJobUrl)
         if (!job.externalJobUrl) {
             return html`
                 <div
                     class="internal-logo"
                     role="img"
-                    aria-label="${t('manage-job-offers.job-type-internal')}">
+                    aria-label="${this.universityShortName || t('manage-job-offers.job-type-internal')}">
                     <div
                         class="internal-logo-art"
                         aria-hidden="true"

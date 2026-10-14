@@ -21,7 +21,6 @@
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
             "name": "Stellenbezeichnung",
-            "employer": "Arbeitgeber",
             "create-form-button": "Neues Stellenangebot erstellen",
             "delete-selected-forms-button": "Ausgewählte Stellenangebote löschen"
         }
@@ -65,6 +64,7 @@
     },
     "dbp-career-profile-edit-form": {
         "career-profile-form": {
+            "field-contact-email-note": "Diese E-Mail-Adresse kann in der TUGRAZonline Visitenkarte geändert werden.",
             "visibility-staff": "Mitarbeitende der TU Graz"
         }
     }

@@ -10,7 +10,6 @@
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
             "name": "Position title",
-            "employer": "Employer",
             "create-form-button": "Create new job offer"
         }
     },
@@ -30,11 +29,6 @@
     "dbp-formalize-manage-form-submissions-page": {
         "manage-forms": {
             "back-text": "Back to job offers"
-        }
-    },
-    "dbp-edit-form-job-offer": {
-        "manage-job-offers": {
-            "job-type-internal": "TU Graz"
         }
     }
 }

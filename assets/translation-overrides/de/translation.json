@@ -21,7 +21,6 @@
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
             "name": "Stellenbezeichnung",
-            "employer": "Arbeitgeber",
             "create-form-button": "Neues Stellenangebot erstellen",
             "delete-selected-forms-button": "Ausgewählte Stellenangebote löschen"
         }
@@ -48,11 +47,6 @@
     "dbp-formalize-manage-form-submissions-page": {
         "manage-forms": {
             "back-text": "Zurück zu den Stellenangeboten"
-        }
-    },
-    "dbp-edit-form-job-offer": {
-        "manage-job-offers": {
-            "job-type-internal": "TU Graz"
         }
     }
 }

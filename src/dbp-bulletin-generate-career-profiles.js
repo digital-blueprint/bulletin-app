@@ -29,14 +29,14 @@ const SAMPLE_STUDIES = [
 ];
 
 const SAMPLE_SUMMARIES = [
-    'Motivated TU Graz student interested in applying technical knowledge in interdisciplinary teams.',
+    'Motivated university student interested in applying technical knowledge in interdisciplinary teams.',
     'Curious student with a strong focus on practical problem solving and clear communication.',
     'Engaged student looking for opportunities to contribute to innovative projects.',
     'Analytical student interested in sustainable solutions, software, and modern engineering methods.',
 ];
 
 const SAMPLE_SUMMARIES_DE = [
-    'Motivierte:r TU Graz-Student:in mit Interesse daran, technisches Wissen in interdisziplinären Teams einzusetzen.',
+    'Motivierte:r Student:in mit Interesse daran, technisches Wissen in interdisziplinären Teams einzusetzen.',
     'Neugierige:r Student:in mit starkem Fokus auf praktische Problemlösung und klare Kommunikation.',
     'Engagierte:r Student:in auf der Suche nach Möglichkeiten, zu innovativen Projekten beizutragen.',
     'Analytische:r Student:in mit Interesse an nachhaltigen Lösungen, Software und modernen Ingenieurmethoden.',

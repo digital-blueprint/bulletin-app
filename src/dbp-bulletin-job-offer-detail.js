@@ -680,7 +680,9 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         const title = this._getLocalizedTitle(this.job);
         const url = this.getShareUrl();
         const description = this._getShareDescription(this.job, 100);
-        const organization = String(t('job-offer-detail.share-TuGraz-job-hub') ?? '').trim();
+        const organization = String(
+            t('job-offer-detail.share-job-hub', {university: this.universityShortName ?? ''}) ?? '',
+        ).trim();
         const goodLuck = String(t('job-offer-detail.share-good-luck') ?? '').trim() || '';
         const organizationSuffix = organization
             ? t('job-offer-detail.share-email-body-organization-suffix', {organization})
@@ -845,7 +847,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 <div
                     class="internal-favicon"
                     role="img"
-                    aria-label="${t('manage-job-offers.job-type-internal')}"
+                    aria-label="${this.universityShortName || t('manage-job-offers.job-type-internal')}"
                     style="background-image: url('${faviconUrl}'); mask-image: url('${faviconUrl}'); -webkit-mask-image: url('${faviconUrl}')"></div>
             `;
         }
@@ -861,7 +863,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 <div
                     class="internal-logo"
                     role="img"
-                    aria-label="${t('manage-job-offers.job-type-internal')} Job">
+                    aria-label="${this.universityShortName || t('manage-job-offers.job-type-internal')} Job">
                     <div
                         class="internal-logo-art"
                         aria-hidden="true"

@@ -183,7 +183,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     // Builds a single random job-offer form payload compatible with apiCreateForm.
-    // jobOfferType is either 'internal' (TU Graz position) or 'external' (company position).
+    // jobOfferType is either 'internal' (university position) or 'external' (company position).
     _buildRandomJobOffer(index, jobOfferType) {
         const titleEn = randomItem(SAMPLE_TITLES);
         const titleDe = SAMPLE_TITLES_DE[titleEn] ?? titleEn;
@@ -211,7 +211,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             deadline: deadline,
             applicationDeadline: deadline,
             jobOfferType: jobOfferType,
-            // Internal positions belong to a TU Graz organization; external ones do not.
+            // Internal positions belong to a university organization; external ones do not.
             organization: isExternal ? '' : randomItem(SAMPLE_ORGANIZATIONS),
             organizationId: '',
             // External positions carry company details and a link to the company's job page.

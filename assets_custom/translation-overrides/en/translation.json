@@ -21,7 +21,6 @@
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
             "name": "Position title",
-            "employer": "Employer",
             "create-form-button": "Create new job offer",
             "delete-selected-forms-button": "Delete selected job offers"
         }
@@ -65,6 +64,7 @@
     },
     "dbp-career-profile-edit-form": {
         "career-profile-form": {
+            "field-contact-email-note": "This email address can be changed in your TUGRAZonline business card.",
             "visibility-staff": "TU Graz employees"
         }
     }

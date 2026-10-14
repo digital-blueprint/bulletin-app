@@ -16,13 +16,13 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 
 - `lang` (optional, default: `de`): set to `de` or `en` for German or English
     - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
+- `entry-point-url` (optional, default is the entry point URL of the university): entry point URL to access the API
     - example `entry-point-url="https://api-dev.tugraz.at"`
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`
     - note: most often this should be an attribute that is not set directly, but subscribed at a provider
 - `university-short-name` (optional): the short name of the university to display for internal job offers
-    - example `university-short-name="TUGraz"`
+    - example `university-short-name="University"`
 
 #### Slots
 
@@ -44,7 +44,7 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 
 - `lang` (optional, default: `de`): set to `de` or `en` for German or English
     - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
+- `entry-point-url` (optional, default is the entry point URL of the university): entry point URL to access the API
     - example `entry-point-url="https://api-dev.tugraz.at"`
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`
@@ -65,7 +65,7 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 
 - `lang` (optional, default: `de`): set to `de` or `en` for German or English
     - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
+- `entry-point-url` (optional, default is the entry point URL of the university): entry point URL to access the API
     - example `entry-point-url="https://api-dev.tugraz.at"`
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`
@@ -86,7 +86,7 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 
 - `lang` (optional, default: `de`): set to `de` or `en` for German or English
     - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
+- `entry-point-url` (optional, default is the entry point URL of the university): entry point URL to access the API
     - example `entry-point-url="https://api-dev.tugraz.at"`
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`
@@ -107,7 +107,7 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 
 - `lang` (optional, default: `de`): set to `de` or `en` for German or English
     - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
+- `entry-point-url` (optional, default is the entry point URL of the university): entry point URL to access the API
     - example `entry-point-url="https://api-dev.tugraz.at"`
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`
@@ -128,7 +128,7 @@ Note that you will need a Keycloak server along with a client ID for the domain 
 
 - `lang` (optional, default: `de`): set to `de` or `en` for German or English
     - example `lang="de"`
-- `entry-point-url` (optional, default is the TU Graz entry point URL): entry point URL to access the API
+- `entry-point-url` (optional, default is the entry point URL of the university): entry point URL to access the API
     - example `entry-point-url="https://api-dev.tugraz.at"`
 - `auth` object: you need to set that object property for the auth token
     - example auth property: `{token: "THE_BEARER_TOKEN"}`

@@ -172,7 +172,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 
     test('should search all full-text job fields', () => {
         node.clearFilters();
-        node.universityShortName = 'TU Graz';
+        node.universityShortName = 'Example University';
         node._i18n = {
             t: (key) =>
                 ({
@@ -221,7 +221,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             ['responsibility', 'external-job'],
             ['employee benefit', 'external-job'],
             ['leoben', 'external-job'],
-            ['tu graz', 'internal-job'],
+            ['example university', 'internal-job'],
         ];
 
         for (const [query, expectedIdentifier] of searches) {
@@ -233,13 +233,13 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             );
         }
 
-        node.searchQuery = 'TU Graz engineering Wien';
+        node.searchQuery = 'Example University engineering Wien';
         assert.deepEqual(
             node.getFilteredJobs().map((job) => job.identifier),
             ['internal-job'],
         );
 
-        node.searchQuery = 'TU Graz engineering Wien missing';
+        node.searchQuery = 'Example University engineering Wien missing';
         assert.lengthOf(node.getFilteredJobs(), 0);
 
         node.searchQuery = '  UNIQUE REQUIRED QUALIFICATION  ';
@@ -287,10 +287,10 @@ suite('dbp-bulletin-view-job-offers basics', () => {
             assert.lengthOf(node.getFilteredJobs(), 1, `Expected "${query}" to match`);
         }
 
-        node.searchQuery = 'TU Graz projekt';
+        node.searchQuery = 'Example projekt';
         assert.lengthOf(node.getFilteredJobs(), 1);
 
-        node.searchQuery = 'TU Graz projekt missing';
+        node.searchQuery = 'Example projekt missing';
         assert.lengthOf(node.getFilteredJobs(), 0);
         node.clearFilters();
     });
@@ -1578,7 +1578,30 @@ suite('jobOfferForm validation', () => {
         element.remove();
     });
 
-    test('should only offer TU Graz jobs for creation when external jobs are disabled', () => {
+    test('should provide the employer column for the manage job offers overview', () => {
+        const host = {universityShortName: 'Example University', lang: 'en'};
+        const [column] = new JobOfferModule().getManageFormsOverviewColumns({host});
+
+        assert.equal(column.field, 'employer');
+        assert.equal(column.title('en'), 'Employer');
+        assert.equal(column.title('de'), 'Arbeitgeber');
+        assert.equal(
+            column.getValue({
+                additionalData: {jobOfferType: 'external', companyName: 'Example Company'},
+            }),
+            'Example Company',
+        );
+        assert.equal(
+            column.getValue({additionalData: {jobOfferType: 'internal'}}),
+            'Example University',
+        );
+
+        // Without a university short name the generic label is shown
+        host.universityShortName = '';
+        assert.equal(column.getValue({additionalData: {jobOfferType: 'internal'}}), 'University');
+    });
+
+    test('should only offer university jobs for creation when external jobs are disabled', () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
         if (!customElements.get(tagName)) {
@@ -1706,7 +1729,7 @@ suite('jobOfferForm validation', () => {
         element._publishedAt = '2026-07-22';
         element._deadline = '2026-08-22';
         element._applicationDeadline = '';
-        element._organization = 'TU Graz';
+        element._organization = 'Example University';
         element._areasOfInterest = ['it'];
 
         assert.isFalse(element._isFormValid);
