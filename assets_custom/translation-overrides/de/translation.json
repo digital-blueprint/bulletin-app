@@ -20,6 +20,8 @@
     },
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
+            "name": "Stellenbezeichnung",
+            "employer": "Arbeitgeber",
             "create-form-button": "Neues Stellenangebot erstellen",
             "delete-selected-forms-button": "Ausgewählte Stellenangebote löschen"
         }

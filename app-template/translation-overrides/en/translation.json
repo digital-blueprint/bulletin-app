@@ -9,6 +9,8 @@
     },
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
+            "name": "Position title",
+            "employer": "Employer",
             "create-form-button": "Create new job offer"
         }
     },
