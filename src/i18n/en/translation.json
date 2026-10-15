@@ -694,6 +694,7 @@
         "position-count": "({{total}} total, {{filtered}} filtered)",
         "remote-marker": "Remote",
         "remove-filter": "Remove filter {{-filter}}",
+        "retry": "Try again",
         "search-placeholder": "Search job offers",
         "select-placeholder": "All",
         "university-jobs-only": "Only {{-university}} jobs",

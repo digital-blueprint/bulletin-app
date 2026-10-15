@@ -179,7 +179,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             });
 
             if (!response.ok) {
-                console.error('Failed to load job offers, status:', response.status);
+                console.warn('Failed to load job offers, status:', response.status);
                 this._loadError = true;
                 return;
             }
@@ -1283,6 +1283,27 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return companyName;
     }
 
+    /**
+     * Renders an inline error notice with a retry button. It is shown in place of the job
+     * grid, so the rest of the page stays usable when the upstream service is unavailable.
+     * @param {(key: string, options?: object) => string} t
+     * @returns {import('lit').TemplateResult}
+     */
+    _renderLoadError(t) {
+        return html`
+            <div class="notification is-danger load-error" role="alert">
+                <span>${t('view-job-offers.error-load-failed')}</span>
+                <button
+                    type="button"
+                    class="load-error-retry"
+                    @click="${() => this._fetchJobOffers()}">
+                    <dbp-icon name="reload" aria-hidden="true"></dbp-icon>
+                    <span>${t('view-job-offers.retry')}</span>
+                </button>
+            </div>
+        `;
+    }
+
     _onLoginClicked(e) {
         this.sendSetPropertyEvent('requested-login-status', 'logged-in');
         e.preventDefault();
@@ -1329,13 +1350,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                     <dbp-mini-spinner></dbp-mini-spinner>
                     <span>${t('view-job-offers.loading')}</span>
                 </div>
-            `;
-        }
-
-        // Error state
-        if (this._loadError) {
-            return html`
-                <p class="no-results">${t('view-job-offers.error-load-failed')}</p>
             `;
         }
 
@@ -1594,7 +1608,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         <div class="section-header">
                             <h2>
                                 ${t('view-job-offers.available-positions')}
-                                <span class="position-count">
+                                <span class="position-count" ?hidden="${this._loadError}">
                                     ${t('view-job-offers.position-count', {
                                         total: this._getFeatureVisibleJobs().length,
                                         filtered: filtered.length,
@@ -1606,9 +1620,13 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                         <!-- Job cards grid -->
                         ${
                             filtered.length === 0
-                                ? html`
-                                      <p class="no-results">${t('view-job-offers.no-results')}</p>
-                                  `
+                                ? this._loadError
+                                    ? this._renderLoadError(t)
+                                    : html`
+                                          <p class="no-results">
+                                              ${t('view-job-offers.no-results')}
+                                          </p>
+                                      `
                                 : html`
                                       <div class="job-grid">
                                           ${repeat(
@@ -2465,6 +2483,44 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 padding: 2rem;
                 text-align: center;
                 color: var(--dbp-muted);
+            }
+
+            /* Load error notice shown in place of the job grid */
+            .load-error {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+            }
+
+            /* Text-style retry action that blends into the notification colors */
+            .load-error-retry {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4em;
+                padding: 0;
+                border: none;
+                background: none;
+                color: inherit;
+                font: inherit;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            .load-error-retry span {
+                text-decoration: underline;
+                text-underline-offset: 0.2em;
+            }
+
+            .load-error-retry:hover span,
+            .load-error-retry:focus-visible span {
+                text-decoration-thickness: 2px;
+            }
+
+            .load-error-retry:focus-visible {
+                outline: 2px solid currentColor;
+                outline-offset: 3px;
             }
 
             .load-more-wrapper {
