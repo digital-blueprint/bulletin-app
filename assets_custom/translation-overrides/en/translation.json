@@ -3,7 +3,7 @@
         "manage-forms": {
             "edit-form-button": "Edit job offer",
             "name": "Position title",
-            "open-forms": "Manage job offers",
+            "open-forms": "Manage applications",
             "open-forms-aria": "Manage applications for {{- formName}}",
             "no-submission-data-available": "There are no job applications for this position yet.",
             "no-form-selected": "No job offer selected"
