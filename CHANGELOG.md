@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Create and edit job offer: both the minimum and the maximum weekly hours are now mandatory, previously one of them was sufficient
 - Manage job offers: the "Arbeitgeber" column is now provided by the job offer module through the new Formalize overview column hook, instead of being hardcoded in Formalize; internal job offers show the configured `university-short-name`. The university name is no longer hardcoded outside `assets_custom/`: internal job labels, the share text ("… Job Hub") and generated test data use `university-short-name` or a neutral "University" wording. The career profile contact e-mail note no longer mentions the university-specific campus management system; the specific text is set via the translation overrides in `assets_custom/`
 - Manage job offers: restored the "Stellenbezeichnung" and "Arbeitgeber" columns in the job offers table, which were shown as "Name" or missing after the Formalize forms overview was split into its own component
 - Create and edit job offer: replaced the collapsible "Optionale Felder" section at the bottom of the dialog with two tabs "Pflichtfelder" and "Optionale Felder" that switch between the mandatory and the optional fields. The tabs support arrow key navigation; if saving fails because of an invalid field in the hidden tab, that tab is opened and the field is focused

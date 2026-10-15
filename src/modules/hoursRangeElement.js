@@ -243,12 +243,12 @@ export class HoursRangeElement extends DBPLitElement {
             this.renderRoot?.querySelector('.hours-range-max')
         );
 
-        // Treat both inputs as one required group where either bound is sufficient.
+        // A required range needs both the minimum and the maximum bound
         if (minInput) {
-            minInput.required = this.required && String(this.max ?? '').trim() === '';
+            minInput.required = this.required;
         }
         if (maxInput) {
-            maxInput.required = this.required && String(this.min ?? '').trim() === '';
+            maxInput.required = this.required;
         }
 
         const invalid = !isHoursRangeValid(this.min, this.max);
@@ -299,8 +299,6 @@ export class HoursRangeElement extends DBPLitElement {
     render() {
         const t = (key, options) => this._i18n.t(key, options);
         const label = this.label || t('hours-range.label');
-        const minRequired = this.required && String(this.max ?? '').trim() === '';
-        const maxRequired = this.required && String(this.min ?? '').trim() === '';
         // Only reference the description if there is one, otherwise a screen reader would
         // announce a dangling aria-describedby
         const describedBy = this.description ? 'hours-range-description' : nothing;
@@ -347,8 +345,8 @@ export class HoursRangeElement extends DBPLitElement {
                         max=${this.hoursMax}
                         step=${this.step}
                         ?disabled=${this.disabled}
-                        ?required=${minRequired}
-                        aria-required=${minRequired ? 'true' : 'false'}
+                        ?required=${this.required}
+                        aria-required=${this.required ? 'true' : 'false'}
                         aria-describedby=${describedBy}
                         placeholder="${t('hours-range.min-placeholder')}"
                         @input=${this._onMinInput} />
@@ -366,8 +364,8 @@ export class HoursRangeElement extends DBPLitElement {
                         max=${this.hoursMax}
                         step=${this.step}
                         ?disabled=${this.disabled}
-                        ?required=${maxRequired}
-                        aria-required=${maxRequired ? 'true' : 'false'}
+                        ?required=${this.required}
+                        aria-required=${this.required ? 'true' : 'false'}
                         aria-describedby=${describedBy}
                         placeholder="${t('hours-range.max-placeholder')}"
                         @input=${this._onMaxInput} />

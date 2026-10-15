@@ -1077,6 +1077,22 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     /**
+     * Returns true when both the minimum and maximum weekly hours are set and
+     * form a valid range.
+     * @returns {boolean}
+     */
+    _isWeeklyHoursRangeValid() {
+        const weeklyHoursMin = this._weeklyHoursMin.trim();
+        const weeklyHoursMax = this._weeklyHoursMax.trim();
+
+        return (
+            parseOptionalHours(weeklyHoursMin) !== null &&
+            parseOptionalHours(weeklyHoursMax) !== null &&
+            isHoursRangeValid(weeklyHoursMin, weeklyHoursMax)
+        );
+    }
+
+    /**
      * Returns true when all mandatory fields are filled.
      * @returns {boolean}
      */
@@ -1084,14 +1100,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         const hasJobOwner = this._isInternalJob
             ? this._organization.trim() !== ''
             : this._companySubmissionId.trim() !== '' && this._isExternalJobUrlValid();
-        const weeklyHoursMin = this._weeklyHoursMin.trim();
-        const weeklyHoursMax = this._weeklyHoursMax.trim();
-        const hasWeeklyHours = weeklyHoursMin !== '' || weeklyHoursMax !== '';
-        const hasValidWeeklyHours =
-            hasWeeklyHours &&
-            (weeklyHoursMin === '' || parseOptionalHours(weeklyHoursMin) !== null) &&
-            (weeklyHoursMax === '' || parseOptionalHours(weeklyHoursMax) !== null) &&
-            isHoursRangeValid(weeklyHoursMin, weeklyHoursMax);
+        const hasValidWeeklyHours = this._isWeeklyHoursRangeValid();
 
         return (
             (this._isGermanTextComplete || this._isEnglishTextComplete) &&
@@ -1114,13 +1123,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
      */
     _getMissingRequiredFieldLabels(t) {
         const isEmpty = (value) => String(value ?? '').trim() === '';
-        const weeklyHoursMin = this._weeklyHoursMin.trim();
-        const weeklyHoursMax = this._weeklyHoursMax.trim();
-        const hasValidWeeklyHours =
-            (weeklyHoursMin !== '' || weeklyHoursMax !== '') &&
-            (weeklyHoursMin === '' || parseOptionalHours(weeklyHoursMin) !== null) &&
-            (weeklyHoursMax === '' || parseOptionalHours(weeklyHoursMax) !== null) &&
-            isHoursRangeValid(weeklyHoursMin, weeklyHoursMax);
+        const hasValidWeeklyHours = this._isWeeklyHoursRangeValid();
 
         /** @type {Array<[boolean, string]>} Pairs of "is missing or invalid" and the field label */
         const checks = [

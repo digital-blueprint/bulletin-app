@@ -1398,6 +1398,7 @@ suite('jobOfferForm validation', () => {
         element._organization = 'Example organization';
         element._titleEn = 'Software developer';
         element._weeklyHoursMin = '20';
+        element._weeklyHoursMax = '40';
         element._publishedAt = '2026-08-22';
         element._deadline = '2026-07-22';
 
@@ -1442,6 +1443,7 @@ suite('jobOfferForm validation', () => {
         element._deadline = '2030-12-31';
         element._areasOfInterest = ['it'];
         element._weeklyHoursMin = '20';
+        element._weeklyHoursMax = '40';
         element._linkUrl = 'https://www.example.at';
         document.body.appendChild(element);
         await element.updateComplete;
@@ -1734,11 +1736,16 @@ suite('jobOfferForm validation', () => {
 
         assert.isFalse(element._isFormValid);
 
+        // Both the minimum and the maximum weekly hours are mandatory
         element._weeklyHoursMin = '20';
-        assert.isTrue(element._isFormValid);
+        assert.isFalse(element._isFormValid);
 
         element._weeklyHoursMin = '';
         element._weeklyHoursMax = '40';
+        assert.isFalse(element._isFormValid);
+
+        element._weeklyHoursMin = '20';
+        element._weeklyHoursMax = '20';
         assert.isTrue(element._isFormValid);
 
         element._weeklyHoursMax = 'invalid';
@@ -1775,6 +1782,7 @@ suite('jobOfferForm validation', () => {
         element._organization = 'Example organization';
         element._areasOfInterest = ['it'];
         element._weeklyHoursMin = '20';
+        element._weeklyHoursMax = '40';
         document.body.appendChild(element);
         await element.updateComplete;
 
@@ -1893,7 +1901,7 @@ suite('hours range validation', () => {
         assert.isFalse(isHoursRangeInRange('21', '', '15', '20'));
     });
 
-    test('should require at least one rendered input', async () => {
+    test('should require both rendered inputs', async () => {
         const tagName = 'test-hours-range-element';
         if (!customElements.get(tagName)) {
             customElements.define(tagName, HoursRangeElement);
@@ -1907,12 +1915,12 @@ suite('hours range validation', () => {
 
         element.min = '20';
         await element.updateComplete;
-        assert.isTrue(element.checkValidity());
+        assert.isFalse(element.checkValidity());
 
         element.min = '';
         element.max = '40';
         await element.updateComplete;
-        assert.isTrue(element.checkValidity());
+        assert.isFalse(element.checkValidity());
 
         element.min = '20';
         await element.updateComplete;
@@ -1945,8 +1953,13 @@ suite('hours range validation', () => {
         minInput.value = '20';
         minInput.dispatchEvent(new InputEvent('input', {bubbles: true, composed: true}));
 
+        assert.isFalse(validity);
+        assert.isTrue(maxInput.required);
+
+        maxInput.value = '40';
+        maxInput.dispatchEvent(new InputEvent('input', {bubbles: true, composed: true}));
+
         assert.isTrue(validity);
-        assert.isFalse(maxInput.required);
         element.remove();
     });
 
