@@ -30,6 +30,7 @@ import {
 } from '../src/modules/careerProfileForm.js';
 import {WorkLocationsElement} from '../src/modules/workLocationsElement.js';
 import HoursRangeElement, {
+    formatHoursRange,
     isHoursRangeInRange,
     isHoursRangeValid,
     parseOptionalHours,
@@ -1961,6 +1962,13 @@ suite('hours range validation', () => {
 
         assert.isTrue(validity);
         element.remove();
+    });
+
+    test('should show equal range bounds only once', () => {
+        assert.equal(formatHoursRange('20', '20'), '20');
+        assert.equal(formatHoursRange('20', '40'), '20 – 40');
+        assert.equal(formatHoursRange('20', ''), '20');
+        assert.equal(formatHoursRange('', '', '15'), '15');
     });
 
     test('should reject decimal values', () => {

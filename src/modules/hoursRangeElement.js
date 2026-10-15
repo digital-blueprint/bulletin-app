@@ -158,6 +158,11 @@ export const formatHoursRange = (min, max, scalarHours = '') => {
         return String(scalarHours ?? '').trim();
     }
 
+    // Show a range with equal bounds as a single value, e.g. "20" instead of "20 – 20"
+    if (parsedMin === parsedMax) {
+        return String(parsedMin);
+    }
+
     return [parsedMin, parsedMax].filter((value) => value !== null).join(' – ');
 };
 
