@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- External job offers: the `external-jobs` feature flag is now enabled by default on staging and production, so external job offers, the companies in manage user-defined fields and the "Only university jobs" filter are available there
 - Create and edit job offer: both the minimum and the maximum weekly hours are now mandatory, previously one of them was sufficient
 - View job offers, job offer detail and manage job offers: weekly hours with the same minimum and maximum are shown as a single value (e.g. "20" instead of "20 – 20")
 - Manage job offers, job applications and manage user-defined fields: the "Aktionen"/"Actions" dropdown above the tables is now called "Mehrfachaktionen"/"Multi-actions"

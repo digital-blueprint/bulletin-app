@@ -20,14 +20,16 @@ const pkg = require('./package.json');
 const appEnv = typeof process.env.APP_ENV !== 'undefined' ? process.env.APP_ENV : 'local';
 const watch = process.env.ROLLUP_WATCH === 'true';
 const buildFull = (!watch && appEnv !== 'test') || process.env.FORCE_FULL !== undefined;
-const defaultEnabledFeatureFlags = [
-    'local',
-    'localCustom',
-    'development',
-    'developmentCustom',
-].includes(appEnv)
-    ? ['career-profiles', 'external-jobs', 'admin-tools']
-    : [];
+// Feature flags that are enabled by default, depending on the environment
+const defaultEnabledFeatureFlags = (() => {
+    if (['local', 'localCustom', 'development', 'developmentCustom'].includes(appEnv)) {
+        return ['career-profiles', 'external-jobs', 'admin-tools'];
+    }
+    if (['staging', 'production'].includes(appEnv)) {
+        return ['external-jobs'];
+    }
+    return [];
+})();
 let doMinify = buildFull;
 let transform = buildFull;
 let checkLicenses = buildFull;
