@@ -600,13 +600,13 @@ export const getLocalizedJobOfferList = (primary, en, lang) => {
     return preferredItems.length > 0 ? preferredItems : fallbackItems;
 };
 
-export const getJobCategoryItems = (t, placeholder) =>
-    withEmptySelectOption(
-        Object.fromEntries(
-            Object.keys(JOB_CATEGORIES).map((value) => [value, getJobCategoryLabel(value, t)]),
-        ),
-        placeholder,
-    );
+export const getJobCategoryItems = (t, placeholder) => {
+    const sortedCategoryEntries = Object.keys(JOB_CATEGORIES)
+        .map((value) => [value, getJobCategoryLabel(value, t)])
+        .sort(([, labelA], [, labelB]) => labelA.localeCompare(labelB));
+
+    return withEmptySelectOption(Object.fromEntries(sortedCategoryEntries), placeholder);
+};
 
 export const getAreaOfInterestLabel = (value, t) => {
     const translationKey = AREAS_OF_INTEREST[value] ?? LEGACY_AREA_OF_INTERESTS[value];
@@ -2264,7 +2264,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             <dbp-enum-element
                                 name="job-category"
                                 lang="${this.lang}"
-                                label="${t('manage-job-offers.field-job-category')}"
+                                label="333${t('manage-job-offers.field-job-category')}"
                                 .items="${jobCategoryItems}"
                                 .value="${this._jobCategory}"
                                 @change="${(e) =>
