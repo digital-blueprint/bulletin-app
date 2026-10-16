@@ -1964,6 +1964,74 @@ suite('hours range validation', () => {
         element.remove();
     });
 
+    test('should store a fixed number of hours as equal bounds', async () => {
+        const tagName = 'test-hours-range-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, HoursRangeElement);
+        }
+        const element = document.createElement(tagName);
+        element.allowExact = true;
+        element.required = true;
+        element.max = '30';
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        let detail = null;
+        element.addEventListener('change', (event) => {
+            detail = event.detail;
+        });
+
+        // Different bounds start in range mode
+        assert.isNull(element.renderRoot.querySelector('.hours-range-exact'));
+
+        const toggle = element.renderRoot.querySelector('.hours-range-exact-toggle');
+        toggle.checked = true;
+        toggle.dispatchEvent(new Event('change'));
+        await element.updateComplete;
+        await element.updateComplete;
+
+        // The already entered maximum is kept as the fixed value
+        assert.deepEqual([detail.min, detail.max, detail.valid], ['30', '30', true]);
+
+        const exactInput = element.renderRoot.querySelector('.hours-range-exact');
+        assert.isNotNull(exactInput);
+        assert.isNull(element.renderRoot.querySelector('.hours-range-min'));
+
+        exactInput.value = '25';
+        exactInput.dispatchEvent(new InputEvent('input', {bubbles: true, composed: true}));
+        assert.deepEqual([detail.min, detail.max, detail.valid], ['25', '25', true]);
+
+        exactInput.value = '';
+        exactInput.dispatchEvent(new InputEvent('input', {bubbles: true, composed: true}));
+        assert.isFalse(detail.valid);
+
+        element.remove();
+    });
+
+    test('should start in exact mode for equal bounds', async () => {
+        const tagName = 'test-hours-range-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, HoursRangeElement);
+        }
+        const element = document.createElement(tagName);
+        element.allowExact = true;
+        element.min = '20';
+        element.max = '20';
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isTrue(element.renderRoot.querySelector('.hours-range-exact-toggle').checked);
+        assert.equal(element.renderRoot.querySelector('.hours-range-exact').value, '20');
+
+        // Without allow-exact neither the checkbox nor the single input is shown
+        element.allowExact = false;
+        await element.updateComplete;
+        assert.isNull(element.renderRoot.querySelector('.hours-range-exact-toggle'));
+        assert.isNotNull(element.renderRoot.querySelector('.hours-range-min'));
+
+        element.remove();
+    });
+
     test('should show equal range bounds only once', () => {
         assert.equal(formatHoursRange('20', '20'), '20');
         assert.equal(formatHoursRange('20', '40'), '20 – 40');

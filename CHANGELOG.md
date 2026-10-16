@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Create and edit job offer: added a "Fixe Stundenanzahl statt eines Bereichs"/"Fixed number of hours instead of a range" checkbox below the weekly hours. When checked, only one input is shown and its value is stored as both the minimum and the maximum, so the job offer is shown and filtered with exactly this number of hours. Job offers with the same minimum and maximum open with the checkbox already checked
 - Manage job offers and job applications: repaired the "Mehrfachaktionen"/"Multi-actions" dropdown. The label doesn't wrap anymore in the applications tables, and in manage job offers the dropdown is always active, unless none of its actions is allowed. Without a selection it offers "Alle löschen ([n])"/"Delete all ([n])" for all job offers you may delete, with a selection it offers "Ausgewählte löschen ([n])"/"Delete selected ([n])"
 - External job offers: the `external-jobs` feature flag is now enabled by default on staging and production, so external job offers, the companies in manage user-defined fields and the "Only university jobs" filter are available there
 - Create and edit job offer: both the minimum and the maximum weekly hours are now mandatory, previously one of them was sufficient

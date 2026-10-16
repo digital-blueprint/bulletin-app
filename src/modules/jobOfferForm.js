@@ -2140,6 +2140,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 label="${t('hours-range.label')}"
                                 .min="${this._weeklyHoursMin}"
                                 .max="${this._weeklyHoursMax}"
+                                allow-exact
                                 required
                                 @change="${this._handleWeeklyHoursRangeChange}"></dbp-hours-range-element>
                             <dbp-date-element

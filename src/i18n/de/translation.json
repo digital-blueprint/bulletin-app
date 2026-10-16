@@ -343,6 +343,8 @@
         "view-job-offer-link": "Stellenangebot anzeigen"
     },
     "hours-range": {
+        "exact-label": "Fixe Stundenanzahl statt eines Bereichs",
+        "exact-placeholder": "Stunden",
         "invalid-range": "Die Mindeststunden dürfen die Höchststunden nicht überschreiten.",
         "label": "Wochenstunden",
         "max-placeholder": "Max",

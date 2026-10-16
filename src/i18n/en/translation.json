@@ -343,6 +343,8 @@
         "view-job-offer-link": "View job offer"
     },
     "hours-range": {
+        "exact-label": "Fixed number of hours instead of a range",
+        "exact-placeholder": "Hours",
         "invalid-range": "Minimum hours must not exceed maximum hours.",
         "label": "Hours per week",
         "max-placeholder": "Max",

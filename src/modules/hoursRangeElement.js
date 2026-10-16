@@ -183,6 +183,10 @@ export class HoursRangeElement extends DBPLitElement {
         this.hoursMin = HOURS_MIN;
         this.hoursMax = HOURS_MAX;
         this.step = HOURS_STEP;
+        this.allowExact = false;
+        this._exact = false;
+        this._lastDispatchedMin = null;
+        this._lastDispatchedMax = null;
     }
 
     static get properties() {
@@ -199,7 +203,28 @@ export class HoursRangeElement extends DBPLitElement {
             hoursMin: {type: Number, attribute: 'hours-min'},
             hoursMax: {type: Number, attribute: 'hours-max'},
             step: {type: Number},
+            allowExact: {type: Boolean, attribute: 'allow-exact'},
+            _exact: {state: true},
         };
+    }
+
+    willUpdate(changedProperties) {
+        super.willUpdate?.(changedProperties);
+
+        // Values set from outside (e.g. when editing an existing job offer) decide whether the
+        // exact mode is active. Values that were dispatched by this element itself are ignored,
+        // so typing the same number into both inputs doesn't switch the mode unexpectedly.
+        const valuesChanged = changedProperties.has('min') || changedProperties.has('max');
+        const isExternalChange =
+            this.min !== this._lastDispatchedMin || this.max !== this._lastDispatchedMax;
+
+        if (this.allowExact && valuesChanged && isExternalChange) {
+            this._exact = this.min !== '' && this.min === this.max;
+        }
+
+        if (!this.allowExact) {
+            this._exact = false;
+        }
     }
 
     update(changedProperties) {
@@ -240,7 +265,48 @@ export class HoursRangeElement extends DBPLitElement {
         this._dispatchChange();
     }
 
+    _onExactInput(event) {
+        const input = event.currentTarget;
+        const value = this._sanitize(input.value);
+
+        input.value = value;
+        // A fixed number of hours is stored as a range with equal bounds
+        this.min = value;
+        this.max = value;
+
+        this._validateRange();
+        this._dispatchChange();
+    }
+
+    async _onExactToggle(event) {
+        this._exact = event.currentTarget.checked;
+
+        if (this._exact) {
+            // Keep an already entered bound as the fixed value
+            const value = this.min !== '' ? this.min : this.max;
+            // Mark the new values as internal, so willUpdate keeps the chosen mode
+            this._lastDispatchedMin = value;
+            this._lastDispatchedMax = value;
+            this.min = value;
+            this.max = value;
+        }
+
+        await this.updateComplete;
+        this._validateRange();
+        this._dispatchChange();
+    }
+
     _validateRange() {
+        const exactInput = /** @type {HTMLInputElement} */ (
+            this.renderRoot?.querySelector('.hours-range-exact')
+        );
+
+        if (exactInput) {
+            exactInput.required = this.required;
+            exactInput.setCustomValidity('');
+            return;
+        }
+
         const minInput = /** @type {HTMLInputElement} */ (
             this.renderRoot?.querySelector('.hours-range-min')
         );
@@ -269,6 +335,9 @@ export class HoursRangeElement extends DBPLitElement {
     }
 
     _dispatchChange() {
+        this._lastDispatchedMin = this.min;
+        this._lastDispatchedMax = this.max;
+
         this.dispatchEvent(
             new CustomEvent('change', {
                 detail: {
@@ -282,17 +351,25 @@ export class HoursRangeElement extends DBPLitElement {
         );
     }
 
+    /**
+     * Returns the hours inputs, without the exact-mode checkbox.
+     * @returns {HTMLInputElement[]}
+     */
+    _getHoursInputs() {
+        return [...(this.renderRoot?.querySelectorAll('input.input') ?? [])].map(
+            (input) => /** @type {HTMLInputElement} */ (input),
+        );
+    }
+
     checkValidity() {
         this._validateRange();
-        const inputs = this.renderRoot?.querySelectorAll('input') ?? [];
-        return [...inputs].every((input) => input.checkValidity());
+        return this._getHoursInputs().every((input) => input.checkValidity());
     }
 
     reportValidity() {
         this._validateRange();
-        const inputs = this.renderRoot?.querySelectorAll('input') ?? [];
 
-        for (const input of inputs) {
+        for (const input of this._getHoursInputs()) {
             if (!input.reportValidity()) {
                 return false;
             }
@@ -337,45 +414,92 @@ export class HoursRangeElement extends DBPLitElement {
                           `
                         : nothing
                 }
-
-                <div class="control hours-range">
-                    <input
-                        id="hours-range-min"
-                        type="text"
-                        inputmode="numeric"
-                        pattern="\\d{1,2}"
-                        class="input hours-range-min"
-                        .value=${this.min}
-                        min=${this.hoursMin}
-                        max=${this.hoursMax}
-                        step=${this.step}
-                        ?disabled=${this.disabled}
-                        ?required=${this.required}
-                        aria-required=${this.required ? 'true' : 'false'}
-                        aria-describedby=${describedBy}
-                        placeholder="${t('hours-range.min-placeholder')}"
-                        @input=${this._onMinInput} />
-
-                    <span class="range-separator" aria-hidden="true">–</span>
-
-                    <input
-                        id="hours-range-max"
-                        type="text"
-                        inputmode="numeric"
-                        pattern="\\d{1,2}"
-                        class="input hours-range-max"
-                        .value=${this.max}
-                        min=${this.hoursMin}
-                        max=${this.hoursMax}
-                        step=${this.step}
-                        ?disabled=${this.disabled}
-                        ?required=${this.required}
-                        aria-required=${this.required ? 'true' : 'false'}
-                        aria-describedby=${describedBy}
-                        placeholder="${t('hours-range.max-placeholder')}"
-                        @input=${this._onMaxInput} />
-                </div>
+                ${this._exact ? this._renderExactInput(describedBy) : this._renderRangeInputs(describedBy)}
+                ${
+                    this.allowExact
+                        ? html`
+                              <label class="exact-toggle">
+                                  <input
+                                      type="checkbox"
+                                      class="hours-range-exact-toggle"
+                                      .checked=${this._exact}
+                                      ?disabled=${this.disabled}
+                                      @change=${this._onExactToggle} />
+                                  <span>${t('hours-range.exact-label')}</span>
+                              </label>
+                          `
+                        : nothing
+                }
             </fieldset>
+        `;
+    }
+
+    _renderExactInput(describedBy) {
+        const t = (key, options) => this._i18n.t(key, options);
+
+        return html`
+            <div class="control hours-range">
+                <input
+                    id="hours-range-exact"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="\\d{1,2}"
+                    class="input hours-range-exact"
+                    .value=${this.min}
+                    min=${this.hoursMin}
+                    max=${this.hoursMax}
+                    step=${this.step}
+                    ?disabled=${this.disabled}
+                    ?required=${this.required}
+                    aria-required=${this.required ? 'true' : 'false'}
+                    aria-describedby=${describedBy}
+                    placeholder="${t('hours-range.exact-placeholder')}"
+                    @input=${this._onExactInput} />
+            </div>
+        `;
+    }
+
+    _renderRangeInputs(describedBy) {
+        const t = (key, options) => this._i18n.t(key, options);
+
+        return html`
+            <div class="control hours-range">
+                <input
+                    id="hours-range-min"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="\\d{1,2}"
+                    class="input hours-range-min"
+                    .value=${this.min}
+                    min=${this.hoursMin}
+                    max=${this.hoursMax}
+                    step=${this.step}
+                    ?disabled=${this.disabled}
+                    ?required=${this.required}
+                    aria-required=${this.required ? 'true' : 'false'}
+                    aria-describedby=${describedBy}
+                    placeholder="${t('hours-range.min-placeholder')}"
+                    @input=${this._onMinInput} />
+
+                <span class="range-separator" aria-hidden="true">–</span>
+
+                <input
+                    id="hours-range-max"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="\\d{1,2}"
+                    class="input hours-range-max"
+                    .value=${this.max}
+                    min=${this.hoursMin}
+                    max=${this.hoursMax}
+                    step=${this.step}
+                    ?disabled=${this.disabled}
+                    ?required=${this.required}
+                    aria-required=${this.required ? 'true' : 'false'}
+                    aria-describedby=${describedBy}
+                    placeholder="${t('hours-range.max-placeholder')}"
+                    @input=${this._onMaxInput} />
+            </div>
         `;
     }
 
@@ -442,6 +566,17 @@ export class HoursRangeElement extends DBPLitElement {
 
             .range-separator {
                 flex: 0 0 auto;
+            }
+
+            .exact-toggle {
+                display: flex;
+                align-items: flex-start;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            .exact-toggle input {
+                margin-top: 0.2rem;
             }
 
             .required-star {
