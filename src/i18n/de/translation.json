@@ -587,6 +587,8 @@
         "field-link-name-en": "Name der URL zu mehr Informationen (en)",
         "field-link-url": "Die URL muss mit https:// beginnen",
         "field-link-url-en": "Die URL muss mit https:// beginnen (en)",
+        "field-link-url-label": "URL zu mehr Informationen",
+        "field-link-url-label-en": "URL zu mehr Informationen (en)",
         "field-list-items-hint": "Bitte schreiben Sie jeden Listeneintrag in eine neue Zeile",
         "field-organization": "Organisationseinheit",
         "field-published-at": "Datum der Veröffentlichung",

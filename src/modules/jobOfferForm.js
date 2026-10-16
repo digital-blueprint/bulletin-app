@@ -2368,20 +2368,26 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             <dbp-string-element
                                 name="link-url"
                                 lang="${this.lang}"
-                                label="${t('manage-job-offers.field-link-url')}"
+                                label="${t('manage-job-offers.field-link-url-label')}"
                                 type="url"
                                 .value="${this._linkUrl}"
-                                @change="${(e) =>
-                                    (this._linkUrl = e.detail.value)}"></dbp-string-element>
+                                @change="${(e) => (this._linkUrl = e.detail.value)}">
+                                <div slot="description">
+                                    ${t('manage-job-offers.field-link-url')}
+                                </div>
+                            </dbp-string-element>
 
                             <dbp-string-element
                                 name="link-url-en"
                                 lang="${this.lang}"
-                                label="${t('manage-job-offers.field-link-url-en')}"
+                                label="${t('manage-job-offers.field-link-url-label-en')}"
                                 type="url"
                                 .value="${this._linkUrlEn}"
-                                @change="${(e) =>
-                                    (this._linkUrlEn = e.detail.value)}"></dbp-string-element>
+                                @change="${(e) => (this._linkUrlEn = e.detail.value)}">
+                                <div slot="description">
+                                    ${t('manage-job-offers.field-link-url-en')}
+                                </div>
+                            </dbp-string-element>
                         </div>
 
                         <div class="translation-row">
