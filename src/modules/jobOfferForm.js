@@ -2264,7 +2264,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                             <dbp-enum-element
                                 name="job-category"
                                 lang="${this.lang}"
-                                label="333${t('manage-job-offers.field-job-category')}"
+                                label="${t('manage-job-offers.field-job-category')}"
                                 .items="${jobCategoryItems}"
                                 .value="${this._jobCategory}"
                                 @change="${(e) =>
