@@ -216,7 +216,14 @@ export const getCareerProfileIndustryLabels = (value, t) =>
     getCareerProfileSelectLabels(CAREER_PROFILE_INDUSTRIES, value, t);
 
 export const getCareerProfileFieldItems = (t) =>
-    getCareerProfileSelectItems(CAREER_PROFILE_FIELDS, t);
+    Object.fromEntries(
+        Object.entries(getCareerProfileSelectItems(CAREER_PROFILE_FIELDS, t)).sort(
+            ([leftValue, leftLabel], [rightValue, rightLabel]) =>
+                String(leftLabel).localeCompare(String(rightLabel), undefined, {
+                    sensitivity: 'base',
+                }) || leftValue.localeCompare(rightValue),
+        ),
+    );
 
 export const getCareerProfileFieldLabels = (value, t) =>
     getCareerProfileSelectLabels(CAREER_PROFILE_FIELDS, value, t);
