@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Manage job offers: added a "Bewerbungen"/"Applications" column with the number of submitted applications (without drafts) of each job offer. The numbers are loaded in the background after the overview is shown and are only shown for job offers whose applications you may read
 - Manage job offers: fixed the links in the "Links für Webseiten"/"Website links" dialog, which pointed to the not existing "render-form" and "manage-submissions" activities. The dialog now shows a link to the job offer in "Stellenangebote anzeigen"/"View job offers", where it can be viewed and applied for
 - Manage job offers and job applications: removed "Berechtigungen bearbeiten"/"Edit permissions" from the "Mehrfachaktionen"/"Multi-actions" dropdown. Permissions can now only be edited for a single job offer or application in its row menu
 - Create and edit job offer: added a "Fixe Stundenanzahl statt eines Bereichs"/"Fixed number of hours instead of a range" checkbox below the weekly hours. When checked, only one input is shown and its value is stored as both the minimum and the maximum, so the job offer is shown and filtered with exactly this number of hours. Job offers with the same minimum and maximum open with the checkbox already checked

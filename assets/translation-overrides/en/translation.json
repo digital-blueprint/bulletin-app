@@ -22,7 +22,8 @@
         "manage-forms": {
             "name": "Position title",
             "create-form-button": "Create new job offer",
-            "delete-selected-forms-button": "Delete selected job offers"
+            "delete-selected-forms-button": "Delete selected job offers",
+            "submissions-count": "Applications"
         }
     },
     "dbp-formalize-deletion-confirmation-modal": {

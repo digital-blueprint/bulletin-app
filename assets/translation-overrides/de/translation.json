@@ -22,7 +22,8 @@
         "manage-forms": {
             "name": "Stellenbezeichnung",
             "create-form-button": "Neues Stellenangebot erstellen",
-            "delete-selected-forms-button": "Ausgewählte Stellenangebote löschen"
+            "delete-selected-forms-button": "Ausgewählte Stellenangebote löschen",
+            "submissions-count": "Bewerbungen"
         }
     },
     "dbp-formalize-deletion-confirmation-modal": {
