@@ -1027,6 +1027,18 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       ),
                                                   )}
                                               </div>
+                                              ${
+                                                  job?.remote
+                                                      ? html`
+                                                            <div class="meta-item">
+                                                                <span class="meta-item-label">
+                                                                    ${t('job-offer-detail.remote')}:
+                                                                </span>
+                                                                ${t('job-offer-detail.yes')}
+                                                            </div>
+                                                        `
+                                                      : ''
+                                              }
                                           </dl>
 
                                           <div class="meta-actions" ?hidden="${this.preview}">
@@ -1223,20 +1235,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                           ${t('job-offer-detail.link')}:
                                                                                       </span>
                                                                                       ${this._getLocalizedLink(job)}
-                                                                                  </div>
-                                                                              `
-                                                                            : ''
-                                                                    }
-                                                                    ${
-                                                                        job?.remote
-                                                                            ? html`
-                                                                                  <div
-                                                                                      class="meta-item">
-                                                                                      <span
-                                                                                          class="meta-item-label">
-                                                                                          ${t('job-offer-detail.remote')}:
-                                                                                      </span>
-                                                                                      ${t('job-offer-detail.yes')}
                                                                                   </div>
                                                                               `
                                                                             : ''
