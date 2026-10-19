@@ -1615,6 +1615,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 background: none;
                 color: inherit;
                 font: inherit;
+                cursor: pointer;
             }
 
             .back-navigation dbp-icon {

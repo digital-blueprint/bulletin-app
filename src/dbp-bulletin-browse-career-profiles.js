@@ -1148,6 +1148,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 background: none;
                 color: inherit;
                 font: inherit;
+                cursor: pointer;
             }
 
             .back-navigation dbp-icon {
