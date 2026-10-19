@@ -117,7 +117,7 @@
         "keyCloakRealm": "tugraz",
         "keyCloakClientId": "jobhub_tugraz_at",
         "matomoUrl": "https://analytics.tugraz.at/",
-        "matomoSiteId": "177",
+        "matomoSiteId": "225",
         "universityShortName": "TU Graz",
         "universityFullName": "Technische Universität Graz",
         "nextcloudBaseURL": "https://cloud.tugraz.at",
