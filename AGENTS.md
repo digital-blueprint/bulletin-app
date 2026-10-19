@@ -17,3 +17,9 @@
 - Never mention "TU Graz" anywhere other than in the `assets_custom/` folder (e.g. not in `src/`, `assets/`, `app-templates/`, translations or comments). Use general terms like "University" instead.
 - Never use the every-word-capitalization form of writing because it's not consistent with the rest of the code!
 - In forms always put field descriptions between the field name and input field, so that the order of information is fitting for screen readers.
+
+## Commit messages
+
+- Follow the existing commit style: write a concise English subject in lowercase, using an imperative verb and an area prefix when applicable, e.g. `manage-job-offers: fix the website links (task #76111)`.
+- Include relevant task references at the end of the subject when provided: `(task #76111)` or `(task #75990, subtask #49099)`. Do not invent task IDs.
+- Use the optional commit description (body), separated from the subject by a blank line, to explain the motivation, behavior changes, or implementation details that do not fit in the subject.
