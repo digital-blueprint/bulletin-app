@@ -1960,6 +1960,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 color: var(--dbp-content);
                 border: 1px solid var(--dbp-content);
                 cursor: pointer;
+                font-weight: bolder;
             }
 
             /* Reset the icon's intrinsic baseline offset so it is vertically centered
