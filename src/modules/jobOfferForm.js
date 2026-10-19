@@ -19,6 +19,7 @@ import {
     FORM_PERMISSIONS,
     SUBMISSION_COLLECTION_PERMISSIONS,
     SUBMISSION_STATES_BINARY,
+    getActivityUrl,
 } from '../../vendor/formalize/src/utils.js';
 import {
     ScopedElementsMixin,
@@ -233,6 +234,30 @@ class JobOfferModule extends BaseObject {
             },
             ...editActions,
             ...otherActions,
+        ];
+    }
+
+    /**
+     * Job offers are shown and applied for in the view-job-offers activity, there is no
+     * render-form or manage-submissions activity in this app, so the built-in links are replaced.
+     *
+     * @param {{form: Record<string, any>, lang: string}} context
+     * @returns {Array<{id: string, url: string, label: string, description: string}>}
+     */
+    getManageFormsWebsiteLinks({form, lang}) {
+        if (!form?.formId) return [];
+
+        return [
+            {
+                id: 'job-offer',
+                url: getActivityUrl(
+                    'view-job-offers',
+                    `job/${encodeURIComponent(form.formId)}`,
+                    lang,
+                ),
+                label: i18n.t('manage-job-offers.job-offer-link', {lng: lang}),
+                description: i18n.t('manage-job-offers.job-offer-link-description', {lng: lang}),
+            },
         ];
     }
 

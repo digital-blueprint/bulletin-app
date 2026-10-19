@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Manage job offers: fixed the links in the "Links für Webseiten"/"Website links" dialog, which pointed to the not existing "render-form" and "manage-submissions" activities. The dialog now shows a link to the job offer in "Stellenangebote anzeigen"/"View job offers", where it can be viewed and applied for
 - Manage job offers and job applications: removed "Berechtigungen bearbeiten"/"Edit permissions" from the "Mehrfachaktionen"/"Multi-actions" dropdown. Permissions can now only be edited for a single job offer or application in its row menu
 - Create and edit job offer: added a "Fixe Stundenanzahl statt eines Bereichs"/"Fixed number of hours instead of a range" checkbox below the weekly hours. When checked, only one input is shown and its value is stored as both the minimum and the maximum, so the job offer is shown and filtered with exactly this number of hours. Job offers with the same minimum and maximum open with the checkbox already checked
 - Manage job offers and job applications: repaired the "Mehrfachaktionen"/"Multi-actions" dropdown. The label doesn't wrap anymore in the applications tables, and in manage job offers the dropdown is always active, unless none of its actions is allowed. Without a selection it offers "Alle löschen ([n])"/"Delete all ([n])" for all job offers you may delete, with a selection it offers "Ausgewählte löschen ([n])"/"Delete selected ([n])"

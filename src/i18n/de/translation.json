@@ -617,6 +617,8 @@
         "job-category-seasonal-position": "Ferialmitarbeit",
         "job-category-student-research-assistantship": "Studentische Projektmitarbeit in der Forschung",
         "job-category-student-teaching-assistantship": "Studentische Mitarbeit in der Lehre",
+        "job-offer-link": "Stellenangebot",
+        "job-offer-link-description": "Öffnet das Stellenangebot, damit man es ansehen und sich bewerben kann.",
         "job-type-external": "Unternehmen",
         "job-type-internal": "Universität",
         "language-requirement-note": "Stellenbezeichnung und Beschreibung müssen nur in einer Sprache ausgefüllt werden, entweder auf Deutsch oder auf Englisch. Fehlende Übersetzungen werden in der jeweils anderen Sprache angezeigt.",
