@@ -1831,7 +1831,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             /* Primary row: dream job dropdown (+ university jobs checkbox), search field and the filter toggle */
             .search-filter-row {
-                grid-template-columns: minmax(0, 1.5fr) auto minmax(0, 2fr) auto;
+                grid-template-columns: auto auto minmax(0, 2fr) auto;
                 align-items: end;
                 --filter-control-height: 2.1rem;
             }
@@ -2159,7 +2159,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 }
             }
 
-            @media (max-width: 600px) {
+            @media (max-width: 640px) {
                 .search-filter-row {
                     grid-template-columns: 1fr;
                     padding-bottom: 10px;
