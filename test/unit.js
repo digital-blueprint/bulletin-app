@@ -1589,6 +1589,7 @@ suite('jobOfferForm validation', () => {
         const [column] = new JobOfferModule().getManageFormsOverviewColumns({host});
 
         assert.equal(column.field, 'employer');
+        assert.equal(column.widthGrow, 1.5);
         assert.equal(column.title('en'), 'Employer');
         assert.equal(column.title('de'), 'Arbeitgeber');
         assert.equal(

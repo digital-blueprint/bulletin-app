@@ -261,13 +261,14 @@ class JobOfferModule extends BaseObject {
      * Adds the employer column to the manage job offers overview.
      *
      * @param {{host: Record<string, any>}} context
-     * @returns {Array<{field: string, title: (lng: string) => string, getValue: (form: Record<string, any>) => string}>}
+     * @returns {Array<{field: string, title: (lng: string) => string, getValue: (form: Record<string, any>) => string, widthGrow?: number}>}
      */
     getManageFormsOverviewColumns({host}) {
         return [
             {
                 field: 'employer',
                 title: (lng) => i18n.t('manage-job-offers.employer-column', {lng}),
+                widthGrow: 1,
                 getValue: (form) => {
                     const additionalData = form?.additionalData ?? {};
                     if (additionalData.jobOfferType === JOB_OFFER_TYPE_EXTERNAL) {
