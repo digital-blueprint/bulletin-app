@@ -372,115 +372,115 @@ export const AREAS_OF_INTEREST = {
     'UI-UX': 'manage-job-offers.area-of-interest-UI-UX',
 };
 
-const LEGACY_AREA_OF_INTERESTS = {
-    'Administration-Healthcare': 'manage-job-offers.area-of-interest-Administration-Healthcare',
-
-    teaching: 'manage-job-offers.area-of-interest-teaching',
-
-    research: 'manage-job-offers.area-of-interest-research',
-
-    'natural-sciences': 'manage-job-offers.area-of-interest-natural-sciences',
-
-    'language-linguistics': 'manage-job-offers.area-of-interest-language-linguistics',
-
-    medicine: 'manage-job-offers.area-of-interest-medicine',
-
-    'Medical-technology': 'manage-job-offers.area-of-interest-Medical-technology',
-
-    engineering: 'manage-job-offers.area-of-interest-engineering',
-
-    'Building-construction': 'manage-job-offers.area-of-interest-Building-construction',
-
-    'Construction-industry': 'manage-job-offers.area-of-interest-Construction-industry',
-
-    design: 'manage-job-offers.area-of-interest-design',
-
-    'Textiles-Clothing-Leather': 'manage-job-offers.area-of-interest-Textiles-Clothing-Leather',
-
-    'Management-consulting': 'manage-job-offers.area-of-interest-Management-consulting',
-
-    telecommunications: 'manage-job-offers.area-of-interest-telecommunications',
-
-    trade: 'manage-job-offers.area-of-interest-trade',
-
-    tourism: 'manage-job-offers.area-of-interest-tourism',
-
-    Advertising: 'manage-job-offers.area-of-interest-Advertising',
-
-    'Universities-Colleges': 'manage-job-offers.area-of-interest-Universities-Colleges',
-
-    law: 'manage-job-offers.area-of-interest-law',
-
-    'Publishing-Printing-companies':
-        'manage-job-offers.area-of-interest-Publishing-Printing-companies',
-
-    'art-culture-design': 'manage-job-offers.area-of-interest-art-culture-design',
-
-    'communication-marketing': 'manage-job-offers.area-of-interest-communication-marketing',
-
-    'library-services': 'manage-job-offers.area-of-interest-library-services',
-
-    'consulting-support': 'manage-job-offers.area-of-interest-consulting-support',
-
-    'human-resources': 'manage-job-offers.area-of-interest-human-resources',
-
-    'finance-controlling': 'manage-job-offers.area-of-interest-finance-controlling',
-
-    infrastructure: 'manage-job-offers.area-of-interest-infrastructure',
-
-    'sustainability-environment': 'manage-job-offers.area-of-interest-sustainability-environment',
-
-    'didactics-educational-development':
-        'manage-job-offers.area-of-interest-didactics-educational-development',
-
-    'plant-engineering-environmental-technology':
-        'manage-job-offers.area-of-interest-plant-engineering-environmental-technology',
-
-    'wooden-furniture': 'manage-job-offers.area-of-interest-wooden-furniture',
-
-    'Physical-chemical-laboratories':
-        'manage-job-offers.area-of-interest-Physical-chemical-laboratories',
-
-    'Real-Estate-Rental': 'manage-job-offers.area-of-interest-Real-Estate-Rental',
-
-    'Rail-vehicles': 'manage-job-offers.area-of-interest-Rail-vehicles',
-
-    plastics: 'manage-job-offers.area-of-interest-plastics',
-
-    'Agriculture-Forestry': 'manage-job-offers.area-of-interest-agriculture-forestry',
-
-    'Measuring-instruments': 'manage-job-offers.area-of-interest-measuring-instruments',
-
-    'Metal-production/processing': 'manage-job-offers.area-of-interest-metal-production-processing',
-
-    'Metal-goods': 'manage-job-offers.area-of-interest-metal-goods',
-
-    'Food-Drinks': 'manage-job-offers.area-of-interest-food-drinks',
-
-    'Paper-Pulse-Packaging': 'manage-job-offers.area-of-interest-paper-pulse-packaging',
-
-    'Staffing-agency': 'manage-job-offers.area-of-interest-staffing-agency',
-
-    'Passenger-freight-transport': 'manage-job-offers.area-of-interest-personen-freight-transport',
-
-    'non-university-research': 'manage-job-offers.area-of-interest-non-university-research',
-
-    'banks-insurance': 'manage-job-offers.area-of-interest-banks-insurance',
-
-    'building-materials': 'manage-job-offers.area-of-interest-building-materials',
-
-    'mining-metallurgy': 'manage-job-offers.area-of-interest-mining-metallurgy',
-
-    'electrical-engineering': 'manage-job-offers.area-of-interest-electrical-engineering',
-
-    'energy-water-supply': 'manage-job-offers.area-of-interest-energy-water-supply',
-
-    'Other-services': 'manage-job-offers.area-of-interest-other-services',
-
-    'Other-production': 'manage-job-offers.area-of-interest-other-production',
-
-    other: 'manage-job-offers.area-of-interest-other',
-};
+// const LEGACY_AREA_OF_INTERESTS = {
+//     'Administration-Healthcare': 'manage-job-offers.area-of-interest-Administration-Healthcare',
+//
+//     teaching: 'manage-job-offers.area-of-interest-teaching',
+//
+//     research: 'manage-job-offers.area-of-interest-research',
+//
+//     'natural-sciences': 'manage-job-offers.area-of-interest-natural-sciences',
+//
+//     'language-linguistics': 'manage-job-offers.area-of-interest-language-linguistics',
+//
+//     medicine: 'manage-job-offers.area-of-interest-medicine',
+//
+//     'Medical-technology': 'manage-job-offers.area-of-interest-Medical-technology',
+//
+//     engineering: 'manage-job-offers.area-of-interest-engineering',
+//
+//     'Building-construction': 'manage-job-offers.area-of-interest-Building-construction',
+//
+//     'Construction-industry': 'manage-job-offers.area-of-interest-Construction-industry',
+//
+//     design: 'manage-job-offers.area-of-interest-design',
+//
+//     'Textiles-Clothing-Leather': 'manage-job-offers.area-of-interest-Textiles-Clothing-Leather',
+//
+//     'Management-consulting': 'manage-job-offers.area-of-interest-Management-consulting',
+//
+//     telecommunications: 'manage-job-offers.area-of-interest-telecommunications',
+//
+//     trade: 'manage-job-offers.area-of-interest-trade',
+//
+//     tourism: 'manage-job-offers.area-of-interest-tourism',
+//
+//     Advertising: 'manage-job-offers.area-of-interest-Advertising',
+//
+//     'Universities-Colleges': 'manage-job-offers.area-of-interest-Universities-Colleges',
+//
+//     law: 'manage-job-offers.area-of-interest-law',
+//
+//     'Publishing-Printing-companies':
+//         'manage-job-offers.area-of-interest-Publishing-Printing-companies',
+//
+//     'art-culture-design': 'manage-job-offers.area-of-interest-art-culture-design',
+//
+//     'communication-marketing': 'manage-job-offers.area-of-interest-communication-marketing',
+//
+//     'library-services': 'manage-job-offers.area-of-interest-library-services',
+//
+//     'consulting-support': 'manage-job-offers.area-of-interest-consulting-support',
+//
+//     'human-resources': 'manage-job-offers.area-of-interest-human-resources',
+//
+//     'finance-controlling': 'manage-job-offers.area-of-interest-finance-controlling',
+//
+//     infrastructure: 'manage-job-offers.area-of-interest-infrastructure',
+//
+//     'sustainability-environment': 'manage-job-offers.area-of-interest-sustainability-environment',
+//
+//     'didactics-educational-development':
+//         'manage-job-offers.area-of-interest-didactics-educational-development',
+//
+//     'plant-engineering-environmental-technology':
+//         'manage-job-offers.area-of-interest-plant-engineering-environmental-technology',
+//
+//     'wooden-furniture': 'manage-job-offers.area-of-interest-wooden-furniture',
+//
+//     'Physical-chemical-laboratories':
+//         'manage-job-offers.area-of-interest-Physical-chemical-laboratories',
+//
+//     'Real-Estate-Rental': 'manage-job-offers.area-of-interest-Real-Estate-Rental',
+//
+//     'Rail-vehicles': 'manage-job-offers.area-of-interest-Rail-vehicles',
+//
+//     plastics: 'manage-job-offers.area-of-interest-plastics',
+//
+//     'Agriculture-Forestry': 'manage-job-offers.area-of-interest-agriculture-forestry',
+//
+//     'Measuring-instruments': 'manage-job-offers.area-of-interest-measuring-instruments',
+//
+//     'Metal-production/processing': 'manage-job-offers.area-of-interest-metal-production-processing',
+//
+//     'Metal-goods': 'manage-job-offers.area-of-interest-metal-goods',
+//
+//     'Food-Drinks': 'manage-job-offers.area-of-interest-food-drinks',
+//
+//     'Paper-Pulse-Packaging': 'manage-job-offers.area-of-interest-paper-pulse-packaging',
+//
+//     'Staffing-agency': 'manage-job-offers.area-of-interest-staffing-agency',
+//
+//     'Passenger-freight-transport': 'manage-job-offers.area-of-interest-personen-freight-transport',
+//
+//     'non-university-research': 'manage-job-offers.area-of-interest-non-university-research',
+//
+//     'banks-insurance': 'manage-job-offers.area-of-interest-banks-insurance',
+//
+//     'building-materials': 'manage-job-offers.area-of-interest-building-materials',
+//
+//     'mining-metallurgy': 'manage-job-offers.area-of-interest-mining-metallurgy',
+//
+//     'electrical-engineering': 'manage-job-offers.area-of-interest-electrical-engineering',
+//
+//     'energy-water-supply': 'manage-job-offers.area-of-interest-energy-water-supply',
+//
+//     'Other-services': 'manage-job-offers.area-of-interest-other-services',
+//
+//     'Other-production': 'manage-job-offers.area-of-interest-other-production',
+//
+//     other: 'manage-job-offers.area-of-interest-other',
+// };
 
 const AREA_OF_INTEREST_ALIASES = {
     administration: ['administration', 'verwaltung'],
@@ -634,7 +634,7 @@ export const getJobCategoryItems = (t, placeholder) => {
 };
 
 export const getAreaOfInterestLabel = (value, t) => {
-    const translationKey = AREAS_OF_INTEREST[value] ?? LEGACY_AREA_OF_INTERESTS[value];
+    const translationKey = AREAS_OF_INTEREST[value];
 
     return translationKey ? t(translationKey) : value;
 };
