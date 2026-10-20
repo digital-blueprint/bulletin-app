@@ -1,7 +1,7 @@
 {
     "dbp-formalize-manage-forms": {
         "manage-forms": {
-            "edit-form-button": "Edit job offer",
+            "edit-form-button": "Edit",
             "name": "Position title",
             "open-forms": "Manage job offers",
             "no-submission-data-available": "There are no job applications for this position yet."
@@ -10,7 +10,9 @@
     "dbp-formalize-manage-forms-overview-page": {
         "manage-forms": {
             "name": "Position title",
-            "create-form-button": "Create new job offer"
+            "create-form-button": "Create new job offer",
+            "delete-selected-forms-button-text": "Delete ({{n}})",
+            "edit-form-button": "Edit"
         }
     },
     "dbp-formalize-edit-form-dialog": {

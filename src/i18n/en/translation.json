@@ -572,7 +572,7 @@
         "job-type-internal": "University",
         "language-requirement-note": "Position title and description only have to be filled in one language, either German or English. Missing translations are shown in the other language.",
         "mandatory-fields-end": "End of required fields. The optional fields are in the \"Optional fields\" tab.",
-        "preview-action": "Preview job offer",
+        "preview-action": "View",
         "preview-action-aria": "Preview job offer {{- title}}",
         "publish": "Publish",
         "required-field-error": "Please fill out the required field!",

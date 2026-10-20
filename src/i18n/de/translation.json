@@ -572,7 +572,7 @@
         "job-type-internal": "Universität",
         "language-requirement-note": "Stellenbezeichnung und Beschreibung müssen nur in einer Sprache ausgefüllt werden, entweder auf Deutsch oder auf Englisch. Fehlende Übersetzungen werden in der jeweils anderen Sprache angezeigt.",
         "mandatory-fields-end": "Ende der Pflichtfelder. Die optionalen Felder befinden sich im Tab „Optionale Felder“.",
-        "preview-action": "Stellenangebot in der Vorschau anzeigen",
+        "preview-action": "Anzeigen",
         "preview-action-aria": "Vorschau für Stellenangebot {{- title}}",
         "publish": "Veröffentlichen",
         "required-field-error": "Bitte füllen Sie das Pflichtfeld aus!",

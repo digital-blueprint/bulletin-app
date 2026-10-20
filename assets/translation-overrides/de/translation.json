@@ -1,7 +1,7 @@
 {
     "dbp-formalize-manage-forms": {
         "manage-forms": {
-            "edit-form-button": "Stellenangebot bearbeiten",
+            "edit-form-button": "Bearbeiten",
             "name": "Stellenbezeichnung",
             "open-forms": "Bewerbungen verwalten",
             "open-forms-aria": "Bewerbungen für {{- formName}} verwalten",
@@ -23,6 +23,9 @@
             "name": "Stellenbezeichnung",
             "create-form-button": "Neues Stellenangebot erstellen",
             "delete-selected-forms-button": "Ausgewählte Stellenangebote löschen",
+            "delete-selected-forms-button-text": "Löschen ({{n}})",
+            "edit-form-button": "Bearbeiten",
+            "edit-permission-button-text": "Berechtigungen bearbeiten",
             "submissions-count": "Bewerbungen"
         }
     },

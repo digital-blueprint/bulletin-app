@@ -1,7 +1,7 @@
 {
     "dbp-formalize-manage-forms": {
         "manage-forms": {
-            "edit-form-button": "Edit job offer",
+            "edit-form-button": "Edit",
             "name": "Position title",
             "open-forms": "Manage applications",
             "open-forms-aria": "Manage applications for {{- formName}}",
@@ -23,6 +23,8 @@
             "name": "Position title",
             "create-form-button": "Create new job offer",
             "delete-selected-forms-button": "Delete selected job offers",
+            "delete-selected-forms-button-text": "Delete ({{n}})",
+            "edit-form-button": "Edit",
             "submissions-count": "Applications"
         }
     },
