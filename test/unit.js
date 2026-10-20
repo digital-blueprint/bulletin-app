@@ -941,14 +941,15 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
             deadline: '2026-12-31',
         };
         document.body.appendChild(element);
-        await element.updateComplete;
+        try {
+            await element.updateComplete;
 
-        const descriptionText =
-            element.shadowRoot.querySelector('.apply-submit-wrapper').textContent;
-        assert.include(descriptionText, element._i18n.t('job-offer-detail.remote'));
-        assert.include(descriptionText, element._i18n.t('job-offer-detail.yes'));
-
-        element.remove();
+            const metaText = element.shadowRoot.querySelector('.meta-list').textContent;
+            assert.include(metaText, element._i18n.t('job-offer-detail.remote'));
+            assert.include(metaText, element._i18n.t('job-offer-detail.yes'));
+        } finally {
+            element.remove();
+        }
     });
 
     test('should mark generated job offers in the detail view', async () => {
@@ -2292,7 +2293,7 @@ suite('jobOfferForm application submission', () => {
             notificationDetail = event.detail;
             event.preventDefault();
         };
-        window.addEventListener('dbp-notification-send', notificationHandler);
+        window.addEventListener('dbp-notification-send', notificationHandler, {capture: true});
         globalThis.fetch = async () => ({
             ok: false,
             status: 400,
@@ -2307,7 +2308,9 @@ suite('jobOfferForm application submission', () => {
         try {
             await element._handleSubmission({formData: {}, submissionId: null});
         } finally {
-            window.removeEventListener('dbp-notification-send', notificationHandler);
+            window.removeEventListener('dbp-notification-send', notificationHandler, {
+                capture: true,
+            });
             globalThis.fetch = originalFetch;
         }
 
