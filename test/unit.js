@@ -1472,8 +1472,8 @@ suite('jobOfferForm validation', () => {
         const actions = module.getManageFormsOverviewActions(context, [
             {
                 id: 'open-submissions',
-                iconName: 'keyword-research',
-                placements: ['row'],
+                iconName: 'list',
+                placements: ['inline'],
                 title: 'Show submissions',
                 ariaLabel: 'Show submissions',
                 handler: () => {},
@@ -1494,7 +1494,9 @@ suite('jobOfferForm validation', () => {
             actions.map((rowAction) => rowAction.id),
             ['preview-job-offer', 'edit', 'open-submissions'],
         );
+        // The open-submissions action stays visible outside of the row actions menu
         assert.equal(applicantsAction.iconName, 'list');
+        assert.deepEqual(applicantsAction.placements, ['inline']);
         assert.equal(action.id, 'preview-job-offer');
         assert.equal(action.iconName, 'keyword-research');
         assert.include(action.ariaLabel, 'Developer');

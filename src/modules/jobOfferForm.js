@@ -212,11 +212,7 @@ class JobOfferModule extends BaseObject {
         const editActions = actions
             .filter((action) => action.id === 'edit')
             .map((action) => ({...action, placements: ['row']}));
-        const otherActions = actions
-            .filter((action) => action.id !== 'edit')
-            .map((action) =>
-                action.id === 'open-submissions' ? {...action, iconName: 'list'} : action,
-            );
+        const otherActions = actions.filter((action) => action.id !== 'edit');
 
         return [
             {
