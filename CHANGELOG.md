@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0
+
 - Manage job offers: "Bewerbungen verwalten"/"Manage applications" is now always visible as icon button next to the row menu instead of being inside it
 - Job applications: "Anzeigen"/"View" (previously "Schnellansicht öffnen"/"Open quick view") is now always visible as icon button next to the row menu. In the row menu "Detaillierte Formularansicht öffnen" was renamed to "Detailansicht öffnen" and "Einreichung bearbeiten"/"Edit submission" to "Bearbeiten"/"Edit"
 - Manage job offers: added a "Bewerbungen"/"Applications" column with the number of submitted applications (without drafts) of each job offer. The numbers are loaded in the background after the overview is shown and are only shown for job offers whose applications you may read
@@ -53,10 +55,10 @@
 - View job offers and job offer detail: the areas of interest tags now flow inline next to their label, so single tags wrap one after another instead of the whole tag block moving to the next line
 - Career profile and browse career profiles: the study program, areas of interest and work location lists now carry explicit `list`/`listitem` roles and an `aria-label`, and the study program tags no longer nest a `span` inside the list item
 
-## 0.1.0
-
-- Inital release
-
 ## 0.1.1
 
 - Trigger release
+
+## 0.1.0
+
+- Inital release
