@@ -150,8 +150,8 @@ export function getJobApplicationDataFeedSchema() {
                 type: 'string',
                 description: 'Free-text message or cover letter.',
                 localizedName: {
-                    de: i18n.t('job-offer-detail.message', {lng: 'de'}),
-                    en: i18n.t('job-offer-detail.message', {lng: 'en'}),
+                    de: i18n.t('job-offer-detail.application-text', {lng: 'de'}),
+                    en: i18n.t('job-offer-detail.application-text', {lng: 'en'}),
                 },
             },
         },

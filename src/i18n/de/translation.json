@@ -435,6 +435,7 @@
     },
     "job-offer-detail": {
         "already-applied": "Sie haben sich bereits für diese Stelle beworben. Ihre Bewerbung wurde erfolgreich übermittelt.",
+        "application-text": "Bewerbungs-Text",
         "application-title": "Bewerbung",
         "applied-title": "Bewerbung übermittelt",
         "apply": "Bewerben",

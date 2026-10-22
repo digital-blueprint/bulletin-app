@@ -2182,9 +2182,36 @@ suite('jobOfferForm application submission', () => {
             en: 'Title',
         });
         assert.deepEqual(schema.properties.freeText.localizedName, {
-            de: 'Optional können Sie auf sich aufmerksam machen, indem Sie Ihr Interesse an dieser Stelle begründen oder weiter unten Dateien hochladen.',
-            en: 'Optionally, you can draw attention to yourself by explaining your interest in this job or uploading files below.',
+            de: 'Bewerbungs-Text',
+            en: 'Application text',
         });
+    });
+
+    test('should keep the long question in the application form in both languages', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+
+        try {
+            for (const [lang, expectedLabel] of Object.entries({
+                de: 'Optional können Sie auf sich aufmerksam machen, indem Sie Ihr Interesse an dieser Stelle begründen oder weiter unten Dateien hochladen.',
+                en: 'Optionally, you can draw attention to yourself by explaining your interest in this job or uploading files below.',
+            })) {
+                element.lang = lang;
+                await element.updateComplete;
+
+                assert.equal(
+                    element.shadowRoot.querySelector('[name="freeText"]').getAttribute('label'),
+                    expectedLabel,
+                );
+            }
+        } finally {
+            element.remove();
+        }
     });
 
     test('should define PDF attachments in the application schema', () => {
