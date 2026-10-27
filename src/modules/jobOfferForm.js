@@ -3116,7 +3116,7 @@ export class JobOfferFormElement extends BaseFormElement {
             return;
         }
 
-        const options = {
+        const requestOptions = {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/ld+json',
@@ -3128,7 +3128,7 @@ export class JobOfferFormElement extends BaseFormElement {
             let response = await fetch(
                 this.entryPointUrl +
                     `/base/people/${encodeURIComponent(userId)}?includeLocal=email`,
-                options,
+                requestOptions,
             );
             if (!response.ok) {
                 throw new Error(`Request failed with status ${response.status}`, {cause: response});
