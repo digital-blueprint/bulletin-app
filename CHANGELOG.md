@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Create and edit job offer: "Ende der Veröffentlichung"/"End of publication" and "Ende der Bewerbungsfrist"/"Application deadline" now have an info icon with a tooltip. It explains that the job offer is shown until the end of publication, that applications are deleted automatically 7 months after the end of publication (or after submission, if later), and that the application deadline has no effect on either. The tooltip opens on hover, keyboard focus or tap and closes with Escape; screen readers announce the icon as "Weitere Informationen"/"More information"
+
 ## 0.2.0
 
 - Manage job offers: "Bewerbungen verwalten"/"Manage applications" is now always visible as icon button next to the row menu instead of being inside it
