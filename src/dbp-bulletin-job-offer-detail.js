@@ -17,6 +17,7 @@ import {
 } from './modules/jobOfferForm.js';
 import {getWorkLocationLabels} from './modules/workLocationsElement.js';
 import {formatHoursRange} from './modules/hoursRangeElement.js';
+import {parseMonthlySalary} from './modules/salaryUtils.js';
 
 /**
  * Normalized job offer shape shown in the detail dialog.
@@ -306,6 +307,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     }
 
     _getLocalizedMonthlySalary(job) {
+        const amount = parseMonthlySalary(job.salary);
+        if (amount !== null) {
+            return new Intl.NumberFormat(this.lang, {
+                style: 'currency',
+                currency: 'EUR',
+            }).format(amount);
+        }
         return this._localized(job.salary ?? '', job.salaryEn ?? '');
     }
 

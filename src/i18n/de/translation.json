@@ -246,6 +246,7 @@
     "create-job-offer": {
         "error-title": "Fehler",
         "external-url-invalid": "Bitte geben Sie eine gültige URL mit einem Domainnamen ein, zum Beispiel example.org.",
+        "salary-invalid": "Bitte geben Sie ein nicht negatives monatliches Mindestentgelt in Euro (brutto) mit bis zu zwei Nachkommastellen ein oder lassen Sie das Feld leer.",
         "validation-deadline-before-published": "Das Ende der Veröffentlichung darf nicht vor dem Datum der Veröffentlichung liegen.",
         "validation-missing-fields_one": "Folgendes Pflichtfeld fehlt oder ist ungültig:",
         "validation-missing-fields_other": "Folgende {{count}} Pflichtfelder fehlen oder sind ungültig:",
@@ -455,7 +456,7 @@
         "link": "Link",
         "max-characters": "Maximal 2000 Zeichen",
         "message": "Optional können Sie auf sich aufmerksam machen, indem Sie Ihr Interesse an dieser Stelle begründen oder weiter unten Dateien hochladen.",
-        "monthly-salary": "Gehalt",
+        "monthly-salary": "Mindestentgelt pro Monat (brutto)",
         "notification": {
             "attachment-limit-body_one": "Sie können maximal {{count}} PDF-Datei hochladen.",
             "attachment-limit-body_other": "Sie können maximal {{count}} PDF-Dateien hochladen.",
@@ -555,8 +556,9 @@
         "field-requirements-en": "Aufnahmebedingungen (en)",
         "field-responsibilities": "Aufgaben",
         "field-responsibilities-en": "Aufgaben (en)",
-        "field-salary": "Gehalt (Freitext mit Details)",
-        "field-salary-en": "Gehalt (Freitext mit Details) (en)",
+        "field-salary": "Mindestentgelt pro Monat (brutto)",
+        "field-salary-description": "Betrag in Euro mit bis zu zwei Nachkommastellen. Derselbe Betrag wird in beiden Sprachen verwendet.",
+        "field-salary-previous": "Bisherige Gehaltsangabe: {{salary}}. Bitte ersetzen Sie diese durch das monatliche Mindestentgelt in Euro (brutto).",
         "field-start-date": "Dienstbeginn",
         "field-we-offer": "Wir bieten",
         "field-we-offer-en": "Wir bieten (en)",

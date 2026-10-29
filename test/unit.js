@@ -38,6 +38,7 @@ import HoursRangeElement, {
 } from '../src/modules/hoursRangeElement.js';
 import {COMPANY_FIELDS, pickCompanyData} from '../src/modules/companyForm.js';
 import {isValidHttpUrl, normalizeHttpUrl} from '../src/modules/urlUtils.js';
+import {parseMonthlySalary} from '../src/modules/salaryUtils.js';
 import {buildRandomCompany} from '../src/dbp-bulletin-generate-companies.js';
 import '../src/dbp-bulletin-generate-jobs.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
@@ -1291,6 +1292,8 @@ suite('job generator data handling', () => {
         const jobOffer = element._buildRandomJobOffer(0, 'internal');
 
         assert.isTrue(jobOffer.additionalData.generatedByJobGenerator);
+        assert.isNumber(jobOffer.additionalData.salary);
+        assert.isNotNull(parseMonthlySalary(jobOffer.additionalData.salary));
     });
 
     test('should allow submitters to read generated applications', () => {
@@ -1303,6 +1306,175 @@ suite('job generator data handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
+    test('should only parse numeric monthly salaries with cents', () => {
+        for (const [value, expected] of [
+            ['3277.30', 3277.3],
+            [3277.3, 3277.3],
+            ['2000', 2000],
+            ['0', 0],
+        ]) {
+            assert.equal(parseMonthlySalary(value), expected);
+        }
+        for (const value of [
+            '',
+            null,
+            undefined,
+            '-1',
+            '12.345',
+            '€ 2000',
+            '12/hour',
+            'Infinity',
+        ]) {
+            assert.isNull(parseMonthlySalary(value));
+        }
+    });
+
+    test('should render one optional numeric salary field and validate it', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, new JobOfferModule().getEditFormComponent());
+        }
+        const element = document.createElement(tagName);
+        element._organization = 'Example organization';
+        element._title = 'Example job';
+        element._description = 'Example description';
+        element._publishedAt = '2026-01-01';
+        element._deadline = '2030-12-31';
+        element._areasOfInterest = ['it'];
+        element._weeklyHoursMin = '20';
+        element._weeklyHoursMax = '40';
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const field = element.shadowRoot.querySelector('dbp-number-element[name="salary"]');
+        await field.updateComplete;
+        const input = field.shadowRoot.querySelector('input');
+        assert.equal(input.type, 'number');
+        assert.equal(input.min, '0');
+        assert.equal(input.step, '0.01');
+        assert.isFalse(input.required);
+        assert.isNull(element.shadowRoot.querySelector('[name="salary-en"]'));
+        assert.isTrue(element._isFormValid);
+
+        input.value = '3277.30';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        assert.equal(element._salary, '3277.30');
+        assert.isTrue(element._isFormValid);
+
+        for (const value of ['-1', '12.345']) {
+            input.value = value;
+            input.dispatchEvent(new Event('input', {bubbles: true}));
+            assert.isFalse(element._isFormValid);
+            assert.include(
+                element._getValidationNotificationBody((key) => key),
+                'create-job-offer.salary-invalid',
+            );
+        }
+        await element.updateComplete;
+        assert.isTrue(element._focusFirstInvalidField());
+        await new Promise((resolve) => setTimeout(resolve));
+        assert.equal(element.shadowRoot.activeElement, field);
+
+        input.value = '';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        assert.isTrue(element._isFormValid);
+        element.remove();
+    });
+
+    test('should retain old salary text for correction and load numeric salaries', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, new JobOfferModule().getEditFormComponent());
+        }
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        for (const data of [
+            {salary: '€ 12/hour'},
+            {salary: '', salaryEn: '€ 12/hour'},
+            {salary: 3277.3},
+            {salary: 0},
+        ]) {
+            element.existingForm = {additionalData: data};
+            await element.updateComplete;
+            const field = element.shadowRoot.querySelector('[name="salary"]');
+            await field.updateComplete;
+            if (typeof data.salary === 'number') {
+                assert.equal(element._salary, String(data.salary));
+                assert.isTrue(element._isSalaryValid());
+                assert.equal(field.shadowRoot.querySelector('input').value, String(data.salary));
+            } else {
+                assert.equal(element._salary, '€ 12/hour');
+                assert.include(field.description, '€ 12/hour');
+                assert.isFalse(element._isSalaryValid());
+            }
+        }
+        element.remove();
+    });
+
+    test('should save a shared numeric salary when creating and editing offers', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, new JobOfferModule().getEditFormComponent());
+        }
+        const originalFetch = globalThis.fetch;
+        const requests = [];
+        const element = document.createElement(tagName);
+        globalThis.fetch = async (url, options) => {
+            requests.push({method: options.method, data: JSON.parse(options.body)});
+            return {ok: true, json: async () => ({identifier: 'job-1'})};
+        };
+        document.body.appendChild(element);
+        try {
+            await element.updateComplete;
+            element.auth = {token: 'token'};
+            element.entryPointUrl = 'https://example.invalid';
+            for (const existingForm of [
+                null,
+                {formId: 'job-1', additionalData: {salary: 'Old salary', salaryEn: 'Old salary'}},
+            ]) {
+                element.existingForm = existingForm;
+                await element.updateComplete;
+                element._organization = 'Example organization';
+                element._title = 'Example job';
+                element._description = 'Example description';
+                element._publishedAt = '2026-01-01';
+                element._deadline = '2030-12-31';
+                element._areasOfInterest = ['it'];
+                element._weeklyHoursMin = '20';
+                element._weeklyHoursMax = '40';
+
+                element._salary = 'Not a number';
+                assert.isNull(await element.submit());
+                const previousRequestCount = requests.length;
+                element._salary = '3277.30';
+                assert.isNotNull(await element.submit());
+                assert.lengthOf(requests, previousRequestCount + 1);
+                assert.equal(requests.at(-1).data.additionalData.salary, 3277.3);
+                assert.equal(requests.at(-1).data.additionalData.salaryEn, '');
+            }
+            assert.deepEqual(
+                requests.map((request) => request.method),
+                ['POST', 'PATCH'],
+            );
+        } finally {
+            globalThis.fetch = originalFetch;
+            element.remove();
+        }
+    });
+
+    test('should format numeric salaries in both languages and preserve legacy text', () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        for (const lang of ['de', 'en']) {
+            element.lang = lang;
+            assert.equal(
+                element._getLocalizedMonthlySalary({salary: 3277.3, salaryEn: 'Old salary'}),
+                new Intl.NumberFormat(lang, {style: 'currency', currency: 'EUR'}).format(3277.3),
+            );
+            assert.equal(element._getLocalizedMonthlySalary({salary: '€ 12/hour'}), '€ 12/hour');
+            assert.equal(element._getLocalizedMonthlySalary({}), '');
+        }
+    });
+
     test('should show translated areas of interest in alphabetical order', async () => {
         const tagName = 'test-job-offer-edit-form-element';
         if (!customElements.get(tagName)) {
@@ -1541,7 +1713,7 @@ suite('jobOfferForm validation', () => {
         assert.isTrue(optionalPanel.hidden);
 
         // Optional fields stay rendered in the hidden panel, so their values are kept
-        for (const fieldName of ['application-deadline', 'start-date', 'salary', 'salary-en']) {
+        for (const fieldName of ['application-deadline', 'start-date', 'salary']) {
             assert.isNotNull(optionalPanel.querySelector(`[name="${fieldName}"]`));
         }
 

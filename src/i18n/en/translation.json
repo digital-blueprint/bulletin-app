@@ -246,6 +246,7 @@
     "create-job-offer": {
         "error-title": "Error",
         "external-url-invalid": "Please enter a valid URL containing a domain name, for example example.org.",
+        "salary-invalid": "Please enter a non-negative gross minimum monthly salary in euros with up to two decimal places, or leave the field empty.",
         "validation-deadline-before-published": "The end of publication cannot be before the publication date.",
         "validation-missing-fields_one": "The following required field is missing or invalid:",
         "validation-missing-fields_other": "The following {{count}} required fields are missing or invalid:",
@@ -455,7 +456,7 @@
         "link": "Link",
         "max-characters": "Maximum 2000 characters",
         "message": "Optionally, you can draw attention to yourself by explaining your interest in this job or uploading files below.",
-        "monthly-salary": "Salary",
+        "monthly-salary": "Gross minimum salary per month",
         "notification": {
             "attachment-limit-body_one": "You can upload at most {{count}} PDF file.",
             "attachment-limit-body_other": "You can upload at most {{count}} PDF files.",
@@ -555,8 +556,9 @@
         "field-requirements-en": "Admission requirements (en)",
         "field-responsibilities": "Responsibilities",
         "field-responsibilities-en": "Responsibilities (en)",
-        "field-salary": "Salary (freeform including details)",
-        "field-salary-en": "Salary (freeform including details) (en)",
+        "field-salary": "Gross minimum salary per month",
+        "field-salary-description": "Amount in euros, with up to two decimal places. The same amount is used in both languages.",
+        "field-salary-previous": "Previous salary: {{salary}}. Please replace it with the gross minimum monthly amount in euros.",
         "field-start-date": "Start of employment",
         "field-we-offer": "We offer",
         "field-we-offer-en": "We offer (en)",

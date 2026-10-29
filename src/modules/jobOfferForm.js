@@ -7,6 +7,7 @@ import {css, html} from 'lit';
 import {createRef, ref} from 'lit/directives/ref.js';
 import {
     DbpStringElement,
+    DbpNumberElement,
     DbpDateElement,
     DbpEnumElement,
     DbpSubmissionSelectElement,
@@ -49,6 +50,7 @@ import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from '../featureFlags.js';
 import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
 import {openManagedJobOfferPreview} from './jobOfferPreview.js';
 import {getFileUploadLimitHint} from '../utils/fileUploadHint.js';
+import {parseMonthlySalary} from './salaryUtils.js';
 
 /**
  * @typedef {Record<string, any>} JobOfferData
@@ -807,6 +809,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     static get scopedElements() {
         return {
             'dbp-string-element': DbpStringElement,
+            'dbp-number-element': DbpNumberElement,
             'dbp-date-element': DbpDateElement,
             'dbp-enum-element': DbpEnumElement,
             'dbp-submission-select-element': DbpSubmissionSelectElement,
@@ -889,7 +892,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._descriptionEn = '';
         this._organizationEn = '';
         this._weeklyHoursEn = '';
-        this._salaryEn = '';
         this._contractDurationEn = '';
         this._linkNameEn = '';
         this._linkUrlEn = '';
@@ -960,7 +962,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             _descriptionEn: {state: true},
             _organizationEn: {state: true},
             _weeklyHoursEn: {state: true},
-            _salaryEn: {state: true},
             _contractDurationEn: {state: true},
             _linkNameEn: {state: true},
             _linkUrlEn: {state: true},
@@ -1009,7 +1010,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._weeklyHours = d.weeklyHours || '';
                 this._weeklyHoursMin = String(d.weeklyHoursMin ?? '');
                 this._weeklyHoursMax = String(d.weeklyHoursMax ?? '');
-                this._salary = d.salary || '';
+                this._salary = String(d.salary ?? '') || String(d.salaryEn ?? '');
                 this._contractDuration = d.contractDuration || '';
                 this._jobCategory = d.jobCategory || d.jobType || '';
                 this._areasOfInterest = normalizeAreaOfInterestValues(
@@ -1027,7 +1028,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 this._descriptionEn = d.descriptionEn || '';
                 this._organizationEn = d.organizationEn || '';
                 this._weeklyHoursEn = d.weeklyHoursEn || '';
-                this._salaryEn = d.salaryEn || '';
                 this._contractDurationEn = d.contractDurationEn || '';
                 this._linkNameEn = d.linkNameEn || '';
                 this._linkUrlEn = d.linkUrlEn || '';
@@ -1135,7 +1135,8 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             this._areasOfInterest.length > 0 &&
             hasValidWeeklyHours &&
             hasJobOwner &&
-            this._areOptionalLinkUrlsValid()
+            this._areOptionalLinkUrlsValid() &&
+            this._isSalaryValid()
         );
     }
 
@@ -1219,6 +1220,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         }
         if (isDeadlineBeforePublishedAt(this._publishedAt, this._deadline)) {
             messages.push(t('create-job-offer.validation-deadline-before-published'));
+        }
+        if (!this._isSalaryValid()) {
+            messages.push(t('create-job-offer.salary-invalid'));
         }
         if (
             (this._isExternalJob &&
@@ -1337,7 +1341,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         const fields = /** @type {Array<any>} */ (
             [
                 ...this.renderRoot.querySelectorAll(
-                    'dbp-string-element, dbp-date-element, dbp-enum-element, dbp-submission-select-element, dbp-work-locations-element, dbp-hours-range-element',
+                    'dbp-string-element, dbp-number-element, dbp-date-element, dbp-enum-element, dbp-submission-select-element, dbp-work-locations-element, dbp-hours-range-element',
                 ),
             ].filter(Boolean)
         );
@@ -1411,6 +1415,16 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         );
     }
 
+    _isSalaryValid() {
+        const input = this.renderRoot
+            ?.querySelector('dbp-number-element[name="salary"]')
+            ?.shadowRoot?.querySelector('input');
+        return (
+            !input?.validity.badInput &&
+            (this._salary.trim() === '' || parseMonthlySalary(this._salary) !== null)
+        );
+    }
+
     _normalizeJobOfferType(value, data = {}) {
         if (JOB_OFFER_TYPES.includes(value)) {
             return value;
@@ -1470,7 +1484,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         this._descriptionEn = '';
         this._organizationEn = '';
         this._weeklyHoursEn = '';
-        this._salaryEn = '';
         this._contractDurationEn = '';
         this._linkNameEn = '';
         this._linkUrlEn = '';
@@ -1764,7 +1777,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             weeklyHours: this._weeklyHours.trim(),
             weeklyHoursMin: this._weeklyHoursMin.trim(),
             weeklyHoursMax: this._weeklyHoursMax.trim(),
-            salary: this._salary.trim(),
+            salary: parseMonthlySalary(this._salary) ?? '',
             contractDuration: this._contractDuration.trim(),
             jobCategory: this._jobCategory,
             areasOfInterest: this._areasOfInterest,
@@ -1780,7 +1793,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             descriptionEn: this._descriptionEn.trim(),
             organizationEn: this._isInternalJob ? this._organizationEn.trim() : '',
             weeklyHoursEn: this._weeklyHoursEn.trim(),
-            salaryEn: this._salaryEn.trim(),
+            salaryEn: '',
             contractDurationEn: this._contractDurationEn.trim(),
             linkNameEn: this._linkNameEn.trim(),
             linkUrlEn: normalizeHttpUrl(this._linkUrlEn),
@@ -2276,22 +2289,29 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                     (this._startDate = e.detail.value)}"></dbp-date-element>
                         </div>
 
-                        <div class="translation-row">
-                            <dbp-string-element
+                        <div>
+                            <dbp-number-element
                                 name="salary"
                                 lang="${this.lang}"
                                 label="${t('manage-job-offers.field-salary')}"
+                                description="${
+                                    this._salary.trim() !== '' &&
+                                    parseMonthlySalary(this._salary) === null
+                                        ? t('manage-job-offers.field-salary-previous', {
+                                              salary: this._salary,
+                                              interpolation: {escapeValue: false},
+                                          })
+                                        : t('manage-job-offers.field-salary-description')
+                                }"
+                                min="0"
+                                step="0.01"
+                                .customValidator="${() =>
+                                    this._isSalaryValid()
+                                        ? []
+                                        : [t('create-job-offer.salary-invalid')]}"
                                 .value="${this._salary}"
                                 @change="${(e) =>
-                                    (this._salary = e.detail.value)}"></dbp-string-element>
-
-                            <dbp-string-element
-                                name="salary-en"
-                                lang="${this.lang}"
-                                label="${t('manage-job-offers.field-salary-en')}"
-                                .value="${this._salaryEn}"
-                                @change="${(e) =>
-                                    (this._salaryEn = e.detail.value)}"></dbp-string-element>
+                                    (this._salary = e.detail.value)}"></dbp-number-element>
                         </div>
 
                         <div class="translation-row">

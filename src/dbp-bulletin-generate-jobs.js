@@ -230,7 +230,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             weeklyHours: '',
             weeklyHoursMin: String(randomInt(10, 20)),
             weeklyHoursMax: String(randomInt(30, 40)),
-            salary: `€ ${randomInt(2000, 4500)},- / month`,
+            salary: randomInt(2000, 4500),
             contractDuration: randomItem(['6 months', '12 months', 'unlimited']),
             jobCategory: jobCategory,
             areasOfInterest: areasOfInterest,
