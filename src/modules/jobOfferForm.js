@@ -1425,6 +1425,25 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         );
     }
 
+    _getSalaryDescription(t) {
+        const data = this.existingForm?.additionalData;
+        const previousSalary = String(data?.salary ?? '') || String(data?.salaryEn ?? '');
+
+        // Only unchanged legacy data is a previous salary, not newly entered invalid input.
+        if (
+            previousSalary.trim() !== '' &&
+            parseMonthlySalary(previousSalary) === null &&
+            this._salary === previousSalary
+        ) {
+            return t('manage-job-offers.field-salary-previous', {
+                salary: previousSalary,
+                interpolation: {escapeValue: false},
+            });
+        }
+
+        return t('manage-job-offers.field-salary-description');
+    }
+
     _normalizeJobOfferType(value, data = {}) {
         if (JOB_OFFER_TYPES.includes(value)) {
             return value;
@@ -2294,15 +2313,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 name="salary"
                                 lang="${this.lang}"
                                 label="${t('manage-job-offers.field-salary')}"
-                                description="${
-                                    this._salary.trim() !== '' &&
-                                    parseMonthlySalary(this._salary) === null
-                                        ? t('manage-job-offers.field-salary-previous', {
-                                              salary: this._salary,
-                                              interpolation: {escapeValue: false},
-                                          })
-                                        : t('manage-job-offers.field-salary-description')
-                                }"
+                                description="${this._getSalaryDescription(t)}"
                                 min="0"
                                 step="0.01"
                                 .customValidator="${() =>

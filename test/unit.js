@@ -1361,13 +1361,18 @@ suite('jobOfferForm validation', () => {
         assert.equal(element._salary, '3277.30');
         assert.isTrue(element._isFormValid);
 
-        for (const value of ['-1', '12.345']) {
+        for (const value of ['-1', '12.345', '333.333']) {
             input.value = value;
             input.dispatchEvent(new Event('input', {bubbles: true}));
             assert.isFalse(element._isFormValid);
             assert.include(
                 element._getValidationNotificationBody((key) => key),
                 'create-job-offer.salary-invalid',
+            );
+            await element.updateComplete;
+            assert.equal(
+                field.description,
+                element._i18n.t('manage-job-offers.field-salary-description'),
             );
         }
         await element.updateComplete;
@@ -1406,6 +1411,18 @@ suite('jobOfferForm validation', () => {
                 assert.equal(element._salary, '€ 12/hour');
                 assert.include(field.description, '€ 12/hour');
                 assert.isFalse(element._isSalaryValid());
+            }
+
+            const input = field.shadowRoot.querySelector('input');
+            for (const value of ['333.333', '333.33', '']) {
+                input.value = value;
+                input.dispatchEvent(new Event('input', {bubbles: true}));
+                await element.updateComplete;
+                assert.equal(
+                    field.description,
+                    element._i18n.t('manage-job-offers.field-salary-description'),
+                );
+                assert.equal(element._isSalaryValid(), value !== '333.333');
             }
         }
         element.remove();
