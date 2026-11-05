@@ -1414,6 +1414,48 @@ suite('jobOfferForm validation', () => {
         element.remove();
     });
 
+    test('should describe contract duration and use the general part-time label in both languages', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, new JobOfferModule().getEditFormComponent());
+        }
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+
+        try {
+            for (const [lang, expected] of Object.entries({
+                de: {
+                    description: 'z.B. „bis Juni 2027“, „1 Jahr“ oder „unbefristet“',
+                    category: 'Teilzeitstelle',
+                },
+                en: {
+                    description: 'e.g. "until June 2027", "1 year" or "unlimited"',
+                    category: 'Part-time position',
+                },
+            })) {
+                element.lang = lang;
+                await element.updateComplete;
+
+                for (const name of ['contract-duration', 'contract-duration-en']) {
+                    assert.equal(
+                        element.shadowRoot
+                            .querySelector(`[name="${name}"]`)
+                            .getAttribute('description'),
+                        expected.description,
+                    );
+                }
+                assert.equal(
+                    element._i18n.t(
+                        'manage-job-offers.job-category-non-scientific-part-time-position',
+                    ),
+                    expected.category,
+                );
+            }
+        } finally {
+            element.remove();
+        }
+    });
+
     test('should retain old salary text for correction and load numeric salaries', async () => {
         const tagName = 'test-job-offer-edit-form-element';
         if (!customElements.get(tagName)) {
@@ -2461,14 +2503,14 @@ suite('jobOfferForm application submission', () => {
         }
     });
 
-    test('should define PDF attachments in the application schema', () => {
+    test('should define PDF, PNG and JPEG attachments in the application schema', () => {
         const schema = JSON.parse(getJobApplicationDataFeedSchema());
 
         assert.deepEqual(schema.files.attachments, {
             minNumber: 0,
             maxNumber: 5,
             maxSizeMb: 10,
-            allowedMimeTypes: ['application/pdf'],
+            allowedMimeTypes: ['application/pdf', 'image/png', 'image/jpeg'],
             localizedName: {
                 de: 'Dateien hochladen',
                 en: 'Upload files',
@@ -2492,6 +2534,61 @@ suite('jobOfferForm application submission', () => {
         const template = element.render();
 
         assert.include(template.strings.join(''), 'class="file-upload-container"');
+    });
+
+    test('should restrict application uploads and describe allowed formats in both languages', async () => {
+        const tagName = 'test-job-offer-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+
+        try {
+            for (const [lang, expectedHint] of Object.entries({
+                de: 'Erlaubte Dateiformate: PDF, PNG und JPEG.',
+                en: 'Allowed file formats: PDF, PNG and JPEG.',
+            })) {
+                element.lang = lang;
+                await element.updateComplete;
+
+                const root = element.shadowRoot;
+                const fileSource = root.querySelector('#file-source');
+                assert.equal(
+                    fileSource.getAttribute('allowed-mime-types'),
+                    'application/pdf,image/png,image/jpeg',
+                );
+                assert.include(
+                    root.querySelector('#attachment-upload-hint').textContent,
+                    expectedHint,
+                );
+                assert.equal(
+                    root
+                        .querySelector('.upload-button--attachment')
+                        .getAttribute('aria-describedby'),
+                    'attachment-upload-hint',
+                );
+
+                for (const type of ['application/pdf', 'image/png', 'image/jpeg']) {
+                    assert.isTrue(
+                        fileSource.checkFileType(new File(['file'], 'application', {type})),
+                    );
+                }
+                for (const type of [
+                    'image/gif',
+                    'image/svg+xml',
+                    'text/plain',
+                    'application/zip',
+                ]) {
+                    assert.isFalse(
+                        fileSource.checkFileType(new File(['file'], 'application', {type})),
+                    );
+                }
+            }
+        } finally {
+            element.remove();
+        }
     });
 
     test('should not propagate attachment download modal close events', async () => {

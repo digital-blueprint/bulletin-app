@@ -62,7 +62,11 @@ const JOB_APPLICATION_ATTACHMENT_GROUP = 'attachments';
 const JOB_APPLICATION_ATTACHMENT_LIMIT = 5;
 const JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB = 10;
 const KILOBYTES_PER_MEGABYTE = 1000;
-const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = ['application/pdf'];
+const JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES = [
+    'application/pdf',
+    'image/png',
+    'image/jpeg',
+];
 const JOB_DESCRIPTION_MAX_LENGTH = 5000;
 const JOB_TITLE_MAX_LENGTH = 100;
 const JOB_OFFER_TYPE_INTERNAL = 'internal';
@@ -2304,6 +2308,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 name="contract-duration"
                                 lang="${this.lang}"
                                 label="${t('manage-job-offers.field-contract-duration')}"
+                                description="${t('manage-job-offers.field-contract-duration-description')}"
                                 .value="${this._contractDuration}"
                                 @change="${(e) =>
                                     (this._contractDuration =
@@ -2313,6 +2318,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 name="contract-duration-en"
                                 lang="${this.lang}"
                                 label="${t('manage-job-offers.field-contract-duration-en')}"
+                                description="${t('manage-job-offers.field-contract-duration-description')}"
                                 .value="${this._contractDurationEn}"
                                 @change="${(e) =>
                                     (this._contractDurationEn =
@@ -3623,12 +3629,13 @@ export class JobOfferFormElement extends BaseFormElement {
                     <div class="file-upload-container">
                         <div class="file-upload-title-container">
                             <h5 class="attachments-title">${t('job-offer-detail.attachments')}</h5>
-                            <span class="file-upload-limit-warning">
+                            <span id="attachment-upload-hint" class="file-upload-limit-warning">
                                 ${getFileUploadLimitHint(t, {
                                     maxFiles: JOB_APPLICATION_ATTACHMENT_LIMIT,
                                     maxSizeMb: JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB,
                                     examples: t('job-offer-detail.attachments-examples'),
                                 })}
+                                ${t('job-offer-detail.attachments-allowed-formats')}
                             </span>
                         </div>
 
@@ -3639,6 +3646,7 @@ export class JobOfferFormElement extends BaseFormElement {
                         <button
                             class="button is-secondary upload-button upload-button--attachment"
                             type="button"
+                            aria-describedby="attachment-upload-hint"
                             ?disabled="${
                                 this._isSubmitting ||
                                 attachmentCount >= JOB_APPLICATION_ATTACHMENT_LIMIT
@@ -3671,7 +3679,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 class="file-source"
                 lang="${this.lang}"
                 notification-target-id="${this.notificationTargetId}"
-                allowed-mime-types="application/pdf"
+                allowed-mime-types="${JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES.join(',')}"
                 max-file-size="${JOB_APPLICATION_ATTACHMENT_MAX_SIZE_MB * KILOBYTES_PER_MEGABYTE}"
                 number-of-files="${JOB_APPLICATION_ATTACHMENT_LIMIT}"
                 enabled-targets="local,nextcloud"
@@ -3682,7 +3690,7 @@ export class JobOfferFormElement extends BaseFormElement {
                 id="file-sink"
                 class="file-sink"
                 lang="${this.lang}"
-                allowed-mime-types="application/pdf,.pdf"
+                allowed-mime-types="${JOB_APPLICATION_ATTACHMENT_ALLOWED_MIME_TYPES.join(',')}"
                 enabled-targets="local,nextcloud"
                 @dbp-modal-closed="${this._handleAttachmentDownloadClosed}"
                 subscribe="nextcloud-auth-url,nextcloud-web-dav-url,nextcloud-name,nextcloud-file-url"></dbp-file-sink>
