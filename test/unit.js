@@ -1546,7 +1546,7 @@ suite('jobOfferForm validation', () => {
         element.remove();
     });
 
-    test('should explain application retention in the date tooltips in both languages', async () => {
+    test('should explain application retention below the end of publication row in both languages', async () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
         if (!customElements.get(tagName)) {
@@ -1563,17 +1563,16 @@ suite('jobOfferForm validation', () => {
             element.requestUpdate();
             await element.updateComplete;
 
-            for (const [fieldName, key] of [
-                ['deadline', 'manage-job-offers.field-deadline-info'],
-                ['application-deadline', 'manage-job-offers.field-application-deadline-info'],
-            ]) {
-                const tooltip = element.shadowRoot.querySelector(
-                    `[name="${fieldName}"] dbp-button-tooltip`,
-                );
-                assert.equal(tooltip.getAttribute('text-content'), element._i18n.t(key));
-                assert.notEqual(tooltip.getAttribute('text-content'), key);
-            }
+            // The notice is normal text directly below the row that contains the field
+            const key = 'manage-job-offers.field-deadline-notice';
+            const notice = element.shadowRoot.querySelector('.deadline-notice');
+            assert.isNotNull(notice.previousElementSibling.querySelector('[name="deadline"]'));
+            assert.equal(notice.textContent.trim(), element._i18n.t(key));
+            assert.notEqual(notice.textContent.trim(), key);
         }
+
+        assert.isNull(element.shadowRoot.querySelector('dbp-button-tooltip'));
+        assert.isNull(element.shadowRoot.querySelector('.application-deadline-notice'));
         element.remove();
     });
 

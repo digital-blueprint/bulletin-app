@@ -44,7 +44,6 @@ import HoursRangeElement, {
     parseOptionalHours,
     sanitizeHoursValue,
 } from './hoursRangeElement.js';
-import {ButtonTooltip} from '@dbp-toolkit/tooltip';
 import {pickCompanyData} from './companyForm.js';
 import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from '../featureFlags.js';
 import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
@@ -816,7 +815,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             'dbp-resource-select': ResourceSelect,
             'dbp-work-locations-element': WorkLocationsElement,
             'dbp-hours-range-element': HoursRangeElement,
-            'dbp-button-tooltip': ButtonTooltip,
             'dbp-icon': Icon,
             'dbp-mini-spinner': MiniSpinner,
         };
@@ -1896,26 +1894,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         );
     }
 
-    /**
-     * Renders a form element label followed by an info icon that explains the field in a tooltip.
-     * @param {string} label
-     * @param {string} info
-     */
-    _renderLabelWithInfo(label, info) {
-        return html`
-            <span slot="label" class="label-with-info">
-                ${label}
-                <dbp-button-tooltip
-                    text-content="${info}"
-                    type="button"
-                    button-text=" "
-                    button-label="${this._i18n.t(
-                        'manage-job-offers.field-info-button-label',
-                    )}"></dbp-button-tooltip>
-            </span>
-        `;
-    }
-
     render() {
         const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         keepJobOfferAttachmentTranslations(t);
@@ -2247,13 +2225,12 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                           ]
                                         : []}"
                                 required
-                                @change="${(e) => (this._deadline = e.detail.value)}">
-                                ${this._renderLabelWithInfo(
-                                    t('manage-job-offers.field-deadline'),
-                                    t('manage-job-offers.field-deadline-info'),
-                                )}
-                            </dbp-date-element>
+                                @change="${(e) =>
+                                    (this._deadline = e.detail.value)}"></dbp-date-element>
                         </div>
+                        <p class="deadline-notice">
+                            ${t('manage-job-offers.field-deadline-notice')}
+                        </p>
                     </div>
 
                     <!--
@@ -2293,12 +2270,9 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                                 lang="${this.lang}"
                                 label="${t('manage-job-offers.field-application-deadline')}"
                                 .value="${this._applicationDeadline}"
-                                @change="${(e) => (this._applicationDeadline = e.detail.value)}">
-                                ${this._renderLabelWithInfo(
-                                    t('manage-job-offers.field-application-deadline'),
-                                    t('manage-job-offers.field-application-deadline-info'),
-                                )}
-                            </dbp-date-element>
+                                @change="${(e) =>
+                                    (this._applicationDeadline =
+                                        e.detail.value)}"></dbp-date-element>
                             <dbp-date-element
                                 name="start-date"
                                 lang="${this.lang}"
@@ -2534,15 +2508,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 gap: 0 1rem;
             }
 
-            /* Flex layout ignores the whitespace around the info icon, so it doesn't add a gap
-               before the required mark */
-            .label-with-info {
-                display: inline-flex;
-                align-items: baseline;
-                --dbp-tooltip-button-background-color: transparent;
-                --dbp-tooltip-button-border: 0 none;
-            }
-
             .required-field-note,
             .language-requirement-note {
                 line-height: 1.4;
@@ -2590,6 +2555,11 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
                 font-size: 0.875rem;
                 line-height: 1.4;
                 margin: 0.35rem 0 0;
+            }
+
+            .deadline-notice {
+                line-height: 1.4;
+                margin: 0.5rem 0 1rem;
             }
 
             .translation-row dbp-string-element {

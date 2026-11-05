@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Create and edit job offer: "Ende der Veröffentlichung"/"End of publication" and "Ende der Bewerbungsfrist"/"Application deadline" now have an info icon with a tooltip. It explains that the job offer is shown until the end of publication, that all applications are deleted automatically 7 months after the end of publication regardless of when they were submitted, and that the application deadline has no effect on either. The tooltip opens on hover, keyboard focus or tap and closes with Escape; screen readers announce the icon as "Weitere Informationen"/"More information" (task #76219)
+- Create and edit job offer: a text below the row with "Ende der Veröffentlichung"/"End of publication" explains that the job offer is shown until the end of publication and that all applications are deleted automatically 7 months after the end of publication, regardless of when they were submitted (task #76219)
 
 ## 0.2.0
 
