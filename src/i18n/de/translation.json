@@ -527,7 +527,7 @@
         "field-contract-duration": "Befristung",
         "field-contract-duration-en": "Befristung (en)",
         "field-deadline": "Ende der Veröffentlichung",
-        "field-deadline-info": "Die Stelle wird bis einschließlich zu diesem Tag in der Stellenliste angezeigt. Bewerber*innen sehen dieses Datum als Ende der Bewerbungsfrist. Bewerbungen werden 7 Monate nach dem Ende der Veröffentlichung automatisch gelöscht, später eingereichte Bewerbungen 7 Monate nach dem Einreichen. Wird das Datum verschoben, werden Bewerbungen daher entsprechend länger aufbewahrt.",
+        "field-deadline-info": "Die Stelle wird bis einschließlich zu diesem Tag in der Stellenliste angezeigt. Bewerber*innen sehen dieses Datum als Ende der Bewerbungsfrist. Alle Bewerbungen für diese Stelle werden 7 Monate nach diesem Tag automatisch gelöscht, unabhängig davon, wann sie eingereicht wurden. Wird das Datum verschoben, werden Bewerbungen daher entsprechend länger aufbewahrt.",
         "field-description": "Beschreibung der Stellenanzeige",
         "field-description-en": "Beschreibung der Stellenanzeige (en)",
         "field-description-max-length": "Maximal 5000 Zeichen",

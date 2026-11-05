@@ -527,7 +527,7 @@
         "field-contract-duration": "Contract duration",
         "field-contract-duration-en": "Contract duration (en)",
         "field-deadline": "End of publication",
-        "field-deadline-info": "The job offer is shown in the job list up to and including this day. Applicants see this date as the application deadline. Applications are deleted automatically 7 months after the end of publication, applications submitted later 7 months after submission. Postponing this date therefore keeps applications correspondingly longer.",
+        "field-deadline-info": "The job offer is shown in the job list up to and including this day. Applicants see this date as the application deadline. All applications for this job offer are deleted automatically 7 months after this day, regardless of when they were submitted. Postponing this date therefore keeps applications correspondingly longer.",
         "field-description": "Job description",
         "field-description-en": "Job description (en)",
         "field-description-max-length": "Maximum 5000 characters",

@@ -797,6 +797,34 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 });
 
 suite('dbp-bulletin-job-offer-detail basics', () => {
+    test('should show the end of publication as application deadline', async () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        element.preview = true;
+        element.job = {
+            identifier: 'job-1',
+            title: 'Internal job',
+            description: 'Job description',
+            jobOfferType: 'internal',
+            areasOfInterest: [],
+            publishedAt: '2026-01-01',
+            deadline: '2026-12-31',
+            applicationDeadline: '2026-11-15',
+        };
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const getDeadlineText = () =>
+            [...element.shadowRoot.querySelectorAll('.meta-item')].find((item) =>
+                item
+                    .querySelector('.meta-item-label')
+                    ?.textContent.includes(element._i18n.t('job-offer-detail.deadline')),
+            )?.textContent;
+        // The optional application deadline isn't shown, applicants see the end of publication
+        assert.include(getDeadlineText(), element.formatDate('2026-12-31'));
+        assert.notInclude(getDeadlineText(), element.formatDate('2026-11-15'));
+        element.remove();
+    });
+
     test('should hide public actions in management preview mode', async () => {
         const element = document.createElement('dbp-bulletin-job-offer-detail');
         element.preview = true;
@@ -1515,6 +1543,37 @@ suite('jobOfferForm validation', () => {
             [...labels].sort((a, b) => a.localeCompare(b, 'de')),
         );
         assert.equal(field.items.physics, 'Physik');
+        element.remove();
+    });
+
+    test('should explain application retention in the date tooltips in both languages', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, JobOfferEditFormElement);
+        }
+
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        for (const lang of ['en', 'de']) {
+            element.lang = lang;
+            await element._i18n.changeLanguage(lang);
+            element.requestUpdate();
+            await element.updateComplete;
+
+            for (const [fieldName, key] of [
+                ['deadline', 'manage-job-offers.field-deadline-info'],
+                ['application-deadline', 'manage-job-offers.field-application-deadline-info'],
+            ]) {
+                const tooltip = element.shadowRoot.querySelector(
+                    `[name="${fieldName}"] dbp-button-tooltip`,
+                );
+                assert.equal(tooltip.getAttribute('text-content'), element._i18n.t(key));
+                assert.notEqual(tooltip.getAttribute('text-content'), key);
+            }
+        }
         element.remove();
     });
 
