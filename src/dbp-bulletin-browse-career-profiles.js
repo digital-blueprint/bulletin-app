@@ -1183,6 +1183,42 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     grid-template-columns: 1fr;
                 }
             }
+
+            @media print {
+                /* Always print dark text on white paper, also when the dark theme is active.
+                   The override variables are set as well, so nested components follow. */
+                :host {
+                    --dbp-override-background: #ffffff;
+                    --dbp-override-content: #222120;
+                    --dbp-override-muted: #555555;
+                    --dbp-override-border: 1px solid #222120;
+                    --dbp-background: #ffffff;
+                    --dbp-content: #222120;
+                    --dbp-muted: #555555;
+                    --dbp-border: 1px solid #222120;
+                }
+
+                /* Interactive elements are of no use on paper */
+                .back-navigation,
+                dbp-career-profile-interest-form {
+                    display: none;
+                }
+
+                /* A frame around content that spans multiple pages looks broken on paper */
+                .profile-detail {
+                    border: none;
+                    padding: 0;
+                }
+
+                .profile-detail li {
+                    break-inside: avoid;
+                }
+
+                .profile-title,
+                .profile-meta-data dt {
+                    break-after: avoid;
+                }
+            }
         `;
     }
 }
