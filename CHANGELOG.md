@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.3.0
+
+- Browse career profiles: career profiles now print without the app navigation, back button or interest form, with dark text on white paper and improved page breaks (task #76478)
+- View job offers: the job offer detail now prints across all pages without empty pages, app navigation or interactive controls. External job offers include their application link on paper (task #75992)
+- Generate career profiles: added direct links to the generated profiles
+- Create and edit job offer: simplified the part-time category label and added German and English examples for the contract duration (task #76440)
+- Job applications: PDF, PNG and JPEG attachments are now allowed consistently in the file picker and form schema, with an accessible description of the allowed formats (task #76440)
+- Create and edit job offer: replaced the separate German and English salary text fields with one optional gross monthly amount in euros. The amount must be non-negative with at most two decimal places and is formatted for display. Existing salary text remains readable, but must be corrected when editing; the previous salary hint is only shown for unchanged legacy text (task #76359)
+- Job applications: shortened the application preview label to "Bewerbungs-Text"/"Application text" (task #76220)
 - View job offers: fixed the console error "can't access property "off", this.tabulatorTable is null" when opening a job offer (task #76111, subtask #49534)
 - Job offer details: "Ortsunabhängig (remote)"/"Remote" is now always shown below the work location with "Ja"/"Yes" or "Nein"/"No", instead of only for remote job offers (task #76111, subtask #49167)
 - Job applications: fixed the console warning "Sort Warning - Sort field does not exist and is being ignored: dateCreated" for job offers without applications (task #76111, subtask #49163)
