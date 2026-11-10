@@ -4,6 +4,7 @@
 
 - Create and edit job offer: prevent saving an end of publication before the job offer's creation date and show an inline error and a notification in German and English (task #76219)
 - Create and edit job offer: a text below the row with "Ende der Veröffentlichung"/"End of publication" explains that the job offer is shown until the end of publication and that all applications are deleted automatically 7 months after the end of publication, regardless of when they were submitted (task #76219)
+- Import companies: added an optional "Nur Datensätze, die eine Beschreibung haben"/"Only records that have a description" checkbox; when enabled, only companies whose "Beschreibung" CSV column is not empty are imported, all others are listed in a new "Wegen fehlender Beschreibung übersprungen"/"Skipped without description" report section
 
 ## 0.2.0
 

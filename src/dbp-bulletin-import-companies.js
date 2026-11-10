@@ -16,6 +16,7 @@ import {getFileUploadLimitHint} from './utils/fileUploadHint.js';
  *     overwriteExisting: boolean,
  *     importLimit: string,
  *     lastJobOfferFrom: string,
+ *     onlyWithDescription: boolean,
  * }} ImportOptions
  */
 
@@ -25,6 +26,7 @@ const IMPORT_FILE_LIMIT = 1;
 const IMPORT_LIMIT_OPTIONS = ['10', '20', '50', '100', '200', '500', '1000', 'all'];
 // Import-only column, it is not part of the company form and gets dropped by pickCompanyData().
 const LAST_JOB_OFFER_FIELD = 'letzte_stellenanzeige';
+const DESCRIPTION_FIELD = 'beschreibung';
 // Target field names are taken from CompanyFormElement.render() in src/modules/companyForm.js.
 const CSV_HEADER_MAP = {
     abteilung: 'abteilung',
@@ -154,6 +156,8 @@ const keepImportCompaniesTranslations = (t) => {
     t('import-companies.skipped-last-job-offer-empty');
     t('import-companies.skipped-last-job-offer-title');
     t('import-companies.skipped-limit-empty');
+    t('import-companies.skipped-missing-description-empty');
+    t('import-companies.skipped-missing-description-title');
     t('import-companies.skipped-limit-title');
     t('import-companies.skipped-title');
 };
@@ -184,6 +188,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         this._importLimit = 'all';
         this._filterByLastJobOffer = false;
         this._lastJobOfferFrom = '';
+        this._onlyWithDescription = false;
         this._report = null;
         this._selectedFileName = '';
         // Parsed CSV rows kept after a dry run, so the real import needs no new file selection
@@ -210,6 +215,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             _importLimit: {state: true},
             _filterByLastJobOffer: {state: true},
             _lastJobOfferFrom: {state: true},
+            _onlyWithDescription: {state: true},
             _report: {state: true},
             _selectedFileName: {state: true},
             _cachedRows: {state: true},
@@ -244,6 +250,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             lastJobOfferFrom: this._filterByLastJobOffer
                 ? normalizeIsoDate(this._lastJobOfferFrom)
                 : '',
+            onlyWithDescription: this._onlyWithDescription,
         };
     }
 
@@ -383,6 +390,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                         skipped: report.skipped.length,
                         skippedDeactivated: report.skippedDeactivated.length,
                         skippedLastJobOffer: report.skippedLastJobOffer.length,
+                        skippedMissingDescription: report.skippedMissingDescription.length,
                         skippedLimit: report.skippedLimit.length,
                         errors: report.errors.length,
                     },
@@ -413,6 +421,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             skipped: [],
             skippedDeactivated: [],
             skippedLastJobOffer: [],
+            skippedMissingDescription: [],
             skippedLimit: [],
             errors: [{rowNumber: '-', name: this._selectedFileName, message: error.message}],
         };
@@ -544,6 +553,9 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
         if (lastJobOfferFrom && !headers.includes(LAST_JOB_OFFER_FIELD)) {
             throw new Error(this._i18n.t('import-companies.error-missing-last-job-offer-column'));
         }
+        if (options.onlyWithDescription && !headers.includes(DESCRIPTION_FIELD)) {
+            throw new Error(this._i18n.t('import-companies.error-missing-description-column'));
+        }
         const report = {
             dryRun,
             imported: /** @type {ImportRow[]} */ ([]),
@@ -551,6 +563,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             skipped: /** @type {ImportRow[]} */ ([]),
             skippedDeactivated: /** @type {ImportRow[]} */ ([]),
             skippedLastJobOffer: /** @type {ImportRow[]} */ ([]),
+            skippedMissingDescription: /** @type {ImportRow[]} */ ([]),
             skippedLimit: /** @type {ImportRow[]} */ ([]),
             errors: /** @type {ImportError[]} */ ([]),
         };
@@ -585,6 +598,12 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                     report.skippedLastJobOffer.push({rowNumber, name});
                     return;
                 }
+            }
+
+            // Empty cells are not mapped, so a missing value means the description is empty
+            if (options.onlyWithDescription && !normalizeText(company[DESCRIPTION_FIELD])) {
+                report.skippedMissingDescription.push({rowNumber, name});
+                return;
             }
 
             if (existingCompany && !options.overwriteExisting) {
@@ -1037,6 +1056,23 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                           `
                         : ''
                 }
+                <div class="checkbox-option">
+                    <label for="only-with-description">
+                        ${t('import-companies.only-with-description-label')}
+                    </label>
+                    <p id="only-with-description-description">
+                        ${t('import-companies.only-with-description-description')}
+                    </p>
+                    <input
+                        id="only-with-description"
+                        type="checkbox"
+                        aria-describedby="only-with-description-description"
+                        .checked="${this._onlyWithDescription}"
+                        ?disabled="${this._isImporting}"
+                        @change="${(event) => {
+                            this._onlyWithDescription = event.target.checked;
+                        }}" />
+                </div>
                 <div class="select-option">
                     <label for="company-import-limit">
                         ${t('import-companies.import-limit-label')}
@@ -1180,6 +1216,16 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                       </span>
                                   </div>
                                   <div>
+                                      <strong>
+                                          ${this._report.skippedMissingDescription.length}
+                                      </strong>
+                                      <span>
+                                          ${t(
+                                              'import-companies.summary-skipped-missing-description',
+                                          )}
+                                      </span>
+                                  </div>
+                                  <div>
                                       <strong>${this._report.skippedLimit.length}</strong>
                                       <span>${t('import-companies.summary-skipped-limit')}</span>
                                   </div>
@@ -1240,6 +1286,16 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                                   'import-companies.skipped-last-job-offer-title',
                                   this._report.skippedLastJobOffer,
                                   'import-companies.skipped-last-job-offer-empty',
+                                  (item) =>
+                                      t('import-companies.report-row', {
+                                          row: item.rowNumber,
+                                          name: item.name,
+                                      }),
+                              )}
+                              ${this._renderReportList(
+                                  'import-companies.skipped-missing-description-title',
+                                  this._report.skippedMissingDescription,
+                                  'import-companies.skipped-missing-description-empty',
                                   (item) =>
                                       t('import-companies.report-row', {
                                           row: item.rowNumber,
