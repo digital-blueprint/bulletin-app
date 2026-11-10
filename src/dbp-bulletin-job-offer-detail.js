@@ -1036,18 +1036,16 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       ),
                                                   )}
                                               </div>
-                                              ${
-                                                  job?.remote
-                                                      ? html`
-                                                            <div class="meta-item">
-                                                                <span class="meta-item-label">
-                                                                    ${t('job-offer-detail.remote')}:
-                                                                </span>
-                                                                ${t('job-offer-detail.yes')}
-                                                            </div>
-                                                        `
-                                                      : ''
-                                              }
+                                              <div class="meta-item">
+                                                  <span class="meta-item-label">
+                                                      ${t('job-offer-detail.remote')}:
+                                                  </span>
+                                                  ${
+                                                      job?.remote === true
+                                                          ? t('job-offer-detail.yes')
+                                                          : t('job-offer-detail.no')
+                                                  }
+                                              </div>
                                               ${
                                                   // The apply button is not printed, so the link to the
                                                   // company website is shown as text on paper instead.
@@ -1171,7 +1169,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       localizedMonthlySalary ||
                                                       localizedContactInformation ||
                                                       localizedLinkUrl ||
-                                                      job?.remote ||
                                                       job?.jobCategory
                                                           ? html`
                                                                 <div

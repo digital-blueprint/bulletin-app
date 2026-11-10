@@ -467,6 +467,7 @@
         "max-characters": "Maximal 2000 Zeichen",
         "message": "Optional können Sie auf sich aufmerksam machen, indem Sie Ihr Interesse an dieser Stelle begründen oder weiter unten Dateien hochladen.",
         "monthly-salary": "Mindestentgelt pro Monat (brutto)",
+        "no": "Nein",
         "notification": {
             "attachment-limit-body_one": "Sie können maximal {{count}} Datei hochladen.",
             "attachment-limit-body_other": "Sie können maximal {{count}} Dateien hochladen.",

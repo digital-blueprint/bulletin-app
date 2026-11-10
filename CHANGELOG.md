@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Job offer details: "Ortsunabhängig (remote)"/"Remote" is now always shown below the work location with "Ja"/"Yes" or "Nein"/"No", instead of only for remote job offers (task #76111, subtask #49167)
 - Job applications: fixed the console warning "Sort Warning - Sort field does not exist and is being ignored: dateCreated" for job offers without applications (task #76111, subtask #49163)
 - Create and edit job offer: prevent saving an end of publication before the job offer's creation date and show an inline error and a notification in German and English (task #76219)
 - Create and edit job offer: a text below the row with "Ende der Veröffentlichung"/"End of publication" explains that the job offer is shown until the end of publication and that all applications are deleted automatically 7 months after the end of publication, regardless of when they were submitted (task #76219)
