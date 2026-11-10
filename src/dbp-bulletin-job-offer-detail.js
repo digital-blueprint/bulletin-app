@@ -30,38 +30,6 @@ const JOB_OFFER_USER_ROLE = 'ROLE_BULLETIN_JOB_OFFER_USER';
 // this space and avoids showing a shortcut for an almost imperceptible scroll.
 const APPLY_ANCHOR_OVERFLOW_TOLERANCE = 32;
 
-/**
- * Modal with additional print styles, so that the whole job offer is printed.
- * These rules have to live inside the shadow root of the modal to reach the dialog.
- */
-class JobOfferDetailModal extends Modal {
-    static get styles() {
-        // language=css
-        return css`
-            ${super.styles}
-
-            @media print {
-                /* The dialog clips its content by default, which would only print the
-                   first page of a long job offer */
-                dialog[open] {
-                    overflow: visible;
-                    /* The page behind the dialog is hidden while printing, see JobOfferDetail */
-                    visibility: visible;
-                }
-
-                /* Firefox moves grid content that doesn't fit on the first page to the next one */
-                .modal-container {
-                    display: block;
-                }
-
-                .modal-close {
-                    display: none;
-                }
-            }
-        `;
-    }
-}
-
 export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     constructor() {
         super();
@@ -79,17 +47,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         /** @type {ResizeObserver|null} Observes the modal content to detect scrollability */
         this._modalResizeObserver = null;
         this._onModalResize = this._handleModalResize.bind(this);
-        /** @type {boolean} Whether the page behind the dialog is hidden for printing */
-        this._pageHiddenForPrint = false;
-        this._onBeforePrint = this._handleBeforePrint.bind(this);
-        this._onAfterPrint = this._handleAfterPrint.bind(this);
         // Detect the Web Share API once so the "other apps" share button can be shown or hidden.
         this.navigatorShare = typeof navigator !== 'undefined' && 'share' in navigator;
     }
 
     static get scopedElements() {
         return {
-            'dbp-modal': JobOfferDetailModal,
+            'dbp-modal': Modal,
             'dbp-icon': Icon,
             'dbp-notification': Notification,
             'dbp-bulletin-job-offer-form': JobOfferFormElement,
@@ -113,43 +77,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         super.connectedCallback();
         document.addEventListener('pointerdown', this._onDocumentPointerDown);
         this.addEventListener('dbp-job-offer-applied', this._onJobOfferApplied);
-        window.addEventListener('beforeprint', this._onBeforePrint);
-        window.addEventListener('afterprint', this._onAfterPrint);
     }
 
     disconnectedCallback() {
         document.removeEventListener('pointerdown', this._onDocumentPointerDown);
         this.removeEventListener('dbp-job-offer-applied', this._onJobOfferApplied);
-        window.removeEventListener('beforeprint', this._onBeforePrint);
-        window.removeEventListener('afterprint', this._onAfterPrint);
-        this._handleAfterPrint();
         this._teardownModalResizeObserver();
         super.disconnectedCallback();
-    }
-
-    /**
-     * Hides the page behind the open dialog (app header, menu, footer) while printing,
-     * so that only the job offer ends up on paper. The page is outside of our shadow root
-     * and can't be reached with our styles, but the inherited "visibility" crosses shadow
-     * boundaries and is switched back on for the dialog in the modal print styles.
-     */
-    _handleBeforePrint() {
-        const modal = /** @type {Modal|null} */ (this.renderRoot.querySelector('dbp-modal'));
-        if (!this.job || !modal?.isOpen()) {
-            return;
-        }
-
-        document.body.style.visibility = 'hidden';
-        this._pageHiddenForPrint = true;
-    }
-
-    _handleAfterPrint() {
-        if (!this._pageHiddenForPrint) {
-            return;
-        }
-
-        document.body.style.removeProperty('visibility');
-        this._pageHiddenForPrint = false;
     }
 
     _onJobOfferApplied() {
@@ -1027,6 +961,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             <dbp-modal
                 modal-id="job-offer-detail-dialog"
                 lang="${this.lang}"
+                print-content-only
                 @dbp-modal-closed="${this._handleModalClosed}"
                 class="modal-width job-offer-detail-dialog">
                 <div slot="header">
@@ -1909,9 +1844,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                     --dbp-content: #222120;
                     --dbp-muted: #555555;
                     --dbp-border: 1px solid #222120;
-                    /* Let the dialog grow with its content instead of scrolling */
-                    --dbp-modal-max-height: none;
-                    --dbp-modal-content-overflow-y: visible;
                 }
 
                 /* Interactive elements are of no use on paper */
