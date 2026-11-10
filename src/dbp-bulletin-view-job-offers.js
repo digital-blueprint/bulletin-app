@@ -1363,7 +1363,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         const hasMore = visibleCount < filtered.length;
 
         return html`
-            <div class="job-board">
+            <div class="job-board ${this._selectedJob ? 'job-board--detail-open' : ''}">
                 <!-- Primary filter row: dream job, search and the toggle for the remaining filters -->
                 <div class="search-filter-wrapper">
                     <div
@@ -2557,6 +2557,15 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .section-header h2 {
                     display: flex;
                     flex-direction: column;
+                }
+            }
+
+            /* Only print the job offer when its detail dialog is open. The list behind the
+               dialog would otherwise produce additional (empty) pages. */
+            @media print {
+                .job-board--detail-open .search-filter-wrapper,
+                .job-board--detail-open .job-offer-wrapper > :not(dbp-bulletin-job-offer-detail) {
+                    display: none;
                 }
             }
         `;

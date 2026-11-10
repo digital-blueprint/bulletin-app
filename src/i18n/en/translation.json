@@ -441,6 +441,7 @@
         "application-title": "Application",
         "applied-title": "Application submitted",
         "apply": "Apply",
+        "apply-link": "Application link",
         "apply-success": "Your application has been submitted successfully.",
         "attachments": "Upload files",
         "attachments-allowed-formats": "Allowed file formats: PDF, PNG and JPEG.",
