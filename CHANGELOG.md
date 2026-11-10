@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Dream job label: changed from "Mein Traumjob ist:"/"My dream job is:" to "Ich suche Jobs:"/"I'm looking for jobs:", and the placeholder from "Irgendwo da draußen, ich bin flexibel"/"Somewhere out there, I'm flexible" to "Ohne Filterauswahl"/"Without applying any filters" (task #76440)
+
 ## 0.3.0
 
 - Browse career profiles: career profiles now print without the app navigation, back button or interest form, with dark text on white paper and improved page breaks (task #76478)
