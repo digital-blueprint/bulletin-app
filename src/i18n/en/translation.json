@@ -286,7 +286,8 @@
         "report-title": "Generation report",
         "summary-created": "Created",
         "summary-errors": "Errors",
-        "title": "Generate career profiles"
+        "title": "Generate career profiles",
+        "view-career-profile-link": "View career profile"
     },
     "generate-companies": {
         "count-description": "Choose how many random companies should be created.",

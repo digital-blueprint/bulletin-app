@@ -41,6 +41,7 @@ import {isValidHttpUrl, normalizeHttpUrl} from '../src/modules/urlUtils.js';
 import {parseMonthlySalary} from '../src/modules/salaryUtils.js';
 import {buildRandomCompany} from '../src/dbp-bulletin-generate-companies.js';
 import '../src/dbp-bulletin-generate-jobs.js';
+import '../src/dbp-bulletin-generate-career-profiles.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
 import {setFeatureFlag} from '@dbp-toolkit/common';
 import {
@@ -1330,6 +1331,62 @@ suite('job generator data handling', () => {
 
         assert.isTrue(jobOffer.grantBasedSubmissionAuthorization);
         assert.deepEqual(jobOffer.allowedActionsWhenSubmitted, ['read']);
+    });
+});
+
+suite('career profile generator links', () => {
+    test('should retain identifiers returned by the API in the generation report', async () => {
+        const element = document.createElement('dbp-bulletin-generate-career-profiles');
+        element.auth = {_roles: ['ROLE_BULLETIN_ADMIN'], token: 'test-token'};
+        element.entryPointUrl = 'https://api.example.org';
+        element._profileCount = '1';
+        element._i18n = {t: (key) => key};
+        element._buildRandomCareerProfile = () => ({name: 'Generated profile'});
+        const originalFetch = globalThis.fetch;
+        globalThis.fetch = async () => ({
+            ok: true,
+            json: async () => ({identifier: 'profile-123'}),
+        });
+
+        try {
+            await element._handleGenerate();
+            assert.deepEqual(element._report.created, [
+                {name: 'Generated profile', identifier: 'profile-123'},
+            ]);
+            assert.isEmpty(element._report.errors);
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('should render localized direct profile links with an encoded identifier', async () => {
+        const element = document.createElement('dbp-bulletin-generate-career-profiles');
+        element.auth = {_roles: ['ROLE_BULLETIN_ADMIN']};
+        element._report = {
+            created: [{name: 'Generated profile', identifier: 'profile #123'}],
+            errors: [],
+        };
+        document.body.appendChild(element);
+
+        try {
+            for (const [lang, basePath, label] of [
+                ['en', '/app', 'View career profile'],
+                ['de', '/app/', 'Karriereprofil ansehen'],
+            ]) {
+                element.lang = lang;
+                element.basePath = basePath;
+                await element.updateComplete;
+                const link = element.shadowRoot.querySelector('.report-links a');
+                assert.equal(
+                    link.getAttribute('href'),
+                    `/app/${lang}/browse-career-profiles/profile/profile%20%23123`,
+                );
+                assert.equal(link.textContent.trim(), label);
+                assert.include(link.closest('li').textContent, 'Generated profile');
+            }
+        } finally {
+            element.remove();
+        }
     });
 });
 

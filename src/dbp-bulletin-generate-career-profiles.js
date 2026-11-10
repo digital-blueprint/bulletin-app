@@ -10,6 +10,10 @@ import CareerProfileModule, {
     CAREER_PROFILE_AUDIENCES,
 } from './modules/careerProfileForm.js';
 
+/**
+ * @typedef {{name: string, identifier: string}} CreatedCareerProfile
+ */
+
 const BULLETIN_ADMIN_ROLE = 'ROLE_BULLETIN_ADMIN';
 const PROFILE_COUNT_OPTIONS = ['5', '10', '20', '50', '100'];
 const MS_PER_DAY = 86400000;
@@ -272,7 +276,8 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
             return false;
         }
 
-        return true;
+        const createdForm = await response.json();
+        return createdForm.identifier;
     }
 
     async _handleGenerate() {
@@ -305,16 +310,16 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
         this._report = null;
 
         const report = {
-            created: /** @type {string[]} */ ([]),
+            created: /** @type {CreatedCareerProfile[]} */ ([]),
             errors: /** @type {string[]} */ ([]),
         };
 
         await commonUtils.asyncArrayForEach(Array.from({length: count}), async (_value, index) => {
             const formData = this._buildRandomCareerProfile(index);
             try {
-                const created = await this._createCareerProfileForm(formData);
-                if (created) {
-                    report.created.push(formData.name);
+                const formIdentifier = await this._createCareerProfileForm(formData);
+                if (formIdentifier) {
+                    report.created.push({name: formData.name, identifier: formIdentifier});
                 } else {
                     report.errors.push(formData.name);
                 }
@@ -340,6 +345,11 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
 
     _getProfileCountOptions() {
         return PROFILE_COUNT_OPTIONS.map((value) => ({value, label: value}));
+    }
+
+    _getActivityUrl(route, path) {
+        const basePath = this.basePath.endsWith('/') ? this.basePath : `${this.basePath}/`;
+        return `${basePath}${this.lang}/${route}/${path}`;
     }
 
     render() {
@@ -415,8 +425,23 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
                                                 </h3>
                                                 <ul>
                                                     ${this._report.created.map(
-                                                        (name) => html`
-                                                            <li>${name}</li>
+                                                        (profile) => html`
+                                                            <li>
+                                                                <strong>${profile.name}</strong>
+                                                                <span class="report-links">
+                                                                    <a
+                                                                        href="${this._getActivityUrl(
+                                                                            'browse-career-profiles',
+                                                                            `profile/${encodeURIComponent(
+                                                                                profile.identifier,
+                                                                            )}`,
+                                                                        )}">
+                                                                        ${t(
+                                                                            'generate-career-profiles.view-career-profile-link',
+                                                                        )}
+                                                                    </a>
+                                                                </span>
+                                                            </li>
                                                         `,
                                                     )}
                                                 </ul>
@@ -512,6 +537,12 @@ class GenerateCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitE
 
                 .report-section li {
                     margin-bottom: 0.35rem;
+                }
+
+                .report-links {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.25rem 1rem;
                 }
 
                 @media (max-width: 768px) {

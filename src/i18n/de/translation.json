@@ -286,7 +286,8 @@
         "report-title": "Generierungsbericht",
         "summary-created": "Erstellt",
         "summary-errors": "Fehler",
-        "title": "Karriereprofile generieren"
+        "title": "Karriereprofile generieren",
+        "view-career-profile-link": "Karriereprofil ansehen"
     },
     "generate-companies": {
         "count-description": "Wählen Sie, wie viele zufällige Firmen erstellt werden sollen.",
