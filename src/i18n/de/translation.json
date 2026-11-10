@@ -247,6 +247,7 @@
         "error-title": "Fehler",
         "external-url-invalid": "Bitte geben Sie eine gültige URL mit einem Domainnamen ein, zum Beispiel example.org.",
         "salary-invalid": "Bitte geben Sie ein nicht negatives monatliches Mindestentgelt in Euro (brutto) mit bis zu zwei Nachkommastellen ein oder lassen Sie das Feld leer.",
+        "validation-deadline-before-created": "Das Ende der Veröffentlichung darf nicht vor dem Erstellungsdatum des Stellenangebots liegen.",
         "validation-deadline-before-published": "Das Ende der Veröffentlichung darf nicht vor dem Datum der Veröffentlichung liegen.",
         "validation-missing-fields_one": "Folgendes Pflichtfeld fehlt oder ist ungültig:",
         "validation-missing-fields_other": "Folgende {{count}} Pflichtfelder fehlen oder sind ungültig:",

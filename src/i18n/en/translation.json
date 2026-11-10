@@ -247,6 +247,7 @@
         "error-title": "Error",
         "external-url-invalid": "Please enter a valid URL containing a domain name, for example example.org.",
         "salary-invalid": "Please enter a non-negative gross minimum monthly salary in euros with up to two decimal places, or leave the field empty.",
+        "validation-deadline-before-created": "The end of publication cannot be before the creation date of the job offer.",
         "validation-deadline-before-published": "The end of publication cannot be before the publication date.",
         "validation-missing-fields_one": "The following required field is missing or invalid:",
         "validation-missing-fields_other": "The following {{count}} required fields are missing or invalid:",

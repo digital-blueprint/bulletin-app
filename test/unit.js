@@ -1334,6 +1334,78 @@ suite('job generator data handling', () => {
 });
 
 suite('jobOfferForm validation', () => {
+    test('should reject a new offer deadline before today even with an earlier publication date', async () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, new JobOfferModule().getEditFormComponent());
+        }
+        const element = document.createElement(tagName);
+        const today = toLocalIsoDate();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        element._publishedAt = toLocalIsoDate(yesterday);
+        element._deadline = toLocalIsoDate(yesterday);
+        element._title = 'Example job';
+        element._description = 'Example description';
+        element._organization = 'Example organization';
+        element._areasOfInterest = ['it'];
+        element._weeklyHoursMin = '20';
+        element._weeklyHoursMax = '40';
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        assert.isFalse(element._isFormValid);
+        const t = (key) => key;
+        assert.include(
+            element._getValidationNotificationBody(t),
+            'create-job-offer.validation-deadline-before-created',
+        );
+        assert.isNull(await element.submit());
+        const field = element.shadowRoot.querySelector('[name="deadline"]');
+        await field.updateComplete;
+        assert.include(
+            field.errorMessages,
+            element._i18n.t('create-job-offer.validation-deadline-before-created'),
+        );
+        assert.equal(field.min, today);
+        for (const lang of ['en', 'de']) {
+            element.lang = lang;
+            await element.updateComplete;
+            assert.deepEqual(field.customValidator(element._deadline), [
+                element._i18n.t('create-job-offer.validation-deadline-before-created', {lng: lang}),
+            ]);
+        }
+
+        element._deadline = today;
+        assert.isTrue(element._isFormValid);
+        assert.deepEqual(element._getDeadlineValidationMessages(), []);
+        element.remove();
+    });
+
+    test('should use the original creation day when editing, allowing that day and past deadlines', () => {
+        const tagName = 'test-job-offer-edit-form-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, new JobOfferModule().getEditFormComponent());
+        }
+        const element = document.createElement(tagName);
+        element.existingForm = {dateCreated: new Date(2025, 3, 3, 15).toISOString()};
+        element._publishedAt = '2025-04-01';
+        element._deadline = '2025-04-02';
+        assert.equal(element._creationDate, '2025-04-03');
+        assert.deepEqual(
+            element._getDeadlineValidationMessages(element._deadline, (key) => key),
+            ['create-job-offer.validation-deadline-before-created'],
+        );
+        for (const deadline of ['2025-04-03', '2025-04-04']) {
+            element._deadline = deadline;
+            assert.deepEqual(element._getDeadlineValidationMessages(), []);
+        }
+        for (const dateCreated of [undefined, 'invalid']) {
+            element.existingForm = {dateCreated};
+            assert.equal(element._creationDate, '');
+        }
+    });
+
     test('should only parse numeric monthly salaries with cents', () => {
         for (const [value, expected] of [
             ['3277.30', 3277.3],
@@ -1690,8 +1762,8 @@ suite('jobOfferForm validation', () => {
         element._titleEn = 'Software developer';
         element._weeklyHoursMin = '20';
         element._weeklyHoursMax = '40';
-        element._publishedAt = '2026-08-22';
-        element._deadline = '2026-07-22';
+        element._publishedAt = '2030-08-22';
+        element._deadline = '2030-07-22';
 
         // Started English text only requires the missing English description
         assert.deepEqual(element._getMissingRequiredFieldLabels(t), [
@@ -1712,7 +1784,7 @@ suite('jobOfferForm validation', () => {
         );
 
         element._descriptionEn = 'Job description';
-        element._deadline = '2026-09-22';
+        element._deadline = '2030-09-22';
         assert.isFalse(element._isFormValid);
         element._areasOfInterest = ['it'];
         assert.deepEqual(element._getMissingRequiredFieldLabels(t), []);
@@ -2022,8 +2094,8 @@ suite('jobOfferForm validation', () => {
         const element = document.createElement(tagName);
         element._title = 'Software developer';
         element._description = 'Job description';
-        element._publishedAt = '2026-07-22';
-        element._deadline = '2026-08-22';
+        element._publishedAt = '2030-07-22';
+        element._deadline = '2030-08-22';
         element._applicationDeadline = '';
         element._organization = 'Example University';
         element._areasOfInterest = ['it'];
@@ -2071,8 +2143,8 @@ suite('jobOfferForm validation', () => {
         }
 
         const element = document.createElement(tagName);
-        element._publishedAt = '2026-07-22';
-        element._deadline = '2026-08-22';
+        element._publishedAt = '2030-07-22';
+        element._deadline = '2030-08-22';
         element._organization = 'Example organization';
         element._areasOfInterest = ['it'];
         element._weeklyHoursMin = '20';

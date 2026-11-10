@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Create and edit job offer: prevent saving an end of publication before the job offer's creation date and show an inline error and a notification in German and English (task #76219)
 - Create and edit job offer: a text below the row with "Ende der Veröffentlichung"/"End of publication" explains that the job offer is shown until the end of publication and that all applications are deleted automatically 7 months after the end of publication, regardless of when they were submitted (task #76219)
 
 ## 0.2.0
