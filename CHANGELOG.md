@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Manage user-defined fields (0.3.0 follow-up): added the shared permission dialog to the row menus for forms, all entries of a form and individual entries. Each permission action is hidden unless the current user has the corresponding manage grant (task #76576)
 - Dream job label: changed from "Mein Traumjob ist:"/"My dream job is:" to "Ich suche Jobs:"/"I'm looking for jobs:", and the placeholder from "Irgendwo da draußen, ich bin flexibel"/"Somewhere out there, I'm flexible" to "Ohne Filterauswahl"/"Without applying any filters" (task #76440)
 
 ## 0.3.0
