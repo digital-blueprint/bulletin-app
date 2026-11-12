@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- External job offers: removed the `external-jobs` feature flag used in 0.3.1. External job viewing and creation, company management, the career starter preset and the "Only university jobs" filter are now always available; existing role restrictions remain unchanged
 - Work location selection: expanded the Austrian city and town list from 53 in 0.3.1 to 253, grouped by federal state. Existing location IDs and display names remain unchanged
 - Work location selection: fixed an issue in 0.3.1 where adding a location disabled adding the same country without a region or city. Removing a location now allows adding it again; exact duplicates and adding while the field is disabled remain blocked (task #76662)
 

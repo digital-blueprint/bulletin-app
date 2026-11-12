@@ -30,7 +30,6 @@ import HoursRangeElement, {
     formatHoursRange,
     isHoursRangeInRange,
 } from './modules/hoursRangeElement.js';
-import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from './featureFlags.js';
 
 /**
  * Normalized job offer shape derived from a formalize form entry.
@@ -447,8 +446,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         // Expected URL pattern: job/<identifier>
         if (pathSegments[0] === 'job' && pathSegments[1]) {
             const identifier = pathSegments[1];
-            const job =
-                this._getFeatureVisibleJobs().find((j) => j.identifier === identifier) ?? null;
+            const job = this._jobOffers.find((j) => j.identifier === identifier) ?? null;
             if (job) {
                 this.openJobDialog(job);
             }
@@ -502,7 +500,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
      */
     getFilteredJobs({includeAreaOfInterest = true, includeWorkLocation = true} = {}) {
         const query = this.searchQuery.toLowerCase().trim();
-        return this._getFeatureVisibleJobs()
+        return this._jobOffers
             .filter((job) => {
                 const areaOfInterestLabels = getAreaOfInterestLabels(
                     job.areasOfInterest ?? job.areaOfInterest,
@@ -584,7 +582,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 );
 
                 const matchesUniversityJobsOnly =
-                    !this._isUniversityJobsOnlyFilterActive() || job.jobOfferType === 'internal';
+                    !this.filterUniversityJobsOnly || job.jobOfferType === 'internal';
 
                 return (
                     matchesSearch &&
@@ -596,22 +594,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 );
             })
             .sort((a, b) => this.compareJobsByDate(a, b));
-    }
-
-    _getFeatureVisibleJobs() {
-        return isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
-            ? this._jobOffers
-            : this._jobOffers.filter((job) => job.jobOfferType === 'internal');
-    }
-
-    /**
-     * Returns true when only job offers of the university itself should be shown.
-     * Without external jobs all visible jobs are university jobs anyway, so the filter
-     * (including its checkbox and marker) only takes effect when external jobs are enabled.
-     * @returns {boolean}
-     */
-    _isUniversityJobsOnlyFilterActive() {
-        return this.filterUniversityJobsOnly && isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG);
     }
 
     /**
@@ -661,7 +643,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             return availableLocations;
         }
 
-        const selectedLocation = this._getFeatureVisibleJobs()
+        const selectedLocation = this._jobOffers
             .flatMap((job) =>
                 normalizeWorkLocations(job.workLocations ?? []).flatMap((location) =>
                     getLocationHierarchy(location),
@@ -1168,7 +1150,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
     _getActiveFilterMarkers(t) {
         const markers = [];
 
-        if (this._isUniversityJobsOnlyFilterActive()) {
+        if (this.filterUniversityJobsOnly) {
             markers.push({
                 key: 'university-jobs-only',
                 category: t('view-job-offers.employer'),
@@ -1366,12 +1348,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             <div class="job-board ${this._selectedJob ? 'job-board--detail-open' : ''}">
                 <!-- Primary filter row: dream job, search and the toggle for the remaining filters -->
                 <div class="search-filter-wrapper">
-                    <div
-                        class="search-filter-row ${
-                            isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
-                                ? ''
-                                : 'search-filter-row--no-checkbox'
-                        }">
+                    <div class="search-filter-row">
                         <div class="field">
                             <label class="label" for="filter-dream-job">
                                 ${t('view-job-offers.dream-job-label')}
@@ -1391,40 +1368,26 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                         ?selected="${this.filterDreamJob === 'study-accompanying'}">
                                         ${t('view-job-offers.dream-job-study-accompanying')}
                                     </option>
-                                    ${
-                                        isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
-                                            ? html`
-                                                  <option
-                                                      value="career-entry"
-                                                      ?selected="${
-                                                          this.filterDreamJob === 'career-entry'
-                                                      }">
-                                                      ${t('view-job-offers.dream-job-career-entry')}
-                                                  </option>
-                                              `
-                                            : ''
-                                    }
+                                    <option
+                                        value="career-entry"
+                                        ?selected="${this.filterDreamJob === 'career-entry'}">
+                                        ${t('view-job-offers.dream-job-career-entry')}
+                                    </option>
                                 </select>
                             </div>
                         </div>
-                        ${
-                            isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)
-                                ? html`
-                                      <label class="filter-checkbox">
-                                          <input
-                                              type="checkbox"
-                                              class="filter-checkbox-input"
-                                              .checked="${this.filterUniversityJobsOnly}"
-                                              @change="${this.onUniversityJobsOnlyChange}" />
-                                          <span class="filter-checkbox-label">
-                                              ${t('view-job-offers.university-jobs-only', {
-                                                  university: this.universityShortName,
-                                              })}
-                                          </span>
-                                      </label>
-                                  `
-                                : ''
-                        }
+                        <label class="filter-checkbox">
+                            <input
+                                type="checkbox"
+                                class="filter-checkbox-input"
+                                .checked="${this.filterUniversityJobsOnly}"
+                                @change="${this.onUniversityJobsOnlyChange}" />
+                            <span class="filter-checkbox-label">
+                                ${t('view-job-offers.university-jobs-only', {
+                                    university: this.universityShortName,
+                                })}
+                            </span>
+                        </label>
                         <!-- Search bar -->
                         <div class="field search-field">
                             <span class="label search-label-spacer" aria-hidden="true">&nbsp;</span>
@@ -1610,7 +1573,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 ${t('view-job-offers.available-positions')}
                                 <span class="position-count" ?hidden="${this._loadError}">
                                     ${t('view-job-offers.position-count', {
-                                        total: this._getFeatureVisibleJobs().length,
+                                        total: this._jobOffers.length,
                                         filtered: filtered.length,
                                     })}
                                 </span>
@@ -1834,14 +1797,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 grid-template-columns: auto auto minmax(0, 2fr) auto;
                 align-items: end;
                 --filter-control-height: 2.1rem;
-            }
-
-            /* Without the university jobs checkbox the search field takes the free space
-               and the filter toggle only uses the width it needs */
-            .search-filter-row--no-checkbox {
-                /* The search column also absorbs the space of the missing checkbox, so the
-                   dream job select keeps roughly the same width as with the checkbox */
-                grid-template-columns: minmax(0, 1.5fr) minmax(0, 2.6fr) auto;
             }
 
             /* Additional filters: work location (+ remote) and weekly hours */
@@ -2133,10 +2088,6 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .search-filter-row {
                     grid-template-columns: minmax(0, 1fr) auto auto;
                     gap: 0.75em;
-                }
-
-                .search-filter-row--no-checkbox {
-                    grid-template-columns: minmax(0, 1fr) auto;
                 }
 
                 .search-filter-row .search-field {

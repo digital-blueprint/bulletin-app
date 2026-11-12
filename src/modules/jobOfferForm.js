@@ -45,7 +45,6 @@ import HoursRangeElement, {
     sanitizeHoursValue,
 } from './hoursRangeElement.js';
 import {pickCompanyData} from './companyForm.js';
-import {EXTERNAL_JOBS_FEATURE_FLAG, isFeatureEnabled} from '../featureFlags.js';
 import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
 import {openManagedJobOfferPreview} from './jobOfferPreview.js';
 import {getFileUploadLimitHint} from '../utils/fileUploadHint.js';
@@ -1478,15 +1477,10 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     }
 
     _getJobTypeItems(t) {
-        const jobTypeItems = {
+        return {
             [JOB_OFFER_TYPE_INTERNAL]: t('manage-job-offers.job-type-internal'),
+            [JOB_OFFER_TYPE_EXTERNAL]: t('manage-job-offers.job-type-external'),
         };
-
-        if (isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG) || this._isExternalJob) {
-            jobTypeItems[JOB_OFFER_TYPE_EXTERNAL] = t('manage-job-offers.job-type-external');
-        }
-
-        return jobTypeItems;
     }
 
     /** Resets all form fields to empty defaults. */
@@ -1758,10 +1752,6 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
     async submit() {
         const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
         const isEditMode = this._isEditMode;
-
-        if (!isEditMode && !isFeatureEnabled(EXTERNAL_JOBS_FEATURE_FLAG)) {
-            this._jobOfferType = JOB_OFFER_TYPE_INTERNAL;
-        }
 
         const selectedLocations = this._isExternalJob
             ? normalizeWorkLocations(this._workLocations)

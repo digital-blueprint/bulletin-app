@@ -26,10 +26,7 @@ const distDir = appEnv === 'test' ? 'build/test' : watch ? `build/${watchDir}` :
 // Feature flags that are enabled by default, depending on the environment
 const defaultEnabledFeatureFlags = (() => {
     if (['local', 'localCustom', 'development', 'developmentCustom'].includes(appEnv)) {
-        return ['career-profiles', 'external-jobs', 'admin-tools'];
-    }
-    if (['staging', 'production'].includes(appEnv)) {
-        return ['external-jobs'];
+        return ['career-profiles', 'admin-tools'];
     }
     return [];
 })();

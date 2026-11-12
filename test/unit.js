@@ -47,7 +47,6 @@ import {setFeatureFlag} from '@dbp-toolkit/common';
 import {
     ADMIN_TOOLS_FEATURE_FLAG,
     CAREER_PROFILES_FEATURE_FLAG,
-    EXTERNAL_JOBS_FEATURE_FLAG,
     FEATURE_FLAGS,
     initializeFeatureFlags,
 } from '../src/featureFlags.js';
@@ -56,7 +55,6 @@ suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
 
     suiteSetup(async () => {
-        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, true);
         node = document.createElement('dbp-bulletin-view-job-offers');
         document.body.appendChild(node);
         await node.updateComplete;
@@ -64,14 +62,13 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 
     suiteTeardown(() => {
         node.remove();
-        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
     });
 
     test('should render', () => {
         assert(!!node.shadowRoot);
     });
 
-    test('should hide external jobs and the career starter preset when disabled', async () => {
+    test('should always show external jobs and the career starter preset', async () => {
         const element = document.createElement('dbp-bulletin-view-job-offers');
         element._i18n = {t: (key) => key, changeLanguage: () => {}};
         element.isAuthPending = () => false;
@@ -92,18 +89,24 @@ suite('dbp-bulletin-view-job-offers basics', () => {
                 description: '',
             },
         ];
-        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
         document.body.appendChild(element);
         await element.updateComplete;
 
+        assert.sameMembers(
+            element.getFilteredJobs().map((job) => job.identifier),
+            ['internal-job', 'external-job'],
+        );
+        assert.isNotNull(element.shadowRoot.querySelector('option[value="career-entry"]'));
+        assert.isNotNull(element.shadowRoot.querySelector('.filter-checkbox-input'));
+
+        element.filterUniversityJobsOnly = true;
+        await element.updateComplete;
         assert.deepEqual(
             element.getFilteredJobs().map((job) => job.identifier),
             ['internal-job'],
         );
-        assert.isNull(element.shadowRoot.querySelector('option[value="career-entry"]'));
 
         element.remove();
-        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, true);
     });
 
     test('should sort equal deadlines by publication date', () => {
@@ -1104,7 +1107,6 @@ suite('dbp-bulletin app shell', () => {
                 visible: true,
                 disabled: false,
                 required_roles: [],
-                feature_flag: EXTERNAL_JOBS_FEATURE_FLAG,
             },
             'import-companies': {
                 visible: true,
@@ -1115,14 +1117,16 @@ suite('dbp-bulletin app shell', () => {
         };
 
         setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, false);
-        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
         setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, false);
         element._updateVisibleRoutes();
-        assert.deepEqual(element.visibleRoutes, []);
+        assert.deepEqual(element.visibleRoutes, [{name: 'manage-fields', disabled: false}]);
 
         setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, true);
         element._updateVisibleRoutes();
-        assert.deepEqual(element.visibleRoutes, [{name: 'career-profile', disabled: false}]);
+        assert.deepEqual(element.visibleRoutes, [
+            {name: 'career-profile', disabled: false},
+            {name: 'manage-fields', disabled: false},
+        ]);
 
         setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
         element._updateVisibleRoutes();
@@ -1130,6 +1134,7 @@ suite('dbp-bulletin app shell', () => {
             {name: 'career-profile', disabled: false},
             {name: 'generate-career-profiles', disabled: false},
             {name: 'generate-jobs', disabled: false},
+            {name: 'manage-fields', disabled: false},
             {name: 'import-companies', disabled: false},
         ]);
 
@@ -2026,7 +2031,7 @@ suite('jobOfferForm validation', () => {
         assert.equal(column.getValue({additionalData: {jobOfferType: 'internal'}}), 'University');
     });
 
-    test('should only offer university jobs for creation when external jobs are disabled', () => {
+    test('should always offer internal and external jobs for creation', () => {
         const tagName = 'test-job-offer-edit-form-element';
         const JobOfferEditFormElement = new JobOfferModule().getEditFormComponent();
         if (!customElements.get(tagName)) {
@@ -2035,13 +2040,7 @@ suite('jobOfferForm validation', () => {
         const element = document.createElement(tagName);
         const t = (key) => key;
 
-        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
-        assert.deepEqual(Object.keys(element._getJobTypeItems(t)), ['internal']);
-
-        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, true);
         assert.deepEqual(Object.keys(element._getJobTypeItems(t)), ['internal', 'external']);
-
-        setFeatureFlag(EXTERNAL_JOBS_FEATURE_FLAG, false);
     });
 
     test('should accept external job URLs with or without an HTTP(S) prefix', () => {
