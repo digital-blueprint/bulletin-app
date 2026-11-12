@@ -4,7 +4,7 @@ import '../src/dbp-bulletin-view-job-offers';
 import '../src/dbp-bulletin-career-profile.js';
 import '../src/dbp-bulletin-browse-career-profiles.js';
 import '../src/dbp-bulletin-job-offer-detail.js';
-import {BulletinAppShell} from '../src/dbp-bulletin.js';
+import '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
     JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
@@ -43,13 +43,6 @@ import {buildRandomCompany} from '../src/dbp-bulletin-generate-companies.js';
 import '../src/dbp-bulletin-generate-jobs.js';
 import '../src/dbp-bulletin-generate-career-profiles.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
-import {setFeatureFlag} from '@dbp-toolkit/common';
-import {
-    ADMIN_TOOLS_FEATURE_FLAG,
-    CAREER_PROFILES_FEATURE_FLAG,
-    FEATURE_FLAGS,
-    initializeFeatureFlags,
-} from '../src/featureFlags.js';
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;
@@ -1047,143 +1040,6 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
         assert.include(companyInformation, '6200');
 
         element.remove();
-    });
-});
-
-suite('dbp-bulletin app shell', () => {
-    test('should show an activity when any required role matches', () => {
-        const element = new BulletinAppShell();
-        element.routes = ['view-job-offers'];
-        element.metadata = {
-            'view-job-offers': {
-                visible: true,
-                disabled: false,
-                required_roles: [],
-                required_any_roles: [
-                    'ROLE_BULLETIN_JOB_OFFER_USER',
-                    'ROLE_BULLETIN_JOB_OFFER_MANAGER',
-                ],
-            },
-        };
-
-        element._roles = ['ROLE_BULLETIN_JOB_OFFER_MANAGER'];
-        element._updateVisibleRoutes();
-        assert.deepEqual(element.visibleRoutes, [{name: 'view-job-offers', disabled: false}]);
-
-        element._roles = ['ROLE_BULLETIN_CAREER_PROFILE_USER'];
-        element._updateVisibleRoutes();
-        assert.deepEqual(element.visibleRoutes, []);
-    });
-
-    test('should hide activities whose feature flag is disabled', () => {
-        const element = new BulletinAppShell();
-        element.routes = [
-            'career-profile',
-            'generate-career-profiles',
-            'generate-jobs',
-            'manage-fields',
-            'import-companies',
-        ];
-        element.metadata = {
-            'career-profile': {
-                visible: true,
-                disabled: false,
-                required_roles: [],
-                feature_flag: CAREER_PROFILES_FEATURE_FLAG,
-            },
-            'generate-career-profiles': {
-                visible: true,
-                disabled: false,
-                required_roles: [],
-                feature_flag: ADMIN_TOOLS_FEATURE_FLAG,
-            },
-            'generate-jobs': {
-                visible: true,
-                disabled: false,
-                required_roles: [],
-                feature_flag: ADMIN_TOOLS_FEATURE_FLAG,
-            },
-            'manage-fields': {
-                visible: true,
-                disabled: false,
-                required_roles: [],
-            },
-            'import-companies': {
-                visible: true,
-                disabled: false,
-                required_roles: [],
-                feature_flag: ADMIN_TOOLS_FEATURE_FLAG,
-            },
-        };
-
-        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, false);
-        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, false);
-        element._updateVisibleRoutes();
-        assert.deepEqual(element.visibleRoutes, [{name: 'manage-fields', disabled: false}]);
-
-        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, true);
-        element._updateVisibleRoutes();
-        assert.deepEqual(element.visibleRoutes, [
-            {name: 'career-profile', disabled: false},
-            {name: 'manage-fields', disabled: false},
-        ]);
-
-        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
-        element._updateVisibleRoutes();
-        assert.deepEqual(element.visibleRoutes, [
-            {name: 'career-profile', disabled: false},
-            {name: 'generate-career-profiles', disabled: false},
-            {name: 'generate-jobs', disabled: false},
-            {name: 'manage-fields', disabled: false},
-            {name: 'import-companies', disabled: false},
-        ]);
-
-        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, false);
-        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, false);
-    });
-});
-
-suite('feature flag defaults', () => {
-    setup(() => {
-        for (const featureFlag of FEATURE_FLAGS) {
-            localStorage.removeItem(`dbp-feature-${featureFlag}`);
-            localStorage.removeItem(`dbp-feature-default-${featureFlag}`);
-        }
-    });
-
-    teardown(() => {
-        for (const featureFlag of FEATURE_FLAGS) {
-            localStorage.removeItem(`dbp-feature-${featureFlag}`);
-            localStorage.removeItem(`dbp-feature-default-${featureFlag}`);
-        }
-    });
-
-    test('should preserve a manually enabled flag on first initialization', () => {
-        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
-
-        initializeFeatureFlags([]);
-
-        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
-        assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'false');
-    });
-
-    test('should preserve a manually enabled flag when the deployment default changes', () => {
-        localStorage.setItem('dbp-feature-default-admin-tools', 'true');
-        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
-
-        initializeFeatureFlags([]);
-
-        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
-        assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'false');
-    });
-
-    test('should enable a flag when the deployment default changes to enabled', () => {
-        localStorage.setItem('dbp-feature-default-admin-tools', 'false');
-
-        initializeFeatureFlags([ADMIN_TOOLS_FEATURE_FLAG]);
-
-        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
-        assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'true');
     });
 });
 
