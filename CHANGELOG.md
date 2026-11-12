@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Work location selection: fixed an issue in 0.3.1 where adding a location disabled adding the same country without a region or city. Removing a location now allows adding it again; exact duplicates and adding while the field is disabled remain blocked (task #76662)
+
 ## 0.3.1
 
 - Manage user-defined fields: added the shared permission dialog to the row menus for forms, all entries of a form and individual entries. Each permission action is hidden unless the current user has the corresponding manage grant (task #76576)

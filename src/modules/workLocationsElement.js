@@ -516,7 +516,6 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         this.label = '';
         this.description = '';
         this.disabled = false;
-        this.disabledButton = false;
         this.required = true;
         this._country = AUSTRIA_COUNTRY_CODE;
         this._region = '';
@@ -537,7 +536,6 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             label: {type: String},
             description: {type: String},
             disabled: {type: Boolean, reflect: true},
-            disabledButton: {type: Boolean},
             required: {type: Boolean, reflect: true},
             _country: {state: true},
             _region: {state: true},
@@ -661,7 +659,6 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                     if (this._region !== previousRegion) {
                         this._city = '';
                     }
-                    this.disabledButton = false;
                 },
             );
         } else {
@@ -676,7 +673,6 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                 this._i18n.t('manage-job-offers.work-location-city-placeholder'),
                 (value) => {
                     this._city = value;
-                    this.disabledButton = false;
                 },
             );
         } else {
@@ -713,23 +709,33 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             this._region = '';
             this._city = '';
         }
-
-        if (this._country !== '') {
-            this.disabledButton = false;
-        }
     }
-    _addLocation() {
-        if (!this._country) {
-            this.disabledButton = true;
-            return;
-        }
 
-        const location = {
+    _getSelectedLocation() {
+        return {
             country: this._country,
             region: this._country === AUSTRIA_COUNTRY_CODE ? this._region : '',
             city: this._country === AUSTRIA_COUNTRY_CODE && this._region ? this._city : '',
         };
-        const nextLocations = normalizeWorkLocations([...this.value, location]);
+    }
+
+    _canAddLocation() {
+        const selectedKey = getLocationKey(this._getSelectedLocation());
+        return (
+            !this.disabled &&
+            !!this._country &&
+            !normalizeWorkLocations(this.value).some(
+                (location) => getLocationKey(location) === selectedKey,
+            )
+        );
+    }
+
+    _addLocation() {
+        if (!this._canAddLocation()) {
+            return;
+        }
+
+        const nextLocations = normalizeWorkLocations([...this.value, this._getSelectedLocation()]);
 
         this.value = nextLocations;
         this._dispatchChange();
@@ -791,6 +797,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
         const regionItems = this._getRegionItems(t);
         const cityItems = this._getCityItems(t);
         const selectedLocations = normalizeWorkLocations(this.value);
+        const canAddLocation = this._canAddLocation();
         const select2CSS = commonUtils.getAbsoluteURL(select2CSSPath);
 
         return html`
@@ -896,15 +903,14 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
 
                     <button
                         class="button is-primary add-location-button ${
-                            this.disabledButton ? 'disabled' : ''
+                            canAddLocation ? '' : 'disabled'
                         }"
                         type="button"
                         aria-label="${t('manage-job-offers.work-location-add-aria')}"
-                        ?disabled="${this.disabledButton || !this._country}"
+                        ?disabled="${!canAddLocation}"
                         @click="${() => {
                             this._addLocation();
                             this._resetSelection();
-                            this.disabledButton = true;
                         }}">
                         <dbp-icon name="plus" aria-hidden="true"></dbp-icon>
                         <span class="button-label">

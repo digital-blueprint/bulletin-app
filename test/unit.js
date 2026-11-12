@@ -3035,6 +3035,123 @@ suite('work locations country selection', () => {
     });
 });
 
+suite('work locations adding', () => {
+    let element;
+    let addButton;
+
+    setup(async () => {
+        const tagName = 'test-work-locations-element';
+        if (!customElements.get(tagName)) {
+            customElements.define(tagName, WorkLocationsElement);
+        }
+
+        element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+        addButton = element.shadowRoot.querySelector('.add-location-button');
+    });
+
+    teardown(() => {
+        element.remove();
+    });
+
+    test('should allow adding the country after adding a city without changing country', async () => {
+        element._region = 'styria';
+        element._city = 'graz';
+        await element.updateComplete;
+
+        addButton.click();
+        await element.updateComplete;
+
+        assert.equal(element._country, 'AT');
+        assert.equal(element._region, '');
+        assert.equal(element._city, '');
+        assert.isFalse(addButton.disabled);
+
+        addButton.click();
+        await element.updateComplete;
+
+        assert.deepEqual(element.value, [
+            {country: 'AT', region: 'styria', city: 'graz'},
+            {country: 'AT', region: '', city: ''},
+        ]);
+        assert.isTrue(addButton.disabled);
+    });
+
+    test('should enable adding the same country again after removing it', async () => {
+        addButton.click();
+        await element.updateComplete;
+        assert.isTrue(addButton.disabled);
+
+        await element._removeLocation(0);
+        assert.isFalse(addButton.disabled);
+
+        addButton.click();
+        await element.updateComplete;
+        assert.deepEqual(element.value, [{country: 'AT', region: '', city: ''}]);
+    });
+
+    test('should disable exact duplicates but allow another city in the same region', async () => {
+        element.value = [{country: 'AT', region: 'styria', city: 'graz'}];
+        element._region = 'styria';
+        element._city = 'graz';
+        await element.updateComplete;
+
+        assert.isTrue(addButton.disabled);
+        element._addLocation();
+        assert.lengthOf(element.value, 1);
+
+        element._city = 'leoben';
+        await element.updateComplete;
+        assert.isFalse(addButton.disabled);
+
+        addButton.click();
+        await element.updateComplete;
+        assert.deepEqual(element.value, [
+            {country: 'AT', region: 'styria', city: 'graz'},
+            {country: 'AT', region: 'styria', city: 'leoben'},
+        ]);
+    });
+
+    test('should allow adding a different country after adding a country-only location', async () => {
+        element._onCountryChange({detail: {value: 'DE'}});
+        await element.updateComplete;
+        addButton.click();
+        await element.updateComplete;
+        assert.isTrue(addButton.disabled);
+
+        element._onCountryChange({detail: {value: 'FR'}});
+        await element.updateComplete;
+        assert.isFalse(addButton.disabled);
+
+        addButton.click();
+        await element.updateComplete;
+        assert.deepEqual(element.value, [
+            {country: 'DE', region: '', city: ''},
+            {country: 'FR', region: '', city: ''},
+        ]);
+    });
+
+    test('should prevent adding when the country is empty or the component is disabled', async () => {
+        element._onCountryChange({detail: {value: ''}});
+        await element.updateComplete;
+        assert.isTrue(addButton.disabled);
+        element._addLocation();
+        assert.isEmpty(element.value);
+
+        element._onCountryChange({detail: {value: 'AT'}});
+        element.disabled = true;
+        await element.updateComplete;
+        assert.isTrue(addButton.disabled);
+        element._addLocation();
+        assert.isEmpty(element.value);
+
+        element.disabled = false;
+        await element.updateComplete;
+        assert.isFalse(addButton.disabled);
+    });
+});
+
 suite('careerProfileForm validation focus', () => {
     test('should focus the first invalid career profile field', async () => {
         const tagName = 'test-career-profile-edit-form-element';
