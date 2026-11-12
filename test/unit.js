@@ -2979,6 +2979,47 @@ suite('jobOfferForm auth refresh handling', () => {
     });
 });
 
+suite('work locations city options', () => {
+    test('should provide 253 unique cities with labels across the Austrian regions', () => {
+        const regionCounts = {
+            burgenland: 25,
+            carinthia: 29,
+            'lower-austria': 54,
+            'upper-austria': 38,
+            salzburg: 25,
+            styria: 36,
+            tyrol: 27,
+            vorarlberg: 18,
+            vienna: 1,
+        };
+        const cities = [];
+
+        for (const [region, count] of Object.entries(regionCounts)) {
+            const items = WorkLocationsElement.prototype._getCityItems.call({_region: region});
+            assert.lengthOf(Object.keys(items), count);
+            for (const [city, label] of Object.entries(items)) {
+                assert.isString(label);
+                assert.isNotEmpty(label);
+                cities.push(city);
+            }
+        }
+
+        assert.lengthOf(cities, 253);
+        assert.equal(new Set(cities).size, cities.length);
+    });
+
+    test('should keep additional cities in their region with their display names', () => {
+        const items = WorkLocationsElement.prototype._getCityItems.call({_region: 'styria'});
+        assert.equal(items.graz, 'Graz');
+        assert.equal(items.fuerstenfeld, 'Fürstenfeld');
+        assert.equal(items.schladming, 'Schladming');
+        assert.equal(items.groebming, 'Gröbming');
+        assert.equal(items['sankt-barbara-im-muerztal'], 'Sankt Barbara im Mürztal');
+        assert.notProperty(items, 'kitzbuehel');
+        assert.notProperty(items, 'gmuend-in-kaernten');
+    });
+});
+
 suite('work locations country selection', () => {
     test('should hide region selection when country is cleared', async () => {
         const tagName = 'test-work-locations-element';
