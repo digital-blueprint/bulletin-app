@@ -1,0 +1,24 @@
+import {getFeatureFlag, registerFeatureFlag, setFeatureFlag} from '@dbp-toolkit/common';
+
+export const CAREER_PROFILES_FEATURE_FLAG = 'career-profiles';
+export const ADMIN_TOOLS_FEATURE_FLAG = 'admin-tools';
+export const FEATURE_FLAGS = [CAREER_PROFILES_FEATURE_FLAG, ADMIN_TOOLS_FEATURE_FLAG];
+
+for (const featureFlag of FEATURE_FLAGS) {
+    registerFeatureFlag(featureFlag);
+}
+
+export function initializeFeatureFlags(defaultEnabledFeatureFlags) {
+    for (const featureFlag of FEATURE_FLAGS) {
+        const defaultEnabled = defaultEnabledFeatureFlags.includes(featureFlag);
+        const defaultKey = `dbp-feature-default-${featureFlag}`;
+        const currentDefault = String(defaultEnabled);
+
+        if (localStorage.getItem(defaultKey) !== currentDefault) {
+            if (!getFeatureFlag(featureFlag)) {
+                setFeatureFlag(featureFlag, defaultEnabled);
+            }
+            localStorage.setItem(defaultKey, currentDefault);
+        }
+    }
+}

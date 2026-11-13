@@ -4,7 +4,7 @@ import '../src/dbp-bulletin-view-job-offers';
 import '../src/dbp-bulletin-career-profile.js';
 import '../src/dbp-bulletin-browse-career-profiles.js';
 import '../src/dbp-bulletin-job-offer-detail.js';
-import '../src/dbp-bulletin.js';
+import {BulletinAppShell} from '../src/dbp-bulletin.js';
 import JobOfferModule, {
     JobOfferFormElement,
     JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
@@ -43,6 +43,194 @@ import {buildRandomCompany} from '../src/dbp-bulletin-generate-companies.js';
 import '../src/dbp-bulletin-generate-jobs.js';
 import '../src/dbp-bulletin-generate-career-profiles.js';
 import {apiCreateForm} from '../vendor/formalize/src/manage-forms-api.js';
+import {setFeatureFlag} from '@dbp-toolkit/common';
+import {
+    ADMIN_TOOLS_FEATURE_FLAG,
+    CAREER_PROFILES_FEATURE_FLAG,
+    FEATURE_FLAGS,
+    initializeFeatureFlags,
+} from '../src/featureFlags.js';
+
+suite('bulletin feature flags', () => {
+    let storedFlags;
+    let element;
+
+    suiteSetup(() => {
+        if (!customElements.get('test-bulletin-app-shell')) {
+            customElements.define('test-bulletin-app-shell', class extends BulletinAppShell {});
+        }
+    });
+
+    setup(() => {
+        const keys = [
+            'dbp-feature-developer-mode',
+            ...FEATURE_FLAGS.flatMap((flag) => [
+                `dbp-feature-${flag}`,
+                `dbp-feature-default-${flag}`,
+            ]),
+        ];
+        storedFlags = new Map(keys.map((key) => [key, localStorage.getItem(key)]));
+        for (const key of keys) localStorage.removeItem(key);
+
+        element = document.createElement('test-bulletin-app-shell');
+        element.routes = [
+            'career-profile',
+            'browse-career-profiles',
+            'import-companies',
+            'generate-companies',
+            'generate-jobs',
+            'generate-career-profiles',
+            'view-job-offers',
+            'manage-fields',
+        ];
+        element.metadata = {
+            'career-profile': {
+                visible: true,
+                feature_flag: CAREER_PROFILES_FEATURE_FLAG,
+                required_roles: ['profile-manager'],
+            },
+            'browse-career-profiles': {
+                visible: true,
+                feature_flag: CAREER_PROFILES_FEATURE_FLAG,
+                required_any_roles: ['profile-reader', 'job-manager'],
+            },
+            'import-companies': {
+                visible: true,
+                feature_flag: ADMIN_TOOLS_FEATURE_FLAG,
+                required_roles: ['admin'],
+            },
+            'generate-companies': {visible: false, required_roles: ['admin']},
+            'generate-jobs': {visible: false, required_roles: ['admin']},
+            'generate-career-profiles': {visible: false, required_roles: ['admin']},
+            'view-job-offers': {visible: true},
+            'manage-fields': {visible: true},
+        };
+        element._roles = ['profile-manager', 'job-manager', 'admin'];
+    });
+
+    teardown(() => {
+        for (const [key, value] of storedFlags) {
+            if (value === null) localStorage.removeItem(key);
+            else localStorage.setItem(key, value);
+        }
+    });
+
+    const visibleNames = (element) => element.visibleRoutes.map((route) => route.name);
+
+    test('should enable career profiles independently of company import', () => {
+        const originalRoutes = element.routes;
+        element._updateVisibleRoutes();
+        assert.deepEqual(visibleNames(element), ['view-job-offers', 'manage-fields']);
+
+        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, true);
+        element._updateVisibleRoutes();
+        assert.deepEqual(visibleNames(element), [
+            'career-profile',
+            'browse-career-profiles',
+            'view-job-offers',
+            'manage-fields',
+        ]);
+        assert.strictEqual(element.routes, originalRoutes);
+        assert.isTrue(element.metadata['career-profile'].visible);
+    });
+
+    test('should enable only company import with the admin-tools flag', () => {
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
+        element._updateVisibleRoutes();
+        assert.deepEqual(visibleNames(element), [
+            'import-companies',
+            'view-job-offers',
+            'manage-fields',
+        ]);
+    });
+
+    test('should show generators in developer mode without bypassing app feature flags', () => {
+        setFeatureFlag('developer-mode', true);
+        element._updateVisibleRoutes();
+        assert.deepEqual(visibleNames(element), [
+            'generate-companies',
+            'generate-jobs',
+            'generate-career-profiles',
+            'view-job-offers',
+            'manage-fields',
+        ]);
+
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
+        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, true);
+        element._updateVisibleRoutes();
+        assert.deepEqual(visibleNames(element), element.routes);
+    });
+
+    test('should preserve all-role and any-role restrictions even in developer mode', () => {
+        setFeatureFlag('developer-mode', true);
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
+        setFeatureFlag(CAREER_PROFILES_FEATURE_FLAG, true);
+        element._roles = [];
+        element._updateVisibleRoutes();
+        assert.deepEqual(visibleNames(element), ['view-job-offers', 'manage-fields']);
+
+        element._roles = ['profile-reader'];
+        element._updateVisibleRoutes();
+        assert.deepEqual(visibleNames(element), [
+            'browse-career-profiles',
+            'view-job-offers',
+            'manage-fields',
+        ]);
+    });
+
+    test('should update visibility immediately when a feature checkbox changes', () => {
+        const input = document.createElement('input');
+        input.dataset.key = ADMIN_TOOLS_FEATURE_FLAG;
+        element.appendChild(input);
+
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
+        input.dispatchEvent(new Event('change', {bubbles: true, composed: true}));
+        assert.include(visibleNames(element), 'import-companies');
+
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, false);
+        input.dispatchEvent(new Event('change', {bubbles: true, composed: true}));
+        assert.notInclude(visibleNames(element), 'import-companies');
+
+        input.dataset.key = 'developer-mode';
+        setFeatureFlag('developer-mode', true);
+        input.dispatchEvent(new Event('change', {bubbles: true, composed: true}));
+        assert.include(visibleNames(element), 'generate-jobs');
+        assert.notInclude(visibleNames(element), 'import-companies');
+    });
+
+    test('should initialize enabled deployment defaults', () => {
+        initializeFeatureFlags(FEATURE_FLAGS);
+        for (const flag of FEATURE_FLAGS) {
+            assert.equal(localStorage.getItem(`dbp-feature-${flag}`), 'true');
+            assert.equal(localStorage.getItem(`dbp-feature-default-${flag}`), 'true');
+        }
+    });
+
+    test('should preserve manually enabled flags when defaults change', () => {
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, true);
+        initializeFeatureFlags([]);
+        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
+        assert.equal(localStorage.getItem('dbp-feature-default-admin-tools'), 'false');
+
+        initializeFeatureFlags(FEATURE_FLAGS);
+        initializeFeatureFlags([]);
+        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
+    });
+
+    test('should preserve a manually disabled flag while its default is unchanged', () => {
+        initializeFeatureFlags(FEATURE_FLAGS);
+        setFeatureFlag(ADMIN_TOOLS_FEATURE_FLAG, false);
+        initializeFeatureFlags(FEATURE_FLAGS);
+        assert.isNull(localStorage.getItem('dbp-feature-admin-tools'));
+    });
+
+    test('should enable a flag when its deployment default changes to enabled', () => {
+        initializeFeatureFlags([]);
+        initializeFeatureFlags([ADMIN_TOOLS_FEATURE_FLAG]);
+        assert.equal(localStorage.getItem('dbp-feature-admin-tools'), 'true');
+        assert.isNull(localStorage.getItem('dbp-feature-career-profiles'));
+    });
+});
 
 suite('dbp-bulletin-view-job-offers basics', () => {
     let node;

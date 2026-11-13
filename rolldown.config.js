@@ -23,6 +23,15 @@ const buildFull = (!watch && appEnv !== 'test') || process.env.FORCE_FULL !== un
 const watchEnv = appEnv === 'local' ? '' : appEnv === 'localCustom' ? '-custom' : `-${appEnv}`;
 const watchDir = `watch${watchEnv}`;
 const distDir = appEnv === 'test' ? 'build/test' : watch ? `build/${watchDir}` : 'dist';
+// Enable app features by default only in local and development environments.
+const defaultEnabledFeatureFlags = [
+    'local',
+    'localCustom',
+    'development',
+    'developmentCustom',
+].includes(appEnv)
+    ? ['career-profiles', 'admin-tools']
+    : [];
 let doMinify = buildFull;
 let transform = buildFull;
 let checkLicenses = buildFull;
@@ -201,6 +210,7 @@ export default (async () => {
                         nextcloudBaseURL: config.nextcloudBaseURL,
                         nextcloudFileURL: config.nextcloudFileURL,
                         nextcloudName: config.nextcloudName,
+                        defaultEnabledFeatureFlags,
                     },
                 }),
             whitelabel &&
@@ -232,6 +242,7 @@ export default (async () => {
                         nextcloudBaseURL: config.nextcloudBaseURL,
                         nextcloudFileURL: config.nextcloudFileURL,
                         nextcloudName: config.nextcloudName,
+                        defaultEnabledFeatureFlags,
                     },
                 }),
             checkLicenses &&
