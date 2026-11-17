@@ -16,6 +16,7 @@ import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {createInstance} from '../i18n.js';
 import WorkLocationsElement, {normalizeWorkLocations} from './workLocationsElement.js';
 import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
+import {getJobCategoryItems} from './jobOfferForm.js';
 
 const i18n = createInstance();
 const CAREER_PROFILE_FRONTEND_KEY = 'career-profile';
@@ -458,6 +459,8 @@ const keepCareerProfileTranslations = (t) => {
     t('career-profile-form.field-industries');
     t('career-profile-form.field-fields');
     t('career-profile-form.field-fields-description');
+    t('manage-job-offers.field-job-category');
+    t('career-profile-form.field-job-description');
     t('career-profile-form.field-select-placeholder');
     t('career-profile-form.field-study-advanced-materials-science');
     t('career-profile-form.field-study-architecture');
@@ -672,6 +675,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._openToAllIndustries = false;
         this._industries = [];
         this._fields = [];
+        this._jobCategory = [];
         this._workLocations = [];
         this._availability = '';
         this._contactEmail = '';
@@ -712,6 +716,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             _openToAllIndustries: {state: true},
             _industries: {state: true},
             _fields: {state: true},
+            _jobCategory: {state: true},
             _workLocations: {state: true},
             _availability: {state: true},
             _contactEmail: {state: true},
@@ -744,6 +749,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         this._openToAllIndustries = false;
         this._industries = [];
         this._fields = [];
+        this._jobCategory = [];
         this._workLocations = [];
         this._availability = '';
         this._contactEmail = '';
@@ -795,6 +801,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     this._openToAllIndustries = Boolean(data.openToAllIndustries);
                     this._industries = normalizeCareerProfileSelectValues(data.industries);
                     this._fields = normalizeCareerProfileSelectValues(data.fields);
+                    this._jobCategory = normalizeCareerProfileSelectValues(data.jobCategory);
                     this._workLocations = normalizeWorkLocations(data.workLocations);
                     this._availability = data.availability || '';
                     this._website = data.website || data.linkUrl || '';
@@ -1108,6 +1115,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 ? []
                 : normalizeCareerProfileSelectValues(this._industries),
             fields: normalizeCareerProfileSelectValues(this._fields),
+            jobCategory: normalizeCareerProfileSelectValues(this._jobCategory),
             workLocations: normalizeWorkLocations(this._workLocations),
             availability: this._availability.trim(),
             website: normalizeHttpUrl(this._website),
@@ -1311,7 +1319,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         );
         const fieldItems = getCareerProfileFieldItems(t);
         keepCareerProfileTranslations(t);
-
+        const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
         return html`
             <dbp-enum-element
                 name="visibility"
@@ -1420,6 +1428,17 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     this._fields,
                     (value) => (this._fields = value),
                     {descriptionKey: 'career-profile-form.field-fields-description'},
+                )}
+            </div>
+
+            <div class="translation-row">
+                ${this.renderMultiSelectField(
+                    'jobCategory',
+                    'manage-job-offers.field-job-category',
+                    jobCategoryItems,
+                    this._jobCategory,
+                    (value) => (this._jobCategory = value),
+                    {descriptionKey: 'career-profile-form.field-job-description'},
                 )}
             </div>
 
