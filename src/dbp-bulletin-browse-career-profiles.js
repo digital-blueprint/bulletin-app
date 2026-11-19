@@ -31,6 +31,7 @@ import {
     WorkLocationSelectElement,
 } from './modules/workLocationsElement.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
+import {getJobCategoryItems} from './modules/jobOfferForm.js';
 
 // Users with this role may read the profiles students released for university employees
 const INTERNAL_CAREER_PROFILE_READER_ROLE = 'ROLE_BULLETIN_INTERNAL_CAREER_PROFILE_READER';
@@ -69,6 +70,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         this._loadingProfiles = false;
         this._loadError = false;
         this._profilesLoaded = false;
+        this._jobCategory = [];
     }
 
     static get properties() {
@@ -83,6 +85,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             _selectedProfile: {state: true},
             _loadingProfiles: {state: true},
             _loadError: {state: true},
+            _jobCategory: {state: true},
         };
     }
 
@@ -129,6 +132,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             changedProperties.has('filterIndustry') ||
             changedProperties.has('filterField') ||
             changedProperties.has('filterWorkLocation') ||
+            changedProperties.has('_jobCategory') ||
             changedProperties.has('_selectedProfile')
         ) {
             void this._syncProfileTable(changedProperties);
@@ -364,6 +368,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         );
     }
 
+    _getProfileJobCategories(profile) {
+        const data = profile?.additionalData ?? {};
+        return normalizeCareerProfileSelectValues(data.jobCategories ?? data.jobCategory);
+    }
+
     _formatDate(value) {
         if (!value) {
             return '';
@@ -382,6 +391,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         includeIndustry = true,
         includeField = true,
         includeWorkLocation = true,
+        includeJobCategory = true,
     } = {}) {
         const query = this.searchQuery.toLowerCase().trim();
 
@@ -393,6 +403,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             const industryLabels = this._getIndustryLabels(profile);
             const fields = normalizeCareerProfileSelectValues(data.fields);
             const fieldLabels = this._getFieldLabels(profile);
+            const jobCategories = this._getProfileJobCategories(profile);
             const localizedTextValues = [
                 data.availability,
                 this._localized(profile, 'teaser', 'teaserEn'),
@@ -428,8 +439,18 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         (ancestor) => getLocationKey(ancestor) === this.filterWorkLocation,
                     ),
                 );
+            const matchesJobCategory =
+                !includeJobCategory ||
+                this._jobCategory.length === 0 ||
+                this._jobCategory.some((category) => jobCategories.includes(category));
 
-            return matchesSearch && matchesIndustry && matchesField && matchesWorkLocation;
+            return (
+                matchesSearch &&
+                matchesIndustry &&
+                matchesField &&
+                matchesWorkLocation &&
+                matchesJobCategory
+            );
         });
     }
 
@@ -684,6 +705,11 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         this._clearUnavailableFilters();
     }
 
+    onJobCategoryChange(event) {
+        const value = event.detail?.value ?? event.target?.value ?? [];
+        this._jobCategory = (Array.isArray(value) ? value : [value]).filter(Boolean);
+    }
+
     _renderMetaItem(label, value) {
         if (!value) {
             return '';
@@ -703,6 +729,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             this._getAvailableFields(),
             getCareerProfileFieldLabels,
         );
+        const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
+
+        const jobCategoryOptions = Object.entries(jobCategoryItems).map(([value, label]) => ({
+            value,
+            label,
+        }));
         const selectedFieldLabel =
             fieldOptions.find((option) => option.value === this.filterField)?.label ??
             t('browse-career-profiles.select-placeholder');
@@ -758,6 +790,27 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
                 <div class="field">
                     <span class="label" aria-hidden="true">
+                        ${t('manage-job-offers.field-job-category')}
+                    </span>
+                    <div class="control">
+                        <dbp-select
+                            id="filter-profile-job-category"
+                            class="filter-select"
+                            allow-expand
+                            align="left"
+                            label="${
+                                jobCategoryOptions.find(
+                                    (option) => option.value === this._jobCategory[0],
+                                )?.label ?? t('manage-job-offers.select-placeholder')
+                            }"
+                            .options="${jobCategoryOptions}"
+                            .value="${this._jobCategory[0] ?? ''}"
+                            @change="${this.onJobCategoryChange}"></dbp-select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <span class="label" aria-hidden="true">
                         ${t('career-profile-form.field-locations')}
                     </span>
                     <div class="control">
@@ -765,7 +818,6 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                             id="filter-profile-work-location"
                             lang="${this.lang}"
                             lang-dir="${this.langDir}"
-                            label="${t('career-profile-form.field-locations')}"
                             placeholder="${t('browse-career-profiles.select-placeholder')}"
                             .locations="${this._getAvailableWorkLocations()}"
                             .value="${this.filterWorkLocation}"
@@ -1022,12 +1074,14 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             .profile-filter-row {
                 --filter-control-height: 2.1rem;
                 display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(4, minmax(0, 1fr));
                 gap: 1rem;
                 margin-bottom: 1.5rem;
             }
 
             .profile-filter-row .field {
+                min-width: 0;
+                width: 100%;
                 margin-bottom: 0;
             }
 
