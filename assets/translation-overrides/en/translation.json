@@ -1,6 +1,12 @@
 {
     "dbp-formalize-manage-forms": {
         "manage-forms": {
+            "edit-form-permission-button-text": "Edit job offer permissions",
+            "edit-form-permission-modal-title": "Edit job offer permissions",
+            "edit-form-permission-modal-description": "Here you can edit permissions for the job offer {{- formName}}.",
+            "edit-submission-collection-permission": "Edit job application permissions",
+            "edit-submission-collection-permission-modal-title": "Edit job application permissions",
+            "edit-submission-collection-permission-modal-description": "Here you can edit permissions for all current and future job applications for the job offer {{- formName}}.",
             "edit-form-button": "Edit",
             "name": "Position title",
             "open-forms": "Manage applications",
@@ -16,6 +22,16 @@
         "success": {
             "forms-processed_one": "{{count}} job offer processed successfully",
             "forms-processed_other": "{{count}} job offers processed successfully"
+        }
+    },
+    "dbp-formalize-manage-fields": {
+        "manage-fields": {
+            "edit-form-permission": "Edit user-defined data field permissions",
+            "edit-form-permission-modal-title": "Edit user-defined data field permissions",
+            "edit-form-permission-modal-description": "Here you can edit the permissions for the user-defined data field {{- formName}}.",
+            "edit-collection-permission": "Edit data field values permissions",
+            "edit-collection-permission-modal-title": "Edit data field values permissions",
+            "edit-collection-permission-modal-description": "Here you can edit permissions for editing the selectable values of the user-defined data field {{- formName}}."
         }
     },
     "dbp-formalize-manage-forms-overview-page": {

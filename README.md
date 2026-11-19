@@ -78,6 +78,7 @@ This app has the following activities:
 
 - `dbp-bulletin-view-job-offers`
 - `dbp-formalize-manage-forms` from Formalize, used to manage job offer forms
+- `dbp-formalize-manage-fields` from Formalize, used to manage user-defined data fields and their selectable values
 
 You can find the documentation of the activity in the [bulletin activities documentation](https://github.com/digital-blueprint/bulletin-app/tree/main/src).
 
@@ -107,6 +108,12 @@ you need to manually add these attributes so that the topic will work properly:
 ```html
 <dbp-bulletin auth requested-login-status analytics-event></dbp-bulletin>
 ```
+
+### Permission actions
+
+The `enable-submission-collection-permission-editing` boolean attribute on `<dbp-bulletin>` is set by default in both Bulletin builds and the installation template. It adds **Edit job application permissions** to a job offer's row menu when the user can manage its application collection. The action covers all current and future applications, even if there are none yet. **Edit job offer permissions** is separate. The existing `enable-submission-permission-editing` attribute controls permissions for individual applications.
+
+The data field overview also separates permissions for the field itself from permissions for editing its selectable values. To customize the labels, dialog titles, or descriptions in either activity, edit `translation-overrides/<language>/translation.json` under `assets/` (whitelabel), `assets_custom/` (custom build), or `app-template/` (installation template). For an existing installation, update the files served by its `lang-dir` and make sure the new attribute is present on `<dbp-bulletin>`, listed in the topic metadata's `attributes`, and included in the manage-forms activity metadata's `subscribe`.
 
 ### Design
 

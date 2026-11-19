@@ -1,10 +1,26 @@
 {
     "dbp-formalize-manage-forms": {
         "manage-forms": {
+            "edit-form-permission-button-text": "Stellenangebotsberechtigungen bearbeiten",
+            "edit-form-permission-modal-title": "Stellenangebotsberechtigungen bearbeiten",
+            "edit-form-permission-modal-description": "Hier können Sie die Berechtigungen für das Stellenangebot „{{- formName}}“ bearbeiten.",
+            "edit-submission-collection-permission": "Bewerbungsberechtigungen bearbeiten",
+            "edit-submission-collection-permission-modal-title": "Bewerbungsberechtigungen bearbeiten",
+            "edit-submission-collection-permission-modal-description": "Hier können Sie die Berechtigungen für alle aktuellen und künftigen Bewerbungen auf das Stellenangebot „{{- formName}}“ bearbeiten.",
             "edit-form-button": "Bearbeiten",
             "name": "Stellenbezeichnung",
             "open-forms": "Stellenangebote verwalten",
             "no-submission-data-available": "Für diese Stelle sind noch keine Bewerbungen vorhanden."
+        }
+    },
+    "dbp-formalize-manage-fields": {
+        "manage-fields": {
+            "edit-form-permission": "Berechtigungen für das benutzerdefinierte Datenfeld bearbeiten",
+            "edit-form-permission-modal-title": "Berechtigungen für das benutzerdefinierte Datenfeld bearbeiten",
+            "edit-form-permission-modal-description": "Hier können Sie die Berechtigungen für das benutzerdefinierte Datenfeld „{{- formName}}“ bearbeiten.",
+            "edit-collection-permission": "Berechtigungen für Datenfeldwerte bearbeiten",
+            "edit-collection-permission-modal-title": "Berechtigungen für Datenfeldwerte bearbeiten",
+            "edit-collection-permission-modal-description": "Hier können Sie festlegen, wer die auswählbaren Werte des benutzerdefinierten Datenfelds „{{- formName}}“ bearbeiten darf."
         }
     },
     "dbp-formalize-manage-forms-overview-page": {

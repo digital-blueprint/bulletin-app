@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Permissions: added a separate action for all current and future applications of a job offer. The job offer and user-defined data field permission actions now have distinct German and English labels, dialog titles and descriptions (task #76770).
 - Feature flags: restored the `career-profiles` flag for managing and browsing career profiles and the `admin-tools` flag for company import, as in 0.3.1. Generators remain hidden unless `developer-mode` is enabled; role restrictions still apply to all activities
 - External job offers: removed the `external-jobs` feature flag used in 0.3.1. External job viewing and creation, company management, the career starter preset and the "Only university jobs" filter are now always available; existing role restrictions remain unchanged
 - Work location selection: expanded the Austrian city and town list from 53 in 0.3.1 to 253, grouped by federal state. Existing location IDs and display names remain unchanged

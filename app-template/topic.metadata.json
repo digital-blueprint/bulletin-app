@@ -27,6 +27,7 @@
         "hide-create-submission-button",
         "item-frontend-keys",
         "enable-forms-bulk-delete",
-        "enable-submission-permission-editing"
+        "enable-submission-permission-editing",
+        "enable-submission-collection-permission-editing"
     ]
 }
