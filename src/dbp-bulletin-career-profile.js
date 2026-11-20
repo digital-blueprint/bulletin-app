@@ -23,6 +23,7 @@ import CareerProfileModule, {
     normalizeStudentStudies,
 } from './modules/careerProfileForm.js';
 import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
+import {getJobCategoryLabel} from './modules/jobOfferForm.js';
 
 /**
  * @typedef {{localData?: object}} PersonData
@@ -768,6 +769,20 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                   label.split(', ').slice(0, 2).join(', '),
                                               ),
                                           )}
+                                      </dd>
+                                  `
+                                : ''
+                        }
+                        ${
+                            getJobCategoryLabel(data.jobCategory, (value, opts) =>
+                                this._i18n.t(value, opts),
+                            )
+                                ? html`
+                                      <dt>
+                                          ${this._i18n.t('career-profile-form.field-job-category')}:
+                                      </dt>
+                                      <dd>
+                                          ${getJobCategoryLabel(data.jobCategory, (value, opts) => this._i18n.t(value, opts))}
                                       </dd>
                                   `
                                 : ''
