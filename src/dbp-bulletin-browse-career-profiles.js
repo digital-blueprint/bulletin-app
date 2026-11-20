@@ -31,7 +31,7 @@ import {
     WorkLocationSelectElement,
 } from './modules/workLocationsElement.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
-import {getJobCategoryItems} from './modules/jobOfferForm.js';
+import {getJobCategoryItems, getJobCategoryLabel} from './modules/jobOfferForm.js';
 
 // Users with this role may read the profiles students released for university employees
 const INTERNAL_CAREER_PROFILE_READER_ROLE = 'ROLE_BULLETIN_INTERNAL_CAREER_PROFILE_READER';
@@ -500,21 +500,71 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         `;
     }
 
+    /**
+     * Joins list values for a table cell. A semicolon is used as separator, because some
+     * entries (e.g. work locations) already contain commas.
+     * @param {Array} items
+     * @returns {string}
+     */
+    _joinTableList(items) {
+        return (Array.isArray(items) ? items : [])
+            .map((item) => String(item ?? '').trim())
+            .filter(Boolean)
+            .join('; ');
+    }
+
+    _getTableStudies(profile) {
+        const data = profile?.additionalData ?? {};
+        const studies = normalizeStudentStudies(data);
+        if (studies.length === 0) {
+            return formatStudentStudies(data, this.lang, true);
+        }
+
+        return this._joinTableList(
+            studies.map((study) => getLocalizedStudentStudyLabel(study, this.lang)),
+        );
+    }
+
     _getTableData() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+
         return this._getFilteredProfiles().map((profile) => {
             const data = profile.additionalData ?? {};
-            const skills = this._localizedList(profile, 'skills', 'skillsEn');
+            // Other educational qualifications are entered one per line
+            const furtherQualifications = this._localized(
+                profile,
+                'furtherQualifications',
+                'furtherQualificationsEn',
+            ).split('\n');
+
             return {
                 alias: this._getProfileAlias(profile),
-                studyProgram: formatStudentStudies(data, this.lang, true),
-                workLocations: this._getWorkLocationLabels(profile).join(', '),
+                teaser: this._localized(profile, 'teaser', 'teaserEn'),
+                studyProgram: this._getTableStudies(profile),
+                workLocations: this._joinTableList(this._getWorkLocationLabels(profile)),
                 availableFrom: data.availability ?? '',
+                fields: this._joinTableList(this._getFieldLabels(profile)),
+                jobCategories: this._joinTableList(
+                    this._getProfileJobCategories(profile).map((category) =>
+                        getJobCategoryLabel(category, t),
+                    ),
+                ),
                 previousExperience: this._localized(
                     profile,
                     'previousExperience',
                     'previousExperienceEn',
                 ),
-                skills: skills.join(', '),
+                furtherQualifications: this._joinTableList(furtherQualifications),
+                skills: this._joinTableList(this._localizedList(profile, 'skills', 'skillsEn')),
+                personalInterests: this._localized(
+                    profile,
+                    'personalInterests',
+                    'personalInterestsEn',
+                ),
+                languages: this._joinTableList(
+                    this._localizedList(profile, 'languages', 'languagesEn'),
+                ),
+                website: data.website || data.linkUrl || '',
                 profile,
             };
         });
@@ -583,6 +633,13 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     minWidth: 180,
                 },
                 {
+                    title: t('browse-career-profiles.column-teaser'),
+                    field: 'teaser',
+                    sorter: 'string',
+                    minWidth: 240,
+                    visible: false,
+                },
+                {
                     title: t('browse-career-profiles.column-study-program'),
                     field: 'studyProgram',
                     sorter: 'string',
@@ -602,16 +659,60 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     minWidth: 160,
                 },
                 {
-                    title: t('browse-career-profiles.column-previous-experience'),
+                    title: t('career-profile-form.field-fields'),
+                    field: 'fields',
+                    sorter: 'string',
+                    minWidth: 220,
+                },
+                {
+                    title: t('browse-career-profiles.column-job-categories'),
+                    field: 'jobCategories',
+                    sorter: 'string',
+                    minWidth: 220,
+                },
+                {
+                    title: t('career-profile-form.field-previous-experience'),
                     field: 'previousExperience',
                     sorter: 'string',
                     minWidth: 240,
+                    visible: false,
                 },
                 {
-                    title: t('browse-career-profiles.column-skills'),
+                    title: t('career-profile-form.field-qualification-view-mode'),
+                    field: 'furtherQualifications',
+                    sorter: 'string',
+                    minWidth: 240,
+                    visible: false,
+                },
+                {
+                    title: t('career-profile-form.field-skills-view-mode'),
                     field: 'skills',
                     sorter: 'string',
                     minWidth: 220,
+                    visible: false,
+                },
+                {
+                    title: t('career-profile-form.field-personal-interests'),
+                    field: 'personalInterests',
+                    sorter: 'string',
+                    minWidth: 240,
+                    visible: false,
+                },
+                {
+                    title: t('career-profile-form.field-languages-view-mode'),
+                    field: 'languages',
+                    sorter: 'string',
+                    minWidth: 180,
+                    visible: false,
+                },
+                {
+                    title: t('career-profile-form.field-website'),
+                    field: 'website',
+                    sorter: 'string',
+                    formatter: 'link',
+                    formatterParams: {target: '_blank'},
+                    minWidth: 200,
+                    visible: false,
                 },
                 {
                     title: '',
@@ -659,7 +760,8 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
         table.tabulatorTable.setLocale(this.lang);
         if (changedProperties.has('lang')) {
-            table.tabulatorTable.setColumns(options.columns);
+            // Use the wrapper so the stored column configuration is applied again
+            table.setColumns(options.columns);
         }
         table.tabulatorTable.replaceData(options.data);
     }

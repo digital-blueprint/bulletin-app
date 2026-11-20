@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Browse career profiles: all profile data fields except the self-description can now be shown via the column configuration of the table. "Kandidat*in"/"Candidate", "Studienfächer"/"Study fields", "Verfügbarkeit für Dienstorte"/"Availability for work locations", "Bevorzugter Arbeitsbeginn"/"Available from", "Interessensgebiete"/"Areas of interest" and "Verfügbarkeit für Stellenarten"/"Availability for job categories" are visible by default, while teaser, work experience, other educational qualifications, skills & abilities, personal interests, languages and website are hidden by default. List values are now separated with a semicolon, and a language change keeps the configured columns (task #76826)
 - Permissions: added a separate action for all current and future applications of a job offer. The job offer and user-defined data field permission actions now have distinct German and English labels, dialog titles and descriptions (task #76770).
 - Feature flags: restored the `career-profiles` flag for managing and browsing career profiles and the `admin-tools` flag for company import, as in 0.3.1. Generators remain hidden unless `developer-mode` is enabled; role restrictions still apply to all activities
 - External job offers: removed the `external-jobs` feature flag used in 0.3.1. External job viewing and creation, company management, the career starter preset and the "Only university jobs" filter are now always available; existing role restrictions remain unchanged

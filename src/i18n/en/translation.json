@@ -2,10 +2,10 @@
     "browse-career-profiles": {
         "applicant-alias": "Candidate {{number}}",
         "back-to-profiles": "Back to View career profiles",
+        "column-job-categories": "Availability for job categories",
         "column-name": "Candidate",
-        "column-previous-experience": "Work experience",
-        "column-skills": "Skills",
         "column-study-program": "Study fields",
+        "column-teaser": "Teaser",
         "description": "Browse the career profiles of candidates who are looking for a job. The profiles are anonymised, but in case of interest, you can contact the candidates via our form.",
         "load-error": "The career profiles could not be loaded.",
         "load-error-title": "Loading failed",

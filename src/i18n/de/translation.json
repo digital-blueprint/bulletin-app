@@ -2,10 +2,10 @@
     "browse-career-profiles": {
         "applicant-alias": "Kandidat*in {{number}}",
         "back-to-profiles": "Zurück zu Karriereprofile durchsuchen",
+        "column-job-categories": "Verfügbarkeit für Stellenarten",
         "column-name": "Kandidat*in",
-        "column-previous-experience": "Vorerfahrung",
-        "column-skills": "Kompetenzen",
         "column-study-program": "Studienfächer",
+        "column-teaser": "Teaser",
         "description": "Durchsuchen Sie Karriereprofile der Kandidat*innen, die nach einer Arbeit suchen. Die Profile sind anonymisiert, jedoch können Sie die Kandidat*innen bei Interesse über unser Formular kontaktieren.",
         "load-error": "Die Karriereprofile konnten nicht geladen werden.",
         "load-error-title": "Laden fehlgeschlagen",
