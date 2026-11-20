@@ -3,7 +3,7 @@
         "applicant-alias": "Candidate {{number}}",
         "back-to-profiles": "Back to View career profiles",
         "column-name": "Candidate",
-        "column-previous-experience": "Previous experience",
+        "column-previous-experience": "Work experience",
         "column-skills": "Skills",
         "column-study-program": "Study fields",
         "description": "Browse the career profiles of candidates who are looking for a job. The profiles are anonymised, but in case of interest, you can contact the candidates via our form.",
@@ -64,7 +64,7 @@
         "field-personal-interests-description": "Involvement e.g. in student teams / clubs, projects, awards",
         "field-personal-interests-en": "Personal interests (en)",
         "field-personal-interests-en-description": "Involvement e.g. in student teams / clubs, projects, awards",
-        "field-preferred-work-location": "Preferred work location",
+        "field-preferred-work-location": "Availability for work locations",
         "field-previous-experience": "Work experience",
         "field-previous-experience-description": "Previous activities, including during studies",
         "field-previous-experience-en": "Work experience (en)",
@@ -619,7 +619,7 @@
         "work-location-region-vorarlberg": "Vorarlberg",
         "work-location-remove": "Remove",
         "work-location-remove-aria": "Remove {{- location}}",
-        "work-location-selected": "Selected places of employment"
+        "work-location-selected": "Selected work locations"
     },
     "render-form": {
         "download-widget": {
