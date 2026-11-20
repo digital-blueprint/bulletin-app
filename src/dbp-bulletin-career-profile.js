@@ -1453,7 +1453,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             dl {
                 display: flex;
                 flex-direction: column;
-                margin: 0;
+                margin-top: 1em;
             }
 
             /* All subtitles of the view mode share the same styling, no matter whether they are
@@ -1508,6 +1508,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             .additional-note {
                 font-size: 14px;
                 color: var(--dbp-override-muted);
+            }
+
+            .career-profile-wrapper {
+                margin-top: 1.5em;
             }
 
             .student-teaser {
