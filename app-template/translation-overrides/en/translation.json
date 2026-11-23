@@ -3,10 +3,10 @@
         "manage-forms": {
             "edit-form-permission-button-text": "Edit job offer permissions",
             "edit-form-permission-modal-title": "Edit job offer permissions",
-            "edit-form-permission-modal-description": "Here you can edit permissions for the job offer {{- formName}}.",
+            "edit-form-permission-modal-description": "Here you can edit permissions for the job offer {{- emphasizedFormName}}.",
             "edit-submission-collection-permission": "Edit job application permissions",
             "edit-submission-collection-permission-modal-title": "Edit job application permissions",
-            "edit-submission-collection-permission-modal-description": "Here you can edit permissions for all current and future job applications for the job offer {{- formName}}.",
+            "edit-submission-collection-permission-modal-description": "Here you can edit permissions for all current and future job applications for the job offer {{- emphasizedFormName}}.",
             "edit-form-button": "Edit",
             "name": "Position title",
             "open-forms": "Manage job offers",

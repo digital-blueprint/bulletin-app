@@ -3,10 +3,10 @@
         "manage-forms": {
             "edit-form-permission-button-text": "Stellenangebotsberechtigungen bearbeiten",
             "edit-form-permission-modal-title": "Stellenangebotsberechtigungen bearbeiten",
-            "edit-form-permission-modal-description": "Hier können Sie die Berechtigungen für das Stellenangebot „{{- formName}}“ bearbeiten.",
+            "edit-form-permission-modal-description": "Hier können Sie die Berechtigungen für das Stellenangebot „{{- emphasizedFormName}}“ bearbeiten.",
             "edit-submission-collection-permission": "Bewerbungsberechtigungen bearbeiten",
             "edit-submission-collection-permission-modal-title": "Bewerbungsberechtigungen bearbeiten",
-            "edit-submission-collection-permission-modal-description": "Hier können Sie die Berechtigungen für alle aktuellen und künftigen Bewerbungen auf das Stellenangebot „{{- formName}}“ bearbeiten.",
+            "edit-submission-collection-permission-modal-description": "Hier können Sie die Berechtigungen für alle aktuellen und künftigen Bewerbungen auf das Stellenangebot „{{- emphasizedFormName}}“ bearbeiten.",
             "edit-form-button": "Bearbeiten",
             "name": "Stellenbezeichnung",
             "open-forms": "Bewerbungen verwalten",
