@@ -28,7 +28,6 @@ import {
     getLocationKey,
     getWorkLocationLabels,
     normalizeWorkLocations,
-    WorkLocationSelectElement,
 } from './modules/workLocationsElement.js';
 import {CustomTabulatorTable} from '../vendor/formalize/src/table-components.js';
 import {getJobCategoryItems, getJobCategoryLabel} from './modules/jobOfferForm.js';
@@ -48,14 +47,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             'dbp-mini-spinner': MiniSpinner,
             'dbp-tabulator-table': CustomTabulatorTable,
             'dbp-career-profile-interest-form': CareerProfileInterestFormElement,
-            'dbp-work-location-select-element': WorkLocationSelectElement,
             'dbp-login-required-warning': DBPLoginRequiredWarning,
         };
     }
 
     constructor() {
         super();
-        this.langDir = '';
         this.searchQuery = '';
         this.filterIndustry = '';
         this.filterField = '';
@@ -76,7 +73,6 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
     static get properties() {
         return {
             ...super.properties,
-            langDir: {type: String, attribute: 'lang-dir'},
             searchQuery: {type: String, state: true},
             filterIndustry: {type: String, state: true},
             filterField: {type: String, state: true},
@@ -478,6 +474,29 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         );
     }
 
+    _getWorkLocationOptions() {
+        const t = (key, opts) => this._i18n.t(key, opts);
+        const options = this._getAvailableWorkLocations().map((location) => {
+            const value = getLocationKey(location);
+            return {
+                value,
+                label: getWorkLocationLabels([location], t, this.lang)[0] ?? value,
+            };
+        });
+
+        return [
+            {
+                value: '',
+                label: t('browse-career-profiles.select-placeholder'),
+            },
+            ...options.sort((a, b) =>
+                a.label.localeCompare(b.label, this.lang, {
+                    sensitivity: 'base',
+                }),
+            ),
+        ];
+    }
+
     _clearUnavailableFilters() {
         if (this.filterIndustry && !this._getAvailableIndustries().includes(this.filterIndustry)) {
             this.filterIndustry = '';
@@ -837,8 +856,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             value,
             label,
         }));
+        const workLocationOptions = this._getWorkLocationOptions();
         const selectedFieldLabel =
             fieldOptions.find((option) => option.value === this.filterField)?.label ??
+            t('browse-career-profiles.select-placeholder');
+        const selectedWorkLocationLabel =
+            workLocationOptions.find((option) => option.value === this.filterWorkLocation)?.label ??
             t('browse-career-profiles.select-placeholder');
 
         return html`
@@ -916,14 +939,15 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         ${t('career-profile-form.field-locations')}
                     </span>
                     <div class="control">
-                        <dbp-work-location-select-element
+                        <dbp-select
                             id="filter-profile-work-location"
-                            lang="${this.lang}"
-                            lang-dir="${this.langDir}"
-                            placeholder="${t('browse-career-profiles.select-placeholder')}"
-                            .locations="${this._getAvailableWorkLocations()}"
+                            class="filter-select"
+                            allow-expand
+                            align="left"
+                            label="${selectedWorkLocationLabel}"
+                            .options="${workLocationOptions}"
                             .value="${this.filterWorkLocation}"
-                            @change="${this.onWorkLocationChange}"></dbp-work-location-select-element>
+                            @change="${this.onWorkLocationChange}"></dbp-select>
                     </div>
                 </div>
             </div>
@@ -1225,10 +1249,6 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                 overflow-x: hidden;
                 overflow-y: auto;
                 top: 2rem;
-            }
-
-            .profile-filter-row dbp-work-location-select-element {
-                --work-location-select-height: var(--filter-control-height);
             }
 
             .search-label-spacer {
