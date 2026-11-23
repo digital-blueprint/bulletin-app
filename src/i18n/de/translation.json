@@ -595,7 +595,7 @@
         "publish": "Veröffentlichen",
         "required-field-error": "Bitte füllen Sie das Pflichtfeld aus!",
         "save": "Speichern",
-        "select-placeholder": "Option auswählen",
+        "select-placeholder": "Alle",
         "selected-company-is-partner": "Die ausgewählte Firma ist ein Partnerunternehmen.",
         "skip-to-save-button": "Zum Button „{{label}}“ springen",
         "tab-mandatory-fields": "Pflichtfelder",

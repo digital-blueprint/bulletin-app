@@ -1199,10 +1199,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
             .profile-filter-row {
                 --filter-control-height: 2.1rem;
+                position: sticky;
                 display: grid;
                 grid-template-columns: repeat(4, minmax(0, 1fr));
                 gap: 1rem;
                 margin-bottom: 1.5rem;
+                z-index: 1000;
             }
 
             .profile-filter-row .field {
