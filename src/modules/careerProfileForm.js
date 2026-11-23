@@ -1540,14 +1540,20 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     'career-profile-form.field-languages',
                     this._languagesText,
                     (value) => (this._languagesText = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        descriptionKey: 'career-profile-form.field-languages-description',
+                    },
                 )}
                 ${this.renderTextField(
                     'languagesEn',
                     'career-profile-form.field-languages-en',
                     this._languagesTextEn,
                     (value) => (this._languagesTextEn = value),
-                    {rows: 4},
+                    {
+                        rows: 4,
+                        descriptionKey: 'career-profile-form.field-languages-en-description',
+                    },
                 )}
             </div>
 
