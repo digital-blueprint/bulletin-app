@@ -459,6 +459,8 @@ const keepCareerProfileTranslations = (t) => {
     t('career-profile-form.field-industries');
     t('career-profile-form.field-fields');
     t('career-profile-form.field-fields-description');
+    t('career-profile-form.field-languages-description');
+    t('career-profile-form.field-languages-en-description');
     t('manage-job-offers.field-job-category');
     t('career-profile-form.field-job-description');
     t('career-profile-form.field-select-placeholder');
