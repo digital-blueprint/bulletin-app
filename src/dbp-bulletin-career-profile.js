@@ -463,9 +463,25 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _localizedList(profile, primaryKey, englishKey) {
         const data = profile?.additionalData ?? {};
-        return this.lang === 'en' && Array.isArray(data[englishKey]) && data[englishKey].length > 0
-            ? data[englishKey]
-            : data[primaryKey] || [];
+
+        const normalize = (value) => {
+            if (Array.isArray(value)) {
+                return value;
+            }
+
+            if (typeof value === 'string') {
+                return value
+                    .split(/\r?\n/)
+                    .map((item) => item.trim())
+                    .filter(Boolean);
+            }
+
+            return [];
+        };
+
+        const english = normalize(data[englishKey]);
+
+        return this.lang === 'en' && english.length > 0 ? english : normalize(data[primaryKey]);
     }
 
     /**
@@ -614,6 +630,23 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             </ul>
         `;
     }
+    _getPreviousExperience(profile) {
+        const items = this._localizedList(profile, 'previousExperience', 'previousExperienceEn');
+
+        if (!Array.isArray(items) || items.length === 0) {
+            return '';
+        }
+
+        return html`
+            <ul class="bulletpoints-list">
+                ${items.map(
+                    (item) => html`
+                        <li>${item}</li>
+                    `,
+                )}
+            </ul>
+        `;
+    }
     _getFields(profile) {
         const data = profile?.additionalData ?? {};
 
@@ -681,11 +714,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             'furtherQualifications',
             'furtherQualificationsEn',
         );
-        const previousExperience = this._localized(
-            profile,
-            'previousExperience',
-            'previousExperienceEn',
-        );
+        const previousExperience = this._getPreviousExperience(profile);
 
         return html`
             <div class="profile-card">
@@ -931,7 +960,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         const data = profile.additionalData ?? {};
         const teaser = this._localized(profile, 'teaser', 'teaserEn');
         const isOwnProfile = this._isOwnProfile(profile);
-        const previousExperience = this._localized(
+        const previousExperience = this._localizedList(
             profile,
             'previousExperience',
             'previousExperienceEn',
@@ -1024,11 +1053,11 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 </dl>
 
                 ${
-                    previousExperience
+                    previousExperience.length
                         ? html`
                               <section>
                                   <h3>${t('career-profile-form.field-previous-experience')}</h3>
-                                  <p>${previousExperience}</p>
+                                  ${this._renderList(previousExperience)}
                               </section>
                           `
                         : ''

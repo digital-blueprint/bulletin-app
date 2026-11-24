@@ -982,7 +982,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         const t = (key, opts) => this._i18n.t(key, opts);
         const data = profile.additionalData ?? {};
         const teaser = this._localized(profile, 'teaser', 'teaserEn');
-        const previousExperience = this._localized(
+        const previousExperience = this._localizedList(
             profile,
             'previousExperience',
             'previousExperienceEn',
@@ -1052,10 +1052,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                         getCareerProfileFieldLabels,
                     )}
                     ${
-                        previousExperience
+                        previousExperience.length
                             ? html`
                                   <dt>${t('career-profile-form.field-previous-experience')}</dt>
-                                  <dd>${previousExperience}</dd>
+                                  <dd>${this._renderBulletpointList(previousExperience)}</dd>
                               `
                             : ''
                     }
