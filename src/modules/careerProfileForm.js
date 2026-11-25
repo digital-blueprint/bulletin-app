@@ -1,7 +1,6 @@
 import {BaseFormElement, BaseObject} from '../../vendor/formalize/src/form/base-object.js';
 import {SUBMISSION_STATES_BINARY} from '../../vendor/formalize/src/utils.js';
 import {css, html} from 'lit';
-import {keyed} from 'lit/directives/keyed.js';
 import {DbpDateElement, DbpEnumElement, DbpStringElement} from '@dbp-toolkit/form-elements';
 import {
     Button,
@@ -1276,49 +1275,38 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         `;
     }
 
-    _renderStudySelector(studyItems, t) {
-        if (!this._loadingStudentData && !this._availableStudies.length) {
-            return '';
-        }
-
-        if (!this._availableStudies.length) {
+    _renderStudyList(t) {
+        if (this._loadingStudentData) {
             return html`
                 <dbp-mini-spinner text="${t('loading-message')}"></dbp-mini-spinner>
             `;
         }
 
-        return keyed(
-            this.lang,
-            html`
-                <dbp-enum-element
-                    name="study-program"
-                    lang="${this.lang}"
-                    label="${t('career-profile-form.field-study-program')}"
-                    multiple
-                    display-mode="tags"
-                    .tagPlaceholder="${{
-                        [this.lang]: t('career-profile-form.field-select-placeholder'),
-                    }}"
-                    .items="${studyItems}"
-                    .value="${this._selectedStudyKeys}"
-                    required
-                    @change="${(event) => this._selectStudies(event.detail.value)}">
-                    <div slot="description">
-                        ${t('career-profile-form.field-study-program-description')}
-                    </div>
-                </dbp-enum-element>
-            `,
-        );
+        return html`
+            <div class="profile-prefill-info">
+                <strong>${t('career-profile-form.field-study-program')}:</strong>
+
+                <ul class="study-program-list">
+                    ${this._availableStudies.map(
+                        (study) => html`
+                            <li>${getLocalizedStudentStudyLabel(study, this.lang)}</li>
+                        `,
+                    )}
+                </ul>
+
+                <p class="contact-email-note">
+                    <dbp-icon
+                        name="information-circle"
+                        class="information-icon"
+                        aria-hidden="true"></dbp-icon>
+                    ${t('career-profile-form.field-study-program-description')}
+                </p>
+            </div>
+        `;
     }
 
     render() {
         const t = (key, opts) => /** @type {string} */ (this._i18n.t(key, opts));
-        const studyItems = Object.fromEntries(
-            this._availableStudies.map((study) => [
-                getStudentStudyValue(study),
-                getLocalizedStudentStudyLabel(study, this.lang),
-            ]),
-        );
         const fieldItems = getCareerProfileFieldItems(t);
         keepCareerProfileTranslations(t);
         const jobCategoryItems = getJobCategoryItems(t, t('manage-job-offers.select-placeholder'));
@@ -1402,7 +1390,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                       `
                     : ''
             }
-            ${this._renderStudySelector(studyItems, t)}
+            ${this._renderStudyList(t)}
             <dbp-work-locations-element
                 lang="${this.lang}"
                 lang-dir="${this.langDir}"
