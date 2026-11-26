@@ -20,6 +20,7 @@ import CareerProfileModule, {
     getCareerProfileVisibilityLabel,
     getLocalizedStudentStudyLabel,
     mergeLocalizedStudentStudies,
+    normalizeCareerProfileSelectValues,
     normalizeStudentStudies,
 } from './modules/careerProfileForm.js';
 import {getWorkLocationLabels, normalizeWorkLocations} from './modules/workLocationsElement.js';
@@ -715,6 +716,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             'furtherQualificationsEn',
         );
         const previousExperience = this._getPreviousExperience(profile);
+        const jobCategoryLabels = normalizeCareerProfileSelectValues(data.jobCategory).map(
+            (category) => getJobCategoryLabel(category, t),
+        );
 
         return html`
             <div class="profile-card">
@@ -803,16 +807,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 : ''
                         }
                         ${
-                            getJobCategoryLabel(data.jobCategory, (value, opts) =>
-                                this._i18n.t(value, opts),
-                            )
+                            jobCategoryLabels.length > 0
                                 ? html`
                                       <dt>
                                           ${this._i18n.t('career-profile-form.field-job-category')}:
                                       </dt>
-                                      <dd>
-                                          ${getJobCategoryLabel(data.jobCategory, (value, opts) => this._i18n.t(value, opts))}
-                                      </dd>
+                                      <dd>${jobCategoryLabels.join(', ')}</dd>
                                   `
                                 : ''
                         }

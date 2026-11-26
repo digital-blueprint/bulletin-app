@@ -1424,7 +1424,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             <div class="translation-row">
                 ${this.renderMultiSelectField(
                     'jobCategory',
-                    'manage-job-offers.field-job-category',
+                    'career-profile-form.field-job-category',
                     jobCategoryItems,
                     this._jobCategory,
                     (value) => (this._jobCategory = value),
@@ -1547,7 +1547,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 )}
             </div>
 
-            <div>
+            <div class="last-row">
                 ${this.renderTextField(
                     'website',
                     'career-profile-form.field-website',
@@ -1631,6 +1631,9 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                     gap: 0.35rem;
                 }
 
+                .last-row {
+                    padding-bottom: 2px;
+                }
                 @media (max-width: 720px) {
                     .translation-row {
                         grid-template-columns: 1fr;

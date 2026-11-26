@@ -3914,6 +3914,48 @@ suite('dbp-bulletin-career-profile routing', () => {
         node.remove();
     });
 
+    test('should show job categories only when the profile has a selection', async () => {
+        node.auth = {token: 'token', 'user-id': 'me', person_id: 'me'};
+        node._profilesLoaded = true;
+        node.routingUrl = '/';
+
+        const categoryLabel = node._i18n.t('career-profile-form.field-job-category') + ':';
+        const getCategoryRow = () =>
+            [...node.shadowRoot.querySelectorAll('.profile-card dt')].find(
+                (heading) => heading.textContent.trim() === categoryLabel,
+            );
+
+        for (const jobCategory of [undefined, [], ['']]) {
+            node._profiles = [
+                {
+                    identifier: 'own-profile',
+                    additionalData: {studentCreatorId: 'me', jobCategory},
+                },
+            ];
+            await node.updateComplete;
+            assert.isUndefined(getCategoryRow());
+        }
+
+        node._profiles = [
+            {
+                identifier: 'own-profile',
+                additionalData: {
+                    studentCreatorId: 'me',
+                    jobCategory: ['internship', 'fulltime'],
+                },
+            },
+        ];
+        await node.updateComplete;
+        assert.include(
+            getCategoryRow().nextElementSibling.textContent,
+            node._i18n.t('manage-job-offers.job-category-internship'),
+        );
+        assert.include(
+            getCategoryRow().nextElementSibling.textContent,
+            node._i18n.t('manage-job-offers.job-category-fulltime'),
+        );
+    });
+
     test('should switch between the overview, the profile detail and the submissions view', async () => {
         node.auth = {token: 'token', 'user-id': 'me', person_id: 'me'};
         node._profilesLoaded = true;
