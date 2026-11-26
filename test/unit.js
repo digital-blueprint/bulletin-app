@@ -3393,13 +3393,15 @@ suite('career profile student studies', () => {
             globalThis.fetch = originalFetch;
         }
 
-        const studyField = element.shadowRoot.querySelector('[name="study-program"]');
+        const studyLabels = [...element.shadowRoot.querySelectorAll('.study-program-list li')].map(
+            (study) => study.textContent.trim(),
+        );
         assert.deepEqual(requestedLanguages, ['de', 'en']);
-        assert.deepEqual(studyField.items, {'key:UF 874': 'UF 874 - Telematics'});
+        assert.deepEqual(studyLabels, ['UF 874 - Telematics']);
         element.remove();
     });
 
-    test('should select multiple fetched studies for the profile', async () => {
+    test('should display multiple fetched studies in the current language', async () => {
         const element = document.createElement(tagName);
         element.lang = 'de';
         element.currentStudentStudies = [
@@ -3417,38 +3419,22 @@ suite('career profile student studies', () => {
         document.body.appendChild(element);
         await element.updateComplete;
 
-        let studyField = element.shadowRoot.querySelector('[name="study-program"]');
-        assert.isNotNull(studyField);
-        assert.deepEqual(studyField.items, {
-            'key:bachelor': 'bachelor - Informatik (Bachelorstudium)',
-            'key:master': 'master - Softwareentwicklung (Masterstudium)',
-        });
+        const getStudyLabels = () =>
+            [...element.shadowRoot.querySelectorAll('.study-program-list li')].map((study) =>
+                study.textContent.trim(),
+            );
+        assert.deepEqual(getStudyLabels(), [
+            'bachelor - Informatik (Bachelorstudium)',
+            'master - Softwareentwicklung (Masterstudium)',
+        ]);
 
         element.lang = 'en';
         await element.updateComplete;
-        studyField = element.shadowRoot.querySelector('[name="study-program"]');
-        await studyField.updateComplete;
-
-        assert.deepEqual(studyField.items, {
-            'key:bachelor': 'bachelor - Computer Science (Bachelor programme)',
-            'key:master': 'master - Software Engineering (Master programme)',
-        });
-        assert.deepEqual(
-            [...studyField.shadowRoot.querySelectorAll('.select2-selection__choice')].map(
-                (choice) => choice.title,
-            ),
-            [
-                'bachelor - Computer Science (Bachelor programme)',
-                'master - Software Engineering (Master programme)',
-            ],
-        );
-        assert.deepEqual(studyField.value, ['key:bachelor', 'key:master']);
+        assert.deepEqual(getStudyLabels(), [
+            'bachelor - Computer Science (Bachelor programme)',
+            'master - Software Engineering (Master programme)',
+        ]);
         assert.deepEqual(element._getDisplayStudies(), element.currentStudentStudies);
-
-        element._selectStudies(['key:master']);
-
-        assert.deepEqual(element._getDisplayStudies(), [element.currentStudentStudies[1]]);
-        assert.equal(element._studyProgram, 'Softwareentwicklung (Masterstudium)');
         element.remove();
     });
 
