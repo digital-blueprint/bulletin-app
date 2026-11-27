@@ -465,20 +465,10 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
     _localizedList(profile, primaryKey, englishKey) {
         const data = profile?.additionalData ?? {};
 
-        const normalize = (value) => {
-            if (Array.isArray(value)) {
-                return value;
-            }
-
-            if (typeof value === 'string') {
-                return value
-                    .split(/\r?\n/)
-                    .map((item) => item.trim())
-                    .filter(Boolean);
-            }
-
-            return [];
-        };
+        const normalize = (value) =>
+            (Array.isArray(value) ? value : typeof value === 'string' ? value.split(/\r?\n/) : [])
+                .map((item) => item.trim())
+                .filter(Boolean);
 
         const english = normalize(data[englishKey]);
 
@@ -601,39 +591,17 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
     _getLanguages(profile) {
         const items = this._localizedList(profile, 'languages', 'languagesEn');
-        if (!Array.isArray(items) || items.length === 0) {
-            return '';
-        }
-
-        return html`
-            <ul class="bulletpoints-list">
-                ${items.map(
-                    (item) => html`
-                        <li>${item}</li>
-                    `,
-                )}
-            </ul>
-        `;
+        return this._renderBulletpointList(items);
     }
     _getSkills(profile) {
         const items = this._localizedList(profile, 'skills', 'skillsEn');
-        if (!Array.isArray(items) || items.length === 0) {
-            return '';
-        }
-
-        return html`
-            <ul class="bulletpoints-list">
-                ${items.map(
-                    (item) => html`
-                        <li>${item}</li>
-                    `,
-                )}
-            </ul>
-        `;
+        return this._renderBulletpointList(items);
     }
     _getPreviousExperience(profile) {
         const items = this._localizedList(profile, 'previousExperience', 'previousExperienceEn');
-
+        return this._renderBulletpointList(items);
+    }
+    _renderBulletpointList(items) {
         if (!Array.isArray(items) || items.length === 0) {
             return '';
         }
@@ -705,12 +673,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         );
         const summary = this._localized(profile, 'summary', 'summaryEn');
         const teaser = this._localized(profile, 'teaser', 'teaserEn');
-        const personalInterests = this._localized(
+        const personalInterests = this._localizedList(
             profile,
             'personalInterests',
             'personalInterestsEn',
         );
-        const qualification = this._localized(
+        const qualification = this._localizedList(
             profile,
             'furtherQualifications',
             'furtherQualificationsEn',
@@ -845,12 +813,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 : ''
                         }
                         ${
-                            qualification
+                            qualification.length
                                 ? html`
                                       <dt>
                                           ${this._i18n.t('career-profile-form.field-qualification-view-mode')}:
                                       </dt>
-                                      <dd>${qualification}</dd>
+                                      <dd>${this._renderBulletpointList(qualification)}</dd>
                                   `
                                 : ''
                         }
@@ -865,12 +833,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                 : ''
                         }
                         ${
-                            personalInterests
+                            personalInterests.length
                                 ? html`
                                       <dt>
                                           ${this._i18n.t('career-profile-form.field-personal-interests')}:
                                       </dt>
-                                      <dd>${personalInterests}</dd>
+                                      <dd>${this._renderBulletpointList(personalInterests)}</dd>
                                   `
                                 : ''
                         }
@@ -967,12 +935,12 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         );
         const skills = this._localizedList(profile, 'skills', 'skillsEn');
         const languages = this._localizedList(profile, 'languages', 'languagesEn');
-        const furtherQualifications = this._localized(
+        const furtherQualifications = this._localizedList(
             profile,
             'furtherQualifications',
             'furtherQualificationsEn',
         );
-        const personalInterests = this._localized(
+        const personalInterests = this._localizedList(
             profile,
             'personalInterests',
             'personalInterestsEn',
@@ -1073,21 +1041,21 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         : ''
                 }
                 ${
-                    furtherQualifications
+                    furtherQualifications.length
                         ? html`
                               <section>
                                   <h3>${t('career-profile-form.field-qualification-view-mode')}</h3>
-                                  <p class="multiline-text">${furtherQualifications}</p>
+                                  ${this._renderList(furtherQualifications)}
                               </section>
                           `
                         : ''
                 }
                 ${
-                    personalInterests
+                    personalInterests.length
                         ? html`
                               <section>
                                   <h3>${t('career-profile-form.field-personal-interests')}</h3>
-                                  <p>${personalInterests}</p>
+                                  ${this._renderList(personalInterests)}
                               </section>
                           `
                         : ''

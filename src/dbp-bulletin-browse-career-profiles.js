@@ -268,9 +268,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
     _localizedList(profile, primaryKey, englishKey) {
         const data = profile?.additionalData ?? {};
-        return this.lang === 'en' && Array.isArray(data[englishKey]) && data[englishKey].length > 0
-            ? data[englishKey]
-            : data[primaryKey] || [];
+        const normalize = (value) =>
+            (Array.isArray(value) ? value : typeof value === 'string' ? value.split(/\r?\n/) : [])
+                .map((item) => item.trim())
+                .filter(Boolean);
+        const english = normalize(data[englishKey]);
+        return this.lang === 'en' && english.length > 0 ? english : normalize(data[primaryKey]);
     }
 
     _getProfileAlias(profile) {
@@ -549,13 +552,6 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
 
         return this._getFilteredProfiles().map((profile) => {
             const data = profile.additionalData ?? {};
-            // Other educational qualifications are entered one per line
-            const furtherQualifications = this._localized(
-                profile,
-                'furtherQualifications',
-                'furtherQualificationsEn',
-            ).split('\n');
-
             return {
                 alias: this._getProfileAlias(profile),
                 teaser: this._localized(profile, 'teaser', 'teaserEn'),
@@ -573,12 +569,16 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                     'previousExperience',
                     'previousExperienceEn',
                 ),
-                furtherQualifications: this._joinTableList(furtherQualifications),
+                furtherQualifications: this._joinTableList(
+                    this._localizedList(
+                        profile,
+                        'furtherQualifications',
+                        'furtherQualificationsEn',
+                    ),
+                ),
                 skills: this._joinTableList(this._localizedList(profile, 'skills', 'skillsEn')),
-                personalInterests: this._localized(
-                    profile,
-                    'personalInterests',
-                    'personalInterestsEn',
+                personalInterests: this._joinTableList(
+                    this._localizedList(profile, 'personalInterests', 'personalInterestsEn'),
                 ),
                 languages: this._joinTableList(
                     this._localizedList(profile, 'languages', 'languagesEn'),
@@ -989,12 +989,12 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         );
         const skills = this._localizedList(profile, 'skills', 'skillsEn');
         const languages = this._localizedList(profile, 'languages', 'languagesEn');
-        const furtherQualifications = this._localized(
+        const furtherQualifications = this._localizedList(
             profile,
             'furtherQualifications',
             'furtherQualificationsEn',
         );
-        const personalInterests = this._localized(
+        const personalInterests = this._localizedList(
             profile,
             'personalInterests',
             'personalInterestsEn',
@@ -1060,10 +1060,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                             : ''
                     }
                     ${
-                        furtherQualifications
+                        furtherQualifications.length
                             ? html`
                                   <dt>${t('career-profile-form.field-qualification-view-mode')}</dt>
-                                  <dd class="multiline-text">${furtherQualifications}</dd>
+                                  <dd>${this._renderBulletpointList(furtherQualifications)}</dd>
                               `
                             : ''
                     }
@@ -1076,10 +1076,10 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
                             : ''
                     }
                     ${
-                        personalInterests
+                        personalInterests.length
                             ? html`
                                   <dt>${t('career-profile-form.field-personal-interests')}</dt>
-                                  <dd>${personalInterests}</dd>
+                                  <dd>${this._renderBulletpointList(personalInterests)}</dd>
                               `
                             : ''
                     }

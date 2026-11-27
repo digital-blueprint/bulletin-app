@@ -1,4 +1,5 @@
 import {assert} from 'chai';
+import {render} from 'lit';
 
 import '../src/dbp-bulletin-view-job-offers';
 import '../src/dbp-bulletin-career-profile.js';
@@ -3884,6 +3885,77 @@ suite('dbp-bulletin-browse-career-profiles table', () => {
         const aliasColumn = element._getTableOptions().columns.find(({field}) => field === 'alias');
 
         assert.equal(aliasColumn.sorter, 'alphanum');
+    });
+});
+
+suite('career profile multiline lists', () => {
+    const profile = {
+        identifier: 'profile-1',
+        additionalData: {
+            summary: 'Profile',
+            furtherQualifications: '  Degree one\r\n\r\n Degree two  ',
+            furtherQualificationsEn: 'English degree',
+            personalInterests: '  Music\n\n Sports  ',
+            personalInterestsEn: '',
+        },
+    };
+
+    test('should render qualifications and interests as lists in both profile views', () => {
+        for (const tagName of [
+            'dbp-bulletin-career-profile',
+            'dbp-bulletin-browse-career-profiles',
+        ]) {
+            const element = document.createElement(tagName);
+            element.lang = 'de';
+            const detail = document.createElement('div');
+            render(element._renderProfileDetail(profile), detail);
+            const getItems = (label) => {
+                const heading = [...detail.querySelectorAll('h3, dt')].find(
+                    (node) => node.textContent.trim() === label,
+                );
+                const next = heading.nextElementSibling;
+                const list = next.matches('ul') ? next : next.querySelector('ul');
+                return [...list.querySelectorAll('li')].map((item) => item.textContent.trim());
+            };
+
+            assert.deepEqual(
+                getItems(element._i18n.t('career-profile-form.field-qualification-view-mode')),
+                ['Degree one', 'Degree two'],
+            );
+            assert.deepEqual(
+                getItems(element._i18n.t('career-profile-form.field-personal-interests')),
+                ['Music', 'Sports'],
+            );
+
+            element.lang = 'en';
+            assert.deepEqual(
+                element._localizedList(profile, 'furtherQualifications', 'furtherQualificationsEn'),
+                ['English degree'],
+            );
+            assert.deepEqual(
+                element._localizedList(profile, 'personalInterests', 'personalInterestsEn'),
+                ['Music', 'Sports'],
+            );
+        }
+    });
+
+    test('should show list items in the own profile card and separated table cells', () => {
+        const owner = document.createElement('dbp-bulletin-career-profile');
+        const card = document.createElement('div');
+        render(owner._renderProfileCard(profile), card);
+        const lists = [...card.querySelectorAll('.profile-card dd .bulletpoints-list')].map(
+            (list) => [...list.querySelectorAll('li')].map((item) => item.textContent.trim()),
+        );
+        assert.includeDeepMembers(lists, [
+            ['Degree one', 'Degree two'],
+            ['Music', 'Sports'],
+        ]);
+
+        const browser = document.createElement('dbp-bulletin-browse-career-profiles');
+        browser._profiles = [profile];
+        const [row] = browser._getTableData();
+        assert.equal(row.furtherQualifications, 'Degree one; Degree two');
+        assert.equal(row.personalInterests, 'Music; Sports');
     });
 });
 
