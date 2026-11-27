@@ -1375,7 +1375,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 this._contactEmail
                     ? html`
                           <div class="profile-prefill-info contact-email">
-                              <strong>${t('career-profile-form.field-contact-email')}</strong>
+                              <strong>${t('career-profile-form.field-contact-email')}:</strong>
                               ${this._contactEmail}
                               <!-- Note explaining where the contact email can be changed -->
                               <p class="contact-email-note">
@@ -1598,7 +1598,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 }
 
                 .profile-prefill-info ul {
-                    margin: 0.5rem 0 0 1.25rem;
+                    margin: 0.5rem 0 0;
                 }
 
                 .profile-prefill-info p {

@@ -250,12 +250,12 @@ suite('dbp-bulletin-view-job-offers basics', () => {
         assert(!!node.shadowRoot);
     });
 
-    test('should render filter and job card labels without colons', () => {
+    test('should keep stacked filter labels plain and add colons to inline job card labels', () => {
         assert.notMatch(node._i18n.t('view-job-offers.dream-job-label'), /:$/);
 
         const card = document.createElement('div');
         render(node._renderJobMetaItem('Published at', 'Today'), card);
-        assert.equal(card.querySelector('.job-card-label').textContent, 'Published at');
+        assert.equal(card.querySelector('.job-card-label').textContent, 'Published at:');
     });
 
     test('should always show external jobs and the career starter preset', async () => {
@@ -991,7 +991,7 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 });
 
 suite('dbp-bulletin-job-offer-detail basics', () => {
-    test('should render job and company labels without colons', () => {
+    test('should add colons only to inline job labels, not stacked company labels', () => {
         const element = document.createElement('dbp-bulletin-job-offer-detail');
         const content = document.createElement('div');
         render(
@@ -1012,7 +1012,7 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
             [...content.querySelectorAll('.meta-item-label, dt')].map((label) =>
                 label.textContent.trim(),
             ),
-            ['Published at', 'Industry', 'Description'],
+            ['Published at:', 'Industry', 'Description'],
         );
     });
 
@@ -1023,6 +1023,7 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
             identifier: 'job-1',
             title: 'Internal job',
             description: 'Job description',
+            requirements: ['Experience'],
             jobOfferType: 'internal',
             areasOfInterest: [],
             publishedAt: '2026-01-01',
@@ -1041,6 +1042,12 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
         // The optional application deadline isn't shown, applicants see the end of publication
         assert.include(getDeadlineText(), element.formatDate('2026-12-31'));
         assert.notInclude(getDeadlineText(), element.formatDate('2026-11-15'));
+        assert.equal(
+            element.shadowRoot
+                .querySelector('.additional-item .meta-item-label')
+                .textContent.trim(),
+            element._i18n.t('job-offer-detail.requirements'),
+        );
         element.remove();
     });
 
@@ -3294,6 +3301,23 @@ suite('career profile student studies', () => {
         if (!customElements.get(tagName)) {
             customElements.define(tagName, CareerProfileEditFormElement);
         }
+    });
+
+    test('should align the study list with its field label', async () => {
+        const element = document.createElement(tagName);
+        document.body.appendChild(element);
+        await element.updateComplete;
+
+        const field = document.createElement('div');
+        field.className = 'profile-prefill-info';
+        field.innerHTML =
+            '<strong>Study fields</strong><ul class="study-program-list"><li>Telematik</li></ul>';
+        element.shadowRoot.appendChild(field);
+        const list = field.querySelector('.study-program-list');
+        assert.equal(getComputedStyle(list).marginLeft, '0px');
+        assert.equal(getComputedStyle(list).paddingLeft, '2px');
+        assert.equal(getComputedStyle(list.firstElementChild).paddingLeft, '12px');
+        element.remove();
     });
 
     test('should format multiple fetched studies for the saved profile', () => {
