@@ -12,6 +12,7 @@ import {
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
+import {listMarkerStyles} from './modules/listMarkerStyles.js';
 import CareerProfileModule, {
     CAREER_PROFILE_FIELDS,
     formatStudentStudies,
@@ -293,7 +294,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
 
         return html`
-            <ul class="studyProgram-list" role="list">
+            <ul class="studyProgram-list tag-list" role="list">
                 ${items.map(
                     (item) => html`
                         <li class="tag" role="listitem">${item}</li>
@@ -309,7 +310,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
         }
 
         return html`
-            <ul class="bulletpoints-list">
+            <ul class="bulletpoints-list" role="list">
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
@@ -1147,6 +1148,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
             ${commonStyles.getNotificationCSS()}
+            ${listMarkerStyles}
 
             :host {
                 display: block;
@@ -1298,7 +1300,7 @@ class BrowseCareerProfilesActivity extends ScopedElementsMixin(DBPBulletinLitEle
             }
 
             .bulletpoints-list {
-                padding-left: 20px;
+                padding-left: 2px;
             }
 
             .tag {

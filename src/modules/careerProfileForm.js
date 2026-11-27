@@ -13,6 +13,7 @@ import * as commonStyles from '@dbp-toolkit/common/styles';
 import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {createInstance} from '../i18n.js';
+import {listMarkerStyles} from './listMarkerStyles.js';
 import WorkLocationsElement, {normalizeWorkLocations} from './workLocationsElement.js';
 import {isValidHttpUrl, normalizeHttpUrl} from './urlUtils.js';
 import {getJobCategoryItems} from './jobOfferForm.js';
@@ -1286,7 +1287,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
             <div class="profile-prefill-info">
                 <strong>${t('career-profile-form.field-study-program')}</strong>
 
-                <ul class="study-program-list">
+                <ul class="study-program-list" role="list">
                     ${this._availableStudies.map(
                         (study) => html`
                             <li>${getLocalizedStudentStudyLabel(study, this.lang)}</li>
@@ -1566,6 +1567,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
         return [
             commonStyles.getButtonCSS(),
             css`
+                ${listMarkerStyles}
                 :host {
                     display: block;
                     padding-right: 8px;

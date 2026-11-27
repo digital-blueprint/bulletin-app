@@ -6,6 +6,7 @@ import DBPLitElement from '@dbp-toolkit/common/dbp-lit-element';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import {CountrySelect} from '@dbp-toolkit/country-select';
 import {createInstance} from '../i18n.js';
+import {listMarkerStyles} from './listMarkerStyles.js';
 import $ from 'jquery';
 import select2 from 'select2';
 import select2LangDe from '../../vendor/toolkit/packages/form-elements/src/i18n/de/select2';
@@ -1366,7 +1367,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
                     ${
                         selectedLocations.length > 0
                             ? html`
-                                  <ul class="selected-location-list">
+                                  <ul class="selected-location-list" role="list">
                                       ${selectedLocations.map(
                                           (location, index) => html`
                                               <li>
@@ -1423,6 +1424,7 @@ export class WorkLocationsElement extends ScopedElementsMixin(DBPLitElement) {
             ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
             ${commonStyles.getSelect2CSS()}
+            ${listMarkerStyles}
 
             .work-locations {
                 margin: 0.75rem 0;

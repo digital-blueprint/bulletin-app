@@ -3992,6 +3992,37 @@ suite('career profile multiline lists', () => {
     });
 });
 
+suite('list markers', () => {
+    test('should replace native list markers with a filled dot in profile and job views', async () => {
+        for (const tagName of [
+            'dbp-bulletin-career-profile',
+            'dbp-bulletin-browse-career-profiles',
+            'dbp-bulletin-job-offer-detail',
+        ]) {
+            const element = document.createElement(tagName);
+            document.body.appendChild(element);
+            await element.updateComplete;
+
+            const list = document.createElement('ul');
+            list.innerHTML = '<li>List item</li>';
+            element.shadowRoot.appendChild(list);
+            const item = list.firstElementChild;
+            assert.equal(getComputedStyle(list).paddingLeft, '2px');
+            assert.equal(getComputedStyle(item).listStyleType, 'none');
+            assert.equal(getComputedStyle(item).paddingLeft, '12px');
+            assert.include(getComputedStyle(item, '::before').content, '•');
+            assert.equal(getComputedStyle(item, '::before').position, 'absolute');
+
+            const tags = document.createElement('ul');
+            tags.className = 'tag-list';
+            tags.innerHTML = '<li class="tag">Tag</li>';
+            element.shadowRoot.appendChild(tags);
+            assert.notInclude(getComputedStyle(tags.firstElementChild, '::before').content, '•');
+            element.remove();
+        }
+    });
+});
+
 suite('dbp-bulletin-career-profile routing', () => {
     let node;
 

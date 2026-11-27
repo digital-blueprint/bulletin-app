@@ -13,6 +13,7 @@ import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import {setOverridesByGlobalCache} from '@dbp-toolkit/common/i18next.js';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
+import {listMarkerStyles} from './modules/listMarkerStyles.js';
 import CareerProfileModule, {
     CareerProfileEditFormElement,
     CareerProfileInterestFormElement,
@@ -489,7 +490,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul role="list">
+            <ul class="${itemClass ? 'tag-list' : ''}" role="list">
                 ${items.map(
                     (item) => html`
                         <li class="${itemClass}" role="listitem">${item}</li>
@@ -607,7 +608,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul class="bulletpoints-list">
+            <ul class="bulletpoints-list" role="list">
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
@@ -628,7 +629,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <ul
-                class="field-list"
+                class="field-list tag-list"
                 role="list"
                 aria-label="${t('career-profile-form.field-fields')}">
                 ${items.map(
@@ -647,7 +648,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <ul
-                class="work-location-list"
+                class="work-location-list tag-list"
                 role="list"
                 aria-label="${this._i18n.t('career-profile-form.field-preferred-work-location')}">
                 ${labels.map(
@@ -1403,6 +1404,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
             ${commonStyles.getNotificationCSS()}
+            ${listMarkerStyles}
 
             :host {
                 display: block;
@@ -1475,9 +1477,9 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 margin-bottom: 0.75rem;
             }
 
-            .profile-detail ul {
+            .profile-detail ul:not(.tag-list) {
                 margin: 0;
-                padding-left: 1.5rem;
+                padding-left: 2px;
             }
 
             .profile-detail li {
@@ -1526,7 +1528,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
 
             .bulletpoints-list {
                 margin: 0;
-                padding-left: 20px;
+                padding-left: 2px;
             }
 
             .industry-list,

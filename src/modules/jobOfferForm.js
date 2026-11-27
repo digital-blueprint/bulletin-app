@@ -4,6 +4,7 @@ import {
     FILE_SECURITY_VALIDATION_ERROR_ID,
 } from '../../vendor/formalize/src/form/base-object.js';
 import {css, html} from 'lit';
+import {listMarkerStyles} from './listMarkerStyles.js';
 import {createRef, ref} from 'lit/directives/ref.js';
 import {
     DbpStringElement,
@@ -2512,6 +2513,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
         return css`
             ${commonStyles.getThemeCSS()}
             ${commonStyles.getGeneralCSS()}
+            ${listMarkerStyles}
 
             :host {
                 display: block;
@@ -2768,7 +2770,7 @@ class JobOfferEditFormElement extends ScopedElementsMixin(DBPLitElement) {
             .organization-field .validation-errors {
                 color: var(--dbp-danger);
                 list-style: none;
-                padding-left: 0;
+                padding-left: 2px;
                 margin-block: 0.25em;
             }
         `;
@@ -3317,7 +3319,7 @@ export class JobOfferFormElement extends BaseFormElement {
         }
 
         return html`
-            <ul class="job-overview-work-location-list">
+            <ul class="job-overview-work-location-list" role="list">
                 ${labels.map(
                     (label) => html`
                         <li>${label}</li>
@@ -3342,7 +3344,7 @@ export class JobOfferFormElement extends BaseFormElement {
         return html`
             <section class="job-overview-section">
                 <h5 class="job-overview-section-title">${title}</h5>
-                <ul class="job-overview-list">
+                <ul class="job-overview-list" role="list">
                     ${items.map(
                         (item) => html`
                             <li>${item}</li>
@@ -3726,6 +3728,7 @@ export class JobOfferFormElement extends BaseFormElement {
             super.styles,
             css`
                 ${commonStyles.getButtonCSS()}
+                ${listMarkerStyles}
 
                 fieldset {
                     padding: 0.75rem;
@@ -3797,7 +3800,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
                 .job-overview-work-location-list {
                     margin: 0;
-                    padding-left: 1.25rem;
+                    padding-left: 2px;
                 }
 
                 .job-overview-meta-link {
@@ -3820,7 +3823,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
                 .job-overview-list {
                     margin: 0;
-                    padding-left: 1.25rem;
+                    padding-left: 2px;
                 }
 
                 .job-overview-tags {

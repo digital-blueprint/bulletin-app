@@ -5,6 +5,7 @@ import {Button, DBPSelect, Modal, sendNotification} from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
+import {listMarkerStyles} from './modules/listMarkerStyles.js';
 import CompanyModule, {pickCompanyData} from './modules/companyForm.js';
 import {getFileUploadLimitHint} from './utils/fileUploadHint.js';
 
@@ -821,7 +822,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                               <p>${t(emptyKey)}</p>
                           `
                         : html`
-                              <ul>
+                              <ul role="list">
                                   ${items.map(
                                       (item) => html`
                                           <li>${itemTemplate(item)}</li>
@@ -1337,6 +1338,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
             commonStyles.getThemeCSS(),
             commonStyles.getGeneralCSS(false),
             css`
+                ${listMarkerStyles}
                 :host {
                     display: block;
                     padding: 1.5rem;
@@ -1492,7 +1494,7 @@ class ImportCompaniesActivity extends ScopedElementsMixin(DBPBulletinLitElement)
                 .report-section ul {
                     max-height: 18rem;
                     overflow: auto;
-                    padding-left: 1.5rem;
+                    padding-left: 2px;
                 }
 
                 .report-section li {

@@ -4,6 +4,7 @@ import {Button, DBPSelect, sendNotification} from '@dbp-toolkit/common';
 import * as commonStyles from '@dbp-toolkit/common/src/styles.js';
 import * as commonUtils from '@dbp-toolkit/common/utils';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
+import {listMarkerStyles} from './modules/listMarkerStyles.js';
 import JobOfferModule, {
     JOB_CATEGORIES,
     JOB_OFFER_ALLOWED_ACTIONS_WHEN_SUBMITTED,
@@ -578,7 +579,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                         count: this._report.created.length,
                                                     })}
                                                 </h3>
-                                                <ul>
+                                                <ul role="list">
                                                     ${this._report.created.map(
                                                         (jobOffer) => html`
                                                             <li>
@@ -638,6 +639,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
             commonStyles.getThemeCSS(),
             commonStyles.getGeneralCSS(false),
             css`
+                ${listMarkerStyles}
                 :host {
                     display: block;
                     padding: 1.5rem;
@@ -714,7 +716,7 @@ class GenerateJobsActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                 .report-section ul {
                     max-height: 18rem;
                     overflow: auto;
-                    padding-left: 1.5rem;
+                    padding-left: 2px;
                 }
 
                 .report-section li {

@@ -1,4 +1,5 @@
 import {css, html} from 'lit';
+import {listMarkerStyles} from './modules/listMarkerStyles.js';
 import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElementsMixin.js';
 import {classMap} from 'lit/directives/class-map.js';
 import {Modal, Icon} from '@dbp-toolkit/common';
@@ -237,7 +238,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul class="job-overview-list">
+            <ul class="job-overview-list" role="list">
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
@@ -254,7 +255,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul class="job-overview-list">
+            <ul class="job-overview-list" role="list">
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
@@ -271,7 +272,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul class="job-overview-list">
+            <ul class="job-overview-list" role="list">
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
@@ -288,7 +289,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <ul class="job-overview-list">
+            <ul class="job-overview-list" role="list">
                 ${items.map(
                     (item) => html`
                         <li>${item}</li>
@@ -336,7 +337,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <div class="job-tags-wrapper">
                 <span class="tag-label">${areasOfInterestLabel}</span>
-                <ul class="job-tags" role="list" aria-label="${areasOfInterestLabel}">
+                <ul class="job-tags tag-list" role="list" aria-label="${areasOfInterestLabel}">
                     ${areaOfInterestLabels.map(
                         (label) => html`
                             <li class="job-tag" role="listitem">${label}</li>
@@ -444,7 +445,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         return this._renderCompanyWideItem(
             label,
             html`
-                <ul class="sector-tags" role="list">
+                <ul class="sector-tags tag-list" role="list">
                     ${sectors.map(
                         (sector) => html`
                             <li class="job-tag sector-tag" role="listitem">${sector}</li>
@@ -1412,6 +1413,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
             ${commonStyles.getThemeCSS()}
             ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
+            ${listMarkerStyles}
 
             .modal-width {
                 --dbp-modal-min-width: min(95vw, 700px);
@@ -1673,11 +1675,6 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                 display: grid;
                 grid-template-columns: 1fr;
                 gap: 10px 1rem;
-            }
-
-            .additional-item li::before {
-                content: '•';
-                margin-right: 0.5rem;
             }
 
             .apply-submit-wrapper {

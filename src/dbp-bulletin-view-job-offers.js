@@ -8,6 +8,7 @@ import {ScopedElementsMixin} from '@dbp-toolkit/common/src/scoped/ScopedElements
 import {Icon, MiniSpinner, DBPLoginRequiredWarning} from '@dbp-toolkit/common';
 import {DbpEnumElement} from '@dbp-toolkit/form-elements';
 import DBPBulletinLitElement from './dbp-bulletin-lit-element.js';
+import {listMarkerStyles} from './modules/listMarkerStyles.js';
 import {JobOfferDetail} from './dbp-bulletin-job-offer-detail.js';
 import JobOfferModule, {
     AREAS_OF_INTEREST,
@@ -818,7 +819,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         return html`
             <div class="job-tags-wrapper area-wrapper">
                 <span class="job-card-label">${areasOfInterestLabel}</span>
-                <ul class="job-tags" role="list" aria-label="${areasOfInterestLabel}">
+                <ul class="job-tags tag-list" role="list" aria-label="${areasOfInterestLabel}">
                     ${areaOfInterestLabels.map(
                         (label) => html`
                             <li class="job-tag" role="listitem">${label}</li>
@@ -1511,7 +1512,8 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
                             ? html`
                                   <div class="ais-CurrentRefinements">
                                       <ul
-                                          class="ais-CurrentRefinements-list"
+                                          class="ais-CurrentRefinements-list tag-list"
+                                          role="list"
                                           aria-label="${t('view-job-offers.active-filters-label')}">
                                           ${activeFilterMarkers.map(
                                               (marker) => html`
@@ -1710,6 +1712,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
             ${commonStyles.getGeneralCSS()}
             ${commonStyles.getButtonCSS()}
             ${commonStyles.getNotificationCSS()}
+            ${listMarkerStyles}
 
             /* Override: getGeneralCSS background-size of 25% is too large; also ensure enough
                right padding so the chevron SVG never overlaps the selected option text.
