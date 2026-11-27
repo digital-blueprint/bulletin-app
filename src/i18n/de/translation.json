@@ -44,7 +44,7 @@
         "view-submissions": "Interessen anzeigen"
     },
     "career-profile-form": {
-        "additional-information": "Zusatzinformation:",
+        "additional-information": "Zusatzinformation",
         "create-error-title": "Fehler",
         "create-success": "Das Karriereprofil wurde erfolgreich gespeichert.",
         "create-success-title": "Karriereprofil erstellt",
@@ -651,7 +651,7 @@
         "clear-all-filters": "Alle Filter löschen",
         "clear-filters": "Filter löschen",
         "dream-job-career-entry": "Für den Berufseinstieg",
-        "dream-job-label": "Ich suche Jobs:",
+        "dream-job-label": "Ich suche Jobs",
         "dream-job-placeholder": "Ohne Filterauswahl",
         "dream-job-study-accompanying": "Neben dem Studium",
         "employer": "Arbeitgeber*innen",

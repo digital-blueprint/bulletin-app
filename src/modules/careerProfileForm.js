@@ -1284,7 +1284,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
 
         return html`
             <div class="profile-prefill-info">
-                <strong>${t('career-profile-form.field-study-program')}:</strong>
+                <strong>${t('career-profile-form.field-study-program')}</strong>
 
                 <ul class="study-program-list">
                     ${this._availableStudies.map(
@@ -1374,7 +1374,7 @@ export class CareerProfileEditFormElement extends ScopedElementsMixin(DBPLitElem
                 this._contactEmail
                     ? html`
                           <div class="profile-prefill-info contact-email">
-                              <strong>${t('career-profile-form.field-contact-email')}:</strong>
+                              <strong>${t('career-profile-form.field-contact-email')}</strong>
                               ${this._contactEmail}
                               <!-- Note explaining where the contact email can be changed -->
                               <p class="contact-email-note">

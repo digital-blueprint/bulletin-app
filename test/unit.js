@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {render} from 'lit';
+import {html, render} from 'lit';
 
 import '../src/dbp-bulletin-view-job-offers';
 import '../src/dbp-bulletin-career-profile.js';
@@ -248,6 +248,14 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 
     test('should render', () => {
         assert(!!node.shadowRoot);
+    });
+
+    test('should render filter and job card labels without colons', () => {
+        assert.notMatch(node._i18n.t('view-job-offers.dream-job-label'), /:$/);
+
+        const card = document.createElement('div');
+        render(node._renderJobMetaItem('Published at', 'Today'), card);
+        assert.equal(card.querySelector('.job-card-label').textContent, 'Published at');
     });
 
     test('should always show external jobs and the career starter preset', async () => {
@@ -983,6 +991,31 @@ suite('dbp-bulletin-view-job-offers basics', () => {
 });
 
 suite('dbp-bulletin-job-offer-detail basics', () => {
+    test('should render job and company labels without colons', () => {
+        const element = document.createElement('dbp-bulletin-job-offer-detail');
+        const content = document.createElement('div');
+        render(
+            html`
+                ${element._renderJobMetaItem('Published at', 'Today')}
+                ${element._renderCompanyMetaItem('Industry', 'Software')}
+                ${element._renderCompanyWideItem(
+                    'Description',
+                    html`
+                        <p>Company</p>
+                    `,
+                )}
+            `,
+            content,
+        );
+
+        assert.deepEqual(
+            [...content.querySelectorAll('.meta-item-label, dt')].map((label) =>
+                label.textContent.trim(),
+            ),
+            ['Published at', 'Industry', 'Description'],
+        );
+    });
+
     test('should show the end of publication as application deadline', async () => {
         const element = document.createElement('dbp-bulletin-job-offer-detail');
         element.preview = true;
@@ -1220,10 +1253,10 @@ suite('dbp-bulletin-job-offer-detail basics', () => {
             element.shadowRoot.querySelector('.company-info-list .company-info-wide .sector-tags'),
         );
 
-        // Every label of the company description list is a definition term ending with a colon
+        // Every label of the company description list is a definition term without a colon
         const labels = Array.from(element.shadowRoot.querySelectorAll('.company-info-list dt'));
         assert.isAbove(labels.length, 0);
-        labels.forEach((label) => assert.match(label.textContent.trim(), /:$/));
+        labels.forEach((label) => assert.notMatch(label.textContent.trim(), /:$/));
 
         assert.include(companyInformation, '2750');
         assert.include(companyInformation, '6200');
@@ -3977,7 +4010,7 @@ suite('dbp-bulletin-career-profile routing', () => {
         node._profilesLoaded = true;
         node.routingUrl = '/';
 
-        const categoryLabel = node._i18n.t('career-profile-form.field-job-category') + ':';
+        const categoryLabel = node._i18n.t('career-profile-form.field-job-category');
         const getCategoryRow = () =>
             [...node.shadowRoot.querySelectorAll('.profile-card dt')].find(
                 (heading) => heading.textContent.trim() === categoryLabel,
@@ -4012,6 +4045,33 @@ suite('dbp-bulletin-career-profile routing', () => {
             getCategoryRow().nextElementSibling.textContent,
             node._i18n.t('manage-job-offers.job-category-fulltime'),
         );
+    });
+
+    test('should render profile card labels without colons', async () => {
+        node.auth = {token: 'token', 'user-id': 'me', person_id: 'me'};
+        node._profilesLoaded = true;
+        node.routingUrl = '/';
+        node._profiles = [
+            {
+                identifier: 'own-profile',
+                additionalData: {
+                    studentCreatorId: 'me',
+                    furtherQualifications: 'Degree',
+                    personalInterests: 'Music',
+                    website: 'https://example.com',
+                },
+            },
+        ];
+        await node.updateComplete;
+
+        const labels = [...node.shadowRoot.querySelectorAll('.profile-card dt')].map((label) =>
+            label.textContent.trim(),
+        );
+        assert.include(labels, node._i18n.t('career-profile-form.field-visibility-view-mode'));
+        assert.include(labels, node._i18n.t('career-profile-form.field-qualification-view-mode'));
+        assert.include(labels, node._i18n.t('career-profile-form.field-personal-interests'));
+        assert.include(labels, node._i18n.t('career-profile-form.field-website'));
+        assert.isFalse(labels.some((label) => label.endsWith(':')));
     });
 
     test('should switch between the overview, the profile detail and the submissions view', async () => {

@@ -531,7 +531,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <dt>${this._i18n.t('career-profile-form.field-study-program')}:</dt>
+            <dt>${this._i18n.t('career-profile-form.field-study-program')}</dt>
             <dd class="studyProgram-list">
                 ${this._renderList(
                     studies.map((study) => getLocalizedStudentStudyLabel(study, this.lang)),
@@ -753,7 +753,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             : ''
                     }
                     <dl>
-                        <dt>${t('career-profile-form.field-visibility-view-mode')}:</dt>
+                        <dt>${t('career-profile-form.field-visibility-view-mode')}</dt>
                         <dd class="profile-visibility">
                             ${getCareerProfileVisibilityLabel(data, t)}
                         </dd>
@@ -762,7 +762,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             workLocationLabels && workLocationLabels.length
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-preferred-work-location')}:
+                                          ${this._i18n.t('career-profile-form.field-preferred-work-location')}
                                       </dt>
                                       <dd>
                                           ${this._renderWorkLocationList(
@@ -778,7 +778,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             jobCategoryLabels.length > 0
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-job-category')}:
+                                          ${this._i18n.t('career-profile-form.field-job-category')}
                                       </dt>
                                       <dd>${jobCategoryLabels.join(', ')}</dd>
                                   `
@@ -788,7 +788,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             data.availability
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-availability')}:
+                                          ${this._i18n.t('career-profile-form.field-availability')}
                                       </dt>
                                       <dd>${this.formatDate(data.availability)}</dd>
                                   `
@@ -797,7 +797,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ${
                             this._getFields(profile)
                                 ? html`
-                                      <dt>${this._i18n.t('career-profile-form.field-fields')}:</dt>
+                                      <dt>${this._i18n.t('career-profile-form.field-fields')}</dt>
                                       <dd>${this._getFields(profile)}</dd>
                                   `
                                 : ''
@@ -806,7 +806,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             previousExperience
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-previous-experience')}:
+                                          ${this._i18n.t('career-profile-form.field-previous-experience')}
                                       </dt>
                                       <dd>${previousExperience}</dd>
                                   `
@@ -816,7 +816,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             qualification.length
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-qualification-view-mode')}:
+                                          ${this._i18n.t('career-profile-form.field-qualification-view-mode')}
                                       </dt>
                                       <dd>${this._renderBulletpointList(qualification)}</dd>
                                   `
@@ -826,7 +826,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             this._getSkills(profile)
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-skills-view-mode')}:
+                                          ${this._i18n.t('career-profile-form.field-skills-view-mode')}
                                       </dt>
                                       <dd>${this._getSkills(profile)}</dd>
                                   `
@@ -836,7 +836,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             personalInterests.length
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-personal-interests')}:
+                                          ${this._i18n.t('career-profile-form.field-personal-interests')}
                                       </dt>
                                       <dd>${this._renderBulletpointList(personalInterests)}</dd>
                                   `
@@ -846,7 +846,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                             this._getLanguages(profile)
                                 ? html`
                                       <dt>
-                                          ${this._i18n.t('career-profile-form.field-languages-view-mode')}:
+                                          ${this._i18n.t('career-profile-form.field-languages-view-mode')}
                                       </dt>
                                       <dd>${this._getLanguages(profile)}</dd>
                                   `
@@ -855,7 +855,7 @@ class CareerProfileActivity extends ScopedElementsMixin(DBPBulletinLitElement) {
                         ${
                             data.website || data.linkUrl
                                 ? this._renderMetaItem(
-                                      t('career-profile-form.field-website') + ':',
+                                      t('career-profile-form.field-website'),
                                       html`
                                           <a
                                               href="${data.website || data.linkUrl}"

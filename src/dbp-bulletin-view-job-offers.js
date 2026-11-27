@@ -779,7 +779,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="job-tags-wrapper">
-                <span class="job-card-label">${t('view-job-offers.work-location')}:</span>
+                <span class="job-card-label">${t('view-job-offers.work-location')}</span>
                 ${
                     locationLabels.length > 0
                         ? html`
@@ -817,7 +817,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
         // remove the implicit list semantics in some browsers.
         return html`
             <div class="job-tags-wrapper area-wrapper">
-                <span class="job-card-label">${areasOfInterestLabel}:</span>
+                <span class="job-card-label">${areasOfInterestLabel}</span>
                 <ul class="job-tags" role="list" aria-label="${areasOfInterestLabel}">
                     ${areaOfInterestLabels.map(
                         (label) => html`
@@ -917,7 +917,7 @@ class ViewJobOffers extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="job-meta-item">
-                <span class="job-card-label">${label}:</span>
+                <span class="job-card-label">${label}</span>
                 &thinsp; ${value}
             </div>
         `;

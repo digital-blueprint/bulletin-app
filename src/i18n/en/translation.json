@@ -44,7 +44,7 @@
         "view-submissions": "View employer interest"
     },
     "career-profile-form": {
-        "additional-information": "Additional information:",
+        "additional-information": "Additional information",
         "create-error-title": "Error",
         "create-success": "The career profile has been saved.",
         "create-success-title": "Profile created",
@@ -651,7 +651,7 @@
         "clear-all-filters": "Clear all filters",
         "clear-filters": "Clear filters",
         "dream-job-career-entry": "For career starters",
-        "dream-job-label": "I'm looking for jobs:",
+        "dream-job-label": "I'm looking for jobs",
         "dream-job-placeholder": "Without applying any filters",
         "dream-job-study-accompanying": "Alongside studies",
         "employer": "Employer",

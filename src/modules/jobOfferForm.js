@@ -3305,7 +3305,7 @@ export class JobOfferFormElement extends BaseFormElement {
 
         return html`
             <div class="job-overview-meta-item">
-                <dt>${label}:</dt>
+                <dt>${label}</dt>
                 <dd>${value}</dd>
             </div>
         `;
@@ -3599,7 +3599,7 @@ export class JobOfferFormElement extends BaseFormElement {
                         <div class="form-column">
                             <span>
                                 <span class="application-view-label">
-                                    ${t('job-offer-detail.given-name')}:
+                                    ${t('job-offer-detail.given-name')}
                                 </span>
                                 ${this._getLoggedInGivenName()}
                             </span>
@@ -3607,7 +3607,7 @@ export class JobOfferFormElement extends BaseFormElement {
                         <div class="form-column">
                             <span>
                                 <span class="application-view-label">
-                                    ${t('job-offer-detail.family-name')}:
+                                    ${t('job-offer-detail.family-name')}
                                 </span>
                                 ${this._getLoggedInFamilyName()}
                             </span>
@@ -3616,7 +3616,7 @@ export class JobOfferFormElement extends BaseFormElement {
                         <div class="form-column">
                             <span>
                                 <span class="application-view-label">
-                                    ${t('job-offer-detail.email')}:
+                                    ${t('job-offer-detail.email')}
                                 </span>
                                 ${this._getLoggedInEmail()}
                             </span>

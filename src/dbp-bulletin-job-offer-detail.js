@@ -335,7 +335,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         // remove the implicit list semantics in some browsers.
         return html`
             <div class="job-tags-wrapper">
-                <span class="tag-label">${areasOfInterestLabel}:</span>
+                <span class="tag-label">${areasOfInterestLabel}</span>
                 <ul class="job-tags" role="list" aria-label="${areasOfInterestLabel}">
                     ${areaOfInterestLabels.map(
                         (label) => html`
@@ -407,7 +407,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="company-info-item">
-                <dt>${label}:</dt>
+                <dt>${label}</dt>
                 <dd>${value}</dd>
             </div>
         `;
@@ -416,7 +416,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     /**
      * Renders one label-value pair that spans the full width of the company information
      * list, so longer values (industries, texts) are not squeezed into a single column.
-     * The label is rendered as a definition term and therefore always ends with a colon.
+     * The label is rendered as a definition term without punctuation.
      * @param {string} label
      * @param {import('lit').TemplateResult} content
      * @returns {import('lit').TemplateResult}
@@ -424,7 +424,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
     _renderCompanyWideItem(label, content) {
         return html`
             <div class="company-info-item company-info-wide">
-                <dt>${label}:</dt>
+                <dt>${label}</dt>
                 <dd>${content}</dd>
             </div>
         `;
@@ -592,7 +592,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
 
         return html`
             <div class="meta-item">
-                <span class="meta-item-label">${label}:</span>
+                <span class="meta-item-label">${label}</span>
                 ${value}
             </div>
         `;
@@ -606,7 +606,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
         }
 
         return html`
-            <span class="meta-item-label">${t('manage-job-offers.field-work-locations')}:</span>
+            <span class="meta-item-label">${t('manage-job-offers.field-work-locations')}</span>
             ${labels.map(
                 (label, index) => html`
                     ${index > 0 ? '/ ' : ''}
@@ -1006,7 +1006,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       ? html`
                                                             <div class="meta-item">
                                                                 <span class="meta-item-label">
-                                                                    ${t('job-offer-detail.organization')}:
+                                                                    ${t('job-offer-detail.organization')}
                                                                 </span>
 
                                                                 ${this._localized(
@@ -1019,13 +1019,13 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               }
                                               <div class="meta-item">
                                                   <span class="meta-item-label">
-                                                      ${t('job-offer-detail.published-at')}:
+                                                      ${t('job-offer-detail.published-at')}
                                                   </span>
                                                   ${this.formatDate(job.publishedAt)}
                                               </div>
                                               <div class="meta-item">
                                                   <span class="meta-item-label">
-                                                      ${t('job-offer-detail.deadline')}:
+                                                      ${t('job-offer-detail.deadline')}
                                                   </span>
                                                   ${this.formatDate(job.deadline)}
                                               </div>
@@ -1038,7 +1038,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                               </div>
                                               <div class="meta-item">
                                                   <span class="meta-item-label">
-                                                      ${t('job-offer-detail.remote')}:
+                                                      ${t('job-offer-detail.remote')}
                                                   </span>
                                                   ${
                                                       job?.remote === true
@@ -1053,7 +1053,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                       ? html`
                                                             <div class="meta-item print-only">
                                                                 <span class="meta-item-label">
-                                                                    ${t('job-offer-detail.apply-link')}:
+                                                                    ${t('job-offer-detail.apply-link')}
                                                                 </span>
                                                                 ${this._getExternalJobUrl(job)}
                                                             </div>
@@ -1180,7 +1180,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                       class="meta-item">
                                                                                       <span
                                                                                           class="meta-item-label">
-                                                                                          ${t('job-offer-detail.start-date')}:
+                                                                                          ${t('job-offer-detail.start-date')}
                                                                                       </span>
                                                                                       ${this.formatDate(job.startDate)}
                                                                                   </div>
@@ -1194,7 +1194,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                       class="meta-item">
                                                                                       <span
                                                                                           class="meta-item-label">
-                                                                                          ${t('job-offer-detail.contract-duration')}:
+                                                                                          ${t('job-offer-detail.contract-duration')}
                                                                                       </span>
                                                                                       ${localizedContractDuration}
                                                                                   </div>
@@ -1208,7 +1208,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                       class="meta-item">
                                                                                       <span
                                                                                           class="meta-item-label">
-                                                                                          ${t('job-offer-detail.weekly-hours')}:
+                                                                                          ${t('job-offer-detail.weekly-hours')}
                                                                                       </span>
                                                                                       ${localizedWeeklyHours}
                                                                                   </div>
@@ -1222,7 +1222,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                       class="meta-item">
                                                                                       <span
                                                                                           class="meta-item-label">
-                                                                                          ${t('job-offer-detail.monthly-salary')}:
+                                                                                          ${t('job-offer-detail.monthly-salary')}
                                                                                       </span>
 
                                                                                       ${localizedMonthlySalary}
@@ -1237,7 +1237,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                       class="meta-item">
                                                                                       <span
                                                                                           class="meta-item-label">
-                                                                                          ${t('job-offer-detail.contact-information')}:
+                                                                                          ${t('job-offer-detail.contact-information')}
                                                                                       </span>
 
                                                                                       ${localizedContactInformation}
@@ -1252,7 +1252,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                       class="meta-item">
                                                                                       <span
                                                                                           class="meta-item-label">
-                                                                                          ${t('job-offer-detail.link')}:
+                                                                                          ${t('job-offer-detail.link')}
                                                                                       </span>
                                                                                       ${this._getLocalizedLink(job)}
                                                                                   </div>
@@ -1266,7 +1266,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                       class="meta-item">
                                                                                       <span
                                                                                           class="meta-item-label">
-                                                                                          ${t('job-offer-detail.job-category')}:
+                                                                                          ${t('job-offer-detail.job-category')}
                                                                                       </span>
                                                                                       ${this._getJobCategory(job)}
                                                                                   </div>
@@ -1315,7 +1315,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                   class="meta-item additional-item">
                                                                                   <span
                                                                                       class="meta-item-label">
-                                                                                      ${t('job-offer-detail.requirements')}:
+                                                                                      ${t('job-offer-detail.requirements')}
                                                                                   </span>
                                                                                   ${this._getLocalizedRequirements(job)}
                                                                               </div>
@@ -1332,7 +1332,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                   class="meta-item additional-item">
                                                                                   <span
                                                                                       class="meta-item-label">
-                                                                                      ${t('job-offer-detail.qualifications')}:
+                                                                                      ${t('job-offer-detail.qualifications')}
                                                                                   </span>
                                                                                   ${this._getLocalizedQualification(job)}
                                                                               </div>
@@ -1349,7 +1349,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                   class="meta-item additional-item">
                                                                                   <span
                                                                                       class="meta-item-label">
-                                                                                      ${t('job-offer-detail.responsibilities')}:
+                                                                                      ${t('job-offer-detail.responsibilities')}
                                                                                   </span>
                                                                                   ${this._getLocalizedResponsibilities(job)}
                                                                               </div>
@@ -1366,7 +1366,7 @@ export class JobOfferDetail extends ScopedElementsMixin(DBPBulletinLitElement) {
                                                                                   class="meta-item additional-item">
                                                                                   <span
                                                                                       class="meta-item-label">
-                                                                                      ${t('job-offer-detail.we-offer')}:
+                                                                                      ${t('job-offer-detail.we-offer')}
                                                                                   </span>
                                                                                   ${this._getWeOffer(job)}
                                                                               </div>
